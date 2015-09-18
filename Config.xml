@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+  <car name="Black Car" loc="Street 18"/>
+  <car name="Green Car" loc="Crossing 6"/>
+  <car name="Orange Car" loc="Crossing 7"/>
+  <car name="Red Car" loc="Street 24"/>
+  <car name="Silver SUV" loc="Street 23"/>
+  <car name="White Car" loc="Street 28"/>
+</config>
