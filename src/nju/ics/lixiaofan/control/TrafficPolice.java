@@ -10,9 +10,7 @@ import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 public class TrafficPolice implements Runnable{
-//	public Sensor[] entrances = {null, null}, exits = {null, null};
 	public static Queue<Request> req = new LinkedList<Request>();
-//	public Object wakemeup = new Object();
 	private static Notifier notifier = new Notifier();
 	public TrafficPolice() {
 		new Thread(notifier).start();
@@ -34,14 +32,6 @@ public class TrafficPolice implements Runnable{
 			System.out.println("Traffic Police awake!!!");
 			Request r = req.poll();
 			Section reqSec = null;
-//			if(r.location == location){
-//				if(exits[1] == null)
-//					reqSec = exits[0].street;
-//				else
-//					reqSec = (exits[0].dir == r.car.dir) ? exits[0].street : exits[1].street;
-//			}
-//			else
-//				reqSec = location;
 			reqSec = r.loc.adjs.get((int)(r.car.dir));
 //			System.out.println(r.loc.name+" "+r.car.dir);
 			if(reqSec == null)
@@ -176,7 +166,7 @@ public class TrafficPolice implements Runnable{
 		notifier.sendNotice(loc);
 	}
 	
-	static class Request{
+	private static class Request{
 		Car car;
 		Section loc;
 		int cmd;

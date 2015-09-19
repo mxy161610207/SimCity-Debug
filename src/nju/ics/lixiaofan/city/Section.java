@@ -26,7 +26,7 @@ public class Section {
 //	private Object mutex4comb = new Object();
 	public Queue<Car> waitingCars = new LinkedList<Car>();
 	public List<Sensor> sensors = new ArrayList<Sensor>();
-	public SectionIcon btn = null;
+	public SectionIcon icon = null;
 	
 	public void setAdmittedCar(Car car){
 		admittedCar = car;

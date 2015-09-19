@@ -1,6 +1,7 @@
 package nju.ics.lixiaofan.city;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,6 +12,8 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import nju.ics.lixiaofan.city.Citizen.Gender;
+import nju.ics.lixiaofan.city.Citizen.Job;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.sensor.BrickHandler;
@@ -41,11 +44,14 @@ public class TrafficMap extends JPanel{
 
 	public TrafficMap() {
 		setLayout(null);
-		initializeSections();
-//		initializeShops();
-		initializeSensors();
+		initSections();
+		initSensors();
+		initCitizens();
+		
+		for(Citizen c : citizens)
+			add(c.icon);
 		for(Section s : sections)
-			add(s.btn);
+			add(s.icon);
 	}
 	
 	protected void paintChildren(Graphics g) {
@@ -79,138 +85,133 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-//	protected void paintComponent(Graphics g) {
-//		super.paintComponent(g);
-////		//draw 9 crossings
-////		for(int i = 0;i < 9;i++){
-////			crossings[i].btn.repaint();
-////		}
-////		
-////		//draw 32 streets
-////		for(int i = 0;i < 32;i++){
-////			streets[i].btn.repaint();
-////		}
-//	}
-
-	public static void initializeSections() {
+	public static void initCitizens(){
+		citizens.add(new Citizen("Tony Stark", Gender.Male, Job.IronMan));
+		
+		for(Citizen c : citizens){
+			new Thread(c).start();
+		}
+	}
+	
+	public static void initSections() {
 		int sectIdx = 0;
 		for(int i = 0;i < 9;i++){
 			crossings[i] = new Crossing();
 			sections[sectIdx++] = crossings[i];
 			crossings[i].id = i;
 			crossings[i].name = "Crossing "+i;
-			crossings[i].btn = new CrossingButton();
-			crossings[i].btn.id = i;
-			crossings[i].btn.section = crossings[i];
-			crossings[i].btn.coord.x = (i%3+1)*u;
-			crossings[i].btn.coord.y = (i/3+1)*u;
-			crossings[i].btn.coord.w = cw;
-			crossings[i].btn.coord.h = cl;
-			crossings[i].btn.setBounds(crossings[i].btn.coord.x, crossings[i].btn.coord.y,
-					crossings[i].btn.coord.w, crossings[i].btn.coord.h);
+			crossings[i].icon = new CrossingButton();
+			crossings[i].icon.id = i;
+			crossings[i].icon.section = crossings[i];
+			crossings[i].icon.coord.x = (i%3+1)*u;
+			crossings[i].icon.coord.y = (i/3+1)*u;
+			crossings[i].icon.coord.w = cw;
+			crossings[i].icon.coord.h = cl;
+			crossings[i].icon.setBounds(crossings[i].icon.coord.x, crossings[i].icon.coord.y,
+					crossings[i].icon.coord.w, crossings[i].icon.coord.h);
 		}
 		for(int i = 0;i < 32;i++){
 			streets[i] = new Street();
 			sections[sectIdx++] = streets[i];
 			streets[i].id = i;
 			streets[i].name = "Street "+i;
-			streets[i].btn = new StreetButton();
-			streets[i].btn.id = i;
-			streets[i].btn.section = streets[i];
+			streets[i].icon = new StreetButton();
+			streets[i].icon.id = i;
+			streets[i].icon.section = streets[i];
 			int quotient = i / 8;
 			int remainder = i % 8;
 			//vertical streets
 			if(remainder > 1 && remainder < 6){
-				((StreetButton )streets[i].btn).isVertical = true;
-				streets[i].btn.coord.w = sw;
-				streets[i].btn.coord.arcw = aw;
-				streets[i].btn.coord.arch = ah;
+				((StreetButton )streets[i].icon).isVertical = true;
+				streets[i].icon.coord.w = sw;
+				streets[i].icon.coord.arcw = aw;
+				streets[i].icon.coord.arch = ah;
 				int offset = (quotient % 2 == 0) ? u + u2 : u2;
 				if(quotient == 0){
-					streets[i].btn.coord.x = (remainder-1)*u+u2;
-					streets[i].btn.coord.y = u2;
+					streets[i].icon.coord.x = (remainder-1)*u+u2;
+					streets[i].icon.coord.y = u2;
 					if(remainder != 5)
-						streets[i].btn.coord.h = u3;
+						streets[i].icon.coord.h = u3;
 					else
-						streets[i].btn.coord.h = u4;
+						streets[i].icon.coord.h = u4;
 				}
 				else if(quotient == 3){
-					streets[i].btn.coord.x = (remainder-2)*u+offset;
+					streets[i].icon.coord.x = (remainder-2)*u+offset;
 					if(remainder != 2){
-						streets[i].btn.coord.y = quotient*u+cw;
-						streets[i].btn.coord.h = u3;
+						streets[i].icon.coord.y = quotient*u+cw;
+						streets[i].icon.coord.h = u3;
 					}
 					else{
-						streets[i].btn.coord.y = quotient*u+u2;
-						streets[i].btn.coord.h = u4;
+						streets[i].icon.coord.y = quotient*u+u2;
+						streets[i].icon.coord.h = u4;
 					}
 				}
 				else if(i == 10 || i ==21){
-					streets[i].btn.coord.x = (remainder-2)*u+offset;
-					streets[i].btn.coord.y = quotient*u+u2;
-					streets[i].btn.coord.h = u4;
+					streets[i].icon.coord.x = (remainder-2)*u+offset;
+					streets[i].icon.coord.y = quotient*u+u2;
+					streets[i].icon.coord.h = u4;
 				}
 				else{
-					streets[i].btn.coord.x = (remainder-2)*u+offset;
-					streets[i].btn.coord.y = quotient*u+cw;
-					streets[i].btn.coord.h = sl;
+					streets[i].icon.coord.x = (remainder-2)*u+offset;
+					streets[i].icon.coord.y = quotient*u+cw;
+					streets[i].icon.coord.h = sl;
 				}
 			}
 			//horizontal streets
 			else{
-				((StreetButton )streets[i].btn).isVertical = false;
-				streets[i].btn.coord.h = sw;
-				streets[i].btn.coord.arcw = ah;
-				streets[i].btn.coord.arch = aw;
+				((StreetButton )streets[i].icon).isVertical = false;
+				streets[i].icon.coord.h = sw;
+				streets[i].icon.coord.arcw = ah;
+				streets[i].icon.coord.arch = aw;
 				switch(remainder){
 				case 6:
-					streets[i].btn.coord.x = u2;
-					streets[i].btn.coord.y = (quotient+1)*u+u2;
+					streets[i].icon.coord.x = u2;
+					streets[i].icon.coord.y = (quotient+1)*u+u2;
 					if(quotient != 3)
-						streets[i].btn.coord.w = u-u2;
+						streets[i].icon.coord.w = u-u2;
 					else
-						streets[i].btn.coord.w = u4;
+						streets[i].icon.coord.w = u4;
 					break;
 				case 7:
 					if(i != 31){
-						streets[i].btn.coord.x = u+cw;
-						streets[i].btn.coord.y = (quotient+1)*u+u2;
-						streets[i].btn.coord.w = sl;
+						streets[i].icon.coord.x = u+cw;
+						streets[i].icon.coord.y = (quotient+1)*u+u2;
+						streets[i].icon.coord.w = sl;
 					}
 					else{
-						streets[i].btn.coord.x = 2*u+u2;
-						streets[i].btn.coord.y = 4*u+u2;
-						streets[i].btn.coord.w = u4;
+						streets[i].icon.coord.x = 2*u+u2;
+						streets[i].icon.coord.y = 4*u+u2;
+						streets[i].icon.coord.w = u4;
 					}
 					break;
 				case 0:
 					if(i != 0){
-						streets[i].btn.coord.x = 2*u+cw;
-						streets[i].btn.coord.y = quotient*u+u2;
-						streets[i].btn.coord.w = sl;
+						streets[i].icon.coord.x = 2*u+cw;
+						streets[i].icon.coord.y = quotient*u+u2;
+						streets[i].icon.coord.w = sl;
 					}
 					else{
-						streets[i].btn.coord.x = u+u2;
-						streets[i].btn.coord.y = u2;
-						streets[i].btn.coord.w = u4;
+						streets[i].icon.coord.x = u+u2;
+						streets[i].icon.coord.y = u2;
+						streets[i].icon.coord.w = u4;
 					}
 					break;
 				case 1:
-					streets[i].btn.coord.y = quotient*u+u2;
+					streets[i].icon.coord.y = quotient*u+u2;
 					if(quotient != 0){
-						streets[i].btn.coord.x = 3*u+cw;
-						streets[i].btn.coord.w = u3;
+						streets[i].icon.coord.x = 3*u+cw;
+						streets[i].icon.coord.w = u3;
 					}
 					else{
-						streets[i].btn.coord.x = 3*u+u2;
-						streets[i].btn.coord.w = u4;
+						streets[i].icon.coord.x = 3*u+u2;
+						streets[i].icon.coord.w = u4;
 					}
 					break;
 				}
 			}
 			
-			streets[i].btn.setBounds(streets[i].btn.coord.x, streets[i].btn.coord.y, 
-					streets[i].btn.coord.w,	streets[i].btn.coord.h);
+			streets[i].icon.setBounds(streets[i].icon.coord.x, streets[i].icon.coord.y, 
+					streets[i].icon.coord.w,	streets[i].icon.coord.h);
 		}
 		
 		setCombined();
@@ -273,19 +274,7 @@ public class TrafficMap extends JPanel{
 //				streets[24].region = streets[29].region = streets[31].region = 1;
 	}
 	
-//	private static void initializeShops(){
-//		Shop shop = new Shop();
-//		shops.add(shop);
-//		shop.id = 0;
-//		shop.door = crossings[0];
-//		shop.name = "Pizza Hut";
-//		shop.coord.x = streets[7].coord.x;
-//		shop.coord.y = streets[11].coord.x;
-//		shop.coord.w = streets[7].coord.w;
-//		shop.coord.h = streets[11].coord.h;
-//	}
-	
-	public static void initializeSensors(){
+	public static void initSensors(){
 		for(int i = 0;i < 10;i++){
 			ArrayList<Sensor> loc = new ArrayList<Sensor>();
 			sensors.add(loc);
@@ -395,25 +384,25 @@ public class TrafficMap extends JPanel{
 		crossings[c].sensors.add(sensor);
 		streets[s].sensors.add(sensor);
 		
-		if(sensor.crossing.btn.coord.x-sensor.street.btn.coord.x == sensor.street.btn.coord.w){
+		if(sensor.crossing.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
 			sensor.showPos = 0;
-			sensor.px = sensor.crossing.btn.coord.x;
-			sensor.py = sensor.crossing.btn.coord.y + sensor.crossing.btn.coord.h/2;
+			sensor.px = sensor.crossing.icon.coord.x;
+			sensor.py = sensor.crossing.icon.coord.y + sensor.crossing.icon.coord.h/2;
 		}
-		else if(sensor.crossing.btn.coord.y-sensor.street.btn.coord.y == sensor.street.btn.coord.h){
+		else if(sensor.crossing.icon.coord.y-sensor.street.icon.coord.y == sensor.street.icon.coord.h){
 			sensor.showPos = 1;
-			sensor.px = sensor.crossing.btn.coord.x + sensor.crossing.btn.coord.w/2;
-			sensor.py = sensor.crossing.btn.coord.y;
+			sensor.px = sensor.crossing.icon.coord.x + sensor.crossing.icon.coord.w/2;
+			sensor.py = sensor.crossing.icon.coord.y;
 		}
-		else if(sensor.street.btn.coord.x-sensor.crossing.btn.coord.x == sensor.crossing.btn.coord.w){
+		else if(sensor.street.icon.coord.x-sensor.crossing.icon.coord.x == sensor.crossing.icon.coord.w){
 			sensor.showPos = 2;
-			sensor.px = sensor.street.btn.coord.x;
-			sensor.py = sensor.crossing.btn.coord.y + sensor.crossing.btn.coord.h/2;
+			sensor.px = sensor.street.icon.coord.x;
+			sensor.py = sensor.crossing.icon.coord.y + sensor.crossing.icon.coord.h/2;
 		}
-		else if(sensor.street.btn.coord.y-sensor.crossing.btn.coord.y == sensor.crossing.btn.coord.h){
+		else if(sensor.street.icon.coord.y-sensor.crossing.icon.coord.y == sensor.crossing.icon.coord.h){
 			sensor.showPos = 3;
-			sensor.px = sensor.crossing.btn.coord.x + sensor.crossing.btn.coord.w/2;
-			sensor.py = sensor.street.btn.coord.y;
+			sensor.px = sensor.crossing.icon.coord.x + sensor.crossing.icon.coord.w/2;
+			sensor.py = sensor.street.icon.coord.y;
 		}
 		
 		if(TrafficMap.dir)

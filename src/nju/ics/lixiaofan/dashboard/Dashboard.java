@@ -29,10 +29,10 @@ import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
 import nju.ics.lixiaofan.car.RCServer;
+import nju.ics.lixiaofan.car.Remediation;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
-import nju.ics.lixiaofan.control.Remediation;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -82,7 +82,7 @@ public class Dashboard extends JFrame{
 					if(s.cars.isEmpty())
 						continue;
 					if (s.cars.size() > 1 || s.cars.peek().isLoading)
-						s.btn.repaint();
+						s.icon.repaint();
 				}
 				try {
 					Thread.sleep(500);
@@ -116,7 +116,7 @@ public class Dashboard extends JFrame{
 		p1.add(maplenLabel);
 		
 		for(Section s : TrafficMap.sections)
-			s.btn.addMouseListener(new SectionIconListener(s));
+			s.icon.addMouseListener(new SectionIconListener(s));
 		
 		gbc.gridx = 0;
 		gbc.weightx = gbc.weighty = 1;
@@ -612,11 +612,11 @@ public class Dashboard extends JFrame{
 		section.isOccupied = true;
 		section.cars.add(car);
 		car.loc = section;
-		section.btn.repaint();
+		section.icon.repaint();
 		if(section.isCombined){
 			for(Section s : section.combined){
 				s.isOccupied = true;
-				s.btn.repaint();
+				s.icon.repaint();
 //				s.cars.add(car);
 			}
 		}
@@ -632,12 +632,12 @@ public class Dashboard extends JFrame{
 		section.isOccupied = !section.cars.isEmpty();
 		if(car.loc == section)
 			car.loc = null;
-		section.btn.repaint();
+		section.icon.repaint();
 		if(section.isCombined){
 			for(Section s : section.combined){
 //				s.cars.remove(car);
 				s.isOccupied = !s.cars.isEmpty();
-				s.btn.repaint();
+				s.icon.repaint();
 			}
 		}
 		//trigger leaving event

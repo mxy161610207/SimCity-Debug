@@ -2,7 +2,6 @@ package nju.ics.lixiaofan.car;
 
 import java.util.Iterator;
 
-import nju.ics.lixiaofan.control.Remediation;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 
 public class Command {

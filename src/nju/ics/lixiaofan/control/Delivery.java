@@ -21,11 +21,11 @@ public class Delivery {
 	public static boolean isAllBusy = false;
 	
 	public Delivery() {
-		carSearcher.start();
-		carMonitor.start();
+		new Thread(carSearcher).start();
+		new Thread(carMonitor).start();
 	}
 	
-	private Thread carSearcher = new Thread(){
+	private Runnable carSearcher = new Runnable(){
 		public void run() {
 			while(true){
 				while(searchTasks.isEmpty() || isAllBusy)
@@ -131,7 +131,7 @@ public class Delivery {
 //		}
 	};
 	
-	private Thread carMonitor = new Thread(){
+	private Runnable carMonitor = new Runnable(){
 		public void run() {
 			while(true){
 				while(deliveryTasks.isEmpty())

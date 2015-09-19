@@ -1,4 +1,5 @@
 import nju.ics.lixiaofan.car.RCServer;
+import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.TrafficPolice;
 import nju.ics.lixiaofan.dashboard.Dashboard;
@@ -16,6 +17,7 @@ public class Main {
 		new RCServer();
 		new Delivery();
 		new TrafficPolice();
+		new CitizenControl();
 		new BrickServer();
 		new AppServer();
 	}
