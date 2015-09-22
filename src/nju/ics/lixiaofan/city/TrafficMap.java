@@ -1,7 +1,6 @@
 package nju.ics.lixiaofan.city;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,8 +17,8 @@ import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.sensor.BrickHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
-import nju.ics.lixiaofan.city.SectionIcon.StreetButton;
-import nju.ics.lixiaofan.city.SectionIcon.CrossingButton;
+import nju.ics.lixiaofan.city.SectionIcon.StreetIcon;
+import nju.ics.lixiaofan.city.SectionIcon.CrossingIcon;
 
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
@@ -100,13 +99,15 @@ public class TrafficMap extends JPanel{
 			sections[sectIdx++] = crossings[i];
 			crossings[i].id = i;
 			crossings[i].name = "Crossing "+i;
-			crossings[i].icon = new CrossingButton();
+			crossings[i].icon = new CrossingIcon();
 			crossings[i].icon.id = i;
 			crossings[i].icon.section = crossings[i];
 			crossings[i].icon.coord.x = (i%3+1)*u;
 			crossings[i].icon.coord.y = (i/3+1)*u;
 			crossings[i].icon.coord.w = cw;
 			crossings[i].icon.coord.h = cl;
+			crossings[i].icon.coord.centerX = crossings[i].icon.coord.x + crossings[i].icon.coord.w/2;
+			crossings[i].icon.coord.centerY = crossings[i].icon.coord.y + crossings[i].icon.coord.h/2;
 			crossings[i].icon.setBounds(crossings[i].icon.coord.x, crossings[i].icon.coord.y,
 					crossings[i].icon.coord.w, crossings[i].icon.coord.h);
 		}
@@ -115,14 +116,14 @@ public class TrafficMap extends JPanel{
 			sections[sectIdx++] = streets[i];
 			streets[i].id = i;
 			streets[i].name = "Street "+i;
-			streets[i].icon = new StreetButton();
+			streets[i].icon = new StreetIcon();
 			streets[i].icon.id = i;
 			streets[i].icon.section = streets[i];
 			int quotient = i / 8;
 			int remainder = i % 8;
 			//vertical streets
 			if(remainder > 1 && remainder < 6){
-				((StreetButton )streets[i].icon).isVertical = true;
+				((StreetIcon )streets[i].icon).isVertical = true;
 				streets[i].icon.coord.w = sw;
 				streets[i].icon.coord.arcw = aw;
 				streets[i].icon.coord.arch = ah;
@@ -159,7 +160,7 @@ public class TrafficMap extends JPanel{
 			}
 			//horizontal streets
 			else{
-				((StreetButton )streets[i].icon).isVertical = false;
+				((StreetIcon )streets[i].icon).isVertical = false;
 				streets[i].icon.coord.h = sw;
 				streets[i].icon.coord.arcw = ah;
 				streets[i].icon.coord.arch = aw;
@@ -210,8 +211,10 @@ public class TrafficMap extends JPanel{
 				}
 			}
 			
+			streets[i].icon.coord.centerX = streets[i].icon.coord.x + streets[i].icon.coord.w/2;
+			streets[i].icon.coord.centerY = streets[i].icon.coord.y + streets[i].icon.coord.h/2;
 			streets[i].icon.setBounds(streets[i].icon.coord.x, streets[i].icon.coord.y, 
-					streets[i].icon.coord.w,	streets[i].icon.coord.h);
+					streets[i].icon.coord.w, streets[i].icon.coord.h);
 		}
 		
 		setCombined();
@@ -258,20 +261,6 @@ public class TrafficMap extends JPanel{
 		setAdj(streets[28], 7, 8);
 		setAdj(streets[29], 7, 8);
 		setAdj(streets[31], 7, 8);
-		
-//		crossings[0].region = streets[0].region = streets[2].region = streets[7].region = 
-//				streets[6].region = streets[10].region = streets[11].region = 1000;
-//		crossings[1].region = streets[3].region = streets[12].region = 1100;
-//		crossings[2].region = streets[1].region = streets[4].region = streets[5].region = 
-//				streets[9].region = streets[8].region = streets[13].region = 100;
-//		crossings[3].region = streets[14].region = streets[15].region = 1010;
-//		crossings[4].region = 1111;
-//		crossings[5].region = streets[16].region = streets[17].region = 101;
-//		crossings[6].region = streets[22].region = streets[26].region = streets[27].region = 
-//				streets[30].region = streets[18].region = streets[23].region = 10;
-//		crossings[7].region = streets[19].region = streets[28].region = 11;
-//		crossings[8].region = streets[20].region = streets[21].region = streets[25].region = 
-//				streets[24].region = streets[29].region = streets[31].region = 1;
 	}
 	
 	public static void initSensors(){

@@ -13,8 +13,8 @@ import javax.swing.JButton;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Car.CarIcon;
-import nju.ics.lixiaofan.city.SectionIcon.CrossingButton;
-import nju.ics.lixiaofan.city.SectionIcon.StreetButton;
+import nju.ics.lixiaofan.control.CitizenControl;
+import nju.ics.lixiaofan.dashboard.Dashboard;
 
 public class Citizen implements Runnable{
 	public String name;
@@ -34,7 +34,7 @@ public class Citizen implements Runnable{
 	}
 	
 	public static enum Activity{
-		Wander, GoToWork, Working, GotoSchool, InClass, Driving, Cooking, RescueTheWorld
+		Wander, GoToWork, Working, GotoSchool, InClass, Driving, Cooking, RescueTheWorld, HailATaxi, TakeATaxi
 	}
 	
 	public Citizen(String name, Gender gender, Job job) {
@@ -56,11 +56,46 @@ public class Citizen implements Runnable{
 			if(act == null)
 				continue;
 			switch (act) {
-			case Wander:
+			case Wander:{
+				int xmax = icon.getParent().getWidth()-icon.getWidth();
+				int ymax = icon.getParent().getHeight()-icon.getHeight();
 				if(!icon.isVisible()){
+					int x = (int) (Math.random() * xmax);
+					int y = (int) (Math.random() * ymax);
+					icon.setLocation(x, y);
 					icon.setVisible(true);
-					icon.setLocation(100, 100);
 				}
+				int count = 0, x, y;
+				while(count < 3){
+					count++;
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					x = (int) (icon.getX() + 50 * Math.random() - 25);
+					if(x < 0)
+						x = 0;
+					else if(x > xmax)
+						x = xmax;
+					y = (int) (icon.getY() + 50 * Math.random() - 25);
+					if(y < 0)
+						y = 0;
+					else if(y > ymax)
+						y = ymax;
+					icon.setLocation(x, y);
+				}
+				CitizenControl.sendActReq(this, null, true);
+				break;
+			}
+			case HailATaxi:
+				if(dest == null)
+					break;
+				Section src = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
+				System.out.println(src.name);
+				
+				break;
+			case TakeATaxi:
 				break;
 			default:
 				break;
@@ -96,7 +131,7 @@ public class Citizen implements Runnable{
 			else
 				return;
 				
-			g.drawOval(0, 0, SIZE, SIZE);
+			g.drawOval(1, 1, SIZE-1, SIZE-1);
 		}
 		
 		protected void paintComponent(Graphics g) {
@@ -104,7 +139,7 @@ public class Citizen implements Runnable{
 			g.setColor(color);
 			g.fillOval(0, 0, SIZE, SIZE);
 			g.setColor(Color.BLACK);
-			g.drawOval(0, 0, SIZE, SIZE);
+			g.drawOval(1, 1, SIZE-2, SIZE-2);
 			
 			if(showName){
 				g.setColor(Color.BLACK);

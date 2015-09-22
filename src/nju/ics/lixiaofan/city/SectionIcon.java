@@ -27,12 +27,9 @@ public class SectionIcon extends JButton{
 	
 	public Coord coord = new Coord();
 	public static class Coord{
-		public int x;
-		public int y;
-		public int w;
-		public int h;
-		public int arcw;
-		public int arch;
+		public int x, y, w, h;
+		public int arcw ,arch;
+		public int centerX, centerY;
 	}
 	
 	protected void paintBorder(Graphics g) {
@@ -45,10 +42,10 @@ public class SectionIcon extends JButton{
 		else
 			return;
 			
-		if(this instanceof CrossingButton)
-			g.drawOval(0, 0, coord.w, coord.h);
-		else if(this instanceof StreetButton)
-			g.drawRoundRect(0, 0, coord.w, coord.h, coord.arcw, coord.arch);
+		if(this instanceof CrossingIcon)
+			g.drawOval(1, 1, coord.w-2, coord.h-2);
+		else if(this instanceof StreetIcon)
+			g.drawRoundRect(1, 1, coord.w-2, coord.h-2, coord.arcw, coord.arch);
 	}
 	
 //	public boolean contains(int x, int y) {
@@ -68,13 +65,13 @@ public class SectionIcon extends JButton{
 			g.setColor(Color.RED); break;
 		}
 		
-		if(this instanceof CrossingButton)
+		if(this instanceof CrossingIcon)
 			g.fillOval(0, 0, coord.w, coord.h);
-		else if(this instanceof StreetButton)
+		else if(this instanceof StreetIcon)
 			g.fillRoundRect(0, 0, coord.w, coord.h, coord.arcw, coord.arch);
 		
 		if(n > 0){
-			boolean vertical = this instanceof StreetButton ? ((StreetButton )this).isVertical : false;
+			boolean vertical = this instanceof StreetIcon ? ((StreetIcon )this).isVertical : false;
 			int x = vertical ? (coord.w - cubeSize) / 2 : (coord.w-n*cubeSize-(n-1)*cubeInset) / 2;
 			int y = vertical ? (coord.h-n*cubeSize-(n-1)*cubeInset) / 2 : (coord.h - cubeSize) / 2;
 			
@@ -119,11 +116,11 @@ public class SectionIcon extends JButton{
 		}
 	}
 	
-	public static class CrossingButton extends SectionIcon{
+	public static class CrossingIcon extends SectionIcon{
 		private static final long serialVersionUID = 1L;
 	}
 	
-	public static class StreetButton extends SectionIcon{
+	public static class StreetIcon extends SectionIcon{
 		private static final long serialVersionUID = 1L;
 		public boolean isVertical;
 	}

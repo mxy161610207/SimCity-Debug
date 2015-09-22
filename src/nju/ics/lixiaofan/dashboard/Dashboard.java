@@ -457,10 +457,27 @@ public class Dashboard extends JFrame{
 		new Thread(blinkThread).start();
 		
 		setTitle("Dashboard");
-		setSize(1200,700);
+		setSize(1200,638);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+	}
+	
+	public static Section getNearestSection(int x, int y){
+		if(x < 0 || x >= mapPanel.getWidth() || y < 0 || y >= mapPanel.getHeight())
+			return null;
+		int min = Integer.MAX_VALUE, tmp;
+		Section section = null;
+//		System.out.println(x+", "+y);
+		for(Section s : TrafficMap.sections){
+//			System.out.println(s.name+"\t"+s.icon.coord.centerX+", "+s.icon.coord.centerY);
+			tmp = (int) (Math.pow(x-s.icon.coord.centerX, 2) + Math.pow(y-s.icon.coord.centerY, 2));
+			if(tmp < min){
+				section = s;
+				min = tmp;
+			}
+		}
+		return section;
 	}
 	
 	public static void updateRoadCondition(Section s){
@@ -502,12 +519,6 @@ public class Dashboard extends JFrame{
 		else
 			dstta.setText("");
 	}
-	
-//	public void updateCmdQ(){
-//		synchronized (CmdSender.queue) {
-//			cmdta.setText("Nums: "+CmdSender.queue.size());
-//		}
-//	}
 	
 	public static synchronized void updateBrickConn(){
 		connPanel.updateBrickConn();
@@ -592,17 +603,6 @@ public class Dashboard extends JFrame{
 			return null;
 		return Car.carOf((String) carbox.getSelectedItem());
 	}
-	
-//	public static void setPushed(byte car, byte dir){
-//		for(int i = 0;i < carbox.getItemCount();i++){
-//			String name = carbox.getItemAt(i);
-//			if(Car.carOf(name).uid == car){
-//				carbox.setSelectedIndex(i);
-//				dirButtons[dir].doClick();
-//				break;
-//			}
-//		}
-//	}
 	
 	public static void carEnter(Car car, Section section){
 		if(car == null || section == null)

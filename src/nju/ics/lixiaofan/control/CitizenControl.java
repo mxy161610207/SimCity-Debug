@@ -31,14 +31,31 @@ public class CitizenControl implements Runnable{
 			
 			synchronized (ar.citizen) {
 				ar.citizen.act = ar.act;
-				ar.citizen.notify();
+				if(ar.act != null)
+					switch (ar.act) {
+					case HailATaxi:
+						ar.citizen.dest = TrafficMap.sections[(int) (Math.random()*TrafficMap.sections.length)];
+						break;
+					default:
+						break;
+					}
+				
+				if(!ar.fromSelf)
+					ar.citizen.notify();
 			}
 		}
 	}
 	
-	public static void sendActReq(ActReq ar){
+	private static void sendActReq(ActReq ar){
 		synchronized (queue) {
 			queue.add(ar);
+			queue.notify();
+		}
+	};
+	
+	public static void sendActReq(Citizen citizen, Activity act, boolean fromSelf){
+		synchronized (queue) {
+			queue.add(new ActReq(citizen, act, fromSelf));
 			queue.notify();
 		}
 	};
@@ -51,6 +68,8 @@ public class CitizenControl implements Runnable{
 						double d = Math.random();
 						if(d < 0.5)
 							sendActReq(new ActReq(citizen, Activity.Wander));
+						else if(citizen.icon.isVisible())
+							sendActReq(new ActReq(citizen, Activity.HailATaxi));
 					}
 				try {
 					Thread.sleep(1000);
@@ -64,10 +83,18 @@ public class CitizenControl implements Runnable{
 	private static class ActReq{
 		Citizen citizen;
 		Activity act;
+		boolean fromSelf;
 		
 		public ActReq(Citizen citizen, Activity act) {
 			this.citizen = citizen;
 			this.act = act;
+			this.fromSelf = false;
+		}
+		
+		public ActReq(Citizen citizen, Activity act, boolean fromSelf) {
+			this.citizen = citizen;
+			this.act = act;
+			this.fromSelf = fromSelf;
 		}
 	}
 }

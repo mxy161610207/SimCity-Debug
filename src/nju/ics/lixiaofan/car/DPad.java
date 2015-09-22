@@ -62,33 +62,40 @@ public class DPad extends JPanel{
 		jbl.setEnabled(false);
 		jbr.setEnabled(false);
 		jbb.setEnabled(false);
+		startB.setEnabled(false);
 		jbs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Dashboard.getSelectedCar().finalState = 0;
-				Command.send(Dashboard.getSelectedCar(), 0);
-				Dashboard.getSelectedCar().sendRequest(0);
+				if(Dashboard.getSelectedCar() != null){
+					Dashboard.getSelectedCar().finalState = 0;
+					Command.send(Dashboard.getSelectedCar(), 0);
+					Dashboard.getSelectedCar().sendRequest(0);
+				}
 			}
 		});
 		jbf.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-//				Command.send(Server.dashboard.getSelectedCar(), 1);
-				Dashboard.getSelectedCar().finalState = 1;
-				Dashboard.getSelectedCar().sendRequest(1);
+				if(Dashboard.getSelectedCar() != null){
+					Dashboard.getSelectedCar().finalState = 1;
+					Dashboard.getSelectedCar().sendRequest(1);
+				}
 			}
 		});
 		jbb.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Command.send(Dashboard.getSelectedCar(), 2);
+				if(Dashboard.getSelectedCar() != null)
+					Command.send(Dashboard.getSelectedCar(), 2);
 			}
 		});
 		jbl.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Command.send(Dashboard.getSelectedCar(), 3);
+				if(Dashboard.getSelectedCar() != null)
+					Command.send(Dashboard.getSelectedCar(), 3);
 			}
 		});
 		jbr.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Command.send(Dashboard.getSelectedCar(), 4);
+				if(Dashboard.getSelectedCar() != null)
+					Command.send(Dashboard.getSelectedCar(), 4);
 			}
 		});
 		startB.addActionListener(new ActionListener() {
