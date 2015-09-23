@@ -28,6 +28,7 @@ public class TrafficMap extends JPanel{
 //	public static List<Shop> shops = new ArrayList<Shop>();
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
+	public static List<Building> buildings = new ArrayList<Building>();
 	public static boolean showSensors = false, showSections = false;
 	public final static boolean dir = true;
 	
@@ -46,9 +47,12 @@ public class TrafficMap extends JPanel{
 		initSections();
 		initSensors();
 		initCitizens();
+		initBuildings();
 		
 		for(Citizen c : citizens)
 			add(c.icon);
+		for(Building b : buildings)
+			add(b.icon);
 		for(Section s : sections)
 			add(s.icon);
 	}
@@ -90,6 +94,14 @@ public class TrafficMap extends JPanel{
 		for(Citizen c : citizens){
 			new Thread(c).start();
 		}
+	}
+	
+	public static void initBuildings(){
+		Building starkIndustries = new Building("Stark Industries", Building.Type.StarkIndustries);
+		buildings.add(starkIndustries);
+		starkIndustries.icon.coord.x = streets[7].icon.coord.x;
+		starkIndustries.icon.coord.y = streets[11].icon.coord.y;
+		starkIndustries.icon.setLocation(starkIndustries.icon.coord.x, starkIndustries.icon.coord.y);
 	}
 	
 	public static void initSections() {

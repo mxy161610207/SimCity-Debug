@@ -223,10 +223,10 @@ public class BrickHandler extends Thread{
 						if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 							EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
 						//trigger start loading event
-						if(car.deliveryPhase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
+						if(car.dt != null && car.dt.phase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
 							EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
 						//trigger start unloading event
-						else if(car.deliveryPhase == 2 && EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
+						else if(car.dt != null && car.dt.phase == 2 && EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
 							EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
 					}
 					else if(car.finalState == 0){

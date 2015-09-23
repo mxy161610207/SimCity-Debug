@@ -3,17 +3,20 @@ package nju.ics.lixiaofan.car;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JButton;
+
+import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.control.TrafficPolice;
 
 public class Car {
-	public int id;
+//	public int id;
 	public int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
-//	public byte uid;
-//	public CarRC rc;//only for zenwheels
 	public boolean isConnected = false;
 	public String name = null;//only for zenwheels
 //	public int frequency;//0: A|grey	1: B|orange	2: C|green	3: blue
@@ -22,7 +25,8 @@ public class Car {
 	public int finalState = 0;//the same as expectation
 	public byte dir = -1;//0: N	1: S	2: W	3: E
 	public Section loc = null;
-	public int deliveryPhase = 0;
+//	public int deliveryPhase = 0;
+	public DeliveryTask dt = null;
 	public Section dest = null;
 	public boolean isLoading = false;//loading or unloading
 	public long lastDetectedTime = 0;//the time when the car was last detected
@@ -31,6 +35,7 @@ public class Car {
 	public long stopTime = 0;
 	public int lastInstr = -1;
 	public CarIcon icon = null;
+	public Set<Citizen> passengers = new HashSet<Citizen>();
 	
 	public static final String ORANGE = "Orange Car";
 	public static final String GREEN = "Green Car";
@@ -43,8 +48,6 @@ public class Car {
 		this.type = type;
 		this.name = name;
 		this.icon = new CarIcon(name);
-//		this.uid = uid;
-//		this.rc = rc;
 	}
 	
 	public void sendRequest(int cmd) {

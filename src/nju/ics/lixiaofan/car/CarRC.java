@@ -6,7 +6,7 @@ import java.net.Socket;
 
 //car remote control
 public class CarRC {
-	public int id;
+//	public int id;
 	public int type; // 0: battletank	1: tankbot	2: carbot 3: zenwheels
 	public int location; // 0: north-west	1: north-east	2: south-west	3: south-east
 	public int key;

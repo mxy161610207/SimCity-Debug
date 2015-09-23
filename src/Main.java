@@ -35,5 +35,7 @@ public class Main {
 		EventManager.register(vcm, Event.Type.CAR_END_LOADING);
 		EventManager.register(vcm, Event.Type.CAR_START_UNLOADING);
 		EventManager.register(vcm, Event.Type.CAR_END_UNLOADING);
+		EventManager.register(CitizenControl.carMonitor, Event.Type.CAR_START_LOADING);
+		EventManager.register(CitizenControl.carMonitor, Event.Type.CAR_START_UNLOADING);
 	}
 }

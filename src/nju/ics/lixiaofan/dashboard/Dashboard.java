@@ -46,7 +46,6 @@ public class Dashboard extends JFrame{
 	private static JPanel p1 = new JPanel();
 	private static ConnectionPanel connPanel = new ConnectionPanel();
 	private static TrafficMap mapPanel = new TrafficMap();
-//	private static P testp = new P();
 	private static JPanel leftPanel = new JPanel();
 	private static JPanel rightPanel = new JPanel();
 	private static JComboBox<String> carbox =  new JComboBox<String>();
@@ -69,7 +68,6 @@ public class Dashboard extends JFrame{
 			new JRadioButton("East") };
 	private static JCheckBox jchkSensor = new JCheckBox("Sensors"), jchkSection = new JCheckBox("Sections"); 
 	private static JTextArea srcta = new JTextArea(), dstta = new JTextArea();
-//	private static Shop srcShop = null, dstShop = null;
 	private static Section srcSect = null, dstSect = null;
 	private static JPanel deliveryPanel = new JPanel();
 	private static boolean isDeliveryStarted = false;
@@ -661,10 +659,10 @@ public class Dashboard extends JFrame{
 				return;
 			// for delivery tasks
 			else if (isDeliveryStarted) {
-				if (srcSect == null) {// && srcShop == null){
+				if (srcSect == null) {
 					srcSect = section;
 					updateDeliverySrc();
-				} else if (dstSect == null) {// && dstShop == null){
+				} else if (dstSect == null) {
 					if (section == srcSect)
 						return;
 					else if (section.isCombined

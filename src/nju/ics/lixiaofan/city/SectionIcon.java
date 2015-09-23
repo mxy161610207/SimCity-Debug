@@ -19,7 +19,6 @@ public class SectionIcon extends JButton{
 	public Section section = null;
 	
 	public SectionIcon() {
-//		super();
 		setOpaque(false);
 		setContentAreaFilled(false);
 //		setBorderPainted(false);

@@ -17,27 +17,6 @@ public class Event implements Cloneable{
 	public int cmd = -1;//only for REQUEST and RESPONSE type
 	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS");
 	
-//	public static final int types = 14;
-//	public static final int ALL = 0;
-//
-//	public static final int CAR_ENTER = 1;
-//	public static final int CAR_LEAVE = 2;
-//	public static final int CAR_CRASH = 3;
-//	public static final int CAR_MOVE = 4;
-//	public static final int CAR_STOP = 5;
-//	public static final int ADD_CAR = 15;
-//	public static final int REMOVE_CAR = 16;
-//
-//	public static final int DELIVERY_RELEASED = 6;
-//	public static final int DELIVERY_COMPLETED = 7;
-//	public static final int CAR_START_LOADING = 8;
-//	public static final int CAR_END_LOADING = 9;
-//	public static final int CAR_START_UNLOADING = 10;
-//	public static final int CAR_END_UNLOADING = 11;
-//	public static final int CAR_SEND_REQUEST = 12;
-//	public static final int CAR_RECV_RESPONSE = 13;
-//	public static final int CAR_REACH_DEST = 14;
-	
 	public static enum Type{
 		ALL,
 		//physical events

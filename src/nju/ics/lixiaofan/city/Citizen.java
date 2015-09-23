@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.control.CitizenControl;
+import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 
 public class Citizen implements Runnable{
@@ -34,7 +35,7 @@ public class Citizen implements Runnable{
 	}
 	
 	public static enum Activity{
-		Wander, GoToWork, Working, GotoSchool, InClass, Driving, Cooking, RescueTheWorld, HailATaxi, TakeATaxi
+		Wander, GoToWork, Working, GotoSchool, InClass, Driving, Cooking, RescueTheWorld, HailATaxi, TakeATaxi, GetOff
 	}
 	
 	public Citizen(String name, Gender gender, Job job) {
@@ -64,6 +65,7 @@ public class Citizen implements Runnable{
 					int y = (int) (Math.random() * ymax);
 					icon.setLocation(x, y);
 					icon.setVisible(true);
+					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
 				}
 				int count = 0, x, y;
 				while(count < 3){
@@ -84,18 +86,25 @@ public class Citizen implements Runnable{
 					else if(y > ymax)
 						y = ymax;
 					icon.setLocation(x, y);
+					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
 				}
 				CitizenControl.sendActReq(this, null, true);
 				break;
 			}
 			case HailATaxi:
-				if(dest == null)
+				if(loc == null || dest == null)
 					break;
-				Section src = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
-				System.out.println(src.name);
-				
+				Delivery.add(loc, dest, this);
 				break;
 			case TakeATaxi:
+				icon.setVisible(false);// get on the taxi
+				break;
+			case GetOff:
+				if(loc != null){
+					icon.setLocation(loc.icon.coord.centerX, loc.icon.coord.centerY);
+					icon.setVisible(true);
+				}
+				CitizenControl.sendActReq(this, null, true);
 				break;
 			default:
 				break;

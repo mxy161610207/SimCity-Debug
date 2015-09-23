@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import nju.ics.lixiaofan.car.Car;
+import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
@@ -48,9 +49,10 @@ public class Delivery {
 						continue;
 					}
 					Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
+					car.dt = dt;
 					dt.car = car;
 					dt.phase = 1;
-					car.deliveryPhase = 1;
+//					car.deliveryPhase = 1;
 					car.dest = dt.srcSect;
 					car.finalState = 1;
 					car.sendRequest(1);
@@ -125,10 +127,6 @@ public class Delivery {
 			}
 			return null;
 		}
-		
-//		private Car searchCar(Shop shop){
-//			return searchCar(shop.door);
-//		}
 	};
 	
 	private Runnable carMonitor = new Runnable(){
@@ -152,7 +150,7 @@ public class Delivery {
 							//head for the src
 							if(dt.phase == 1){
 								dt.phase = 2;
-								car.deliveryPhase = 2;
+//								car.deliveryPhase = 2;
 								car.dest = dt.dstSect;
 								car.finalState = 1;
 								car.isLoading = false;
@@ -166,7 +164,8 @@ public class Delivery {
 							//head for the dst
 							else{
 								dt.phase = 3;
-								car.deliveryPhase = 0;
+//								car.deliveryPhase = 0;
+								car.dt = null;
 								car.dest = null;
 								car.finalState = 1;
 								car.isLoading = false;
@@ -202,8 +201,8 @@ public class Delivery {
 		}
 	};
 	
-	public static void add(Section srcSect, Section dstSect){
-		DeliveryTask dtask = new DeliveryTask(srcSect, dstSect);
+	public static void add(Section srcSect, Section dstSect, Citizen citizen){
+		DeliveryTask dtask = new DeliveryTask(srcSect, dstSect, citizen);
 		synchronized (searchTasks) {
 			searchTasks.add(dtask);
 			searchTasks.notify();
@@ -218,21 +217,23 @@ public class Delivery {
 			}
 	}
 	
+	public static void add(Section srcSect, Section dstSect){
+		add(srcSect, dstSect, null);
+	}
+	
 	public static class DeliveryTask implements Cloneable{
 		public int id;
 		public Section srcSect, dstSect;
-//		public Shop srcShop, dstShop;
 		public Car car;
-		public String goods;
 		public int phase;//0: search car; 1: to src 2: to dest
+		public Citizen citizen;
 		
-		public DeliveryTask(Section srcSect, Section dstSect) {
+		public DeliveryTask(Section srcSect, Section dstSect, Citizen citizen) {
 			id = Delivery.taskid++;
 			this.srcSect = srcSect;
-//			this.srcShop = srcShop;
 			this.dstSect = dstSect;
-//			this.dstShop = dstShop;
 			phase = 0;
+			this.citizen = citizen;
 		}
 		
 		protected DeliveryTask clone() throws CloneNotSupportedException {
