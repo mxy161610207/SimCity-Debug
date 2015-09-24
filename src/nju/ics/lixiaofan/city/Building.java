@@ -1,12 +1,10 @@
 package nju.ics.lixiaofan.city;
 
-import java.awt.Dimension;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.city.SectionIcon.Coord;
 
 public class Building {
@@ -28,25 +26,42 @@ public class Building {
 		private static final long serialVersionUID = 1L;
 		private Building building = null;
 		private ImageIcon imageIcon = null;
-		public static final int SIZE = 3*CarIcon.SIZE;
 		public Coord coord = new Coord();
 		
 		public BuildingIcon(Building building) {
 			setOpaque(false);
 			setContentAreaFilled(false);
 			setBorderPainted(false);
-			setSize(new Dimension(SIZE, SIZE));
 			this.building = building;
-			switch (this.building.type) {
+		}
+		
+		public void setImageIcon(){
+			switch (building.type) {
 			case StarkIndustries:
 				imageIcon = new ImageIcon("res/stark_industries.png");
-				Image image = imageIcon.getImage().getScaledInstance(SIZE, -1, Image.SCALE_DEFAULT);
-				imageIcon = new ImageIcon(image);
-				setIcon(imageIcon);
+				break;
+			case Hospital:
+				imageIcon = new ImageIcon("res/hospital.png");
+				break;
+			case School:
+				imageIcon = new ImageIcon("res/nju.png");
+				break;
+			case PoliceStation:
+				imageIcon = new ImageIcon("res/shield.png");
+				break;
+			case Restaurant:
+				imageIcon = new ImageIcon("res/java.png");
 				break;
 			default:
-				break;
+				return;
 			}
+			Image image = imageIcon.getImage();
+			if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
+				image = image.getScaledInstance(coord.w, -1, Image.SCALE_SMOOTH);
+			else
+				image = image.getScaledInstance(-1, coord.h, Image.SCALE_SMOOTH);
+			imageIcon = new ImageIcon(image);
+			setIcon(imageIcon);
 		}
 		
 //		protected void paintComponent(Graphics g) {

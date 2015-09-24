@@ -106,6 +106,23 @@ public class Citizen implements Runnable{
 				}
 				CitizenControl.sendActReq(this, null, true);
 				break;
+			case RescueTheWorld:{
+				int count = 0;
+				while(count < 5){
+					count++;
+					icon.blink = !icon.blink;
+					icon.repaint();
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				icon.blink = false;
+				icon.repaint();
+				CitizenControl.sendActReq(this, null, true);
+				break;
+			}
 			default:
 				break;
 			}
@@ -118,6 +135,8 @@ public class Citizen implements Runnable{
 		private Citizen citizen = null;
 		private Color color = null;
 		private boolean showName = false;
+		private boolean showAct = false;
+		public boolean blink = false;
 		public static final int SIZE = (int) (0.8*CarIcon.SIZE);
 		public CitizenIcon(Citizen citizen) {
 			setOpaque(false);
@@ -145,12 +164,19 @@ public class Citizen implements Runnable{
 		
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			g.setColor(color);
-			g.fillOval(0, 0, SIZE, SIZE);
-			g.setColor(Color.BLACK);
-			g.drawOval(1, 1, SIZE-2, SIZE-2);
-			
-			if(showName){
+			if(!blink){
+				g.setColor(color);
+				g.fillOval(0, 0, SIZE, SIZE);
+				g.setColor(Color.BLACK);
+				g.drawOval(1, 1, SIZE-2, SIZE-2);
+			}
+			if(showAct){
+				g.setColor(Color.BLACK);
+				String str = citizen.act == null ? "None" : citizen.act.toString();
+				FontMetrics fm = g.getFontMetrics();
+				g.drawString(str, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
+			}
+			else if(showName){
 				g.setColor(Color.BLACK);
 				String str = citizen.name;
 				FontMetrics fm = g.getFontMetrics();
@@ -169,9 +195,11 @@ public class Citizen implements Runnable{
 
 			public void mouseExited(MouseEvent e) {
 				showName = false;
+				showAct = false;
 			}
 
 			public void mousePressed(MouseEvent e) {
+				showAct = !showAct;
 			}
 
 			public void mouseReleased(MouseEvent e) {

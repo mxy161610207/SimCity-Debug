@@ -99,9 +99,41 @@ public class TrafficMap extends JPanel{
 	public static void initBuildings(){
 		Building starkIndustries = new Building("Stark Industries", Building.Type.StarkIndustries);
 		buildings.add(starkIndustries);
-		starkIndustries.icon.coord.x = streets[7].icon.coord.x;
-		starkIndustries.icon.coord.y = streets[11].icon.coord.y;
-		starkIndustries.icon.setLocation(starkIndustries.icon.coord.x, starkIndustries.icon.coord.y);
+		placeBuidling(starkIndustries, 9);
+		
+		Building hospital = new Building("Hospital", Building.Type.Hospital);
+		buildings.add(hospital);
+		placeBuidling(hospital, 6);
+		
+		Building school = new Building("Hospital", Building.Type.School);
+		buildings.add(school);
+		placeBuidling(school, 5);
+		
+		Building policeStation = new Building("Police Station", Building.Type.PoliceStation);
+		buildings.add(policeStation);
+		placeBuidling(policeStation, 10);
+		
+		Building restaurant = new Building("Restaurant", Building.Type.Restaurant);
+		buildings.add(restaurant);
+		placeBuidling(restaurant, 12);
+	}
+	
+	private static void placeBuidling(Building building, int blockId){
+		if(building == null || blockId < 0 || blockId > 15)
+			return;
+		int size = streets[7].icon.coord.w;
+		int x = crossings[0].icon.coord.x - size;
+		int y = crossings[0].icon.coord.y - size;
+		int u = size + crossings[0].icon.coord.w;
+		x += (blockId % 4) * u;
+		y += (blockId / 4) * u;
+		building.icon.coord.x = x;
+		building.icon.coord.y = y;
+		building.icon.coord.w = building.icon.coord.h = size;
+		building.icon.coord.centerX = x + size/2;
+		building.icon.coord.centerY = y + size/2;
+		building.icon.setBounds(x, y, size, size);
+		building.icon.setImageIcon();
 	}
 	
 	public static void initSections() {
@@ -380,6 +412,7 @@ public class TrafficMap extends JPanel{
 		Sensor sensor = sensors.get(cid).get(sid);
 		sensor.bid = cid;
 		sensor.sid = sid;
+		sensor.state = 2;
 		sensor.crossing = crossings[c];
 		sensor.street = streets[s];
 		crossings[c].sensors.add(sensor);

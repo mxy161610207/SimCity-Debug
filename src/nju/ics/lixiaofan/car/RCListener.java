@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
+import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -47,21 +48,21 @@ public class RCListener implements Runnable{
 				while(i < strs.length){
 					String key = strs[i];
 					if(RCServer.cars.containsKey(key) && !RCServer.cars.get(key).isConnected){
-//						CarRC rc = new CarRC(3, name, strs[i+1], socket, in, out);
 						Car car = RCServer.cars.get(key);//new Car(3, key);
 						car.isConnected = true;
-//						rc.key = key;
-//						synchronized (RCServer.cars) {
-//							RCServer.cars.put(key, car);
-//						}
 						Dashboard.addCar(car);
 						synchronized (RCServer.rc) {
-//							RCServer.rcs.put(key, rc);
 							Dashboard.updateRCConn();
 						}
 						//calibrate
 						if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
 							CmdSender.send(car, 3);
+						}
+						synchronized (Delivery.searchTasks) {
+							if(Delivery.allBusy){
+								Delivery.allBusy = false;
+								Delivery.searchTasks.notify();
+							}
 						}
 						//trigger add car event
 						if(EventManager.hasListener(Event.Type.ADD_CAR))
@@ -71,15 +72,5 @@ public class RCListener implements Runnable{
 				}
 			}
 		}
-		
-//		while(!exit){
-//			try {
-//				in.readUTF();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				exit = true;
-//				break;
-//			}
-//		}
 	}
 }

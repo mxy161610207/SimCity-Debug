@@ -87,13 +87,13 @@ public class BrickHandler extends Thread{
 		}
 		Sensor sensor = DataProvider.getSensors().get(bid).get(sid);
 		switch(sensor.state){
-		//initial
-		case 0:
-			if(d > leavingValue[bid][sid])
-				sensor.state = 2;
-			else if(d < enteringValue[bid][sid])
-				sensor.state = 1;
-			break;
+//		//initial
+//		case 0:
+//			if(d > leavingValue[bid][sid])
+//				sensor.state = 2;
+//			else if(d < enteringValue[bid][sid])
+//				sensor.state = 1;
+//			break;
 		//entered
 		case 1:
 			if(d > leavingValue[bid][sid]){

@@ -76,8 +76,17 @@ public class CitizenControl implements Runnable{
 				for(Citizen citizen : citizens)
 					if(citizen.act == null){
 						double d = Math.random();
-						if(d < 0.5)
+						if(d < 0.4)
 							sendActReq(new ActReq(citizen, Activity.Wander));
+						else if(d < 0.8){
+							switch (citizen.job) {
+							case IronMan:
+								sendActReq(new ActReq(citizen, Activity.RescueTheWorld));
+								break;
+							default:
+								break;
+							}
+						}
 						else if(citizen.icon.isVisible())
 							sendActReq(new ActReq(citizen, Activity.HailATaxi));
 					}

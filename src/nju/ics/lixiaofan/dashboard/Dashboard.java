@@ -74,8 +74,8 @@ public class Dashboard extends JFrame{
 	public static boolean blink = false;
 	private static Runnable blinkThread = new Runnable() {
 		public void run() {
-			blink = !blink;
 			while(true){
+				blink = !blink;
 				for(Section s : TrafficMap.sections){
 					if(s.cars.isEmpty())
 						continue;

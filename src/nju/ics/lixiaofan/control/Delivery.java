@@ -19,7 +19,7 @@ public class Delivery {
 	public static Queue<DeliveryTask> searchTasks = new LinkedList<DeliveryTask>();
 	public static Set<DeliveryTask> deliveryTasks = new HashSet<DeliveryTask>();
 	public static int taskid = 0;
-	public static boolean isAllBusy = false;
+	public static boolean allBusy = false;
 	
 	public Delivery() {
 		new Thread(carSearcher).start();
@@ -29,7 +29,7 @@ public class Delivery {
 	private Runnable carSearcher = new Runnable(){
 		public void run() {
 			while(true){
-				while(searchTasks.isEmpty() || isAllBusy)
+				while(searchTasks.isEmpty() || allBusy)
 					synchronized (searchTasks) {
 						try {
 							searchTasks.wait();
@@ -44,7 +44,7 @@ public class Delivery {
 					if(dt.srcSect != null)
 						car = searchCar(dt.srcSect);
 					if(car == null){
-						isAllBusy = true;
+						allBusy = true;
 						Dashboard.appendLog("All cars are busy");
 						continue;
 					}
@@ -171,7 +171,7 @@ public class Delivery {
 								car.isLoading = false;
 								car.sendRequest(1);
 								it.remove();
-								isAllBusy = false;
+								allBusy = false;
 								Dashboard.appendLog(car.name+" finished unloading");
 								//trigger end unloading event
 								if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
@@ -188,7 +188,7 @@ public class Delivery {
 						}
 					}
 				}
-				if(!isAllBusy)
+				if(!allBusy)
 					synchronized (searchTasks) {
 						searchTasks.notify();
 					}
