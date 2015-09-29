@@ -75,6 +75,10 @@ public class CitizenControl implements Runnable{
 			while(true){
 				for(Citizen citizen : citizens)
 					if(citizen.act == null){
+						if(!citizen.icon.isVisible()){
+							sendActReq(new ActReq(citizen, Activity.Wander));
+							continue;
+						}
 						double d = Math.random();
 						if(d < 0.4)
 							sendActReq(new ActReq(citizen, Activity.Wander));
@@ -87,8 +91,8 @@ public class CitizenControl implements Runnable{
 								break;
 							}
 						}
-						else if(citizen.icon.isVisible())
-							sendActReq(new ActReq(citizen, Activity.HailATaxi));
+//						else
+//							sendActReq(new ActReq(citizen, Activity.HailATaxi));
 					}
 				try {
 					Thread.sleep(1000);

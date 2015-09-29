@@ -1,6 +1,12 @@
 package nju.ics.lixiaofan.city;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -11,6 +17,7 @@ public class Building {
 	public String name;
 	public Type type = null;
 	public BuildingIcon icon = null;
+	public Set<Section> addrs = null;
 	
 	public static enum Type {
 		Hospital, School, PoliceStation, Restaurant, StarkIndustries
@@ -20,6 +27,7 @@ public class Building {
 		this.name = name;
 		this.type = type;
 		this.icon = new BuildingIcon(this);
+		this.addrs = new HashSet<Section>();
 	}
 	
 	public static class BuildingIcon extends JButton{
@@ -31,8 +39,21 @@ public class Building {
 		public BuildingIcon(Building building) {
 			setOpaque(false);
 			setContentAreaFilled(false);
-			setBorderPainted(false);
+//			setBorderPainted(false);
 			this.building = building;
+		}
+		
+		protected void paintBorder(Graphics g) {
+//			super.paintBorder(g);
+			((Graphics2D )g).setStroke(new BasicStroke(2.0f));
+			if(getModel().isPressed())
+				g.setColor(Color.black);
+			else if(getModel().isRollover())
+				g.setColor(Color.gray);
+			else
+				return;
+				
+			g.drawRect(1, 1, getWidth()-2, getHeight()-2);
 		}
 		
 		public void setImageIcon(){

@@ -105,7 +105,7 @@ public class TrafficMap extends JPanel{
 		buildings.add(hospital);
 		placeBuidling(hospital, 6);
 		
-		Building school = new Building("Hospital", Building.Type.School);
+		Building school = new Building("School", Building.Type.School);
 		buildings.add(school);
 		placeBuidling(school, 5);
 		
@@ -134,6 +134,100 @@ public class TrafficMap extends JPanel{
 		building.icon.coord.centerY = y + size/2;
 		building.icon.setBounds(x, y, size, size);
 		building.icon.setImageIcon();
+		
+		switch (blockId) {
+		case 0:
+			building.addrs.add(streets[2]);
+			building.addrs.add(streets[6]);
+			building.addrs.add(crossings[0]);
+			break;
+		case 1:
+			building.addrs.add(streets[0]);
+			building.addrs.addAll(streets[0].combined);
+			building.addrs.add(streets[7]);
+			building.addrs.add(crossings[0]);
+			building.addrs.add(crossings[1]);
+			break;
+		case 2:
+			building.addrs.add(streets[3]);
+			building.addrs.add(streets[4]);
+			building.addrs.add(streets[8]);
+			building.addrs.add(crossings[1]);
+			building.addrs.add(crossings[2]);
+			break;
+		case 3:
+			building.addrs.add(streets[1]);
+			building.addrs.addAll(streets[1].combined);
+			break;
+		case 4:
+			building.addrs.add(streets[6]);
+			building.addrs.addAll(streets[6].combined);
+			building.addrs.add(streets[11]);
+			building.addrs.add(crossings[0]);
+			building.addrs.add(crossings[3]);
+			break;
+		case 5:case 6:case 9:case 10:{
+			int a = blockId / 9;
+			int b = 1 - (blockId % 2);
+			int offset = 8*a+b;
+			building.addrs.add(streets[7+offset]);
+			building.addrs.add(streets[11+offset]);
+			building.addrs.add(streets[12+offset]);
+			building.addrs.add(streets[15+offset]);
+			offset = 3*a+b;
+			building.addrs.add(crossings[offset]);
+			building.addrs.add(crossings[1+offset]);
+			building.addrs.add(crossings[3+offset]);
+			building.addrs.add(crossings[4+offset]);
+		}
+			break;
+		case 7:
+			building.addrs.add(streets[9]);
+			building.addrs.add(streets[13]);
+			building.addrs.add(streets[17]);
+			building.addrs.add(crossings[2]);
+			building.addrs.add(crossings[5]);
+			break;
+		case 8:
+			building.addrs.add(streets[14]);
+			building.addrs.add(streets[18]);
+			building.addrs.add(streets[22]);
+			building.addrs.add(crossings[3]);
+			building.addrs.add(crossings[6]);
+			break;
+		case 11:
+			building.addrs.add(streets[17]);
+			building.addrs.addAll(streets[17].combined);
+			building.addrs.add(streets[20]);
+			building.addrs.add(crossings[5]);
+			building.addrs.add(crossings[8]);
+			break;
+		case 12:
+			building.addrs.add(streets[22]);
+			building.addrs.addAll(streets[22].combined);
+			break;
+		case 13:
+			building.addrs.add(streets[27]);
+			building.addrs.add(streets[28]);
+			building.addrs.add(streets[23]);
+			building.addrs.add(crossings[6]);
+			building.addrs.add(crossings[7]);
+			break;
+		case 14:
+			building.addrs.add(streets[28]);
+			building.addrs.addAll(streets[28].combined);
+			building.addrs.add(streets[24]);
+			building.addrs.add(crossings[7]);
+			building.addrs.add(crossings[8]);
+			break;
+		case 15:
+			building.addrs.add(streets[25]);
+			building.addrs.add(streets[29]);
+			building.addrs.add(crossings[8]);
+			break;
+		default:
+			break;
+		}
 	}
 	
 	public static void initSections() {

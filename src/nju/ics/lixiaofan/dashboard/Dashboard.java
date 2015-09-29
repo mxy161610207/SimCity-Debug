@@ -12,6 +12,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -30,6 +33,7 @@ import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
 import nju.ics.lixiaofan.car.RCServer;
 import nju.ics.lixiaofan.car.Remediation;
+import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
@@ -66,9 +70,13 @@ public class Dashboard extends JFrame{
 	private static JRadioButton[] dirButtons = { new JRadioButton("North"),
 			new JRadioButton("South"), new JRadioButton("West"),
 			new JRadioButton("East") };
+	private static JButton deliverButton = new JButton("Deliver"),
+			startdButton = new JButton("Start"),
+			canceldButton = new JButton("Cancel");
 	private static JCheckBox jchkSensor = new JCheckBox("Sensors"), jchkSection = new JCheckBox("Sections"); 
 	private static JTextArea srcta = new JTextArea(), dstta = new JTextArea();
 	private static Section srcSect = null, dstSect = null;
+	private static Building srcB = null, dstB = null;
 	private static JPanel deliveryPanel = new JPanel();
 	private static boolean isDeliveryStarted = false;
 	public static boolean blink = false;
@@ -115,6 +123,8 @@ public class Dashboard extends JFrame{
 		
 		for(Section s : TrafficMap.sections)
 			s.icon.addMouseListener(new SectionIconListener(s));
+		for(Building b : TrafficMap.buildings)
+			b.icon.addMouseListener(new BuildingIconListener(b));
 		
 		gbc.gridx = 0;
 		gbc.weightx = gbc.weighty = 1;
@@ -367,9 +377,6 @@ public class Dashboard extends JFrame{
 		deliveryPanel.add(srcta);
 		deliveryPanel.add(dstlabel);
 		deliveryPanel.add(dstta);
-		final JButton deliverButton = new JButton("Deliver");
-		final JButton startdButton = new JButton("Start");
-		final JButton canceldButton = new JButton("Cancel");
 		deliveryPanel.add(deliverButton);
 		deliveryPanel.add(startdButton);
 		deliveryPanel.add(canceldButton);
@@ -405,12 +412,13 @@ public class Dashboard extends JFrame{
 		startdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				srcSect = dstSect = null;
-//				srcShop = dstShop = null;
+				srcB = dstB = null;
 				updateDeliverySrc();
 				updateDeliveryDst();
 				isDeliveryStarted = true;
 				startdButton.setVisible(false);
 				deliverButton.setVisible(true);
+				deliverButton.setEnabled(false);
 				canceldButton.setVisible(true);
 			}
 		});
@@ -421,7 +429,18 @@ public class Dashboard extends JFrame{
 				startdButton.setVisible(true);
 				canceldButton.setVisible(false);
 				
-				Delivery.add(srcSect, dstSect);
+				if(srcSect != null){
+					if(dstSect != null)
+						Delivery.add(srcSect, dstSect);
+					else
+						Delivery.add(srcSect, dstB);
+				}
+				else{
+					if(dstSect != null)
+						Delivery.add(srcB, dstSect);
+					else
+						Delivery.add(srcB, dstB);
+				}
 			}
 		});
 		
@@ -503,8 +522,8 @@ public class Dashboard extends JFrame{
 	public static void updateDeliverySrc(){
 		if(srcSect != null)
 			srcta.setText(srcSect.name);
-//		else if(srcShop != null)
-//			srcta.setText(srcShop.name);
+		else if(srcB != null)
+			srcta.setText(srcB.name);
 		else
 			srcta.setText("");
 	}
@@ -512,8 +531,8 @@ public class Dashboard extends JFrame{
 	public static void updateDeliveryDst(){
 		if(dstSect != null)
 			dstta.setText(dstSect.name);
-//		else if(dstShop != null)
-//			dstta.setText(dstShop.name);
+		else if(dstB != null)
+			dstta.setText(dstB.name);
 		else
 			dstta.setText("");
 	}
@@ -527,28 +546,20 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static synchronized void updateDelivQ(){
-		delivta.setText("Nums: "+(Delivery.searchTasks.size()+Delivery.deliveryTasks.size()));
-		for(DeliveryTask dt:Delivery.searchTasks){
+		Queue<DeliveryTask> queue = new LinkedList<Delivery.DeliveryTask>();
+		queue.addAll(Delivery.searchTasks);
+		queue.addAll(Delivery.deliveryTasks);
+		delivta.setText("Nums: " + queue.size());
+		for(DeliveryTask dt : queue){
 			delivta.append("\nPhase: "+dt.phase+" Src: ");
-//			if(dt.srcSect == null)
-//				delivta.append(dt.srcShop.name+" Dst: ");
-//			else
+			if(dt.srcSect == null)
+				delivta.append(dt.srcB.name+" Dst: ");
+			else
 				delivta.append(dt.srcSect.name+" Dst: ");
-//			if(dt.dstSect == null)
-//				delivta.append(dt.dstShop.name);
-//			else
-				delivta.append(dt.dstSect.name);
-		}
-		
-		for(DeliveryTask dt:Delivery.deliveryTasks){
-			delivta.append("\nPhase: "+dt.phase+" Car: "+dt.car.name+" Src: ");
-//			if(dt.srcSect == null)
-//				delivta.append(dt.srcShop.name+" Dst: ");
-//			else
-				delivta.append(dt.srcSect.name+" Dst: ");
-//			if(dt.dstSect == null)
-//				delivta.append(dt.dstShop.name);
-//			else
+			
+			if(dt.dstSect == null)
+				delivta.append(dt.dstB.name);
+			else
 				delivta.append(dt.dstSect.name);
 		}
 	}
@@ -648,6 +659,51 @@ public class Dashboard extends JFrame{
 //		mapPanel.repaint();
 //	}
 	
+	private class BuildingIconListener implements MouseListener{
+		Building building = null;
+		
+		public BuildingIconListener(Building building) {
+			this.building = building;
+		}
+		
+		public void mousePressed(MouseEvent e) {
+			if (building == null)
+				return;
+			// for delivery tasks
+			if (isDeliveryStarted) {
+				if (srcB == null && srcSect == null) {
+					srcB = building;
+					updateDeliverySrc();
+				} else if (dstB == null && dstSect == null) {
+					if (building == srcB)
+						return;
+					dstB = building;
+					updateDeliveryDst();
+					deliverButton.setEnabled(true);
+				}
+			} else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
+				// left click
+			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+				// right click
+			} else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0) {
+				// middle click
+				System.out.println("middle clicked");
+			}
+		}
+
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		public void mouseExited(MouseEvent e) {
+		}
+
+		public void mouseClicked(MouseEvent e) {
+		}
+
+		public void mouseReleased(MouseEvent e) {
+		}		
+	}
+	
 	private class SectionIconListener implements MouseListener{
 		Section section = null;
 		
@@ -659,10 +715,10 @@ public class Dashboard extends JFrame{
 				return;
 			// for delivery tasks
 			else if (isDeliveryStarted) {
-				if (srcSect == null) {
+				if (srcSect == null && srcB == null) {
 					srcSect = section;
 					updateDeliverySrc();
-				} else if (dstSect == null) {
+				} else if (dstSect == null && dstB == null) {
 					if (section == srcSect)
 						return;
 					else if (section.isCombined
@@ -670,6 +726,7 @@ public class Dashboard extends JFrame{
 						return;
 					dstSect = section;
 					updateDeliveryDst();
+					deliverButton.setEnabled(true);
 				}
 			} else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
 				// left click
@@ -720,7 +777,6 @@ public class Dashboard extends JFrame{
 
 		public void mouseReleased(MouseEvent e) {
 		}
-
 	} 
 }
 

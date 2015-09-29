@@ -141,7 +141,7 @@ public class Citizen implements Runnable{
 		public CitizenIcon(Citizen citizen) {
 			setOpaque(false);
 			setContentAreaFilled(false);
-			setSize(new Dimension(5*SIZE, SIZE));
+			setSize(new Dimension(10*SIZE, SIZE));
 			setVisible(false);
 //			setBorderPainted(false);
 			this.citizen = citizen;
