@@ -32,7 +32,7 @@ public class Car {
 	public long lastDetectedTime = 0;//the time when the car was last detected
 	public long lastInstrTime = System.currentTimeMillis();
 	public long lastStopInstrTime = 0;//the time when a stop instruction was last sent to this car
-	public long stopTime = 0;
+	public long stopTime = System.currentTimeMillis();
 	public int lastInstr = -1;
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<Citizen>();

@@ -34,6 +34,7 @@ import nju.ics.lixiaofan.car.DPad;
 import nju.ics.lixiaofan.car.RCServer;
 import nju.ics.lixiaofan.car.Remediation;
 import nju.ics.lixiaofan.city.Building;
+import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
@@ -75,8 +76,7 @@ public class Dashboard extends JFrame{
 			canceldButton = new JButton("Cancel");
 	private static JCheckBox jchkSensor = new JCheckBox("Sensors"), jchkSection = new JCheckBox("Sections"); 
 	private static JTextArea srcta = new JTextArea(), dstta = new JTextArea();
-	private static Section srcSect = null, dstSect = null;
-	private static Building srcB = null, dstB = null;
+	private static Location src = null, dst = null;
 	private static JPanel deliveryPanel = new JPanel();
 	private static boolean isDeliveryStarted = false;
 	public static boolean blink = false;
@@ -123,7 +123,7 @@ public class Dashboard extends JFrame{
 		
 		for(Section s : TrafficMap.sections)
 			s.icon.addMouseListener(new SectionIconListener(s));
-		for(Building b : TrafficMap.buildings)
+		for(Building b : TrafficMap.buildings.values())
 			b.icon.addMouseListener(new BuildingIconListener(b));
 		
 		gbc.gridx = 0;
@@ -411,8 +411,7 @@ public class Dashboard extends JFrame{
 		dgbl.setConstraints(canceldButton, dgbc);
 		startdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				srcSect = dstSect = null;
-				srcB = dstB = null;
+				src = dst = null;
 				updateDeliverySrc();
 				updateDeliveryDst();
 				isDeliveryStarted = true;
@@ -429,18 +428,8 @@ public class Dashboard extends JFrame{
 				startdButton.setVisible(true);
 				canceldButton.setVisible(false);
 				
-				if(srcSect != null){
-					if(dstSect != null)
-						Delivery.add(srcSect, dstSect);
-					else
-						Delivery.add(srcSect, dstB);
-				}
-				else{
-					if(dstSect != null)
-						Delivery.add(srcB, dstSect);
-					else
-						Delivery.add(srcB, dstB);
-				}
+				if(src != null && dst != null)
+					Delivery.add(src, dst);
 			}
 		});
 		
@@ -520,19 +509,15 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static void updateDeliverySrc(){
-		if(srcSect != null)
-			srcta.setText(srcSect.name);
-		else if(srcB != null)
-			srcta.setText(srcB.name);
+		if(src != null)
+			srcta.setText(src.name);
 		else
 			srcta.setText("");
 	}
 	
 	public static void updateDeliveryDst(){
-		if(dstSect != null)
-			dstta.setText(dstSect.name);
-		else if(dstB != null)
-			dstta.setText(dstB.name);
+		if(dst != null)
+			dstta.setText(dst.name);
 		else
 			dstta.setText("");
 	}
@@ -550,18 +535,8 @@ public class Dashboard extends JFrame{
 		queue.addAll(Delivery.searchTasks);
 		queue.addAll(Delivery.deliveryTasks);
 		delivta.setText("Nums: " + queue.size());
-		for(DeliveryTask dt : queue){
-			delivta.append("\nPhase: "+dt.phase+" Src: ");
-			if(dt.srcSect == null)
-				delivta.append(dt.srcB.name+" Dst: ");
-			else
-				delivta.append(dt.srcSect.name+" Dst: ");
-			
-			if(dt.dstSect == null)
-				delivta.append(dt.dstB.name);
-			else
-				delivta.append(dt.dstSect.name);
-		}
+		for(DeliveryTask dt : queue)
+			delivta.append("\nPhase: "+dt.phase+" Src: "+dt.src.name+" Dst: "+dt.dst.name);
 	}
 	
 	public static synchronized void updateRemedyQ(){
@@ -671,13 +646,13 @@ public class Dashboard extends JFrame{
 				return;
 			// for delivery tasks
 			if (isDeliveryStarted) {
-				if (srcB == null && srcSect == null) {
-					srcB = building;
+				if (src == null) {
+					src = building;
 					updateDeliverySrc();
-				} else if (dstB == null && dstSect == null) {
-					if (building == srcB)
+				} else if (dst == null) {
+					if (building == src)
 						return;
-					dstB = building;
+					dst = building;
 					updateDeliveryDst();
 					deliverButton.setEnabled(true);
 				}
@@ -715,16 +690,16 @@ public class Dashboard extends JFrame{
 				return;
 			// for delivery tasks
 			else if (isDeliveryStarted) {
-				if (srcSect == null && srcB == null) {
-					srcSect = section;
+				if (src == null) {
+					src = section;
 					updateDeliverySrc();
-				} else if (dstSect == null && dstB == null) {
-					if (section == srcSect)
+				} else if (dst == null) {
+					if (section == src)
 						return;
 					else if (section.isCombined
-							&& section.combined.contains(srcSect))
+							&& section.combined.contains(src))
 						return;
-					dstSect = section;
+					dst = section;
 					updateDeliveryDst();
 					deliverButton.setEnabled(true);
 				}

@@ -23,35 +23,10 @@ import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 public class BrickHandler extends Thread{
-//	private int bid;
-//	private DataInputStream in = null;
-//	private DataOutputStream out = null;
-//	private Hashtable<Integer, BrickHandlerInfo> bhi = null;
-//	private int[] states = new int[4];
 	private static List<Command> queue = Remediation.queue;
-//	public static int id2print = 5;
-//	public static Set<Integer> dis2print = new HashSet<Integer>();
-//	private double[] enteringValue, leavingValue;
 	private static int enteringValue[][] = new int[10][4];
 	private static int leavingValue[][] = new int[10][4];
-//	private Sensor[] sensor = null;
-//	private int sensorNum;
-//	private static SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-//	private static List<Car> carList = new ArrayList<Car>();
 	private static Queue<SensoryData> sdata = new LinkedList<SensoryData>();
-	
-//	public BrickHandler(int bid, DataInputStream in, DataOutputStream out, Hashtable<Integer, BrickHandlerInfo> bhi) {
-//		this.bid = bid;
-//		this.in = in;
-//		this.out = out;
-//		this.bhi = bhi;
-////		enteringValue = BrickServer.getComingValue()[bid];
-////		leavingValue = BrickServer.getLeavingValue()[bid];
-//		sensorNum = DataProvider.getSensors().get(bid).size();
-//		sensor = new Sensor[sensorNum];
-//		for(int i = 0;i < sensorNum;i++)
-//			sensor[i] = DataProvider.getSensors().get(bid).get(i);
-//	}
 	
 	public BrickHandler() {
 	}
@@ -222,17 +197,11 @@ public class BrickHandler extends Thread{
 						//trigger reach dest event
 						if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 							EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
-						//trigger start loading event
-						if(car.dt != null && car.dt.phase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
-							EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
-						//trigger start unloading event
-						else if(car.dt != null && car.dt.phase == 2 && EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
-							EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
 					}
 					else if(car.finalState == 0){
 						car.finalState = 1;
 						car.sendRequest(1);
-						Dashboard.appendLog(car.name+" failed to stop at dst, keep going");
+						Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
 					}
 					else if(car.expectation == 1)
 						car.sendRequest(1);
@@ -245,9 +214,6 @@ public class BrickHandler extends Thread{
 					car.sendRequest(0);
 			
 				TrafficPolice.sendNotice(prev);
-//				synchronized (sensor.crossing.handler.wakemeup) {
-//					sensor.crossing.handler.wakemeup.notify();
-//				}
 			}
 			break;
 		}

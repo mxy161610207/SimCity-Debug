@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
 
@@ -28,7 +29,7 @@ public class TrafficMap extends JPanel{
 //	public static List<Shop> shops = new ArrayList<Shop>();
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
-	public static List<Building> buildings = new ArrayList<Building>();
+	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<Building.Type, Building>();
 	public static boolean showSensors = false, showSections = false;
 	public final static boolean dir = true;
 	
@@ -51,7 +52,7 @@ public class TrafficMap extends JPanel{
 		
 		for(Citizen c : citizens)
 			add(c.icon);
-		for(Building b : buildings)
+		for(Building b : buildings.values())
 			add(b.icon);
 		for(Section s : sections)
 			add(s.icon);
@@ -98,23 +99,23 @@ public class TrafficMap extends JPanel{
 	
 	public static void initBuildings(){
 		Building starkIndustries = new Building("Stark Industries", Building.Type.StarkIndustries);
-		buildings.add(starkIndustries);
+		buildings.put(starkIndustries.type, starkIndustries);
 		placeBuidling(starkIndustries, 9);
 		
 		Building hospital = new Building("Hospital", Building.Type.Hospital);
-		buildings.add(hospital);
+		buildings.put(hospital.type, hospital);
 		placeBuidling(hospital, 6);
 		
 		Building school = new Building("School", Building.Type.School);
-		buildings.add(school);
+		buildings.put(school.type, school);
 		placeBuidling(school, 5);
 		
 		Building policeStation = new Building("Police Station", Building.Type.PoliceStation);
-		buildings.add(policeStation);
+		buildings.put(policeStation.type, policeStation);
 		placeBuidling(policeStation, 10);
 		
 		Building restaurant = new Building("Restaurant", Building.Type.Restaurant);
-		buildings.add(restaurant);
+		buildings.put(restaurant.type, restaurant);
 		placeBuidling(restaurant, 12);
 	}
 	

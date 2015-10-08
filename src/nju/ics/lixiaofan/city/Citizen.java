@@ -21,8 +21,8 @@ public class Citizen implements Runnable{
 	public String name;
 	public Gender gender = null;
 	public Job job = null;
-	public Activity act = null;
-	public Section loc = null, dest = null;
+	public Activity act = null, nextAct = null;
+	public Location loc = null, dest = null;
 	public Car car = null;
 	public CitizenIcon icon = null;
 	
@@ -35,7 +35,7 @@ public class Citizen implements Runnable{
 	}
 	
 	public static enum Activity{
-		Wander, GoToWork, Working, GotoSchool, InClass, Driving, Cooking, RescueTheWorld, HailATaxi, TakeATaxi, GetOff
+		Wander, GoToWork, AtWork, GoToSchool, InClass, Driving, RescueTheWorld, HailATaxi, TakeATaxi, GetOff
 	}
 	
 	public Citizen(String name, Gender gender, Job job) {
@@ -92,6 +92,7 @@ public class Citizen implements Runnable{
 				break;
 			}
 			case HailATaxi:
+				System.out.println("ass");
 				if(loc == null || dest == null)
 					break;
 				Delivery.add(loc, dest, this);
@@ -100,12 +101,64 @@ public class Citizen implements Runnable{
 				icon.setVisible(false);// get on the taxi
 				break;
 			case GetOff:
+				dest = null;
 				if(loc != null){
-					icon.setLocation(loc.icon.coord.centerX, loc.icon.coord.centerY);
+					if(loc instanceof Section)
+						icon.setLocation(((Section)loc).icon.coord.centerX, ((Section)loc).icon.coord.centerY);
+					else
+						icon.setLocation(((Building)loc).icon.coord.centerX, ((Building)loc).icon.coord.centerY);
 					icon.setVisible(true);
 				}
+				if(nextAct == null)
+					CitizenControl.sendActReq(this, null, true);
+				else{
+//					act = nextAct;
+					CitizenControl.sendActReq(this, nextAct);
+					nextAct = null;
+				}
+				break;
+			case GoToSchool:case GoToWork:
+				nextAct = act == Activity.GoToSchool ? Activity.InClass : Activity.AtWork;
+				switch (job) {
+				case Student:
+					dest = TrafficMap.buildings.get(Building.Type.School);
+					break;
+				case Cook:
+					dest = TrafficMap.buildings.get(Building.Type.Restaurant);
+					break;
+				case Doctor:
+					dest = TrafficMap.buildings.get(Building.Type.Hospital);
+					break;
+				case IronMan:
+					dest = TrafficMap.buildings.get(Building.Type.StarkIndustries);
+					break;
+				case Police:
+					dest = TrafficMap.buildings.get(Building.Type.PoliceStation);
+					break;
+				default:
+					dest = null;
+					break;
+				}
+//				act = Activity.HailATaxi;
+				CitizenControl.sendActReq(this, Activity.HailATaxi);
+				break;
+			case AtWork:case InClass:{
+				int count = 0;
+				while(count < 50){
+					count++;
+					icon.blink = !icon.blink;
+					icon.repaint();
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				icon.blink = false;
+				icon.repaint();
 				CitizenControl.sendActReq(this, null, true);
 				break;
+			}
 			case RescueTheWorld:{
 				int count = 0;
 				while(count < 5){

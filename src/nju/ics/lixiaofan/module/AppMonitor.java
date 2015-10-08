@@ -32,18 +32,14 @@ public class AppMonitor implements EventListener{
 		case DELIVERY_RELEASED:{
 //			System.out.println("EventListener\tType:Deliv rls Src:"+event.dtask.srcSect+" Dst:"+event.dtask.dstSect+" Time:"+event.time);
 			AppPkg p = new AppPkg();
-			String src = event.dtask.srcSect != null ? event.dtask.srcSect.name : event.dtask.srcB.name;
-			String dst = event.dtask.dstSect != null ? event.dtask.dstSect.name : event.dtask.dstB.name;
-			p.setDelivery((byte)event.dtask.id, null, src, dst, (byte)event.dtask.phase);
+			p.setDelivery((byte)event.dtask.id, null, event.dtask.src.name, event.dtask.dst.name, (byte)event.dtask.phase);
 			PkgHandler.send(p);
 			break;
 		}
 		case DELIVERY_COMPLETED:{
 //			System.out.println("EventListener\tType:Deliv cpt Src:"+event.dtask.srcSect+" Dst:"+event.dtask.dstSect+" Time:"+event.time);
 			AppPkg p = new AppPkg();
-			String src = event.dtask.srcSect != null ? event.dtask.srcSect.name : event.dtask.srcB.name;
-			String dst = event.dtask.dstSect != null ? event.dtask.dstSect.name : event.dtask.dstB.name;
-			p.setDelivery((byte)event.dtask.id, event.dtask.car.name, src, dst, (byte)event.dtask.phase);
+			p.setDelivery((byte)event.dtask.id, event.dtask.car.name, event.dtask.src.name, event.dtask.dst.name, (byte)event.dtask.phase);
 			PkgHandler.send(p);
 			break;
 		}

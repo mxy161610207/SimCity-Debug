@@ -13,8 +13,7 @@ import javax.swing.JButton;
 
 import nju.ics.lixiaofan.city.SectionIcon.Coord;
 
-public class Building {
-	public String name;
+public class Building extends Location{
 	public Type type = null;
 	public BuildingIcon icon = null;
 	public Set<Section> addrs = null;

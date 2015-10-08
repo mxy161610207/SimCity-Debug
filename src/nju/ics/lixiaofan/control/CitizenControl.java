@@ -7,6 +7,7 @@ import java.util.Queue;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Citizen.Activity;
+import nju.ics.lixiaofan.city.Citizen.Job;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
@@ -37,18 +38,17 @@ public class CitizenControl implements Runnable{
 				ar.citizen.act = ar.act;
 				if(ar.act != null)
 					switch (ar.act) {
-					case HailATaxi:
-						ar.citizen.dest = TrafficMap.sections[(int) (Math.random()*TrafficMap.sections.length)];
-						break;
+//					case HailATaxi:
+//						break;
 //					case TakeATaxi:
 //						break;
-					case GetOff:
-						ar.citizen.dest = null;
-						break;
+//					case GetOff:
+//						break;
+//					case GoToSchool:case GoToWork:
+//						break;
 					default:
 						break;
 					}
-				
 				if(!ar.fromSelf)
 					ar.citizen.notify();
 			}
@@ -76,23 +76,27 @@ public class CitizenControl implements Runnable{
 				for(Citizen citizen : citizens)
 					if(citizen.act == null){
 						if(!citizen.icon.isVisible()){
-							sendActReq(new ActReq(citizen, Activity.Wander));
+							sendActReq(citizen, Activity.Wander);
 							continue;
 						}
 						double d = Math.random();
 						if(d < 0.4)
-							sendActReq(new ActReq(citizen, Activity.Wander));
+							sendActReq(citizen, Activity.Wander);
 						else if(d < 0.8){
 							switch (citizen.job) {
 							case IronMan:
-								sendActReq(new ActReq(citizen, Activity.RescueTheWorld));
+								sendActReq(citizen, Activity.RescueTheWorld);
 								break;
 							default:
 								break;
 							}
 						}
-//						else
-//							sendActReq(new ActReq(citizen, Activity.HailATaxi));
+						else{
+							if(citizen.job == Job.Student)
+								sendActReq(citizen, Activity.GoToSchool);
+							else
+								sendActReq(citizen, Activity.GoToWork);
+						}
 					}
 				try {
 					Thread.sleep(1000);
@@ -141,11 +145,11 @@ public class CitizenControl implements Runnable{
 		Activity act;
 		boolean fromSelf;
 		
-		public ActReq(Citizen citizen, Activity act) {
-			this.citizen = citizen;
-			this.act = act;
-			this.fromSelf = false;
-		}
+//		public ActReq(Citizen citizen, Activity act) {
+//			this.citizen = citizen;
+//			this.act = act;
+//			this.fromSelf = false;
+//		}
 		
 		public ActReq(Citizen citizen, Activity act, boolean fromSelf) {
 			this.citizen = citizen;

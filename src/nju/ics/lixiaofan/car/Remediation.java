@@ -63,9 +63,16 @@ public class Remediation implements Runnable{
 					else if (cmd.cmd == 0) {
 						cmd.car.state = 0;
 						cmd.car.stopTime = System.currentTimeMillis();
-						if(cmd.car.dest == cmd.car.loc){
+						if(cmd.car.dest != null && (cmd.car.dest == cmd.car.loc || cmd.car.dest.isCombined && cmd.car.dest.combined.contains(cmd.car.loc)
+								&& cmd.car.dt != null)){
 							cmd.car.isLoading = true;
 							cmd.car.loc.icon.repaint();
+							//trigger start loading event
+							if(cmd.car.dt.phase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
+								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
+							//trigger start unloading event
+							else if(cmd.car.dt.phase == 2 && EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
+								EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
 						}
 						cmd.car.sendRequest(2);
 						//trigger stop event
@@ -107,7 +114,7 @@ public class Remediation implements Runnable{
 	
 	public static long getDeadline(int type, int cmd, int level){
 		if(type == 3)
-			return System.currentTimeMillis() + 1500;
+			return System.currentTimeMillis() + 1000;
 		switch(level){
 		default:
 			if(cmd == 0)

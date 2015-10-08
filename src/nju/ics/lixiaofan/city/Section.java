@@ -11,9 +11,7 @@ import java.util.Set;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.sensor.Sensor;
 
-public class Section {
-	public int id;
-	public String name;
+public class Section extends Location{
 	public int region = 0;	//north-west north-east south-west south-east
 	public int[] dir = {-1, -1};	//dir[1] only for crossings
 	public Map<Integer, Section> adjs = new HashMap<Integer, Section>();// adjacency

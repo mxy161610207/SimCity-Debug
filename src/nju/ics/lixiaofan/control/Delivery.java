@@ -6,8 +6,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import nju.ics.lixiaofan.car.Car;
+import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Citizen;
+import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
@@ -44,10 +46,10 @@ public class Delivery {
 					Result res = null;
 					Car car = null;
 					int minDis = Integer.MAX_VALUE;
-					if(dt.srcSect != null)
-						res = searchCar(dt.srcSect);
+					if(dt.src instanceof Section)
+						res = searchCar((Section) dt.src);
 					else{
-						for(Section src : dt.srcB.addrs){
+						for(Section src : ((Building)dt.src).addrs){
 							Result tmp = searchCar(src);
 							if(allBusy)
 								break;
@@ -66,12 +68,31 @@ public class Delivery {
 					car.dt = dt;
 					dt.car = car;
 					dt.phase = 1;
-//					car.deliveryPhase = 1;
-					car.dest = res.sec;//dt.srcSect;
-					car.finalState = 1;
-					car.sendRequest(1);
+					car.dest = res.section;
+					if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
+						if(car.state == 0){
+							car.isLoading = true;
+							car.loc.icon.repaint();
+							//trigger start loading event
+							if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
+								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
+						}
+						else{
+							car.finalState = 0;
+							Command.send(car, 0);
+							car.sendRequest(0);
+						}
+						Dashboard.appendLog(car.name+" reached dest");
+						//trigger reach dest event
+						if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
+							EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
+					}
+					else{
+						car.finalState = 1;
+						car.sendRequest(1);
+						Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
+					}
 					searchTasks.poll();
-					Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
 				}
 				synchronized (deliveryTasks) {
 					if(dt != null){
@@ -150,11 +171,11 @@ public class Delivery {
 	private class Result{
 		public Car car;
 		public int dis;
-		public Section sec;
-		public Result(Car car, int dis, Section sec) {
+		public Section section;
+		public Result(Car car, int dis, Section section) {
 			this.car = car;
 			this.dis = dis;
-			this.sec = sec;
+			this.section = section;
 		}
 	}
 	
@@ -173,16 +194,16 @@ public class Delivery {
 					for(Iterator<DeliveryTask> it = deliveryTasks.iterator();it.hasNext();){
 						DeliveryTask dt = it.next();
 						Car car = dt.car;
+						long recent = Math.max(car.stopTime, dt.startTime);
 						if ((car.loc == car.dest || car.dest.isCombined
 								&& car.dest.combined.contains(car.loc)) && car.state == 0
-								&& System.currentTimeMillis() - car.stopTime > 3000) {
+								&& System.currentTimeMillis() - recent > 3000) {
 							//head for the src
 							if(dt.phase == 1){
 								dt.phase = 2;
-//								car.deliveryPhase = 2;
-								car.dest = dt.dstSect != null ? dt.dstSect : selectNearestSection(car.loc, dt.dstB.addrs);
-								car.finalState = 1;
+								car.dest = dt.dst instanceof Section ? (Section)dt.dst : selectNearestSection(car.loc, ((Building)dt.dst).addrs);
 								car.isLoading = false;
+								car.finalState = 1;
 								car.sendRequest(1);
 								Dashboard.appendLog(car.name+" finished loading");
 								Dashboard.appendLog(car.name+" heads for dst "+car.dest.name);
@@ -308,75 +329,28 @@ public class Delivery {
 			}
 	}
 	
-	public static void add(Section src, Section dst, Citizen citizen){
+	public static void add(Location src, Location dst, Citizen citizen){
 		add(new DeliveryTask(src, dst, citizen));
 	}
 	
-	public static void add(Section src, Section dst){
-		add(src, dst, null);
-	}
-	
-	public static void add(Section src, Building dst, Citizen citizen){
-		add(new DeliveryTask(src, dst, citizen));
-	}
-	
-	public static void add(Section src, Building dst){
-		add(src, dst, null);
-	}
-	
-	public static void add(Building src, Section dst, Citizen citizen){
-		add(new DeliveryTask(src, dst, citizen));
-	}
-	
-	public static void add(Building src, Section dst){
-		add(src, dst, null);
-	}
-	
-	public static void add(Building src, Building dst, Citizen citizen){
-		add(new DeliveryTask(src, dst, citizen));
-	}
-	
-	public static void add(Building src, Building dst){
+	public static void add(Location src, Location dst){
 		add(src, dst, null);
 	}
 	
 	public static class DeliveryTask implements Cloneable{
 		public int id;
-		public Section srcSect = null, dstSect = null;
-		public Building srcB = null, dstB = null;
+		public Location src = null, dst = null;
 		public Car car;
 		public int phase;//0: search car; 1: to src 2: to dest
+		public long startTime = 0;
 		public Citizen citizen = null;
 		
-		public DeliveryTask(Section src, Section dst, Citizen citizen) {
-			id = Delivery.taskid++;
-			this.srcSect = src;
-			this.dstSect = dst;
-			phase = 0;
-			this.citizen = citizen;
-		}
-		
-		public DeliveryTask(Section src, Building dst, Citizen citizen) {
-			id = Delivery.taskid++;
-			this.srcSect = src;
-			this.dstB = dst;
-			phase = 0;
-			this.citizen = citizen;
-		}
-		
-		public DeliveryTask(Building src, Section dst, Citizen citizen) {
-			id = Delivery.taskid++;
-			this.srcB = src;
-			this.dstSect = dst;
-			phase = 0;
-			this.citizen = citizen;
-		}
-		
-		public DeliveryTask(Building src, Building dst, Citizen citizen) {
-			id = Delivery.taskid++;
-			this.srcB = src;
-			this.dstB = dst;
-			phase = 0;
+		public DeliveryTask(Location src, Location dst, Citizen citizen) {
+			this.id = Delivery.taskid++;
+			this.src = src;
+			this.dst = dst;
+			this.phase = 0;
+			this.startTime = System.currentTimeMillis();
 			this.citizen = citizen;
 		}
 		
