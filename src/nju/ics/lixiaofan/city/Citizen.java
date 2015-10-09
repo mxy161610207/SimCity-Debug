@@ -58,8 +58,8 @@ public class Citizen implements Runnable{
 				continue;
 			switch (act) {
 			case Wander:{
-				int xmax = icon.getParent().getWidth()-icon.getWidth();
-				int ymax = icon.getParent().getHeight()-icon.getHeight();
+				int xmax = icon.getParent().getWidth()-CitizenIcon.SIZE;
+				int ymax = icon.getParent().getHeight()-CitizenIcon.SIZE;
 				if(!icon.isVisible()){
 					int x = (int) (Math.random() * xmax);
 					int y = (int) (Math.random() * ymax);
@@ -92,7 +92,6 @@ public class Citizen implements Runnable{
 				break;
 			}
 			case HailATaxi:
-				System.out.println("ass");
 				if(loc == null || dest == null)
 					break;
 				Delivery.add(loc, dest, this);
@@ -101,7 +100,6 @@ public class Citizen implements Runnable{
 				icon.setVisible(false);// get on the taxi
 				break;
 			case GetOff:
-				dest = null;
 				if(loc != null){
 					if(loc instanceof Section)
 						icon.setLocation(((Section)loc).icon.coord.centerX, ((Section)loc).icon.coord.centerY);
@@ -109,10 +107,13 @@ public class Citizen implements Runnable{
 						icon.setLocation(((Building)loc).icon.coord.centerX, ((Building)loc).icon.coord.centerY);
 					icon.setVisible(true);
 				}
-				if(nextAct == null)
+				if(nextAct == null){
+					dest = null;
 					CitizenControl.sendActReq(this, null, true);
+				}
 				else{
-//					act = nextAct;
+					if(nextAct != Activity.AtWork && nextAct != Activity.InClass)
+						dest = null;
 					CitizenControl.sendActReq(this, nextAct);
 					nextAct = null;
 				}
@@ -139,10 +140,21 @@ public class Citizen implements Runnable{
 					dest = null;
 					break;
 				}
-//				act = Activity.HailATaxi;
-				CitizenControl.sendActReq(this, Activity.HailATaxi);
+				if((loc instanceof Building && loc == dest) ||
+						(loc instanceof Section && ((Building) dest).addrs.contains(loc))){
+					CitizenControl.sendActReq(this, nextAct);
+					nextAct = null;
+				}
+				else
+					CitizenControl.sendActReq(this, Activity.HailATaxi);
 				break;
 			case AtWork:case InClass:{
+				loc = dest;
+				int xmax = ((Building)dest).icon.getWidth()-CitizenIcon.SIZE;
+				int ymax = ((Building)dest).icon.getHeight()-CitizenIcon.SIZE;
+				int x = (int) (Math.random() * xmax) + ((Building)dest).icon.coord.x;
+				int y = (int) (Math.random() * ymax) + ((Building)dest).icon.coord.y;
+				icon.setLocation(x, y);
 				int count = 0;
 				while(count < 50){
 					count++;

@@ -101,6 +101,8 @@ public class TrafficMap extends JPanel{
 		Building starkIndustries = new Building("Stark Industries", Building.Type.StarkIndustries);
 		buildings.put(starkIndustries.type, starkIndustries);
 		placeBuidling(starkIndustries, 9);
+//		for(Section s : starkIndustries.addrs)
+//			System.out.println(s.name);
 		
 		Building hospital = new Building("Hospital", Building.Type.Hospital);
 		buildings.put(hospital.type, hospital);
@@ -172,13 +174,15 @@ public class TrafficMap extends JPanel{
 			int b = 1 - (blockId % 2);
 			int offset = 8*a+b;
 			building.addrs.add(streets[7+offset]);
+			building.addrs.add(streets[10+offset]);
 			building.addrs.add(streets[11+offset]);
-			building.addrs.add(streets[12+offset]);
 			building.addrs.add(streets[15+offset]);
 			offset = 3*a+b;
 			building.addrs.add(crossings[offset]);
-			building.addrs.add(crossings[1+offset]);
-			building.addrs.add(crossings[3+offset]);
+			if(offset != 1)
+				building.addrs.add(crossings[1+offset]);
+			if(offset != 3)
+				building.addrs.add(crossings[3+offset]);
 			building.addrs.add(crossings[4+offset]);
 		}
 			break;
@@ -229,6 +233,11 @@ public class TrafficMap extends JPanel{
 		default:
 			break;
 		}
+		Set<Section> newS = new HashSet<Section>();
+		for(Section s : building.addrs)
+			if(s.isCombined)
+				newS.addAll(s.combined);
+		building.addrs.addAll(newS);
 	}
 	
 	public static void initSections() {

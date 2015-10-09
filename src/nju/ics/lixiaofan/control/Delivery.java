@@ -72,7 +72,7 @@ public class Delivery {
 					if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
 						if(car.state == 0){
 							car.isLoading = true;
-							car.loc.icon.repaint();
+//							car.loc.icon.repaint();
 							//trigger start loading event
 							if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
 								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
@@ -203,18 +203,32 @@ public class Delivery {
 								dt.phase = 2;
 								car.dest = dt.dst instanceof Section ? (Section)dt.dst : selectNearestSection(car.loc, ((Building)dt.dst).addrs);
 								car.isLoading = false;
-								car.finalState = 1;
-								car.sendRequest(1);
 								Dashboard.appendLog(car.name+" finished loading");
-								Dashboard.appendLog(car.name+" heads for dst "+car.dest.name);
 								//trigger end loading event
 								if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
 									EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
+								
+								if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
+									car.isLoading = true;
+									dt.startTime = System.currentTimeMillis();
+//									car.loc.icon.repaint();
+									//trigger start unloading event
+									if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
+										EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
+									Dashboard.appendLog(car.name+" reached dest");
+									//trigger reach dest event
+									if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
+										EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
+								}
+								else{
+									car.finalState = 1;
+									car.sendRequest(1);
+									Dashboard.appendLog(car.name+" heads for dst "+car.dest.name);
+								}
 							}
 							//head for the dst
 							else{
 								dt.phase = 3;
-//								car.deliveryPhase = 0;
 								car.dt = null;
 								car.dest = null;
 								car.finalState = 1;
@@ -259,14 +273,13 @@ public class Delivery {
 		queue.add(start);
 		while(!queue.isEmpty()){
 			Section sect = queue.poll();
-//			System.out.println(sect.name);
 			if(sects.contains(sect))
 				return sect;
-			else if(sect.isCombined){
-				for(Section s : sect.combined)
-					if(sects.contains(s))
-						return s;
-			}
+//			else if(sect.isCombined){
+//				for(Section s : sect.combined)
+//					if(sects.contains(s))
+//						return s;
+//			}
 			visited.add(sect);
 			if(sect.isCombined)
 				visited.addAll(sect.combined);

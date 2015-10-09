@@ -66,7 +66,7 @@ public class Remediation implements Runnable{
 						if(cmd.car.dest != null && (cmd.car.dest == cmd.car.loc || cmd.car.dest.isCombined && cmd.car.dest.combined.contains(cmd.car.loc)
 								&& cmd.car.dt != null)){
 							cmd.car.isLoading = true;
-							cmd.car.loc.icon.repaint();
+//							cmd.car.loc.icon.repaint();
 							//trigger start loading event
 							if(cmd.car.dt.phase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
 								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
