@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -15,7 +16,7 @@ public class Remediation implements Runnable{
 		public void run() {
 			while(true){
 				long currentTime = System.currentTimeMillis();
-				for(Car car:RCServer.cars.values())
+				for(Car car:TrafficMap.cars.values())
 					if(car.isConnected && car.state != -1 && currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				

@@ -1,6 +1,5 @@
 package nju.ics.lixiaofan.dashboard;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -25,13 +24,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
-import nju.ics.lixiaofan.car.RCServer;
 import nju.ics.lixiaofan.car.Remediation;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Location;
@@ -47,9 +44,6 @@ import nju.ics.lixiaofan.sensor.BrickHandler;
 
 public class Dashboard extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private static JTabbedPane tabbedpane = new JTabbedPane();
-	private static JPanel p1 = new JPanel();
-	private static ConnectionPanel connPanel = new ConnectionPanel();
 	private static TrafficMap mapPanel = new TrafficMap();
 	private static JPanel leftPanel = new JPanel();
 	private static JPanel rightPanel = new JPanel();
@@ -105,21 +99,18 @@ public class Dashboard extends JFrame{
 	public Dashboard() {
 		GridBagLayout gbl = new GridBagLayout();
 		GridBagConstraints gbc = new GridBagConstraints();
-		add(tabbedpane);
-		tabbedpane.add("Map&Control", p1);
-		tabbedpane.add("Connection", connPanel);
 		
 		gbc.fill = GridBagConstraints.BOTH;
-		p1.setLayout(gbl);
-		p1.add(mapPanel);
-		p1.add(leftPanel);
-		p1.add(rightPanel);
+		setLayout(gbl);
+		add(mapPanel);
+		add(leftPanel);
+		add(rightPanel);
 		
 		String mapLen = "";
 		for(int i = 0;i < 19;i++)
 			mapLen = mapLen.concat("          ");
 		JLabel maplenLabel = new JLabel(mapLen);
-		p1.add(maplenLabel);
+		add(maplenLabel);
 		
 		for(Section s : TrafficMap.sections)
 			s.icon.addMouseListener(new SectionIconListener(s));
@@ -140,7 +131,7 @@ public class Dashboard extends JFrame{
 		gbc.weighty = 1;
 		gbl.setConstraints(rightPanel, gbc);
 		
-		mapPanel.setBackground(Color.WHITE);
+//		mapPanel.setBackground(Color.WHITE);
 
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
@@ -166,7 +157,7 @@ public class Dashboard extends JFrame{
 						TrafficMap.streets[i].admittedCar = null;
 				}
 			
-				for(Car car : RCServer.cars.values()){
+				for(Car car : TrafficMap.cars.values()){
 					car.loc = null;
 					car.dir = -1;
 					car.state = 0;
@@ -455,8 +446,8 @@ public class Dashboard extends JFrame{
 		logta.setLineWrap(true);
 		logta.setWrapStyleWord(true);
 		
-		if(!RCServer.cars.isEmpty())
-			for(Car car : RCServer.cars.values())
+		if(!TrafficMap.cars.isEmpty())
+			for(Car car : TrafficMap.cars.values())
 				if(car.isConnected)
 					addCar(car);
 
@@ -520,14 +511,6 @@ public class Dashboard extends JFrame{
 			dstta.setText(dst.name);
 		else
 			dstta.setText("");
-	}
-	
-	public static synchronized void updateBrickConn(){
-		connPanel.updateBrickConn();
-	}
-	
-	public static synchronized void updateRCConn(){
-		connPanel.updateRCConn();
 	}
 	
 	public static synchronized void updateDelivQ(){

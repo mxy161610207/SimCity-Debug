@@ -7,4 +7,10 @@
   <car name="Red Car" loc="Street 24"/>
   <car name="Silver SUV" loc="Street 23"/>
   <car name="White Car" loc="Street 28"/>
+  <building name="Stark Industries" type="StarkIndustries" loc="9"/>
+  <building name="Hospital" type="Hospital" loc="6"/>
+  <building name="School" type="School" loc="5"/>
+  <building name="Police Station" type="PoliceStation" loc="10"/>
+  <building name="Restaurant" type="Restaurant" loc="12"/>
+  <citizen name="Tony Stark" gender="Male" job="IronMan"/>
 </config>

@@ -16,17 +16,26 @@ import nju.ics.lixiaofan.city.SectionIcon.Coord;
 public class Building extends Location{
 	public Type type = null;
 	public BuildingIcon icon = null;
+	public int loc;//block number
 	public Set<Section> addrs = null;
 	
 	public static enum Type {
 		Hospital, School, PoliceStation, Restaurant, StarkIndustries
 	}
 	
-	public Building(String name, Type type) {
+	public Building(String name, Type type, int loc) {
 		this.name = name;
 		this.type = type;
+		this.loc  = loc;
 		this.icon = new BuildingIcon(this);
 		this.addrs = new HashSet<Section>();
+	}
+	
+	public static Type typeOf(String type){
+		for(Type t : Type.values())
+			if(t.toString().equals(type))
+				return t;
+		return null;
 	}
 	
 	public static class BuildingIcon extends JButton{

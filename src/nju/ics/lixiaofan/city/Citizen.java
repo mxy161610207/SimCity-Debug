@@ -45,6 +45,20 @@ public class Citizen implements Runnable{
 		icon = new CitizenIcon(this);
 	}
 	
+	public static Gender genderOf(String gender){
+		for(Gender g : Gender.values())
+			if(g.toString().equals(gender))
+				return g;
+		return null;
+	}
+	
+	public static Job jobOf(String job){
+		for(Job j : Job.values())
+			if(j.toString().equals(job))
+				return j;
+		return null;
+	}
+	
 	public void run() {
 		while(true){
 			synchronized (this) {

@@ -44,9 +44,10 @@ public class Car {
 	public static final String SILVER = "Silver SUV";
 	public static final String RED = "Red Car";
 	
-	public Car(int type, String name) {
+	public Car(int type, String name, Section loc) {
 		this.type = type;
 		this.name = name;
+		this.loc = loc;
 		this.icon = new CarIcon(name);
 	}
 	
@@ -71,7 +72,7 @@ public class Car {
 	}
 	
 	public static Car carOf(String name){
-		return RCServer.cars.get(name);
+		return TrafficMap.cars.get(name);
 	}
 	
 	public String getState(){

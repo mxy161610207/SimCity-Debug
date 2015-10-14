@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
+import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
@@ -47,13 +48,13 @@ public class RCListener implements Runnable{
 				int i = 1;
 				while(i < strs.length){
 					String key = strs[i];
-					if(RCServer.cars.containsKey(key) && !RCServer.cars.get(key).isConnected){
-						Car car = RCServer.cars.get(key);//new Car(3, key);
+					if(TrafficMap.cars.containsKey(key) && !TrafficMap.cars.get(key).isConnected){
+						Car car = TrafficMap.cars.get(key);
 						car.isConnected = true;
 						Dashboard.addCar(car);
-						synchronized (RCServer.rc) {
-							Dashboard.updateRCConn();
-						}
+//						synchronized (RCServer.rc) {
+//							Dashboard.updateRCConn();
+//						}
 						//calibrate
 						if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
 							CmdSender.send(car, 3);

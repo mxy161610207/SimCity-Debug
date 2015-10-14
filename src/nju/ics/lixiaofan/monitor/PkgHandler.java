@@ -12,8 +12,8 @@ import java.util.Queue;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
-import nju.ics.lixiaofan.car.RCServer;
 import nju.ics.lixiaofan.city.Section;
+import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.dashboard.Dashboard;
@@ -115,7 +115,7 @@ public class PkgHandler implements Runnable{
 	
 	public void sendInitInfo(ObjectOutputStream oos){
 		try {
-			for(Car car : RCServer.cars.values()){
+			for(Car car : TrafficMap.cars.values()){
 				if(car.loc == null)
 					oos.writeObject(new AppPkg(car.name, (byte)-1, null));
 				else

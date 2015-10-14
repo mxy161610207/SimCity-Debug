@@ -12,8 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
 
-import nju.ics.lixiaofan.city.Citizen.Gender;
-import nju.ics.lixiaofan.city.Citizen.Job;
+import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.sensor.BrickHandler;
@@ -23,6 +22,7 @@ import nju.ics.lixiaofan.city.SectionIcon.CrossingIcon;
 
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
+	public static ConcurrentHashMap<String, Car> cars = new ConcurrentHashMap<String, Car>();
 	public static Crossing[] crossings = new Crossing[9];
 	public static Street[] streets = new Street[32];
 	public static Section[] sections = new Section[crossings.length+streets.length];
@@ -47,13 +47,15 @@ public class TrafficMap extends JPanel{
 		setLayout(null);
 		initSections();
 		initSensors();
-		initCitizens();
-		initBuildings();
 		
-		for(Citizen c : citizens)
+		for(Citizen c : citizens){
 			add(c.icon);
-		for(Building b : buildings.values())
+			new Thread(c).start();
+		}
+		for(Building b : buildings.values()){
 			add(b.icon);
+			placeBuidling(b, b.loc);
+		}
 		for(Section s : sections)
 			add(s.icon);
 	}
@@ -89,39 +91,7 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	public static void initCitizens(){
-		citizens.add(new Citizen("Tony Stark", Gender.Male, Job.IronMan));
-		
-		for(Citizen c : citizens){
-			new Thread(c).start();
-		}
-	}
-	
-	public static void initBuildings(){
-		Building starkIndustries = new Building("Stark Industries", Building.Type.StarkIndustries);
-		buildings.put(starkIndustries.type, starkIndustries);
-		placeBuidling(starkIndustries, 9);
-//		for(Section s : starkIndustries.addrs)
-//			System.out.println(s.name);
-		
-		Building hospital = new Building("Hospital", Building.Type.Hospital);
-		buildings.put(hospital.type, hospital);
-		placeBuidling(hospital, 6);
-		
-		Building school = new Building("School", Building.Type.School);
-		buildings.put(school.type, school);
-		placeBuidling(school, 5);
-		
-		Building policeStation = new Building("Police Station", Building.Type.PoliceStation);
-		buildings.put(policeStation.type, policeStation);
-		placeBuidling(policeStation, 10);
-		
-		Building restaurant = new Building("Restaurant", Building.Type.Restaurant);
-		buildings.put(restaurant.type, restaurant);
-		placeBuidling(restaurant, 12);
-	}
-	
-	private static void placeBuidling(Building building, int blockId){
+	public static void placeBuidling(Building building, int blockId){
 		if(building == null || blockId < 0 || blockId > 15)
 			return;
 		int size = streets[7].icon.coord.w;

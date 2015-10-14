@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import nju.ics.lixiaofan.car.Car;
-import nju.ics.lixiaofan.car.RCServer;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.city.TrafficMap;
@@ -16,7 +15,7 @@ import nju.ics.lixiaofan.sensor.Sensor;
 
 public class DataProvider {
 	public static Collection<Car> getCars(){
-		return RCServer.cars.values();
+		return TrafficMap.cars.values();
 	}
 	
 	public static List<List<Sensor>> getSensors(){
