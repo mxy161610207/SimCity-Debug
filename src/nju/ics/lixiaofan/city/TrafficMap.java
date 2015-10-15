@@ -26,7 +26,6 @@ public class TrafficMap extends JPanel{
 	public static Crossing[] crossings = new Crossing[9];
 	public static Street[] streets = new Street[32];
 	public static Section[] sections = new Section[crossings.length+streets.length];
-//	public static List<Shop> shops = new ArrayList<Shop>();
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
 	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<Building.Type, Building>();
@@ -91,7 +90,7 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	public static void placeBuidling(Building building, int blockId){
+	private void placeBuidling(Building building, int blockId){
 		if(building == null || blockId < 0 || blockId > 15)
 			return;
 		int size = streets[7].icon.coord.w;
@@ -337,48 +336,6 @@ public class TrafficMap extends JPanel{
 		
 		setCombined();
 		setAdjs();
-		
-		setAdj(crossings[0], 7, 6, 11, 2);
-		setAdj(crossings[1], 8, 7, 3, 12);
-		setAdj(crossings[2], 9, 8, 13, 4);
-		setAdj(crossings[3], 14, 15, 18, 11);
-		setAdj(crossings[4], 15, 16, 12, 19);
-		setAdj(crossings[5], 16, 17, 20, 13);
-		setAdj(crossings[6], 23, 22, 27, 18);
-		setAdj(crossings[7], 24, 23, 19, 28);
-		setAdj(crossings[8], 25, 24, 29, 20);
-		setAdj(streets[0], 0, 1);
-		setAdj(streets[2], 0, 1);
-		setAdj(streets[3], 0, 1);
-		setAdj(streets[7], 1, 0);
-		setAdj(streets[1], 2, 2);
-		setAdj(streets[4], 2, 2);
-		setAdj(streets[5], 2, 2);
-		setAdj(streets[9], 2, 2);
-		setAdj(streets[6], 0, 3);
-		setAdj(streets[10], 0, 3);
-		setAdj(streets[11], 3, 0);
-		setAdj(streets[14], 0, 3);
-		setAdj(streets[8], 2, 1);
-		setAdj(streets[12], 1, 4);
-		setAdj(streets[13], 5, 2);
-		setAdj(streets[15], 3, 4);
-		setAdj(streets[16], 4, 5);	
-		setAdj(streets[18], 6, 3);
-		setAdj(streets[19], 4, 7);
-		setAdj(streets[23], 7, 6);
-		setAdj(streets[22], 6, 6);
-		setAdj(streets[26], 6, 6);
-		setAdj(streets[27], 6, 6);
-		setAdj(streets[30], 6, 6);
-		setAdj(streets[17], 5, 8);
-		setAdj(streets[20], 8, 5);
-		setAdj(streets[21], 5, 8);
-		setAdj(streets[25], 5, 8);
-		setAdj(streets[24], 8, 7);
-		setAdj(streets[28], 7, 8);
-		setAdj(streets[29], 7, 8);
-		setAdj(streets[31], 7, 8);
 	}
 	
 	public static void initSensors(){
@@ -606,6 +563,48 @@ public class TrafficMap extends JPanel{
 				streets[11+7*j+i].adjs.put(0, crossings[i+3*j]);
 				streets[11+7*j+i].adjs.put(1, crossings[3+i+3*j]);
 			}
+		
+		setAdj(crossings[0], 7, 6, 11, 2);
+		setAdj(crossings[1], 8, 7, 3, 12);
+		setAdj(crossings[2], 9, 8, 13, 4);
+		setAdj(crossings[3], 14, 15, 18, 11);
+		setAdj(crossings[4], 15, 16, 12, 19);
+		setAdj(crossings[5], 16, 17, 20, 13);
+		setAdj(crossings[6], 23, 22, 27, 18);
+		setAdj(crossings[7], 24, 23, 19, 28);
+		setAdj(crossings[8], 25, 24, 29, 20);
+		setAdj(streets[0], 0, 1);
+		setAdj(streets[2], 0, 1);
+		setAdj(streets[3], 0, 1);
+		setAdj(streets[7], 1, 0);
+		setAdj(streets[1], 2, 2);
+		setAdj(streets[4], 2, 2);
+		setAdj(streets[5], 2, 2);
+		setAdj(streets[9], 2, 2);
+		setAdj(streets[6], 0, 3);
+		setAdj(streets[10], 0, 3);
+		setAdj(streets[11], 3, 0);
+		setAdj(streets[14], 0, 3);
+		setAdj(streets[8], 2, 1);
+		setAdj(streets[12], 1, 4);
+		setAdj(streets[13], 5, 2);
+		setAdj(streets[15], 3, 4);
+		setAdj(streets[16], 4, 5);	
+		setAdj(streets[18], 6, 3);
+		setAdj(streets[19], 4, 7);
+		setAdj(streets[23], 7, 6);
+		setAdj(streets[22], 6, 6);
+		setAdj(streets[26], 6, 6);
+		setAdj(streets[27], 6, 6);
+		setAdj(streets[30], 6, 6);
+		setAdj(streets[17], 5, 8);
+		setAdj(streets[20], 8, 5);
+		setAdj(streets[21], 5, 8);
+		setAdj(streets[25], 5, 8);
+		setAdj(streets[24], 8, 7);
+		setAdj(streets[28], 7, 8);
+		setAdj(streets[29], 7, 8);
+		setAdj(streets[31], 7, 8);
 	}
 	
 	private static void setAdj(Crossing c, int entry1, int exit1, int entry2, int exit2){
