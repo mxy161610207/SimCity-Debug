@@ -68,19 +68,19 @@ public class TrafficMap extends JPanel{
 				for(Sensor s : slist){
 					switch (s.showPos) {
 					case 0:
-						g.drawString("C"+s.bid+"S"+(s.sid+1), s.px-15, s.py-28);
+						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py-28);
 						g.drawLine(s.px, s.py-25, s.px, s.py);
 						break;
 					case 1:
-						g.drawString("C"+s.bid+"S"+(s.sid+1), s.px+27, s.py+4);
+						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px+27, s.py+4);
 						g.drawLine(s.px, s.py, s.px+25, s.py);
 						break;
 					case 2:
-						g.drawString("C"+s.bid+"S"+(s.sid+1), s.px-15, s.py+37);
+						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py+37);
 						g.drawLine(s.px, s.py, s.px, s.py+25);
 						break;
 					case 3:
-						g.drawString("C"+s.bid+"S"+(s.sid+1), s.px-57, s.py+4);
+						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-57, s.py+4);
 						g.drawLine(s.px-25, s.py, s.px, s.py);
 						break;
 					default:
