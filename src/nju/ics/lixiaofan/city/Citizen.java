@@ -31,13 +31,14 @@ public class Citizen implements Runnable{
 	}
 	
 	public static enum Job{
-		Student, Driver, Doctor, Police, Cook, IronMan
+		Student, Doctor, Police, Cook, IronMan
 	}
 	
-	public static enum Activity{
-		Wander, GoToWork, AtWork, GoToSchool, InClass, Driving, RescueTheWorld, HailATaxi, TakeATaxi, GetOff
+	public static enum Activity {
+		Wander, GoToWork, AtWork, GoToSchool, InClass, RescueTheWorld, HailATaxi, TakeATaxi, GetOff, 
+		GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals
 	}
-	
+
 	public Citizen(String name, Gender gender, Job job) {
 		this.name = name;
 		this.gender = gender;
@@ -81,9 +82,8 @@ public class Citizen implements Runnable{
 					icon.setVisible(true);
 					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
 				}
-				int count = 0, x, y;
-				while(count < 3){
-					count++;
+				int x, y;
+				for(int count = 0;count < 3;count++){
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -126,34 +126,66 @@ public class Citizen implements Runnable{
 					CitizenControl.sendActReq(this, null, true);
 				}
 				else{
-					if(nextAct != Activity.AtWork && nextAct != Activity.InClass)
+					if(nextAct != Activity.AtWork && nextAct != Activity.InClass && nextAct != Activity.UnderTreatment)
 						dest = null;
 					CitizenControl.sendActReq(this, nextAct);
 					nextAct = null;
 				}
 				break;
-			case GoToSchool:case GoToWork:
-				nextAct = act == Activity.GoToSchool ? Activity.InClass : Activity.AtWork;
-				switch (job) {
-				case Student:
-					dest = TrafficMap.buildings.get(Building.Type.School);
-					break;
-				case Cook:
-					dest = TrafficMap.buildings.get(Building.Type.Restaurant);
-					break;
-				case Doctor:
-					dest = TrafficMap.buildings.get(Building.Type.Hospital);
-					break;
-				case IronMan:
-					dest = TrafficMap.buildings.get(Building.Type.StarkIndustries);
-					break;
-				case Police:
-					dest = TrafficMap.buildings.get(Building.Type.PoliceStation);
-					break;
-				default:
-					dest = null;
-					break;
+			case GetSick:case GetHungry:
+				for(int count = 0;count < 15;count++){
+					icon.blink = !icon.blink;
+					icon.repaint();
+					try {
+						Thread.sleep(300);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
+				icon.blink = false;
+				icon.repaint();
+				if(act == Activity.GetSick)
+					CitizenControl.sendActReq(this, Activity.GoToHospital);
+				else if(act == Activity.GetHungry)
+					CitizenControl.sendActReq(this, Activity.GoToEat);
+				break;
+			case GoToSchool:case GoToWork:case GoToHospital:case GoToEat:
+				if(act == Activity.GoToHospital){
+					nextAct = Activity.UnderTreatment;
+					dest = TrafficMap.buildings.get(Building.Type.Hospital);
+				}
+				else if(act == Activity.GoToEat){
+					nextAct = Activity.HavingMeals;
+					dest = TrafficMap.buildings.get(Building.Type.Restaurant);
+				}
+				else{
+					if(act == Activity.GoToWork)
+						nextAct = Activity.AtWork;
+					else if(act == Activity.GoToSchool)
+						nextAct = Activity.InClass;
+					
+					switch (job) {
+					case Student:
+						dest = TrafficMap.buildings.get(Building.Type.School);
+						break;
+					case Cook:
+						dest = TrafficMap.buildings.get(Building.Type.Restaurant);
+						break;
+					case Doctor:
+						dest = TrafficMap.buildings.get(Building.Type.Hospital);
+						break;
+					case IronMan:
+						dest = TrafficMap.buildings.get(Building.Type.StarkIndustries);
+						break;
+					case Police:
+						dest = TrafficMap.buildings.get(Building.Type.PoliceStation);
+						break;
+					default:
+						dest = null;
+						break;
+					}
+				}
+				
 				if((loc instanceof Building && loc == dest) ||
 						(loc instanceof Section && ((Building) dest).addrs.contains(loc))){
 					CitizenControl.sendActReq(this, nextAct);
@@ -162,16 +194,14 @@ public class Citizen implements Runnable{
 				else
 					CitizenControl.sendActReq(this, Activity.HailATaxi);
 				break;
-			case AtWork:case InClass:{
+			case AtWork:case InClass:case UnderTreatment:case HavingMeals:{
 				loc = dest;
 				int xmax = ((Building)dest).icon.getWidth()-CitizenIcon.SIZE;
 				int ymax = ((Building)dest).icon.getHeight()-CitizenIcon.SIZE;
 				int x = (int) (Math.random() * xmax) + ((Building)dest).icon.coord.x;
 				int y = (int) (Math.random() * ymax) + ((Building)dest).icon.coord.y;
 				icon.setLocation(x, y);
-				int count = 0;
-				while(count < 50){
-					count++;
+				for(int count = 0;count < 50;count++){
 					icon.blink = !icon.blink;
 					icon.repaint();
 					try {
@@ -185,10 +215,8 @@ public class Citizen implements Runnable{
 				CitizenControl.sendActReq(this, null, true);
 				break;
 			}
-			case RescueTheWorld:{
-				int count = 0;
-				while(count < 5){
-					count++;
+			case RescueTheWorld:
+				for(int count = 0;count < 5;count++){
 					icon.blink = !icon.blink;
 					icon.repaint();
 					try {
@@ -201,7 +229,6 @@ public class Citizen implements Runnable{
 				icon.repaint();
 				CitizenControl.sendActReq(this, null, true);
 				break;
-			}
 			default:
 				break;
 			}
@@ -244,7 +271,12 @@ public class Citizen implements Runnable{
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			if(!blink){
-				g.setColor(color);
+				if(citizen.act != null && citizen.act == Activity.GetSick)
+					g.setColor(Color.RED);
+				else if(citizen.act != null && citizen.act == Activity.GetHungry)
+					g.setColor(Color.YELLOW);
+				else
+					g.setColor(color);
 				g.fillOval(0, 0, SIZE, SIZE);
 				g.setColor(Color.BLACK);
 				g.drawOval(1, 1, SIZE-2, SIZE-2);

@@ -43,8 +43,9 @@ public class TrafficPolice implements Runnable{
 						reqSec.removeWaitingCar(r.car);
 					else
 						reqSec.addWaitingCar(r.car);
-					if(r.car == reqSec.admittedCar){
-						reqSec.setAdmittedCar(null);
+					if(r.car == reqSec.permitted[0]){
+//						reqSec.setPermitted(null);
+						reqSec.permitted[0] = null;
 //						synchronized (wakemeup) {
 //							wakemeup.notify();
 //						}
@@ -61,7 +62,7 @@ public class TrafficPolice implements Runnable{
 						if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 							EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, 0));
 					}
-					else if(reqSec.admittedCar != null && r.car != reqSec.admittedCar){
+					else if(reqSec.permitted[0] != null && r.car != reqSec.permitted[0]){
 						//tell the car to stop
 						System.out.println(r.car.name+" need to STOP!!!2");
 						reqSec.addWaitingCar(r.car);
@@ -73,7 +74,8 @@ public class TrafficPolice implements Runnable{
 					else{
 						//tell the car to enter
 						System.out.println(r.car.name+" can ENTER!!!");
-						reqSec.setAdmittedCar(r.car);
+//						reqSec.setPermitted(r.car);
+						reqSec.permitted[0] = r.car;
 						Command.send(r.car, 1);
 						//trigger recv response event
 						if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
@@ -111,13 +113,15 @@ public class TrafficPolice implements Runnable{
 				if(loc.isOccupied)
 					continue;
 				synchronized (loc.mutex) {
-					synchronized (loc.waitingCars) {
-						if(loc.waitingCars.isEmpty())
-							loc.setAdmittedCar(null);
+					synchronized (loc.waiting) {
+						if(loc.waiting.isEmpty())
+//							loc.setPermitted(null);
+							loc.permitted[0] = null;
 						else{
-							Car car = loc.waitingCars.peek();
+							Car car = loc.waiting.peek();
 							if(car.loc.cars.size() == 1){
-								loc.setAdmittedCar(car);
+//								loc.setPermitted(car);
+								loc.permitted[0] = car;
 								Command.send(car, 1);
 								System.out.println((loc instanceof Street?"Street ":"Crossing ")+loc.id+" notify "+car.name+" to enter");
 								//trigger recv response event
@@ -125,9 +129,10 @@ public class TrafficPolice implements Runnable{
 									EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, car.name, car.loc.name, 1));
 							}
 							else{
-								for(Car wcar : loc.waitingCars)
+								for(Car wcar : loc.waiting)
 									if(wcar.loc.cars.size() == 1 || wcar.loc.cars.peek() == wcar){
-										loc.setAdmittedCar(wcar);
+//										loc.setPermitted(wcar);
+										loc.permitted[0] = wcar;
 										Command.send(wcar, 1);
 										System.out.println((loc instanceof Street?"Street ":"Crossing ")+loc.id+" notify "+wcar.name+" to enter");
 										//trigger recv response event

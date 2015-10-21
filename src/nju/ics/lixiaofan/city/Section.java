@@ -18,20 +18,20 @@ public class Section extends Location{
 	public boolean isOccupied = false;
 	public boolean isCombined = false;
 	public Queue<Car> cars = new LinkedList<Car>();
-	public Car admittedCar = null;
+	public Car[] permitted = {null};
 	public Set<Section> combined = null;
 	public Object mutex = new Object();
 //	private Object mutex4comb = new Object();
-	public Queue<Car> waitingCars = new LinkedList<Car>();
+	public Queue<Car> waiting = new LinkedList<Car>();
 	public List<Sensor> sensors = new ArrayList<Sensor>();
 	public SectionIcon icon = null;
 	
-	public void setAdmittedCar(Car car){
-		admittedCar = car;
-		if(isCombined)
-			for(Section s : combined)
-				s.admittedCar = car;
-	}
+//	public void setPermitted(Car car){
+//		permitted[0] = car;
+////		if(isCombined)
+////			for(Section s : combined)
+////				s.admittedCar = car;
+//	}
 	
 	public static Section sectionOf(String name){
 		if(name == null)
@@ -47,17 +47,17 @@ public class Section extends Location{
 	}
 	
 	public void addWaitingCar(Car car){
-		synchronized (waitingCars) {
-			if(!waitingCars.contains(car)){
-				waitingCars.add(car);
+		synchronized (waiting) {
+			if(!waiting.contains(car)){
+				waiting.add(car);
 			}
 		}
 	}
 	
 	public void removeWaitingCar(Car car){
-		synchronized (waitingCars) {
-			if(waitingCars.contains(car)){
-				waitingCars.remove(car);
+		synchronized (waiting) {
+			if(waiting.contains(car)){
+				waiting.remove(car);
 			}
 		}
 	}

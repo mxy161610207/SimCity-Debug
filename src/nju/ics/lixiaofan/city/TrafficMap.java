@@ -671,7 +671,8 @@ public class TrafficMap extends JPanel{
 					s.combined.add(other);
 					other.cars = s.cars;
 					other.mutex = s.mutex;
-					other.waitingCars = s.waitingCars;
+					other.permitted = s.permitted;
+					other.waiting = s.waiting;
 					other.adjs = s.adjs;
 				}
 		}

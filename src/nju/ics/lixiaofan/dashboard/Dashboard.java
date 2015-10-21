@@ -147,14 +147,14 @@ public class Dashboard extends JFrame{
 				for(int i = 0;i < TrafficMap.crossings.length;i++){
 						TrafficMap.crossings[i].isOccupied = false;
 						TrafficMap.crossings[i].cars.clear();
-						TrafficMap.crossings[i].waitingCars.clear();
-						TrafficMap.crossings[i].admittedCar = null;
+						TrafficMap.crossings[i].waiting.clear();
+						TrafficMap.crossings[i].permitted[0] = null;
 				}
 				for(int i = 0;i < TrafficMap.streets.length;i++){
 						TrafficMap.streets[i].isOccupied = false;
 						TrafficMap.streets[i].cars.clear();
-						TrafficMap.streets[i].waitingCars.clear();
-						TrafficMap.streets[i].admittedCar = null;
+						TrafficMap.streets[i].waiting.clear();
+						TrafficMap.streets[i].permitted[0] = null;
 				}
 			
 				for(Car car : TrafficMap.cars.values()){
@@ -489,9 +489,9 @@ public class Dashboard extends JFrame{
 				str += "\n";
 			}
 		}
-		if(!s.waitingCars.isEmpty()){
+		if(!s.waiting.isEmpty()){
 			str += "Waiting Cars:\n";
-			for(Iterator<Car> it = s.waitingCars.iterator();it.hasNext();){
+			for(Iterator<Car> it = s.waiting.iterator();it.hasNext();){
 				Car one = it.next();
 				str += one.name + " (" + one.getState() + ") "+one.getDir()+"\n";
 			}

@@ -80,17 +80,24 @@ public class CitizenControl implements Runnable{
 							continue;
 						}
 						double d = Math.random();
-						if(d < 0.4)
+						if(d < 0.3)
 							sendActReq(citizen, Activity.Wander);
-						else if(d < 0.8){
-							switch (citizen.job) {
-							case IronMan:
-								sendActReq(citizen, Activity.RescueTheWorld);
-								break;
-							default:
-								break;
-							}
+						else if(d < 0.35){
+							if(citizen.job != Citizen.Job.Doctor)
+								sendActReq(citizen, Activity.GetSick);
 						}
+						else if(d < 0.6){
+							sendActReq(citizen, Activity.GetHungry);
+						}
+//						else if(d < 0.8){
+//							switch (citizen.job) {
+//							case IronMan:
+//								sendActReq(citizen, Activity.RescueTheWorld);
+//								break;
+//							default:
+//								break;
+//							}
+//						}
 						else{
 							if(citizen.job == Job.Student)
 								sendActReq(citizen, Activity.GoToSchool);
