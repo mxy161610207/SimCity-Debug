@@ -79,6 +79,7 @@ public class Citizen implements Runnable{
 					int x = (int) (Math.random() * xmax);
 					int y = (int) (Math.random() * ymax);
 					icon.setLocation(x, y);
+//					icon.setLocation(TrafficMap.crossings[0].icon.coord.centerX, TrafficMap.crossings[0].icon.coord.centerY);
 					icon.setVisible(true);
 					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
 				}

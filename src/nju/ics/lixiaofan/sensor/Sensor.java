@@ -1,6 +1,7 @@
 package nju.ics.lixiaofan.sensor;
 
 import nju.ics.lixiaofan.car.Car;
+import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
 
@@ -11,6 +12,8 @@ public class Sensor {
 	public Crossing crossing;
 	public Street street;
 	public Car car = null;
+	public Section nextSection = null;
+	public Section prevSection = null;
 	public Sensor nextSensor = null;
 	public Sensor prevSensor = null;
 	public int dir;

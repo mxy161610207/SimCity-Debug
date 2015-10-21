@@ -7,7 +7,7 @@ public class AppPkg implements Serializable{
 	byte type;
 	byte appid;
 	String car;
-	byte dir;
+	int dir;
 	byte cmd;
 	String loc;
 	byte delivid;
@@ -26,7 +26,7 @@ public class AppPkg implements Serializable{
 	}
 	
 	//car settings
-	public void setDir(String car, byte dir) {
+	public void setDir(String car, int dir) {
 		type = 1;
 		this.car = car;
 		this.dir = dir;
@@ -38,7 +38,7 @@ public class AppPkg implements Serializable{
 		this.cmd = cmd;
 	}
 	
-	public AppPkg(String car, byte dir, String loc) {
+	public AppPkg(String car, int dir, String loc) {
 		type = 3;
 		this.car = car;
 		this.dir = dir;

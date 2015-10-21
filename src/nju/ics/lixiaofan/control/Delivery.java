@@ -3,6 +3,7 @@ package nju.ics.lixiaofan.control;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import nju.ics.lixiaofan.car.Car;
@@ -11,9 +12,6 @@ import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
-import nju.ics.lixiaofan.city.Section.Crossing;
-import nju.ics.lixiaofan.city.Section.Street;
-import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -109,9 +107,11 @@ public class Delivery {
 			if(start == null)
 				return null;
 			Queue<Section> queue = new LinkedList<Section>();
-			Set<Section> visited = new HashSet<>();
 			queue.add(start);
-			int dis = 0;
+//			Set<Section> visited = new HashSet<>();
+			Section[] prev = {null, null};
+			int dis = 0, i = 0;
+			boolean oneWay = true;
 			while(!queue.isEmpty()){
 				Section sect = queue.poll();
 //				System.out.println(sect.name);
@@ -120,47 +120,35 @@ public class Delivery {
 						if(car.dest == null){
 							return new Result(car, dis, start);
 						}
-				dis++;
-				visited.add(sect);
-				if(sect.isCombined)
-					visited.addAll(sect.combined);
+				if(oneWay || i == 1)
+					dis++;
+//				visited.add(sect);
+//				if(sect.isCombined)
+//					visited.addAll(sect.combined);
 				
-				Section next;
-				if(sect instanceof Crossing){
-					Crossing c = (Crossing) sect;
-					if(sect.id == 2){
-						next = TrafficMap.dir ? c.adj[2] : c.adj[1];
-						if(!visited.contains(next))
+				if(prev[0] == null){
+					prev[0] = sect;
+					for(Section next : sect.access.keySet())
+//						if(!visited.contains(next))
 							queue.add(next);
-					}
-					else if(sect.id == 6){
-						next = TrafficMap.dir ? c.adj[0] : c.adj[3];
-						if(!visited.contains(next))
-							queue.add(next);
-					}
-					else{
-						next = TrafficMap.dir ? c.adj[0] : c.adj[1];
-						if(!visited.contains(next))
-							queue.add(next);
-						
-						next = TrafficMap.dir ? c.adj[2] : c.adj[3];
-						if(!visited.contains(next))
-							queue.add(next);
+					
+					if(queue.size() == 2){
+						oneWay = false;
+						prev[1] = sect;
 					}
 				}
 				else{
-					if(TrafficMap.crossings[2].combined.contains(sect)){
-						sect = ((Street) sect).adj[0];
-						next = TrafficMap.dir?((Crossing) sect).adj[2]:((Crossing) sect).adj[1];
-					}
-					else if(TrafficMap.crossings[6].combined.contains(sect)){
-						sect = ((Street) sect).adj[0];
-						next = TrafficMap.dir?((Crossing) sect).adj[0]:((Crossing) sect).adj[3];
-					}
-					else
-						next = TrafficMap.dir?((Street) sect).adj[0]:((Street) sect).adj[1];
-					if(!visited.contains(next))
-						queue.add(next);
+					for(Map.Entry<Section, Section> access : sect.access.entrySet())
+						if(access.getValue() == prev[i] || (prev[i].isCombined && prev[i].combined.contains(access.getValue()))){
+							Section next = access.getKey();
+							if(next == start || start.isCombined && start.combined.contains(next))
+								continue;
+							queue.add(next);
+							break;
+						}
+					prev[i] = sect;
+					if(!oneWay)
+						i = 1-i;
 				}
 			}
 			allBusy = true;
@@ -201,7 +189,7 @@ public class Delivery {
 							//head for the src
 							if(dt.phase == 1){
 								dt.phase = 2;
-								car.dest = dt.dst instanceof Section ? (Section)dt.dst : selectNearestSection(car.loc, ((Building)dt.dst).addrs);
+								car.dest = dt.dst instanceof Section ? (Section)dt.dst : selectNearestSection(car.loc, car.dir, ((Building)dt.dst).addrs);
 								car.isLoading = false;
 								Dashboard.appendLog(car.name+" finished loading");
 								//trigger end loading event
@@ -265,62 +253,29 @@ public class Delivery {
 		}
 	};
 	
-	private Section selectNearestSection(Section start, Set<Section> sects){
+	private Section selectNearestSection(Section start, int dir, Set<Section> sects){
 		if(sects == null)
 			return null;
+		if(sects.contains(start))
+			return start;
 		Queue<Section> queue = new LinkedList<Section>();
-		Set<Section> visited = new HashSet<>();
-		queue.add(start);
+//		Set<Section> visited = new HashSet<>();
+//		visited.add(start);
+		queue.add(start.adjs.get(dir));//may be wrong
+		Section prev = start;
 		while(!queue.isEmpty()){
 			Section sect = queue.poll();
 			if(sects.contains(sect))
 				return sect;
-//			else if(sect.isCombined){
-//				for(Section s : sect.combined)
-//					if(sects.contains(s))
-//						return s;
-//			}
-			visited.add(sect);
-			if(sect.isCombined)
-				visited.addAll(sect.combined);
 			
-			Section next;
-			if(sect instanceof Crossing){
-				Crossing c = (Crossing) sect;
-				if(sect.id == 2){
-					next = TrafficMap.dir ? c.adj[1] : c.adj[2];
-					if(!visited.contains(next))
-						queue.add(next);
-				}
-				else if(sect.id == 6){
-					next = TrafficMap.dir ? c.adj[3] : c.adj[0];
-					if(!visited.contains(next))
-						queue.add(next);
-				}
-				else{
-					next = TrafficMap.dir ? c.adj[1] : c.adj[0];
-					if(!visited.contains(next))
-						queue.add(next);
-					
-					next = TrafficMap.dir ? c.adj[3] : c.adj[2];
-					if(!visited.contains(next))
-						queue.add(next);
-				}
-			}
-			else{
-				if(TrafficMap.crossings[2].combined.contains(sect)){
-					sect = ((Street) sect).adj[0];
-					next = TrafficMap.dir?((Crossing) sect).adj[1]:((Crossing) sect).adj[2];
-				}
-				else if(TrafficMap.crossings[6].combined.contains(sect)){
-					sect = ((Street) sect).adj[0];
-					next = TrafficMap.dir?((Crossing) sect).adj[3]:((Crossing) sect).adj[0];
-				}
-				else
-					next = TrafficMap.dir?((Street) sect).adj[1]:((Street) sect).adj[0];
-				if(!visited.contains(next))
-					queue.add(next);
-			}
+//			visited.add(sect);
+//			if(sect.isCombined)
+//				visited.addAll(sect.combined);
+			
+			Section next = sect.access.get(prev);
+			if(next != start && (!start.isCombined || !start.combined.contains(next)))
+				queue.add(next);
+			prev = sect;
 		}
 		return null;
 	}

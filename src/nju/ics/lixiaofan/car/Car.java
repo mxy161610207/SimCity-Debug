@@ -23,7 +23,7 @@ public class Car {
 	public int state = 0;//0: still	1: moving	-1: uncertain
 	public int expectation = 0;//0: wanna stop	1: wanna move	-1: none
 	public int finalState = 0;//the same as expectation
-	public byte dir = -1;//0: N	1: S	2: W	3: E
+	public int dir = -1;//0: N	1: S	2: W	3: E
 	public Section loc = null;
 //	public int deliveryPhase = 0;
 	public DeliveryTask dt = null;

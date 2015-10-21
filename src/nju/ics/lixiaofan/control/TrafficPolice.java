@@ -53,7 +53,7 @@ public class TrafficPolice implements Runnable{
 					}
 				}
 				else if(r.cmd == 1){
-					if(reqSec.isOccupied){
+					if(reqSec.isOccupied()){
 						//tell the car to stop
 						System.out.println(r.car.name+" need to STOP!!!");
 						reqSec.addWaitingCar(r.car);
@@ -110,7 +110,7 @@ public class TrafficPolice implements Runnable{
 				
 				Request r = req.poll();
 				Section loc = r.loc;
-				if(loc.isOccupied)
+				if(loc.isOccupied())
 					continue;
 				synchronized (loc.mutex) {
 					synchronized (loc.waiting) {

@@ -145,13 +145,11 @@ public class Dashboard extends JFrame{
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for(int i = 0;i < TrafficMap.crossings.length;i++){
-						TrafficMap.crossings[i].isOccupied = false;
 						TrafficMap.crossings[i].cars.clear();
 						TrafficMap.crossings[i].waiting.clear();
 						TrafficMap.crossings[i].permitted[0] = null;
 				}
 				for(int i = 0;i < TrafficMap.streets.length;i++){
-						TrafficMap.streets[i].isOccupied = false;
 						TrafficMap.streets[i].cars.clear();
 						TrafficMap.streets[i].waiting.clear();
 						TrafficMap.streets[i].permitted[0] = null;
@@ -576,16 +574,16 @@ public class Dashboard extends JFrame{
 			return;
 		carLeave(car, car.loc);
 		
-		section.isOccupied = true;
 		section.cars.add(car);
 		car.loc = section;
+//		if (section instanceof Street || section instanceof Crossing
+//				&& (section.id == 2 || section.id == 6))
+//			car.dir = section.dir[0];
 		section.icon.repaint();
 		if(section.isCombined){
-			for(Section s : section.combined){
-				s.isOccupied = true;
+			car.dir = section.dir[0];
+			for(Section s : section.combined)
 				s.icon.repaint();
-//				s.cars.add(car);
-			}
 		}
 		//trigger move event
 		if(EventManager.hasListener(Event.Type.CAR_MOVE))
@@ -596,16 +594,12 @@ public class Dashboard extends JFrame{
 		if(car == null || section == null)
 			return;
 		section.cars.remove(car);
-		section.isOccupied = !section.cars.isEmpty();
 		if(car.loc == section)
 			car.loc = null;
 		section.icon.repaint();
 		if(section.isCombined){
-			for(Section s : section.combined){
-//				s.cars.remove(car);
-				s.isOccupied = !s.cars.isEmpty();
+			for(Section s : section.combined)
 				s.icon.repaint();
-			}
 		}
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))

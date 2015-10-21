@@ -80,7 +80,7 @@ public class CitizenControl implements Runnable{
 							continue;
 						}
 						double d = Math.random();
-						if(d < 0.3)
+						if(d < 0.01)
 							sendActReq(citizen, Activity.Wander);
 						else if(d < 0.35){
 							if(citizen.job != Citizen.Job.Doctor)

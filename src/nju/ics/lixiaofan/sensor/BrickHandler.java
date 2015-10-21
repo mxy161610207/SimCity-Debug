@@ -12,8 +12,6 @@ import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.Remediation;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.Section.Crossing;
-import nju.ics.lixiaofan.city.Section.Street;
-import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.context.Context;
 import nju.ics.lixiaofan.context.ContextManager;
 import nju.ics.lixiaofan.control.TrafficPolice;
@@ -100,7 +98,7 @@ public class BrickHandler extends Thread{
 					+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
 				
 				Car car = null;
-				Section prev = getLocBefore(sensor);
+				Section prev = sensor.prevSection;
 				if(prev.cars.size() == 1 && prev.cars.peek().dir == sensor.dir)
 					car = prev.cars.peek();
 				else
@@ -142,7 +140,7 @@ public class BrickHandler extends Thread{
 				car.lastDetectedTime = System.currentTimeMillis();
 				sensor.car = car;
 				sensor.isTriggered = true;
-				setCarDir(car, sensor);
+//				setCarDir(car, sensor);
 				//trigger context
 				if(ContextManager.hasListener())
 					ContextManager.trigger(new Context(""+bid +(sid+1), car.name, car.getDir()));
@@ -228,144 +226,26 @@ public class BrickHandler extends Thread{
 		}
 	}
 	
-	private boolean isFalsePositive(Sensor sloc){
-		Section section = getLocBefore(sloc);
-		if(section.isOccupied && !section.cars.isEmpty()){
+	private boolean isFalsePositive(Sensor sensor){
+		Section section = sensor.prevSection;
+		if(section.isOccupied()){
 			for(Car car : section.cars)
-				if(car.dir == sloc.dir && car.state != 0)
+				if(car.dir == sensor.dir && car.state != 0)
 					return false;
 				else
-					System.out.println("Sensor dir: "+sloc.dir+"\tCar dir: " + car.dir +"\tCar state: "+car.state);
+					System.out.println("Sensor dir: "+sensor.dir+"\tCar dir: " + car.dir +"\tCar state: "+car.state);
 		}
 		return true;
 	}
 	
-	private boolean isFalsePositive2(Sensor sloc){
-		Section section = getLocAfter(sloc);
-		if(section.isOccupied && !section.cars.isEmpty()){
+	private boolean isFalsePositive2(Sensor sensor){
+		Section section = sensor.nextSection;
+		if(section.isOccupied()){
 			for(Car car : section.cars)
 				if(car.state != 0)
 					return false;
 		}
 		return true;
-	}
-	
-	private void setCarDir(Car car, Sensor sloc){
-		Crossing crossing = sloc.crossing;
-		if((crossing == TrafficMap.crossings[2] || crossing == TrafficMap.crossings[6]) && sloc.isEntrance){
-			car.dir = (byte) ((car.dir + 2) % 4);
-			return;
-		}
-		Street street = sloc.street;
-		if(TrafficMap.dir){
-			if(crossing == TrafficMap.crossings[0]){
-				if(street == TrafficMap.streets[2] || street == TrafficMap.streets[6]){
-					car.dir += 1;//N->S or W->E
-					return;
-				}
-			}
-			else if(crossing == TrafficMap.crossings[5]){
-				if(street == TrafficMap.streets[17]){
-					car.dir -= 1;//E->W
-					return;
-				}
-			}
-			else if(crossing == TrafficMap.crossings[7]){
-				if(street == TrafficMap.streets[28]){
-					car.dir -= 1;//S->N
-					return;
-				}
-			}
-		}
-		else{
-			if(crossing == TrafficMap.crossings[1]){
-				if(street == TrafficMap.streets[3]){
-					car.dir += 1;//N->S
-					return;
-				}
-			}
-			else if(crossing == TrafficMap.crossings[3]){
-				if(street == TrafficMap.streets[14]){
-					car.dir += 1;//W->E
-					return;
-				}		
-			}
-			else if(crossing == TrafficMap.crossings[8]){
-				if(street == TrafficMap.streets[25] || street == TrafficMap.streets[29]){
-					car.dir -= 1;//E->W or S->N
-					return;
-				}
-			}
-		}
-	}
-	
-	public int getCarDir(int bid, int id, Car car){
-		if(TrafficMap.dir){
-			if(bid == 0){
-				if(id == 0)
-					return 1;
-				else if(id == 1)
-					return 3;
-			}
-			else if(bid == 4){
-				if(id == 1 || id == 2)
-					return 2;
-			}
-			else if(bid == 8){
-				if(id == 0 || id == 1)
-					return 0;
-			}
-		}
-		else{
-			if(bid == 1){
-				if(id == 0 || id == 1)
-					return 1;
-			}
-			else if(bid == 9){
-				if(id == 0)
-					return 0;
-				else if(id == 1)
-					return 2;
-			}
-			else if(bid == 5){
-				if(id == 1 || id == 2)
-					return 3;
-			}
-		}
-		return car.dir;
-	}
-	
-	public Section getLocBefore(Sensor sloc){
-		Section section = getLocAfter(sloc);
-		if(section == null)
-			return null;
-		return (section == sloc.street) ? sloc.crossing : sloc.street;
-	}
-	
-	public static Section getLocAfter(Sensor sloc){
-		int bid = sloc.bid, id = sloc.sid;
-		
-		switch(bid){
-		case 0:
-			return TrafficMap.dir ? sloc.street : sloc.crossing;
-		case 1:
-			return ((id == 0) ^ TrafficMap.dir) ? sloc.crossing : sloc.street;
-		case 2:
-		case 4:
-			return ((id < 2) ^ TrafficMap.dir) ? sloc.crossing : sloc.street;
-		case 3:
-		case 7:
-			return ((id % 2 == 1) ^ TrafficMap.dir) ? sloc.crossing : sloc.street;
-		case 5:
-			return ((id > 1) ^ TrafficMap.dir) ? sloc.crossing : sloc.street;
-		case 6:
-			return ((id == 0 || id == 3) ^ TrafficMap.dir) ? sloc.crossing : sloc.street;
-		case 8:
-			return ((id > 0) ^ TrafficMap.dir) ? sloc.crossing : sloc.street;
-		case 9:
-			return TrafficMap.dir ? sloc.crossing : sloc.street;
-		}
-		return null;
 	}
 	
 	public static void resetState(){
@@ -380,123 +260,8 @@ public class BrickHandler extends Thread{
 				enteringValue[i][j] = 11;
 				leavingValue[i][j] = 10;
 			}
-//		comingValue[0][0] = 9;//8
-//		leavingValue[0][0] = 9;//8
-//		comingValue[0][1] = 8;
-//		leavingValue[0][1] = 8;
-//		
-//		comingValue[1][0] = 8;
-//		leavingValue[1][0] = 8;
-//		comingValue[1][1] = 6;
-//		leavingValue[1][1] = 5;
-//		comingValue[1][2] = 7;
-//		leavingValue[1][2] = 7;
-//		
-//		comingValue[2][0] = 6;
-//		leavingValue[2][0] = 5;
-//		comingValue[2][1] = 6;
-//		leavingValue[2][1] = 5;
-//		comingValue[2][2] = 6;
-//		leavingValue[2][2] = 6;
-//		comingValue[2][3] = 6;
-//		leavingValue[2][3] = 6;
-//		
-//		comingValue[3][0] = 6;
-//		leavingValue[3][0] = 7;
-//		comingValue[3][1] = 6;
-//		leavingValue[3][1] = 7;
-//		comingValue[3][2] = 10;
-//		leavingValue[3][2] = 10;
-//		comingValue[3][3] = 8;
-//		leavingValue[3][3] = 8;
-//		
-//		comingValue[4][0] = 8;
-//		leavingValue[4][0] = 8;
-//		comingValue[4][1] = 8;
-//		leavingValue[4][1] = 8;
-//		comingValue[4][2] = 8;
-//		leavingValue[4][2] = 8;
-//		comingValue[4][3] = 8;
-//		leavingValue[4][3] = 8;
-//		
-//		comingValue[5][0] = 6;
-//		leavingValue[5][0] = 6;
-//		comingValue[5][1] = 7;
-//		leavingValue[5][1] = 6;
-//		comingValue[5][2] = 8;
-//		leavingValue[5][2] = 8;
-//		
-//		comingValue[6][0] = 6;
-//		leavingValue[6][0] = 6;
-//		comingValue[6][1] = 6;
-//		leavingValue[6][1] = 6;
-//		comingValue[6][2] = 8;
-//		leavingValue[6][2] = 8;
-//		comingValue[6][3] = 8;//6
-//		leavingValue[6][3] = 8;
-//		
-//		comingValue[7][0] = 6;
-//		leavingValue[7][0] = 6;
-//		comingValue[7][1] = 9;
-//		leavingValue[7][1] = 9;
-//		comingValue[7][2] = 6;
-//		leavingValue[7][2] = 6;
-//		comingValue[7][3] = 6;
-//		leavingValue[7][3] = 6;
-//		
-//		comingValue[8][0] = 8;
-//		leavingValue[8][0] = 8;
-//		comingValue[8][1] = 6;
-//		leavingValue[8][1] = 7;//6
-//		comingValue[8][2] = 7;//6
-//		leavingValue[8][2] = 8;
-//		
-//		comingValue[9][0] = 10;
-//		leavingValue[9][0] = 10;
-//		comingValue[9][1] = 7;
-//		leavingValue[9][1] = 8;
 	}
 	
-	/*
-	private void calibrateAngle(Car car, Sensor sensor){
-		if(car.type != 3)
-			return;
-		int key = sensor.cid*10 + sensor.sid + 1;
-		System.out.println(key);
-		if(TrafficMap.dir){
-			switch (key) {
-			case 1:case 11:case 32:case 42:case 74:
-				CmdSender.send(car, 5);
-				break;
-			case 2:case 53:case 61:case 72:case 82:
-				CmdSender.send(car, 5);
-				break;
-			case 24:case 52:case 62:case 81:case 91:
-				CmdSender.send(car, 3);
-				break;
-			case 12:case 31:case 43:case 23:case 92:
-				CmdSender.send(car, 4);
-				break;
-			}
-		}
-		else{
-			switch (key) {
-			case 1:case 11:case 32:case 42:case 74:
-				CmdSender.send(car, 3);
-				break;
-			case 2:case 53:case 61:case 72:case 82:
-				CmdSender.send(car, 4);
-				break;
-			case 24:case 52:case 62:case 81:case 91:
-				CmdSender.send(car, 5);
-				break;
-			case 12:case 31:case 43:case 23:case 92:
-				CmdSender.send(car, 5);
-				break;
-			}
-		}
-	}
-	*/
 	public static class SensoryData{
 		public int bid, sid, d;
 		public SensoryData(int bid, int sid, int d) {

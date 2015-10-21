@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
-import nju.ics.lixiaofan.sensor.BrickHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 import nju.ics.lixiaofan.city.SectionIcon.StreetIcon;
 import nju.ics.lixiaofan.city.SectionIcon.CrossingIcon;
@@ -477,26 +476,30 @@ public class TrafficMap extends JPanel{
 		else
 			sensor.dir = 5 - dir;
 		
-		Section section = BrickHandler.getLocAfter(sensor);
+		Section section = sectionBehind(sensor);
 		if(section == sensor.crossing){
 			sensor.isEntrance = true;
+			sensor.nextSection = sensor.crossing;
+			sensor.prevSection = sensor.street;
 			sensor.street.dir[0] = sensor.dir;
-			if(sensor.street.isCombined){
-				for(Section comb: sensor.street.combined)
-					comb.dir[0] = sensor.dir;
-			}
+//			if(sensor.street.isCombined){
+//				for(Section s1: sensor.street.combined)
+//					s1.dir[0] = sensor.dir;
+//			}
 		}
 		else{
 			sensor.isEntrance = false;
+			sensor.nextSection = sensor.street;
+			sensor.prevSection = sensor.crossing;
 			if(sensor.crossing.dir[0] < 0)
 				sensor.crossing.dir[0] = sensor.dir;
 			else
 				sensor.crossing.dir[1] = sensor.dir;
 			
-			if(sensor.crossing.isCombined){
-				for(Section comb: sensor.crossing.combined)
-					comb.dir[0] = sensor.dir;
-			}
+//			if(sensor.crossing.isCombined){
+//				for(Section s1: sensor.crossing.combined)
+//					s1.dir[0] = sensor.dir;
+//			}
 		}
 	}
 	
@@ -564,59 +567,53 @@ public class TrafficMap extends JPanel{
 				streets[11+7*j+i].adjs.put(1, crossings[3+i+3*j]);
 			}
 		
-		setAdj(crossings[0], 7, 6, 11, 2);
-		setAdj(crossings[1], 8, 7, 3, 12);
-		setAdj(crossings[2], 9, 8, 13, 4);
-		setAdj(crossings[3], 14, 15, 18, 11);
-		setAdj(crossings[4], 15, 16, 12, 19);
-		setAdj(crossings[5], 16, 17, 20, 13);
-		setAdj(crossings[6], 23, 22, 27, 18);
-		setAdj(crossings[7], 24, 23, 19, 28);
-		setAdj(crossings[8], 25, 24, 29, 20);
-		setAdj(streets[0], 0, 1);
-		setAdj(streets[2], 0, 1);
-		setAdj(streets[3], 0, 1);
-		setAdj(streets[7], 1, 0);
-		setAdj(streets[1], 2, 2);
-		setAdj(streets[4], 2, 2);
-		setAdj(streets[5], 2, 2);
-		setAdj(streets[9], 2, 2);
-		setAdj(streets[6], 0, 3);
-		setAdj(streets[10], 0, 3);
-		setAdj(streets[11], 3, 0);
-		setAdj(streets[14], 0, 3);
-		setAdj(streets[8], 2, 1);
-		setAdj(streets[12], 1, 4);
-		setAdj(streets[13], 5, 2);
-		setAdj(streets[15], 3, 4);
-		setAdj(streets[16], 4, 5);	
-		setAdj(streets[18], 6, 3);
-		setAdj(streets[19], 4, 7);
-		setAdj(streets[23], 7, 6);
-		setAdj(streets[22], 6, 6);
-		setAdj(streets[26], 6, 6);
-		setAdj(streets[27], 6, 6);
-		setAdj(streets[30], 6, 6);
-		setAdj(streets[17], 5, 8);
-		setAdj(streets[20], 8, 5);
-		setAdj(streets[21], 5, 8);
-		setAdj(streets[25], 5, 8);
-		setAdj(streets[24], 8, 7);
-		setAdj(streets[28], 7, 8);
-		setAdj(streets[29], 7, 8);
-		setAdj(streets[31], 7, 8);
+		setAccess(crossings[0], 7, 6, 11, 2);
+		setAccess(crossings[1], 8, 7, 3, 12);
+		setAccess(crossings[2], 13, 8);
+		setAccess(crossings[3], 14, 15, 18, 11);
+		setAccess(crossings[4], 15, 16, 12, 19);
+		setAccess(crossings[5], 16, 17, 20, 13);
+		setAccess(crossings[6], 23, 18);
+		setAccess(crossings[7], 24, 23, 19, 28);
+		setAccess(crossings[8], 25, 24, 29, 20);
+		setAccess(streets[0], 0, 1);
+		setAccess(streets[6], 0, 3);
+		setAccess(streets[7], 1, 0);
+		setAccess(streets[8], 2, 1);
+		setAccess(streets[11], 3, 0);
+		setAccess(streets[12], 1, 4);
+		setAccess(streets[13], 5, 2);
+		setAccess(streets[15], 3, 4);
+		setAccess(streets[16], 4, 5);
+		setAccess(streets[17], 5, 8);
+		setAccess(streets[18], 6, 3);
+		setAccess(streets[19], 4, 7);
+		setAccess(streets[20], 8, 5);
+		setAccess(streets[23], 7, 6);
+		setAccess(streets[24], 8, 7);
+		setAccess(streets[28], 7, 8);
 	}
 	
-	private static void setAdj(Crossing c, int entry1, int exit1, int entry2, int exit2){
-		c.adj[0] = streets[entry1];
-		c.adj[1] = streets[exit1];
-		c.adj[2] = streets[entry2];
-		c.adj[3] = streets[exit2];
+	private static void setAccess(Section s, int entry1, int exit1, int entry2, int exit2){
+		setAccess(s, entry1, exit1);
+		setAccess(s, entry2, exit2);
 	}
 	
-	private static void setAdj(Street s, int entry, int exit){
-		s.adj[0] = crossings[entry];
-		s.adj[1] = crossings[exit];
+	private static void setAccess(Section s, int entry, int exit){
+		Section in, out;
+		if(s instanceof Crossing){
+			in = streets[entry];
+			out = streets[exit];
+		}
+		else{
+			in = crossings[entry];
+			out = crossings[exit];
+		}
+			
+		if(TrafficMap.dir)
+			s.access.put(in, out);
+		else
+			s.access.put(out, in);
 	}
 	
 	private static void setCombined(){
@@ -674,7 +671,36 @@ public class TrafficMap extends JPanel{
 					other.permitted = s.permitted;
 					other.waiting = s.waiting;
 					other.adjs = s.adjs;
+					other.access = s.access;
+					other.dir = s.dir;
+					other.sensors = s.sensors;
 				}
 		}
+	}
+	
+	private static Section sectionBehind(Sensor sensor){
+		int bid = sensor.bid, id = sensor.sid;
+		
+		switch(bid){
+		case 0:
+			return TrafficMap.dir ? sensor.street : sensor.crossing;
+		case 1:
+			return ((id == 0) ^ TrafficMap.dir) ? sensor.crossing : sensor.street;
+		case 2:
+		case 4:
+			return ((id < 2) ^ TrafficMap.dir) ? sensor.crossing : sensor.street;
+		case 3:
+		case 7:
+			return ((id % 2 == 1) ^ TrafficMap.dir) ? sensor.crossing : sensor.street;
+		case 5:
+			return ((id > 1) ^ TrafficMap.dir) ? sensor.crossing : sensor.street;
+		case 6:
+			return ((id == 0 || id == 3) ^ TrafficMap.dir) ? sensor.crossing : sensor.street;
+		case 8:
+			return ((id > 0) ^ TrafficMap.dir) ? sensor.crossing : sensor.street;
+		case 9:
+			return TrafficMap.dir ? sensor.crossing : sensor.street;
+		}
+		return null;
 	}
 }
