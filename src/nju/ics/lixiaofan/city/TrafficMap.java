@@ -610,10 +610,14 @@ public class TrafficMap extends JPanel{
 			out = crossings[exit];
 		}
 			
-		if(TrafficMap.dir)
-			s.access.put(in, out);
-		else
-			s.access.put(out, in);
+		if(TrafficMap.dir){
+			s.exits.put(in, out);
+			s.entrances.put(out, in);
+		}
+		else{
+			s.exits.put(out, in);
+			s.entrances.put(in, out);
+		}
 	}
 	
 	private static void setCombined(){
@@ -671,7 +675,8 @@ public class TrafficMap extends JPanel{
 					other.permitted = s.permitted;
 					other.waiting = s.waiting;
 					other.adjs = s.adjs;
-					other.access = s.access;
+					other.exits = s.exits;
+					other.entrances = s.entrances;
 					other.dir = s.dir;
 					other.sensors = s.sensors;
 				}

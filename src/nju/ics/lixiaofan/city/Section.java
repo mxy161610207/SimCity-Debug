@@ -12,10 +12,11 @@ import nju.ics.lixiaofan.sensor.Sensor;
 
 public class Section extends Location{
 	public Map<Integer, Section> adjs = new HashMap<Integer, Section>(); //physical adjacency
-	public Map<Section, Section> access = new HashMap<Section, Section>(); //entrance & exit
+	public Map<Section, Section> exits = new HashMap<Section, Section>(); //entrance -> exit
+	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance
 	public int[] dir = {-1, -1};
 	public Queue<Car> cars = new LinkedList<Car>();
-	public Car[] permitted = {null};
+	public Car[] permitted = {null};//making its class an array to share its value among the combined
 	public boolean isCombined = false;
 	public Set<Section> combined = null;
 	public Object mutex = new Object();

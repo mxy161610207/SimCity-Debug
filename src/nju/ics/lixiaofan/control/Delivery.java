@@ -3,7 +3,6 @@ package nju.ics.lixiaofan.control;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import nju.ics.lixiaofan.car.Car;
@@ -108,13 +107,12 @@ public class Delivery {
 				return null;
 			Queue<Section> queue = new LinkedList<Section>();
 			queue.add(start);
-//			Set<Section> visited = new HashSet<>();
 			Section[] prev = {null, null};
 			int dis = 0, i = 0;
 			boolean oneWay = true;
 			while(!queue.isEmpty()){
 				Section sect = queue.poll();
-//				System.out.println(sect.name);
+//				System.out.println(sect.name+"\t"+dis);
 				if(!sect.cars.isEmpty())
 					for(Car car:sect.cars)
 						if(car.dest == null){
@@ -122,14 +120,10 @@ public class Delivery {
 						}
 				if(oneWay || i == 1)
 					dis++;
-//				visited.add(sect);
-//				if(sect.isCombined)
-//					visited.addAll(sect.combined);
 				
 				if(prev[0] == null){
 					prev[0] = sect;
-					for(Section next : sect.access.keySet())
-//						if(!visited.contains(next))
+					for(Section next : sect.exits.keySet())
 							queue.add(next);
 					
 					if(queue.size() == 2){
@@ -138,14 +132,16 @@ public class Delivery {
 					}
 				}
 				else{
-					for(Map.Entry<Section, Section> access : sect.access.entrySet())
-						if(access.getValue() == prev[i] || (prev[i].isCombined && prev[i].combined.contains(access.getValue()))){
-							Section next = access.getKey();
-							if(next == start || start.isCombined && start.combined.contains(next))
-								continue;
-							queue.add(next);
-							break;
+					Section next = sect.entrances.get(prev[i]);
+					if(next == null && prev[i].isCombined)
+						for(Section s : prev[i].combined){
+							next = sect.entrances.get(s);
+							if(next != null)
+								break;
 						}
+					if(next != start && (!start.isCombined || !start.combined.contains(next)))
+						queue.add(next);
+					
 					prev[i] = sect;
 					if(!oneWay)
 						i = 1-i;
@@ -259,8 +255,6 @@ public class Delivery {
 		if(sects.contains(start))
 			return start;
 		Queue<Section> queue = new LinkedList<Section>();
-//		Set<Section> visited = new HashSet<>();
-//		visited.add(start);
 		queue.add(start.adjs.get(dir));//may be wrong
 		Section prev = start;
 		while(!queue.isEmpty()){
@@ -268,11 +262,13 @@ public class Delivery {
 			if(sects.contains(sect))
 				return sect;
 			
-//			visited.add(sect);
-//			if(sect.isCombined)
-//				visited.addAll(sect.combined);
-			
-			Section next = sect.access.get(prev);
+			Section next = sect.exits.get(prev);
+			if(next == null && prev.isCombined)
+				for(Section s : prev.combined){
+					next = sect.exits.get(s);
+					if(next != null)
+						break;
+				}
 			if(next != start && (!start.isCombined || !start.combined.contains(next)))
 				queue.add(next);
 			prev = sect;
