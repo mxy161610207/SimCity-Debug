@@ -13,6 +13,14 @@ public class Command {
 	public int type = 0;//0: normal 1: wake car 2: wake rc
 	public CarRC rc = null;
 	
+	public final static int STOP = 0;
+	public final static int FORWARD = 1;
+	public final static int BACKWARD = 2;
+	public final static int LEFT = 3;
+	public final static int RIGHT = 4;
+	public final static int NO_STEER = 5;
+	public final static int HORN = 6;
+	
 	public Command(CarRC rc) {
 		this.rc = rc;
 		type = 2;
@@ -33,40 +41,31 @@ public class Command {
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
 	public static void send(Car car, int cmd){
-		if(car == null)
-			return;
-//		if(car.type == 3)
-//			send(car, cmd, 1, false);
-//		else
-			send(car, cmd, 1, true);
+//		if(car == null)
+//			return;
+		send(car, cmd, 1, true);
 	}	
 	
 	public static void send(Car car, int cmd, int level, boolean remedy){
-		if(car == null || cmd < 0 || cmd > 4)
+		if(car == null || car.state == cmd)
 			return;
-		if(car.state == cmd)
-			return;
-		if(cmd == 0 && level > 4)
-			return;
+//		if(cmd == 0 && level > 4)
+//			return;
 
 		CmdSender.send(car, cmd);
-		car.expectation = cmd;
-		if(cmd != car.state)
-			car.state = -1;
-		if(cmd == 0 && car.lastInstr == 1)
-			car.lastStopInstrTime = System.currentTimeMillis();
-		car.lastInstr = cmd;
-		car.lastInstrTime = System.currentTimeMillis();
-		
-		if(remedy){
-//			Dashboard.mapRepaint();
-			addRemedyCommand(car, cmd);
+		if(cmd >= STOP && cmd <= RIGHT){
+			car.expectation = cmd;
+			if(cmd != car.state)
+				car.state = -1;
+			if(cmd == 0 && car.lastInstr == 1)
+				car.lastStopInstrTime = System.currentTimeMillis();
+			car.lastInstr = cmd;
+			car.lastInstrTime = System.currentTimeMillis();
+			
+			if(remedy)
+				addRemedyCommand(car, cmd);
 		}
 	}
-	
-//	public static void send(Command cmd){
-//		send(cmd.car, cmd.cmd);
-//	}
 	
 	public static void send(Command cmd, boolean remedy) {
 		send(cmd.car, cmd.cmd, cmd.level, remedy);
@@ -76,7 +75,7 @@ public class Command {
 		if(car == null || !car.isConnected || car.state == -1)
 			return;
 		
-		CmdSender.send(car, car.state, 1);
+		CmdSender.send(car, car.state);
 		car.expectation = car.state;
 		if(car.state == 0 && car.lastInstr == 1)
 			car.lastStopInstrTime = System.currentTimeMillis();

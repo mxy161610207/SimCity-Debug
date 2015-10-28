@@ -25,7 +25,6 @@ public class Car {
 	public int finalState = 0;//the same as expectation
 	public int dir = -1;//0: N	1: S	2: W	3: E
 	public Section loc = null;
-//	public int deliveryPhase = 0;
 	public DeliveryTask dt = null;
 	public Section dest = null;
 	public boolean isLoading = false;//loading or unloading

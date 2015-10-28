@@ -44,11 +44,7 @@ public class TrafficPolice implements Runnable{
 					else
 						reqSec.addWaitingCar(r.car);
 					if(r.car == reqSec.permitted[0]){
-//						reqSec.setPermitted(null);
 						reqSec.permitted[0] = null;
-//						synchronized (wakemeup) {
-//							wakemeup.notify();
-//						}
 						sendNotice(reqSec);
 					}
 				}
@@ -58,6 +54,7 @@ public class TrafficPolice implements Runnable{
 						System.out.println(r.car.name+" need to STOP!!!");
 						reqSec.addWaitingCar(r.car);
 						Command.send(r.car, 0);
+						Command.send(r.car, Command.HORN);
 						//trigger recv response event
 						if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 							EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, 0));
@@ -74,7 +71,6 @@ public class TrafficPolice implements Runnable{
 					else{
 						//tell the car to enter
 						System.out.println(r.car.name+" can ENTER!!!");
-//						reqSec.setPermitted(r.car);
 						reqSec.permitted[0] = r.car;
 						Command.send(r.car, 1);
 						//trigger recv response event
@@ -115,12 +111,10 @@ public class TrafficPolice implements Runnable{
 				synchronized (loc.mutex) {
 					synchronized (loc.waiting) {
 						if(loc.waiting.isEmpty())
-//							loc.setPermitted(null);
 							loc.permitted[0] = null;
 						else{
 							Car car = loc.waiting.peek();
 							if(car.loc.cars.size() == 1){
-//								loc.setPermitted(car);
 								loc.permitted[0] = car;
 								Command.send(car, 1);
 								System.out.println((loc instanceof Street?"Street ":"Crossing ")+loc.id+" notify "+car.name+" to enter");
@@ -131,7 +125,6 @@ public class TrafficPolice implements Runnable{
 							else{
 								for(Car wcar : loc.waiting)
 									if(wcar.loc.cars.size() == 1 || wcar.loc.cars.peek() == wcar){
-//										loc.setPermitted(wcar);
 										loc.permitted[0] = wcar;
 										Command.send(wcar, 1);
 										System.out.println((loc instanceof Street?"Street ":"Crossing ")+loc.id+" notify "+wcar.name+" to enter");
