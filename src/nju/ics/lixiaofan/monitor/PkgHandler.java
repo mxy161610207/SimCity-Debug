@@ -12,6 +12,9 @@ import java.util.Queue;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
+import nju.ics.lixiaofan.city.Building;
+import nju.ics.lixiaofan.city.Citizen;
+import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
@@ -91,13 +94,10 @@ public class PkgHandler implements Runnable{
 				}
 				break;
 			}
-			case 8:{
-				Section src = Section.sectionOf(p.src);
-				Section dst = Section.sectionOf(p.dst);
-				System.out.println(src.name+" "+dst.name);
-				Delivery.add(src, dst);
+			case 8:
+				System.out.println(p.src+" "+p.dest);
+				Delivery.add(Location.LocOf(p.src), Location.LocOf(p.dest));
 				break;
-			}
 			}
 		}
 	}
@@ -113,17 +113,19 @@ public class PkgHandler implements Runnable{
 		sender.add(p);
 	}
 	
-	public void sendInitInfo(ObjectOutputStream oos){
-		try {
-			for(Car car : TrafficMap.cars.values()){
-				if(car.loc == null)
-					oos.writeObject(new AppPkg(car.name, (byte)-1, null));
-				else
-					oos.writeObject(new AppPkg(car.name, car.dir, car.loc.name));
+	public void sendInitInfo(ObjectOutputStream oos){		
+		for(Car car : TrafficMap.cars.values()){
+			AppPkg p = new AppPkg();
+			if(car.loc == null)
+				p.setCar(car.name, -1, null);
+			else
+				p.setCar(car.name, car.dir, car.loc.name);
+			try {
+				oos.writeObject(p);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} 
 		
 		for(DeliveryTask dtask : DataProvider.getDelivTasks()){
 			AppPkg p = new AppPkg();
@@ -131,6 +133,26 @@ public class PkgHandler implements Runnable{
 				p.setDelivery((byte)dtask.id, null, dtask.src.name, dtask.dst.name, (byte)dtask.phase);
 			else
 				p.setDelivery((byte)dtask.id, dtask.car.name, dtask.src.name, dtask.dst.name, (byte)dtask.phase);
+			try {
+				oos.writeObject(p);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		for(Building building : TrafficMap.buildings.values()){
+			AppPkg p = new AppPkg();
+			p.setBuilding(building.name, building.type.toString(), building.block);
+			try {
+				oos.writeObject(p);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		for(Citizen citizen : TrafficMap.citizens){
+			AppPkg p = new AppPkg();
+			p.setCitizen(citizen.name, citizen.gender.toString(), citizen.job.toString());
 			try {
 				oos.writeObject(p);
 			} catch (IOException e) {

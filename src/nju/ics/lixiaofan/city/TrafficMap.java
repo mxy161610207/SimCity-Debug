@@ -31,15 +31,14 @@ public class TrafficMap extends JPanel{
 	public static boolean showSensors = false, showSections = false;
 	public final static boolean dir = true;
 	
-	private static final int cw = 50, cl = 50;//crossing width & length
-	public static final int sw = 30;//street width
-	private static final int sl = 80;//street length
-	private static final int aw = 20;
-	private static final int ah = 20;
-	private static final int u = cw + sl;
-	private static final int u2 = (cw-sw)/2;
-	private static final int u3 = sl+(cw+sw)/2;
-	private static final int u4 = u+sw;
+	public static final int sh = 37;//street height
+	private static final int sw = sh * 2;//street width
+	private static final int cw = (int) (sh * 1.5);//crossing width
+	private static final int aw = cw / 2;
+	private static final int u = cw + sw;
+	private static final int u2 = (cw-sh)/2;
+	private static final int u3 = sw+(cw+sh)/2;
+	private static final int u4 = u+sh;
 
 	public TrafficMap() {
 		setLayout(null);
@@ -52,7 +51,7 @@ public class TrafficMap extends JPanel{
 		}
 		for(Building b : buildings.values()){
 			add(b.icon);
-			placeBuidling(b, b.loc);
+			placeBuilding(b);
 		}
 		for(Section s : sections)
 			add(s.icon);
@@ -89,24 +88,24 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	private void placeBuidling(Building building, int blockId){
-		if(building == null || blockId < 0 || blockId > 15)
+	private void placeBuilding(Building building){
+		if(building == null || building.block < 0 || building.block > 15)
 			return;
 		int size = streets[7].icon.coord.w;
 		int x = crossings[0].icon.coord.x - size;
 		int y = crossings[0].icon.coord.y - size;
 		int u = size + crossings[0].icon.coord.w;
-		x += (blockId % 4) * u;
-		y += (blockId / 4) * u;
+		x += (building.block % 4) * u;
+		y += (building.block / 4) * u;
 		building.icon.coord.x = x;
 		building.icon.coord.y = y;
 		building.icon.coord.w = building.icon.coord.h = size;
 		building.icon.coord.centerX = x + size/2;
 		building.icon.coord.centerY = y + size/2;
 		building.icon.setBounds(x, y, size, size);
-		building.icon.setImageIcon();
+		building.icon.setIcon();
 		
-		switch (blockId) {
+		switch (building.block) {
 		case 0:
 			building.addrs.add(streets[2]);
 			building.addrs.add(streets[6]);
@@ -138,8 +137,8 @@ public class TrafficMap extends JPanel{
 			building.addrs.add(crossings[3]);
 			break;
 		case 5:case 6:case 9:case 10:{
-			int a = blockId / 9;
-			int b = 1 - (blockId % 2);
+			int a = building.block / 9;
+			int b = 1 - (building.block % 2);
 			int offset = 8*a+b;
 			building.addrs.add(streets[7+offset]);
 			building.addrs.add(streets[10+offset]);
@@ -221,7 +220,7 @@ public class TrafficMap extends JPanel{
 			crossings[i].icon.coord.x = (i%3+1)*u;
 			crossings[i].icon.coord.y = (i/3+1)*u;
 			crossings[i].icon.coord.w = cw;
-			crossings[i].icon.coord.h = cl;
+			crossings[i].icon.coord.h = cw;
 			crossings[i].icon.coord.centerX = crossings[i].icon.coord.x + crossings[i].icon.coord.w/2;
 			crossings[i].icon.coord.centerY = crossings[i].icon.coord.y + crossings[i].icon.coord.h/2;
 			crossings[i].icon.setBounds(crossings[i].icon.coord.x, crossings[i].icon.coord.y,
@@ -240,9 +239,9 @@ public class TrafficMap extends JPanel{
 			//vertical streets
 			if(remainder > 1 && remainder < 6){
 				((StreetIcon )streets[i].icon).isVertical = true;
-				streets[i].icon.coord.w = sw;
+				streets[i].icon.coord.w = sh;
 				streets[i].icon.coord.arcw = aw;
-				streets[i].icon.coord.arch = ah;
+				streets[i].icon.coord.arch = aw;
 				int offset = (quotient % 2 == 0) ? u + u2 : u2;
 				if(quotient == 0){
 					streets[i].icon.coord.x = (remainder-1)*u+u2;
@@ -271,14 +270,14 @@ public class TrafficMap extends JPanel{
 				else{
 					streets[i].icon.coord.x = (remainder-2)*u+offset;
 					streets[i].icon.coord.y = quotient*u+cw;
-					streets[i].icon.coord.h = sl;
+					streets[i].icon.coord.h = sw;
 				}
 			}
 			//horizontal streets
 			else{
 				((StreetIcon )streets[i].icon).isVertical = false;
-				streets[i].icon.coord.h = sw;
-				streets[i].icon.coord.arcw = ah;
+				streets[i].icon.coord.h = sh;
+				streets[i].icon.coord.arcw = aw;
 				streets[i].icon.coord.arch = aw;
 				switch(remainder){
 				case 6:
@@ -293,7 +292,7 @@ public class TrafficMap extends JPanel{
 					if(i != 31){
 						streets[i].icon.coord.x = u+cw;
 						streets[i].icon.coord.y = (quotient+1)*u+u2;
-						streets[i].icon.coord.w = sl;
+						streets[i].icon.coord.w = sw;
 					}
 					else{
 						streets[i].icon.coord.x = 2*u+u2;
@@ -305,7 +304,7 @@ public class TrafficMap extends JPanel{
 					if(i != 0){
 						streets[i].icon.coord.x = 2*u+cw;
 						streets[i].icon.coord.y = quotient*u+u2;
-						streets[i].icon.coord.w = sl;
+						streets[i].icon.coord.w = sw;
 					}
 					else{
 						streets[i].icon.coord.x = u+u2;

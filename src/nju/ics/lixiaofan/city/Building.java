@@ -16,17 +16,17 @@ import nju.ics.lixiaofan.city.SectionIcon.Coord;
 public class Building extends Location{
 	public Type type = null;
 	public BuildingIcon icon = null;
-	public int loc;//block number
+	public int block;//block number
 	public Set<Section> addrs = null;
 	
 	public static enum Type {
 		Hospital, School, PoliceStation, Restaurant, StarkIndustries
 	}
 	
-	public Building(String name, Type type, int loc) {
+	public Building(String name, Type type, int block) {
 		this.name = name;
 		this.type = type;
-		this.loc  = loc;
+		this.block  = block;
 		this.icon = new BuildingIcon(this);
 		this.addrs = new HashSet<Section>();
 	}
@@ -64,7 +64,7 @@ public class Building extends Location{
 			g.drawRect(1, 1, getWidth()-2, getHeight()-2);
 		}
 		
-		public void setImageIcon(){
+		public void setIcon(){
 			switch (building.type) {
 			case StarkIndustries:
 				imageIcon = new ImageIcon("res/stark_industries.png");

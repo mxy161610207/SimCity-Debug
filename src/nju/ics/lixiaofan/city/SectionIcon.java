@@ -14,7 +14,7 @@ import nju.ics.lixiaofan.dashboard.Dashboard;
 public class SectionIcon extends JButton{
 	private static final long serialVersionUID = 1L;
 	public final static int cubeSize = CarIcon.SIZE;
-	private final static int cubeInset = TrafficMap.sw - cubeSize;
+	private final static int cubeInset = TrafficMap.sh - cubeSize;
 	public int id;
 	public Section section = null;
 	

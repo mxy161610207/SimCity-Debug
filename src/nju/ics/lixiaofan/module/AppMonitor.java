@@ -11,7 +11,9 @@ public class AppMonitor implements EventListener{
 		switch (event.type) {
 		case CAR_ENTER:{
 			Car car = Car.carOf(event.car);
-			PkgHandler.send(new AppPkg(car.name, car.dir, event.location));
+			AppPkg p = new AppPkg();
+			p.setCar(car.name, car.dir, event.location);
+			PkgHandler.send(p);
 			break;
 		}
 //		case Event.Type.CAR_LEAVE:{

@@ -90,7 +90,7 @@ public class Car {
 	public static class CarIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		private String name = null;
-		public static final int SIZE = (int) (0.8*TrafficMap.sw);
+		public static final int SIZE = (int) (0.8*TrafficMap.sh);
 		public static final Color SILVER = new Color(192, 192, 192);
 		public CarIcon(String name) {
 			setOpaque(false);
