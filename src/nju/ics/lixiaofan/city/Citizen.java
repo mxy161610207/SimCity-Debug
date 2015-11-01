@@ -16,6 +16,8 @@ import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.dashboard.Dashboard;
+import nju.ics.lixiaofan.monitor.AppPkg;
+import nju.ics.lixiaofan.monitor.PkgHandler;
 
 public class Citizen implements Runnable{
 	public String name;
@@ -79,9 +81,12 @@ public class Citizen implements Runnable{
 					int x = (int) (Math.random() * xmax);
 					int y = (int) (Math.random() * ymax);
 					icon.setLocation(x, y);
-//					icon.setLocation(TrafficMap.crossings[0].icon.coord.centerX, TrafficMap.crossings[0].icon.coord.centerY);
 					icon.setVisible(true);
 					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
+					
+					AppPkg p = new AppPkg();
+					p.setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size);
+					PkgHandler.send(p);
 				}
 				int x, y;
 				for(int count = 0;count < 3;count++){
@@ -102,6 +107,10 @@ public class Citizen implements Runnable{
 						y = ymax;
 					icon.setLocation(x, y);
 					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
+					
+					AppPkg p = new AppPkg();
+					p.setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size);
+					PkgHandler.send(p);
 				}
 				CitizenControl.sendActReq(this, null, true);
 				break;
@@ -116,11 +125,21 @@ public class Citizen implements Runnable{
 				break;
 			case GetOff:
 				if(loc != null){
-					if(loc instanceof Section)
-						icon.setLocation(((Section)loc).icon.coord.centerX, ((Section)loc).icon.coord.centerY);
-					else
-						icon.setLocation(((Building)loc).icon.coord.centerX, ((Building)loc).icon.coord.centerY);
+					int x, y;
+					if(loc instanceof Section){
+						x = ((Section)loc).icon.coord.centerX;
+						y = ((Section)loc).icon.coord.centerY;
+					}
+					else{
+						x = ((Building)loc).icon.coord.centerX;
+						y = ((Building)loc).icon.coord.centerY;
+					}
+					icon.setLocation(x, y);
 					icon.setVisible(true);
+					
+					AppPkg p = new AppPkg();
+					p.setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size);
+					PkgHandler.send(p);
 				}
 				if(nextAct == null){
 					dest = null;
@@ -202,6 +221,10 @@ public class Citizen implements Runnable{
 				int x = (int) (Math.random() * xmax) + ((Building)dest).icon.coord.x;
 				int y = (int) (Math.random() * ymax) + ((Building)dest).icon.coord.y;
 				icon.setLocation(x, y);
+				
+				AppPkg p = new AppPkg();
+				p.setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size);
+				PkgHandler.send(p);
 				for(int count = 0;count < 50;count++){
 					icon.blink = !icon.blink;
 					icon.repaint();

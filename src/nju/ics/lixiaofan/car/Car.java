@@ -91,6 +91,7 @@ public class Car {
 		private static final long serialVersionUID = 1L;
 		private String name = null;
 		public static final int SIZE = (int) (0.8*TrafficMap.sh);
+		public static final int INSET = (int) (0.2*TrafficMap.sh);
 		public static final Color SILVER = new Color(192, 192, 192);
 		public CarIcon(String name) {
 			setOpaque(false);

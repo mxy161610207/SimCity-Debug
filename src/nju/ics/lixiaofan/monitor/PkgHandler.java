@@ -211,7 +211,7 @@ public class PkgHandler implements Runnable{
 		}
 		
 		public void add(AppPkg p){
-			if(!sockets.isEmpty())
+			if(sockets != null && !sockets.isEmpty())
 				synchronized (queue) {
 					queue.add(p);
 					queue.notify();

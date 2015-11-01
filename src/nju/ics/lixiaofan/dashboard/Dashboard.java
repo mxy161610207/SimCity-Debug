@@ -106,11 +106,11 @@ public class Dashboard extends JFrame{
 		add(leftPanel);
 		add(rightPanel);
 		
-		String mapLen = "";
-		for(int i = 0;i < 19;i++)
-			mapLen = mapLen.concat("          ");
-		JLabel maplenLabel = new JLabel(mapLen);
-		add(maplenLabel);
+//		String mapLen = "";
+//		for(int i = 0;i < 19;i++)
+//			mapLen = mapLen.concat("          ");
+//		JLabel maplenLabel = new JLabel(mapLen);
+//		add(maplenLabel);
 		
 		for(Section s : TrafficMap.sections)
 			s.icon.addMouseListener(new SectionIconListener(s));
@@ -123,9 +123,9 @@ public class Dashboard extends JFrame{
 		gbc.gridx = 1;
 		gbc.weightx = 0;
 		gbl.setConstraints(mapPanel, gbc);
-		gbc.gridy = 0;
-		gbc.weighty = 0;
-		gbl.setConstraints(maplenLabel, gbc);
+//		gbc.gridy = 0;
+//		gbc.weighty = 0;
+//		gbl.setConstraints(maplenLabel, gbc);
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 		gbc.weighty = 1;
@@ -452,7 +452,8 @@ public class Dashboard extends JFrame{
 		new Thread(blinkThread).start();
 		
 		setTitle("Dashboard");
-		setSize(1200,638);
+//		setSize(1200,mapPanel);
+		pack();
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);

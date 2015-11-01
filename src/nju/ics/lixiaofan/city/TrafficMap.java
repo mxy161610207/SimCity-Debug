@@ -1,6 +1,7 @@
 package nju.ics.lixiaofan.city;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,9 +40,12 @@ public class TrafficMap extends JPanel{
 	private static final int u2 = (cw-sh)/2;
 	private static final int u3 = sw+(cw+sh)/2;
 	private static final int u4 = u+sh;
+	public static final int size = 4*(sw+cw)+sh;
 
 	public TrafficMap() {
 		setLayout(null);
+		setPreferredSize(new Dimension(size, size));
+//		setSize(size, size);
 		initSections();
 		initSensors();
 		
@@ -217,8 +221,10 @@ public class TrafficMap extends JPanel{
 			crossings[i].icon = new CrossingIcon();
 			crossings[i].icon.id = i;
 			crossings[i].icon.section = crossings[i];
-			crossings[i].icon.coord.x = (i%3+1)*u;
-			crossings[i].icon.coord.y = (i/3+1)*u;
+//			crossings[i].icon.coord.x = (i%3+1)*u;
+//			crossings[i].icon.coord.y = (i/3+1)*u;
+			crossings[i].icon.coord.x = (sh+cw)/2 + sw + (i%3) * u;
+			crossings[i].icon.coord.y = (sh+cw)/2 + sw + (i/3) * u;
 			crossings[i].icon.coord.w = cw;
 			crossings[i].icon.coord.h = cw;
 			crossings[i].icon.coord.centerX = crossings[i].icon.coord.x + crossings[i].icon.coord.w/2;
@@ -242,34 +248,48 @@ public class TrafficMap extends JPanel{
 				streets[i].icon.coord.w = sh;
 				streets[i].icon.coord.arcw = aw;
 				streets[i].icon.coord.arch = aw;
-				int offset = (quotient % 2 == 0) ? u + u2 : u2;
+				switch (quotient) {
+				case 0:case 2:
+					streets[i].icon.coord.x = (remainder-1) * u;
+					streets[i].icon.coord.y = (quotient==0) ? 0 : u*2+(sh+cw)/2;
+					if(streets[i].id == 21)
+						streets[i].icon.coord.y -= (sh+cw)/2;
+					break;
+				case 1:case 3:
+					streets[i].icon.coord.x = (remainder-2) * u;
+					streets[i].icon.coord.y = quotient*u+(sh+cw)/2;
+					if(streets[i].id == 10 || streets[i].id == 26)
+						streets[i].icon.coord.y -=(sh+cw)/2;
+					break;
+				}
+//				int offset = (quotient % 2 == 0) ? u + u2 : u2;
 				if(quotient == 0){
-					streets[i].icon.coord.x = (remainder-1)*u+u2;
-					streets[i].icon.coord.y = u2;
+//					streets[i].icon.coord.x = (remainder-1)*u+u2;
+//					streets[i].icon.coord.y = u2;
 					if(remainder != 5)
 						streets[i].icon.coord.h = u3;
 					else
 						streets[i].icon.coord.h = u4;
 				}
 				else if(quotient == 3){
-					streets[i].icon.coord.x = (remainder-2)*u+offset;
+//					streets[i].icon.coord.x = (remainder-2)*u+offset;
 					if(remainder != 2){
-						streets[i].icon.coord.y = quotient*u+cw;
+//						streets[i].icon.coord.y = quotient*u+cw;
 						streets[i].icon.coord.h = u3;
 					}
 					else{
-						streets[i].icon.coord.y = quotient*u+u2;
+//						streets[i].icon.coord.y = quotient*u+u2;
 						streets[i].icon.coord.h = u4;
 					}
 				}
 				else if(i == 10 || i ==21){
-					streets[i].icon.coord.x = (remainder-2)*u+offset;
-					streets[i].icon.coord.y = quotient*u+u2;
+//					streets[i].icon.coord.x = (remainder-2)*u+offset;
+//					streets[i].icon.coord.y = quotient*u+u2;
 					streets[i].icon.coord.h = u4;
 				}
 				else{
-					streets[i].icon.coord.x = (remainder-2)*u+offset;
-					streets[i].icon.coord.y = quotient*u+cw;
+//					streets[i].icon.coord.x = (remainder-2)*u+offset;
+//					streets[i].icon.coord.y = quotient*u+cw;
 					streets[i].icon.coord.h = sw;
 				}
 			}
@@ -281,8 +301,31 @@ public class TrafficMap extends JPanel{
 				streets[i].icon.coord.arch = aw;
 				switch(remainder){
 				case 6:
-					streets[i].icon.coord.x = u2;
-					streets[i].icon.coord.y = (quotient+1)*u+u2;
+					streets[i].icon.coord.x = 0;
+					streets[i].icon.coord.y = (quotient+1) * u;
+					break;
+				case 7:
+					streets[i].icon.coord.x = (remainder-6)*u+(sh+cw)/2;
+					streets[i].icon.coord.y = (quotient+1) * u;
+					if(streets[i].id == 31)
+						streets[i].icon.coord.x += sw+(cw-sh)/2;
+					break;
+				case 0:case 1:
+					if(streets[i].id > 1){
+						streets[i].icon.coord.x = (remainder+2)*u+(sh+cw)/2;
+						streets[i].icon.coord.y = quotient * u;
+					}
+					else{
+						streets[i].icon.coord.x = (remainder*2+1)*u;
+						streets[i].icon.coord.y = 0;
+					}
+					break;
+				}
+				
+				switch(remainder){
+				case 6:
+//					streets[i].icon.coord.x = u2;
+//					streets[i].icon.coord.y = (quotient+1)*u+u2;
 					if(quotient != 3)
 						streets[i].icon.coord.w = u-u2;
 					else
@@ -290,36 +333,36 @@ public class TrafficMap extends JPanel{
 					break;
 				case 7:
 					if(i != 31){
-						streets[i].icon.coord.x = u+cw;
-						streets[i].icon.coord.y = (quotient+1)*u+u2;
+//						streets[i].icon.coord.x = u+cw;
+//						streets[i].icon.coord.y = (quotient+1)*u+u2;
 						streets[i].icon.coord.w = sw;
 					}
 					else{
-						streets[i].icon.coord.x = 2*u+u2;
-						streets[i].icon.coord.y = 4*u+u2;
+//						streets[i].icon.coord.x = 2*u+u2;
+//						streets[i].icon.coord.y = 4*u+u2;
 						streets[i].icon.coord.w = u4;
 					}
 					break;
 				case 0:
 					if(i != 0){
-						streets[i].icon.coord.x = 2*u+cw;
-						streets[i].icon.coord.y = quotient*u+u2;
+//						streets[i].icon.coord.x = 2*u+cw;
+//						streets[i].icon.coord.y = quotient*u+u2;
 						streets[i].icon.coord.w = sw;
 					}
 					else{
-						streets[i].icon.coord.x = u+u2;
-						streets[i].icon.coord.y = u2;
+//						streets[i].icon.coord.x = u+u2;
+//						streets[i].icon.coord.y = u2;
 						streets[i].icon.coord.w = u4;
 					}
 					break;
 				case 1:
-					streets[i].icon.coord.y = quotient*u+u2;
+//					streets[i].icon.coord.y = quotient*u+u2;
 					if(quotient != 0){
-						streets[i].icon.coord.x = 3*u+cw;
+//						streets[i].icon.coord.x = 3*u+cw;
 						streets[i].icon.coord.w = u3;
 					}
 					else{
-						streets[i].icon.coord.x = 3*u+u2;
+//						streets[i].icon.coord.x = 3*u+u2;
 						streets[i].icon.coord.w = u4;
 					}
 					break;

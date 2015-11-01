@@ -24,6 +24,7 @@ public class AppPkg implements Serializable{
 	public String gender;
 	public String job;
 	public String act;
+	public double ratioX, ratioY;
 	
 	public AppPkg() {
 	}
@@ -101,5 +102,18 @@ public class AppPkg implements Serializable{
 		this.citizen = citizen;
 		this.gender = gender;
 		this.job = job;
+	}
+	
+	public void setCitizen(String citizen, String act){
+		type = 11;
+		this.citizen = citizen;
+		this.act = act;
+	}
+	
+	public void setCitizen(String citizen, double x, double y){
+		type = 12;
+		this.citizen = citizen;
+		this.ratioX = x;
+		this.ratioY = y;
 	}
 }

@@ -14,7 +14,7 @@ import nju.ics.lixiaofan.dashboard.Dashboard;
 public class SectionIcon extends JButton{
 	private static final long serialVersionUID = 1L;
 	public final static int cubeSize = CarIcon.SIZE;
-	private final static int cubeInset = TrafficMap.sh - cubeSize;
+	private final static int cubeInset = CarIcon.INSET;
 	public int id;
 	public Section section = null;
 	
@@ -46,10 +46,6 @@ public class SectionIcon extends JButton{
 		else if(this instanceof StreetIcon)
 			g.drawRoundRect(1, 1, coord.w-2, coord.h-2, coord.arcw, coord.arch);
 	}
-	
-//	public boolean contains(int x, int y) {
-//		return super.contains(x, y);
-//	}
 	
 	protected void paintComponent(Graphics g) {
 //		System.out.println("children");

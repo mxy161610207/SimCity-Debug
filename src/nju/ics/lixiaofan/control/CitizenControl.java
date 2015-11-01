@@ -12,6 +12,8 @@ import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventListener;
+import nju.ics.lixiaofan.monitor.AppPkg;
+import nju.ics.lixiaofan.monitor.PkgHandler;
 
 public class CitizenControl implements Runnable{
 	private static List<Citizen> citizens = TrafficMap.citizens;
@@ -36,7 +38,10 @@ public class CitizenControl implements Runnable{
 			
 			synchronized (ar.citizen) {
 				ar.citizen.act = ar.act;
-				if(ar.act != null)
+				AppPkg p = new AppPkg();
+				p.setCitizen(ar.citizen.name, ar.act != null ? ar.act.toString() : "None");
+				PkgHandler.send(p);
+				if(ar.act != null){
 					switch (ar.act) {
 //					case HailATaxi:
 //						break;
@@ -49,6 +54,7 @@ public class CitizenControl implements Runnable{
 					default:
 						break;
 					}
+				}
 				if(!ar.fromSelf)
 					ar.citizen.notify();
 			}
