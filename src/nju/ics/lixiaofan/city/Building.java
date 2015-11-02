@@ -15,9 +15,9 @@ import nju.ics.lixiaofan.city.SectionIcon.Coord;
 
 public class Building extends Location{
 	public Type type = null;
-	public BuildingIcon icon = null;
 	public int block;//block number
-	public Set<Section> addrs = null;
+	public BuildingIcon icon = new BuildingIcon(this);
+	public Set<Section> addrs = new HashSet<Section>();
 	
 	public static enum Type {
 		Hospital, School, PoliceStation, Restaurant, StarkIndustries
@@ -27,8 +27,6 @@ public class Building extends Location{
 		this.name = name;
 		this.type = type;
 		this.block  = block;
-		this.icon = new BuildingIcon(this);
-		this.addrs = new HashSet<Section>();
 	}
 	
 	public static Type typeOf(String type){

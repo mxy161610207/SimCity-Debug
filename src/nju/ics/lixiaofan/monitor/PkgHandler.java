@@ -113,18 +113,14 @@ public class PkgHandler implements Runnable{
 		sender.add(p);
 	}
 	
-	public void sendInitInfo(ObjectOutputStream oos){		
+	public void sendInitInfo(ObjectOutputStream oos) throws IOException{		
 		for(Car car : TrafficMap.cars.values()){
 			AppPkg p = new AppPkg();
 			if(car.loc == null)
 				p.setCar(car.name, -1, null);
 			else
 				p.setCar(car.name, car.dir, car.loc.name);
-			try {
-				oos.writeObject(p);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			oos.writeObject(p);
 		} 
 		
 		for(DeliveryTask dtask : DataProvider.getDelivTasks()){
@@ -133,32 +129,29 @@ public class PkgHandler implements Runnable{
 				p.setDelivery((byte)dtask.id, null, dtask.src.name, dtask.dst.name, (byte)dtask.phase);
 			else
 				p.setDelivery((byte)dtask.id, dtask.car.name, dtask.src.name, dtask.dst.name, (byte)dtask.phase);
-			try {
-				oos.writeObject(p);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			oos.writeObject(p);
 		}
 		
 		for(Building building : TrafficMap.buildings.values()){
 			AppPkg p = new AppPkg();
 			p.setBuilding(building.name, building.type.toString(), building.block);
-			try {
-				oos.writeObject(p);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			oos.writeObject(p);
 		}
 		
 		for(Citizen citizen : TrafficMap.citizens){
 			AppPkg p = new AppPkg();
-			p.setCitizen(citizen.name, citizen.gender.toString(), citizen.job.toString());
-			try {
+			p.setCitizen(citizen.name, citizen.gender.toString(), citizen.job.toString(), citizen.icon.color.getRGB());
+			oos.writeObject(p);
+			if(citizen.icon.isVisible()){
+				p = new AppPkg();
+				p.setCitizen(citizen.name, (double) citizen.icon.getX()/TrafficMap.size, (double) citizen.icon.getY()/TrafficMap.size);
 				oos.writeObject(p);
-			} catch (IOException e) {
-				e.printStackTrace();
+				p = new AppPkg();
+				p.setCitizen(citizen.name, true);
+				oos.writeObject(p);
 			}
 		}
+		oos.flush();
 	}
 	
 	private static class Sender implements Runnable {

@@ -26,7 +26,7 @@ public class Citizen implements Runnable{
 	public Activity act = null, nextAct = null;
 	public Location loc = null, dest = null;
 	public Car car = null;
-	public CitizenIcon icon = null;
+	public CitizenIcon icon = new CitizenIcon(this);
 	
 	public static enum Gender {
 		Male, Female
@@ -45,7 +45,6 @@ public class Citizen implements Runnable{
 		this.name = name;
 		this.gender = gender;
 		this.job = job;
-		icon = new CitizenIcon(this);
 	}
 	
 	public static Gender genderOf(String gender){
@@ -87,6 +86,8 @@ public class Citizen implements Runnable{
 					AppPkg p = new AppPkg();
 					p.setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size);
 					PkgHandler.send(p);
+					p.setCitizen(name, true);
+					PkgHandler.send(p);
 				}
 				int x, y;
 				for(int count = 0;count < 3;count++){
@@ -120,9 +121,13 @@ public class Citizen implements Runnable{
 					break;
 				Delivery.add(loc, dest, this);
 				break;
-			case TakeATaxi:
+			case TakeATaxi:{
 				icon.setVisible(false);// get on the taxi
+				AppPkg p = new AppPkg();
+				p.setCitizen(name, false);
+				PkgHandler.send(p);
 				break;
+			}
 			case GetOff:
 				if(loc != null){
 					int x, y;
@@ -139,6 +144,8 @@ public class Citizen implements Runnable{
 					
 					AppPkg p = new AppPkg();
 					p.setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size);
+					PkgHandler.send(p);
+					p.setCitizen(name, true);
 					PkgHandler.send(p);
 				}
 				if(nextAct == null){
@@ -263,7 +270,7 @@ public class Citizen implements Runnable{
 	public static class CitizenIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		private Citizen citizen = null;
-		private Color color = null;
+		public Color color = null;
 		private boolean showName = false;
 		private boolean showAct = false;
 		public boolean blink = false;

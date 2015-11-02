@@ -23,8 +23,10 @@ public class AppPkg implements Serializable{
 	public String citizen;
 	public String gender;
 	public String job;
+	public int color;
 	public String act;
 	public double ratioX, ratioY;
+	public boolean isVisible;
 	
 	public AppPkg() {
 	}
@@ -97,11 +99,12 @@ public class AppPkg implements Serializable{
 		this.block = block;
 	}
 	
-	public void setCitizen(String citizen, String gender, String job){
+	public void setCitizen(String citizen, String gender, String job, int color){
 		type = 10;
 		this.citizen = citizen;
 		this.gender = gender;
 		this.job = job;
+		this.color = color;
 	}
 	
 	public void setCitizen(String citizen, String act){
@@ -115,5 +118,11 @@ public class AppPkg implements Serializable{
 		this.citizen = citizen;
 		this.ratioX = x;
 		this.ratioY = y;
+	}
+	
+	public void setCitizen(String citizen, boolean visible){
+		type = 13;
+		this.citizen = citizen;
+		this.isVisible = visible;
 	}
 }

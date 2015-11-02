@@ -262,36 +262,15 @@ public class TrafficMap extends JPanel{
 						streets[i].icon.coord.y -=(sh+cw)/2;
 					break;
 				}
-//				int offset = (quotient % 2 == 0) ? u + u2 : u2;
-				if(quotient == 0){
-//					streets[i].icon.coord.x = (remainder-1)*u+u2;
-//					streets[i].icon.coord.y = u2;
-					if(remainder != 5)
-						streets[i].icon.coord.h = u3;
-					else
-						streets[i].icon.coord.h = u4;
-				}
-				else if(quotient == 3){
-//					streets[i].icon.coord.x = (remainder-2)*u+offset;
-					if(remainder != 2){
-//						streets[i].icon.coord.y = quotient*u+cw;
-						streets[i].icon.coord.h = u3;
-					}
-					else{
-//						streets[i].icon.coord.y = quotient*u+u2;
-						streets[i].icon.coord.h = u4;
-					}
-				}
-				else if(i == 10 || i ==21){
-//					streets[i].icon.coord.x = (remainder-2)*u+offset;
-//					streets[i].icon.coord.y = quotient*u+u2;
+				
+				if(quotient == 0)
+					streets[i].icon.coord.h = remainder != 5 ? u3 : u4;
+				else if(quotient == 3)
+					streets[i].icon.coord.h = remainder != 2 ? u3 : u4;
+				else if(i == 10 || i ==21)
 					streets[i].icon.coord.h = u4;
-				}
-				else{
-//					streets[i].icon.coord.x = (remainder-2)*u+offset;
-//					streets[i].icon.coord.y = quotient*u+cw;
+				else
 					streets[i].icon.coord.h = sw;
-				}
 			}
 			//horizontal streets
 			else{
@@ -324,47 +303,16 @@ public class TrafficMap extends JPanel{
 				
 				switch(remainder){
 				case 6:
-//					streets[i].icon.coord.x = u2;
-//					streets[i].icon.coord.y = (quotient+1)*u+u2;
-					if(quotient != 3)
-						streets[i].icon.coord.w = u-u2;
-					else
-						streets[i].icon.coord.w = u4;
+					streets[i].icon.coord.w = quotient != 3 ? u-u2 : u4;
 					break;
 				case 7:
-					if(i != 31){
-//						streets[i].icon.coord.x = u+cw;
-//						streets[i].icon.coord.y = (quotient+1)*u+u2;
-						streets[i].icon.coord.w = sw;
-					}
-					else{
-//						streets[i].icon.coord.x = 2*u+u2;
-//						streets[i].icon.coord.y = 4*u+u2;
-						streets[i].icon.coord.w = u4;
-					}
+					streets[i].icon.coord.w = i != 31 ? sw : u4;
 					break;
 				case 0:
-					if(i != 0){
-//						streets[i].icon.coord.x = 2*u+cw;
-//						streets[i].icon.coord.y = quotient*u+u2;
-						streets[i].icon.coord.w = sw;
-					}
-					else{
-//						streets[i].icon.coord.x = u+u2;
-//						streets[i].icon.coord.y = u2;
-						streets[i].icon.coord.w = u4;
-					}
+					streets[i].icon.coord.w = i != 0 ? sw : u4;
 					break;
 				case 1:
-//					streets[i].icon.coord.y = quotient*u+u2;
-					if(quotient != 0){
-//						streets[i].icon.coord.x = 3*u+cw;
-						streets[i].icon.coord.w = u3;
-					}
-					else{
-//						streets[i].icon.coord.x = 3*u+u2;
-						streets[i].icon.coord.w = u4;
-					}
+					streets[i].icon.coord.w = quotient != 0 ? u3 : u4;
 					break;
 				}
 			}
