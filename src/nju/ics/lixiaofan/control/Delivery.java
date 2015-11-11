@@ -108,23 +108,21 @@ public class Delivery {
 			Queue<Section> queue = new LinkedList<Section>();
 			queue.add(start);
 			Section[] prev = {null, null};
-			int dis = 0, i = 0;
+			int dis[] = {-1, 0}, i = 0;
 			boolean oneWay = true;
 			while(!queue.isEmpty()){
 				Section sect = queue.poll();
-//				System.out.println(sect.name+"\t"+dis);
+				dis[i]++;
+//				System.out.println(sect.name+"\t"+dis[i]);
 				if(!sect.cars.isEmpty())
 					for(Car car:sect.cars)
-						if(car.dest == null){
-							return new Result(car, dis, start);
-						}
-				if(oneWay || i == 1)
-					dis++;
+						if(car.dest == null)
+							return new Result(car, dis[i], start);
 				
 				if(prev[0] == null){
 					prev[0] = sect;
-					for(Section next : sect.exits.keySet())
-							queue.add(next);
+					for(Section next : sect.entrances.values())
+						queue.add(next);
 					
 					if(queue.size() == 2){
 						oneWay = false;
@@ -139,12 +137,16 @@ public class Delivery {
 							if(next != null)
 								break;
 						}
-					if(next != start && (!start.isCombined || !start.combined.contains(next)))
+					if(next != start && (!start.isCombined || !start.combined.contains(next))){
 						queue.add(next);
-					
-					prev[i] = sect;
-					if(!oneWay)
+						prev[i] = sect;
+						if(!oneWay)
+							i = 1-i;
+					}
+					else if(!oneWay){
+						oneWay = true;
 						i = 1-i;
+					}
 				}
 			}
 			allBusy = true;

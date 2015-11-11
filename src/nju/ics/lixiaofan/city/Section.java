@@ -10,7 +10,7 @@ import java.util.Set;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.sensor.Sensor;
 
-public class Section extends Location{
+public abstract class Section extends Location{
 	public Map<Integer, Section> adjs = new HashMap<Integer, Section>(); //physical adjacency
 	public Map<Section, Section> exits = new HashMap<Section, Section>(); //entrance -> exit
 	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance

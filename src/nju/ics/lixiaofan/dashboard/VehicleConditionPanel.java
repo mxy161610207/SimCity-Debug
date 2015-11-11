@@ -85,8 +85,7 @@ public class VehicleConditionPanel extends JPanel{
 			add(text);
 		}
 		
-		void update(){
-//			System.out.println(car.name+" update");
+		public void update(){
 			String str = car.name+" (" + car.getState() + ") "+car.getDir();
 			if(car.loc != null)
 				str += "\nLoc: " + car.loc.name;

@@ -10,7 +10,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -480,20 +479,17 @@ public class Dashboard extends JFrame{
 		String str = s.name+"\n";
 		if(!s.cars.isEmpty()){
 			str += "Cars:\n";
-			for(Iterator<Car> it = s.cars.iterator();it.hasNext();){
-				Car one = it.next();
-				str += one.name + " (" + one.getState() + ") "+one.getDir();
-				if(one.dest != null)
-					str += " Dest:" + one.dest.name;
+			for(Car car : s.cars){
+				str += car.name + " (" + car.getState() + ") "+car.getDir();
+				if(car.dest != null)
+					str += " Dest:" + car.dest.name;
 				str += "\n";
 			}
 		}
 		if(!s.waiting.isEmpty()){
 			str += "Waiting Cars:\n";
-			for(Iterator<Car> it = s.waiting.iterator();it.hasNext();){
-				Car one = it.next();
-				str += one.name + " (" + one.getState() + ") "+one.getDir()+"\n";
-			}
+			for(Car car : s.waiting)
+				str += car.name + " (" + car.getState() + ") "+car.getDir()+"\n";
 		}
 		roadta.setText(str);
 	}

@@ -119,7 +119,8 @@ public class Citizen implements Runnable{
 			case HailATaxi:
 				if(loc == null || dest == null)
 					break;
-				Delivery.add(loc, dest, this);
+//				Delivery.add(loc, dest, this);
+				Delivery.add(TrafficMap.crossings[5], TrafficMap.buildings.get(Building.Type.Restaurant), this);
 				break;
 			case TakeATaxi:{
 				icon.setVisible(false);// get on the taxi
