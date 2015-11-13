@@ -1,6 +1,9 @@
 package nju.ics.lixiaofan.car;
 
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import nju.ics.lixiaofan.dashboard.Dashboard;
 
@@ -41,8 +44,6 @@ public class Command {
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
 	public static void send(Car car, int cmd){
-//		if(car == null)
-//			return;
 		send(car, cmd, 1, true);
 	}	
 	
@@ -83,12 +84,6 @@ public class Command {
 		car.lastInstrTime = System.currentTimeMillis();
 	}
 	
-//	public static void wake(CarRC rc){
-//		if(rc == null)
-//			return;
-//		CmdSender.send(rc);
-//	}
-	
 	public static void addRemedyCommand(Car car, int cmd){
 		boolean addition = true;
 		synchronized (Remediation.queue) {
@@ -109,6 +104,63 @@ public class Command {
 		}
 		synchronized (Remediation.getwork) {
 			Remediation.getwork.notify();
+		}
+	}
+}
+
+class CmdSender implements Runnable{
+	public static Queue<Command> queue = new LinkedList<Command>();
+	
+	public void run() {
+		while(true){
+			while(queue.isEmpty()){
+				synchronized (queue) {
+					try {
+						queue.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			Command cmd = null;
+			synchronized (queue) {
+				cmd = queue.poll();
+			}
+			if(cmd == null)
+				continue;
+			
+			CarRC rc = RCServer.rc;//cmd.car.rc;
+			if(rc == null)
+				continue;
+			try {
+				switch(cmd.cmd){
+				case Command.LEFT:case Command.RIGHT:
+					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3");
+					rc.out.flush();
+					break;
+				case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
+					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
+					rc.out.flush();
+					rc.lastInstrTime = System.currentTimeMillis();
+					break;
+				case Command.HORN:
+					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3000");
+					rc.out.flush();
+					break;
+				default:
+					System.out.println("!!!UNKNOWN COMMAND!!!");
+					break;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void send(Car car, int cmd){
+		synchronized (queue) {
+			queue.add(new Command(car, cmd));
+			queue.notify();
 		}
 	}
 }

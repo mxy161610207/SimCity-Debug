@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-import nju.ics.lixiaofan.city.SectionIcon.Coord;
+import nju.ics.lixiaofan.city.TrafficMap.Coord;
 
 public class Building extends Location{
 	public Type type = null;

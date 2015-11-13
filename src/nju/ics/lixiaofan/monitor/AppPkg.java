@@ -4,15 +4,15 @@ import java.io.Serializable;
 
 public class AppPkg implements Serializable{
 	private static final long serialVersionUID = 1L;
-	byte type;
-	byte appid;
+	int type;
+	int appid;
 	String car;
 	int dir;
-	byte cmd;
+	int cmd;
 	String loc;
-	byte delivid;
+	int delivid;
 	String src, dest;
-	byte phase;
+	int phase;
 	boolean loading; //true/false: start/finish loading
 	boolean unloading; //true/false: start/finish unloading
 	
@@ -32,97 +32,110 @@ public class AppPkg implements Serializable{
 	}
 	
 	//Application ID
-	public AppPkg(byte appid) {
+	public AppPkg(int appid) {
 		type = 0;
 		this.appid = appid;
 	}
 	
 	//car settings
-	public void setDir(String car, int dir) {
+	public AppPkg setDir(String car, int dir) {
 		type = 1;
 		this.car = car;
 		this.dir = dir;
+		return this;
 	}
 	
-	public void setCmd(String car, byte cmd) {
+	public AppPkg setCmd(String car, int cmd) {
 		type = 2;
 		this.car = car;
 		this.cmd = cmd;
+		return this;
 	}
 	
-	public void setCar(String car, int dir, String loc) {
+	public AppPkg setCar(String car, int dir, String loc) {
 		type = 3;
 		this.car = car;
 		this.dir = dir;
 		this.loc = loc;
+		return this;
 	}
 	
-	public void setCar(String car, byte dir, String loc, String dst) {
+	public AppPkg setCar(String car, int dir, String loc, String dst) {
 		type = 4;
 		this.car = car;
 		this.dir = dir;
 		this.loc = loc;
 		this.dest = dst;
+		return this;
 	}
 	
-	public void setLoading(String car, boolean loading){
+	public AppPkg setLoading(String car, boolean loading){
 		type = 5;
 		this.car = car;
 		this.loading = loading;
+		return this;
 	}
 	
-	public void setUnloading(String car, boolean unloading){
+	public AppPkg setUnloading(String car, boolean unloading){
 		type = 6;
 		this.car = car;
 		this.unloading = unloading;
+		return this;
 	}
 	
-	public void setDelivery(byte id, String car, String src, String dest, byte phase) {
+	public AppPkg setDelivery(int id, String car, String src, String dest, int phase) {
 		type = 7;
 		this.delivid = id;
 		this.car = car;
 		this.src = src;
 		this.dest = dest;
 		this.phase = phase;
+		return this;
 	}
 	
-	public void setDelivery(String src, String dest) {
+	public AppPkg setDelivery(String src, String dest) {
 		type = 8;
 		this.src = src;
 		this.dest = dest;
+		return this;
 	}
 	
-	public void setBuilding(String building, String btype, int block){
+	public AppPkg setBuilding(String building, String btype, int block){
 		type = 9;
 		this.building = building;
 		this.btype = btype;
 		this.block = block;
+		return this;
 	}
 	
-	public void setCitizen(String citizen, String gender, String job, int color){
+	public AppPkg setCitizen(String citizen, String gender, String job, int color){
 		type = 10;
 		this.citizen = citizen;
 		this.gender = gender;
 		this.job = job;
 		this.color = color;
+		return this;
 	}
 	
-	public void setCitizen(String citizen, String act){
+	public AppPkg setCitizen(String citizen, String act){
 		type = 11;
 		this.citizen = citizen;
 		this.act = act;
+		return this;
 	}
 	
-	public void setCitizen(String citizen, double x, double y){
+	public AppPkg setCitizen(String citizen, double x, double y){
 		type = 12;
 		this.citizen = citizen;
 		this.ratioX = x;
 		this.ratioY = y;
+		return this;
 	}
 	
-	public void setCitizen(String citizen, boolean visible){
+	public AppPkg setCitizen(String citizen, boolean visible){
 		type = 13;
 		this.citizen = citizen;
 		this.isVisible = visible;
+		return this;
 	}
 }

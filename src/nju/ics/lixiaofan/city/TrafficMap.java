@@ -15,10 +15,10 @@ import javax.swing.JPanel;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section.Crossing;
+import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street;
+import nju.ics.lixiaofan.city.Section.Street.StreetIcon;
 import nju.ics.lixiaofan.sensor.Sensor;
-import nju.ics.lixiaofan.city.SectionIcon.StreetIcon;
-import nju.ics.lixiaofan.city.SectionIcon.CrossingIcon;
 
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
@@ -45,7 +45,6 @@ public class TrafficMap extends JPanel{
 	public TrafficMap() {
 		setLayout(null);
 		setPreferredSize(new Dimension(size, size));
-//		setSize(size, size);
 		initSections();
 		initSensors();
 		
@@ -697,5 +696,11 @@ public class TrafficMap extends JPanel{
 			return TrafficMap.dir ? sensor.crossing : sensor.street;
 		}
 		return null;
+	}
+	
+	public static class Coord{
+		public int x, y, w, h;
+		public int arcw ,arch;
+		public int centerX, centerY;
 	}
 }

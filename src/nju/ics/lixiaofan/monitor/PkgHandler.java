@@ -113,42 +113,31 @@ public class PkgHandler implements Runnable{
 		sender.add(p);
 	}
 	
-	public void sendInitInfo(ObjectOutputStream oos) throws IOException{		
+	public void sendInitialInfo(ObjectOutputStream oos) throws IOException{		
 		for(Car car : TrafficMap.cars.values()){
-			AppPkg p = new AppPkg();
+			if(!car.isConnected)
+				continue;
 			if(car.loc == null)
-				p.setCar(car.name, -1, null);
+				oos.writeObject(new AppPkg().setCar(car.name, -1, null));
 			else
-				p.setCar(car.name, car.dir, car.loc.name);
-			oos.writeObject(p);
+				oos.writeObject(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		} 
 		
 		for(DeliveryTask dtask : DataProvider.getDelivTasks()){
-			AppPkg p = new AppPkg();
 			if(dtask.car == null)
-				p.setDelivery((byte)dtask.id, null, dtask.src.name, dtask.dst.name, (byte)dtask.phase);
+				oos.writeObject(new AppPkg().setDelivery(dtask.id, null, dtask.src.name, dtask.dst.name, dtask.phase));
 			else
-				p.setDelivery((byte)dtask.id, dtask.car.name, dtask.src.name, dtask.dst.name, (byte)dtask.phase);
-			oos.writeObject(p);
+				oos.writeObject(new AppPkg().setDelivery(dtask.id, dtask.car.name, dtask.src.name, dtask.dst.name, dtask.phase));
 		}
 		
-		for(Building building : TrafficMap.buildings.values()){
-			AppPkg p = new AppPkg();
-			p.setBuilding(building.name, building.type.toString(), building.block);
-			oos.writeObject(p);
-		}
+		for(Building building : TrafficMap.buildings.values())
+			oos.writeObject(new AppPkg().setBuilding(building.name, building.type.toString(), building.block));
 		
 		for(Citizen citizen : TrafficMap.citizens){
-			AppPkg p = new AppPkg();
-			p.setCitizen(citizen.name, citizen.gender.toString(), citizen.job.toString(), citizen.icon.color.getRGB());
-			oos.writeObject(p);
+			oos.writeObject(new AppPkg().setCitizen(citizen.name, citizen.gender.toString(), citizen.job.toString(), citizen.icon.color.getRGB()));
 			if(citizen.icon.isVisible()){
-				p = new AppPkg();
-				p.setCitizen(citizen.name, (double) citizen.icon.getX()/TrafficMap.size, (double) citizen.icon.getY()/TrafficMap.size);
-				oos.writeObject(p);
-				p = new AppPkg();
-				p.setCitizen(citizen.name, true);
-				oos.writeObject(p);
+				oos.writeObject(new AppPkg().setCitizen(citizen.name, (double) citizen.icon.getX()/TrafficMap.size, (double) citizen.icon.getY()/TrafficMap.size));
+				oos.writeObject(new AppPkg().setCitizen(citizen.name, true));
 			}
 		}
 		oos.flush();

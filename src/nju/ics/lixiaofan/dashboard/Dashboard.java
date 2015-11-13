@@ -259,7 +259,7 @@ public class Dashboard extends JFrame{
 						}
 						else{
 							dirButtons[sect.dir[0]].setSelected(true);
-							selectedCar.dir = (byte) sect.dir[0];
+							selectedCar.dir = sect.dir[0];
 						}
 					}
 					else
@@ -284,9 +284,7 @@ public class Dashboard extends JFrame{
 				Car car = getSelectedCar();
 				if(car != null){
 					car.dir = 0;
-					AppPkg p = new AppPkg();
-					p.setDir(car.name, car.dir);
-					PkgHandler.send(p);
+					PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
 				}
 			}
 		});
@@ -295,9 +293,7 @@ public class Dashboard extends JFrame{
 				Car car = getSelectedCar();
 				if(car != null){
 					car.dir = 1;
-					AppPkg p = new AppPkg();
-					p.setDir(car.name, car.dir);
-					PkgHandler.send(p);
+					PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
 				}
 			}
 		});
@@ -306,9 +302,7 @@ public class Dashboard extends JFrame{
 				Car car = getSelectedCar();
 				if(car != null){
 					car.dir = 2;
-					AppPkg p = new AppPkg();
-					p.setDir(car.name, car.dir);
-					PkgHandler.send(p);
+					PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
 				}
 			}
 		});
@@ -317,9 +311,7 @@ public class Dashboard extends JFrame{
 				Car car = getSelectedCar();
 				if(car != null){
 					car.dir = 3;
-					AppPkg p = new AppPkg();
-					p.setDir(car.name, car.dir);
-					PkgHandler.send(p);
+					PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
 				}
 			}
 		});
@@ -535,21 +527,15 @@ public class Dashboard extends JFrame{
 	public static synchronized void addCar(Car car){
 //		System.out.println(car.name);
 		carbox.addItem(car.name);
-		AppPkg p = new AppPkg();
-		p.setCar(car.name, -1, null);
-		PkgHandler.send(p);
+		PkgHandler.send(new AppPkg().setCar(car.name, -1, null));
 		
 		if(car.loc != null){
 			if(car.dir < 0){
 				car.dir = car.loc.dir[0];
-				p = new AppPkg();
-				p.setDir(car.name, car.dir);
-				PkgHandler.send(p);
+				PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
 			}
 			carEnter(car, car.loc);
-			p = new AppPkg();
-			p.setCar(car.name, car.dir, car.loc.name);
-			PkgHandler.send(p);
+			PkgHandler.send(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		}
 		VCPanel.addCar(car);
 	}
@@ -582,6 +568,7 @@ public class Dashboard extends JFrame{
 //			car.dir = section.dir[0];
 		section.icon.repaint();
 		if(section.isCombined){
+			//only combined sections can change a car's direction
 			car.dir = section.dir[0];
 			for(Section s : section.combined)
 				s.icon.repaint();
@@ -605,12 +592,7 @@ public class Dashboard extends JFrame{
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
 			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, car.name, section.name));
-//		mapPanel.repaint();
 	}
-	
-//	public static void mapRepaint(){
-//		mapPanel.repaint();
-//	}
 	
 	private class BuildingIconListener implements MouseListener{
 		Building building = null;
@@ -699,14 +681,12 @@ public class Dashboard extends JFrame{
 							// dirButtons[selectedCar.dir].doClick();
 						} else {
 							dirButtons[section.dir[0]].setSelected(true);
-							selectedCar.dir = (byte) section.dir[0];
+							selectedCar.dir = section.dir[0];
 							// dirButtons[section.dir[0]].doClick();
 						}
 						carEnter(selectedCar, section);
 					}
-					AppPkg p = new AppPkg();
-					p.setCar(selectedCar.name, selectedCar.dir, section.name);
-					PkgHandler.send(p);
+					PkgHandler.send(new AppPkg().setCar(selectedCar.name, selectedCar.dir, section.name));
 				}
 			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
 				// right click

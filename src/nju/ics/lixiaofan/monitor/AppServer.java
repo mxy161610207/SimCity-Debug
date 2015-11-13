@@ -27,7 +27,7 @@ public class AppServer {
 				try {
 					Socket socket = server.accept();
 					ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-					handler.sendInitInfo(oos);
+					handler.sendInitialInfo(oos);
 					synchronized (sockets) {
 						in.put(socket, new ObjectInputStream(socket.getInputStream()));
 						out.put(socket, oos);

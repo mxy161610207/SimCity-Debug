@@ -38,9 +38,7 @@ public class CitizenControl implements Runnable{
 			
 			synchronized (ar.citizen) {
 				ar.citizen.act = ar.act;
-				AppPkg p = new AppPkg();
-				p.setCitizen(ar.citizen.name, ar.act != null ? ar.act.toString() : "None");
-				PkgHandler.send(p);
+				PkgHandler.send(new AppPkg().setCitizen(ar.citizen.name, ar.act != null ? ar.act.toString() : "None"));
 				if(ar.act != null){
 					switch (ar.act) {
 //					case HailATaxi:
