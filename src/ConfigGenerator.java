@@ -12,7 +12,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 public class ConfigGenerator {
-	public static String filename = "Config.xml";
+	public static String filename = "city.xml";
 	public static void main(String[] args) throws IOException {
 		Document doc = DocumentHelper.createDocument();
 		Element root = doc.addElement("config");

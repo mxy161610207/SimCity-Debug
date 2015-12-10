@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<rules>
+
+	<rule>
+		<id>rule_00</id>
+		<formula>
+			<forall var = "v1" in = "pat_000">
+				<bfunction name = "sz_loc_range">
+					<param pos = "1" var = "v1" field = "object" />
+				</bfunction>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_01</id>
+		<formula>
+			<forall var = "v1" in = "pat_001">
+				<forall var = "v2" in = "pat_002">
+					<implies>
+						<and>
+							<not>
+								<bfunction name = "same">
+									<param pos = "1" var = "v1" field = "subject" />
+									<param pos = "2" var = "v2" field = "subject" />
+								</bfunction>
+							</not>
+							<bfunction name = "sz_loc_close">
+								<param pos = "1" var = "v1" field = "object" />
+								<param pos = "2" var = "v2" field = "object" />
+							</bfunction>
+						</and>
+						<bfunction name = "sz_spd_close">
+								<param pos = "1" var = "v1" field = "object" />
+								<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_10</id>
+		<formula>
+			<forall var = "v1" in = "pat_100">
+				<forall var = "v2" in = "pat_101">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_11</id>
+		<formula>
+			<forall var = "v1" in = "pat_102">
+				<forall var = "v2" in = "pat_103">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_12</id>
+		<formula>
+			<forall var = "v1" in = "pat_104">
+				<forall var = "v2" in = "pat_105">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_13</id>
+		<formula>
+			<forall var = "v1" in = "pat_106">
+				<forall var = "v2" in = "pat_107">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_14</id>
+		<formula>
+			<forall var = "v1" in = "pat_108">
+				<forall var = "v2" in = "pat_109">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_15</id>
+		<formula>
+			<forall var = "v1" in = "pat_110">
+				<forall var = "v2" in = "pat_111">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_16</id>
+		<formula>
+			<forall var = "v1" in = "pat_112">
+				<forall var = "v2" in = "pat_113">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_17</id>
+		<formula>
+			<forall var = "v1" in = "pat_114">
+				<forall var = "v2" in = "pat_115">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_18</id>
+		<formula>
+			<forall var = "v1" in = "pat_116">
+				<forall var = "v2" in = "pat_117">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+	<rule>
+		<id>rule_19</id>
+		<formula>
+			<forall var = "v1" in = "pat_118">
+				<forall var = "v2" in = "pat_119">
+					<implies>
+						<bfunction name = "same">
+							<param pos = "1" var = "v1" field = "subject" />
+							<param pos = "2" var = "v2" field = "subject" />
+						</bfunction>
+						<bfunction name = "sz_loc_dist">
+							<param pos = "1" var = "v1" field = "object" />
+							<param pos = "2" var = "v2" field = "object" />
+						</bfunction>
+					</implies>
+				</forall>
+			</forall>
+		</formula>
+	</rule>
+
+</rules>
