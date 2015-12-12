@@ -48,7 +48,7 @@ public class Command {
 	}	
 	
 	public static void send(Car car, int cmd, int level, boolean remedy){
-		if(car == null || car.state == cmd)
+		if(car == null || car.status == cmd)
 			return;
 //		if(cmd == 0 && level > 4)
 //			return;
@@ -56,8 +56,8 @@ public class Command {
 		CmdSender.send(car, cmd);
 		if(cmd >= STOP && cmd <= RIGHT){
 			car.expectation = cmd;
-			if(cmd != car.state)
-				car.state = -1;
+			if(cmd != car.status)
+				car.status = -1;
 			if(cmd == 0 && car.lastInstr == 1)
 				car.lastStopInstrTime = System.currentTimeMillis();
 			car.lastInstr = cmd;
@@ -73,14 +73,14 @@ public class Command {
 	}
 	
 	public static void wake(Car car){
-		if(car == null || !car.isConnected || car.state == -1)
+		if(car == null || !car.isConnected || car.status == -1)
 			return;
 		
-		CmdSender.send(car, car.state);
-		car.expectation = car.state;
-		if(car.state == 0 && car.lastInstr == 1)
+		CmdSender.send(car, car.status);
+		car.expectation = car.status;
+		if(car.status == 0 && car.lastInstr == 1)
 			car.lastStopInstrTime = System.currentTimeMillis();
-		car.lastInstr = car.state;
+		car.lastInstr = car.status;
 		car.lastInstrTime = System.currentTimeMillis();
 	}
 	

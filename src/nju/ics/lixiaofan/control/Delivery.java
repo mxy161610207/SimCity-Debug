@@ -67,7 +67,7 @@ public class Delivery {
 					dt.phase = 1;
 					car.dest = res.section;
 					if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
-						if(car.state == 0){
+						if(car.status == 0){
 							car.isLoading = true;
 //							car.loc.icon.repaint();
 							//trigger start loading event
@@ -182,7 +182,7 @@ public class Delivery {
 						Car car = dt.car;
 						long recent = Math.max(car.stopTime, dt.startTime);
 						if ((car.loc == car.dest || car.dest.isCombined
-								&& car.dest.combined.contains(car.loc)) && car.state == 0
+								&& car.dest.combined.contains(car.loc)) && car.status == 0
 								&& System.currentTimeMillis() - recent > 3000) {
 							//head for the src
 							if(dt.phase == 1){

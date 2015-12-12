@@ -12,6 +12,7 @@ import java.util.Set;
 
 import nju.ics.lixiaofan.consistency.context.Context;
 import nju.ics.lixiaofan.consistency.context.ContextChange;
+import nju.ics.lixiaofan.consistency.context.Pattern;
 import nju.ics.lixiaofan.consistency.formula.Link;
 
 /**
@@ -24,9 +25,12 @@ public class Resolution {
         if(strategy.equals("Drop-all")) {
         	Set<Context> contexts = getContexts(links);
         	for(Context context : contexts) {
-        		ContextChange newChange = new ContextChange(ContextChange.DELETION, context.getPattern(), context);
-                if(ChangeOperate.change(newChange))
-                	Detection.singleChangeDetect(newChange);
+        		ContextChange newChange = new ContextChange(ContextChange.DELETION, context);
+        		for(Pattern pattern : context.getPatterns()){
+        			newChange.setPattern(pattern);
+	                if(ChangeOperate.change(newChange))
+	                	Detection.singleChangeDetect(newChange);
+        		}
         	}
         }
         else if(strategy.equals("Drop-latest")) {
@@ -37,9 +41,12 @@ public class Resolution {
         else if(strategy.equals("Drop-random")) {
         	Set<Context> contexts = getContexts(links);
         	Context context = new ArrayList<Context>(contexts).get((int)Math.random()*contexts.size());
-        	ContextChange newChange = new ContextChange(ContextChange.DELETION, context.getPattern(), context);
-            if(ChangeOperate.change(newChange))
-            	Detection.singleChangeDetect(newChange);
+        	ContextChange newChange = new ContextChange(ContextChange.DELETION, context);
+    		for(Pattern pattern : context.getPatterns()){
+    			newChange.setPattern(pattern);
+                if(ChangeOperate.change(newChange))
+                	Detection.singleChangeDetect(newChange);
+    		}
         }
     }
     
@@ -56,14 +63,12 @@ public class Resolution {
         if(change.getType() == ContextChange.UPDATE){
         	flipChange.setPattern(change.getOriginal().getPattern());
             flipChange.setContext(change.getOriginal().getContext());
-//            flipChange.addContent(change.getOriginal().getContent());
             flipChange.setContext(change.getOriginal().getContext());
             flipChange.setType(ContextChange.UPDATE);
         }
         else{
 	        flipChange.setPattern(change.getPattern());
 	        flipChange.setContext(change.getContext());
-//	        flipChange.addContent(change.getContent());
 	        flipChange.setContext(change.getContext());
 	        if(change.getType() != ContextChange.DELETION)
 	        	flipChange.setType(ContextChange.DELETION);

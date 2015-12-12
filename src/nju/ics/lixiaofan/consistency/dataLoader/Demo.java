@@ -68,10 +68,10 @@ public class Demo extends Changes{
         
         Pattern pat = Middleware.getPatterns().get(s[1]);
         Context ctx = new Context();
-        for(int i = 0;i < pat.getFields().size();i ++) {
-            ctx.addField(pat.getFields().get(i), s[i + 2]);
-        }
-        ctx.setPattern(pat);
+//        for(int i = 0;i < pat.getFields().size();i ++) {
+//            ctx.addField(pat.getFields().get(i), s[i + 2]);
+//        }
+        ctx.addPattern(pat);
         ctx.setName(s[2]);
         
         change.setPattern(pat);

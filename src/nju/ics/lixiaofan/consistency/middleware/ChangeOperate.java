@@ -1,7 +1,7 @@
 package nju.ics.lixiaofan.consistency.middleware;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.consistency.context.Pattern;
@@ -10,12 +10,12 @@ import nju.ics.lixiaofan.consistency.context.Rule;
 public class ChangeOperate {
     public static HashMap<String,Pattern> patterns = new HashMap<String,Pattern>();
 	@SuppressWarnings("unused")
-	private static ArrayList<Rule> rules = new ArrayList<Rule>();
+	private static HashSet<Rule> rules = new HashSet<Rule>();
 	
-	public ChangeOperate(HashMap<String,Pattern> patterns,ArrayList<Rule> rules) {
+	public ChangeOperate(HashMap<String,Pattern> patterns, HashSet<Rule> rules) {
 		ChangeOperate.patterns = patterns;
 		ChangeOperate.rules = rules;
-		new Detection(patterns,rules);
+		new Detection(patterns, rules);
 		//new Resolution(contextsForResolve);
 	}
 

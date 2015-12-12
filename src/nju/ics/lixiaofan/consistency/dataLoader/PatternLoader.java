@@ -8,7 +8,8 @@ package nju.ics.lixiaofan.consistency.dataLoader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,10 +18,8 @@ import nju.ics.lixiaofan.consistency.context.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -35,7 +34,7 @@ public class PatternLoader {
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(RuleLoader.class.getName());
     
-    private static Object parseElement(Element element) {
+/*    private static Object parseElement(Element element) {
         String tagName = element.getNodeName();
 		NodeList children = element.getChildNodes();
 		
@@ -69,7 +68,7 @@ public class PatternLoader {
                     }
                 }
             }
-            Pattern context = new Pattern(name);
+            Pattern pattern = new Pattern(name);
             //子节点处理
             for(int i = 0; i < children.getLength(); i++) {
                 Node node = children.item(i);
@@ -78,10 +77,10 @@ public class PatternLoader {
                 if(nodeType == Node.ELEMENT_NODE) {
                     //是元素，继续递归
                     String field = (String)parseElement((Element)node);
-                    context.addField(field);
+                    pattern.addField(field);
                 }
             }
-            return context;
+            return pattern;
         }
         if(tagName.equals("field")) {
             String field = new String();
@@ -99,20 +98,29 @@ public class PatternLoader {
             return field;
         }
         return null;
-    }
+    }*/
 
-    @SuppressWarnings("unchecked")
-	public static ArrayList<Pattern> parserXml(String fileName) { 
-    	ArrayList<Pattern> contexts = new ArrayList<Pattern>();
+    public static HashSet<Pattern> parserXml(String fileName) { 
+    	HashSet<Pattern> patterns = new HashSet<Pattern>();
         try { 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
             DocumentBuilder db = dbf.newDocumentBuilder(); 
             Document document = db.parse(fileName); 
             
             //获得根元素结点
-            Element root = document.getDocumentElement();
-            contexts = (ArrayList<Pattern>)parseElement(root);
-            //System.out.println("contexts解析完毕"); 
+//            Element root = document.getDocumentElement();
+//            patterns = (ArrayList<Pattern>)parseElement(root);
+            NodeList children = document.getElementsByTagName("pattern");
+        	for(int i = 0;i < children.getLength();i++){
+        		Element child = (Element) children.item(i);
+        		Pattern pattern = new Pattern(child.getElementsByTagName("id").item(0).getFirstChild().getNodeValue());
+    			NodeList fields = child.getChildNodes();
+    			for(int j = 1;j < fields.getLength();j += 2){
+    				Node field = fields.item(j);
+    				pattern.addField(field.getNodeName(), field.getFirstChild().getNodeValue());
+    			}
+    			patterns.add(pattern);
+        	}
             
         } catch (FileNotFoundException e) { 
             System.out.println(e.getMessage()); 
@@ -125,7 +133,7 @@ public class PatternLoader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return contexts;
+        return patterns;
     } 
     
 }

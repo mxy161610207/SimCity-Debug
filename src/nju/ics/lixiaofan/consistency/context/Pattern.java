@@ -7,13 +7,11 @@
 package nju.ics.lixiaofan.consistency.context;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-
 
 /**
  *
@@ -22,8 +20,10 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Pattern {
     public String name;
-    private ArrayList<String> fields = new ArrayList<String>();
-    private HashMap<String,Context> contexts = new HashMap<String, Context>();
+//    private ArrayList<String> fields = new ArrayList<String>();
+    private HashMap<String, Object> fields = new HashMap<String, Object>();//各个field以及其对应的值
+    private HashMap<String, Context> contexts = new HashMap<String, Context>();
+    private HashSet<String> rules = new HashSet<String>();//rules that use this pattern
     
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(Pattern.class.getName());
@@ -40,7 +40,15 @@ public class Pattern {
     	return name;
     }
     
-    public ArrayList<String> getFields() {
+    public void addRule(String rule){
+    	rules.add(rule);
+    }
+    
+//    public ArrayList<String> getFields() {
+//    	return fields;
+//    }
+    
+    public HashMap<String, Object> getFields() {
     	return fields;
     }
     
@@ -52,8 +60,12 @@ public class Pattern {
     	return contexts.get(name);
     }
     
-    public void addField(String field) {
-        fields.add(field);
+//    public void addField(String field) {
+//        fields.add(field);
+//    }
+    
+    public void addField(String key, Object value) {
+        fields.put(key,value);
     }
     
     public void addContext (String key,Context e) {

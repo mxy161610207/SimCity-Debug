@@ -1,6 +1,5 @@
 package nju.ics.lixiaofan.consistency.middleware;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,9 +12,9 @@ import nju.ics.lixiaofan.consistency.formula.BFunc.Param;
 
 public class Detection {
 	public static HashMap<String,Pattern> patterns = new HashMap<String,Pattern>();
-	private static ArrayList<Rule> rules = new ArrayList<Rule>();
+	private static HashSet<Rule> rules = new HashSet<Rule>();
 	
-	public Detection(HashMap<String,Pattern> patterns,ArrayList<Rule> rules) {
+	public Detection(HashMap<String,Pattern> patterns, HashSet<Rule> rules) {
 		Detection.patterns = patterns;
 		Detection.rules = rules;
 	}
@@ -32,7 +31,8 @@ public class Detection {
         	}
         	else{
         		Context ctx = change.getPattern().getContext(change.getContext().getName());
-        		ContextChange original = new ContextChange(ContextChange.DELETION, change.getPattern(), ctx);
+        		ContextChange original = new ContextChange(ContextChange.DELETION, ctx);
+        		original.setPattern(change.getPattern());
                 ChangeOperate.change(original);
                 rule.setFormula(createTreePCC(rule.getFormula(), original));
 	            rule.getFormula().evaluatePCC(node, original);

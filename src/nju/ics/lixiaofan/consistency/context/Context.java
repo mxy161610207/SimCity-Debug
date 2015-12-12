@@ -7,6 +7,9 @@
 package nju.ics.lixiaofan.consistency.context;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,8 +21,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Context {
 	private String name;//主键
-	private HashMap<String,Object> fields = new HashMap<String,Object>();//各个field以及其对应的值
-	private Pattern pattern;//属于哪个pattern
+	private HashMap<String, Object> fields = new HashMap<String, Object>();//各个field以及其对应的值
+	private Set<Pattern> patterns = new HashSet<Pattern>();//属于哪些pattern
     
 	private int state;//undecided,consistent,bad,inconsistent
     
@@ -36,20 +39,30 @@ public class Context {
         return (String)fields.get(field);
     }
     
-    public void addField(String fieldName,Object value) {
-        fields.put(fieldName,value);
+    public void addField(String fieldName, Object value) {
+        fields.put(fieldName, value);
     }
+    
     public void setName(String name) {
         this.name = name;
     }
+    
     public String getName() {
         return name;
     }
-    public void setPattern(Pattern pattern) {
-        this.pattern = pattern;
+    
+    //TODO
+    public boolean matches(Pattern pattern){
+//    	for(pattern.)
+    	
+    	return false;
     }
-    public Pattern getPattern() {
-        return pattern;
+    
+    public void addPattern(Pattern pattern) {
+        patterns.add(pattern);
+    }
+    public Set<Pattern> getPatterns() {
+        return patterns;
     }
     public void setState(int state) {
         this.state = state;

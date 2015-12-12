@@ -8,7 +8,8 @@ package nju.ics.lixiaofan.consistency.dataLoader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList; 
+import java.util.HashSet;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,12 +37,12 @@ import org.xml.sax.SAXException;
 
 public class RuleLoader {
     //Rule rules;
-	private static ArrayList<Rule> rules = new ArrayList<Rule>();
+	private static HashSet<Rule> rules = new HashSet<Rule>();
     
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(RuleLoader.class.getName());
     
-    private static Object parseElement(Element element) {
+    private static Object parseElement(Element element, String ruleName) {
         String tagName = element.getNodeName();
         NodeList children = element.getChildNodes();
 	
@@ -53,13 +54,13 @@ public class RuleLoader {
                     short nodeType = node.getNodeType();
                     if(nodeType == Node.ELEMENT_NODE) {
                         //是元素，继续递归
-                        Rule rule = (Rule)parseElement((Element)node);
+                        Rule rule = (Rule)parseElement((Element)node, null);
                         rules.add(rule);
                     }
             }
             return rules;
         }
-        if(tagName.equals("rule")) {//单个约束
+        else if(tagName.equals("rule")) {//单个约束
             //获取id号（约束编号）
             Node idNode = children.item(1);
             NodeList subChildren = idNode.getChildNodes();
@@ -67,16 +68,16 @@ public class RuleLoader {
             Rule rule = new Rule(name);
             //formula
             Node formulaNode = children.item(3);
-            Formula formula = (Formula)parseElement((Element)formulaNode);
+            Formula formula = (Formula)parseElement((Element)formulaNode, name);
             rule.setFormula(formula);
             return rule;
         }
-        if(tagName.equals("formula")) {//该约束的一阶逻辑公式
+        else if(tagName.equals("formula")) {//该约束的一阶逻辑公式
             Node kindNode = children.item(1);
-            Formula formula = (Formula)parseElement((Element)kindNode);
+            Formula formula = (Formula)parseElement((Element)kindNode, ruleName);
             return formula;
         }
-        if(tagName.equals("forall")) {//全称量词公式
+        else if(tagName.equals("forall")) {//全称量词公式
             ForallFormula formula = new ForallFormula(tagName);
                 
             NamedNodeMap map = element.getAttributes();
@@ -98,14 +99,15 @@ public class RuleLoader {
                     }
             }
             formula.setPattern(var, Middleware.getPatterns().get(pat));
+            Middleware.getPatterns().get(pat).addRule(ruleName);
             
             NodeList subChildren = element.getChildNodes();
             Node sub = subChildren.item(1);
-            Formula subFormula = (Formula)parseElement((Element)sub);
+            Formula subFormula = (Formula)parseElement((Element)sub, ruleName);
             formula.setSubFormula(subFormula);
             return formula;
         }
-        if(tagName.equals("exists")) {//存在量词公式
+        else if(tagName.equals("exists")) {//存在量词公式
             ExistsFormula formula = new ExistsFormula(tagName);
                 
             NamedNodeMap map = element.getAttributes();
@@ -127,52 +129,53 @@ public class RuleLoader {
                     }
             }
             formula.setPattern(var, Middleware.getPatterns().get(pat));
+            Middleware.getPatterns().get(pat).addRule(ruleName);
             
             NodeList subChildren = element.getChildNodes();
             Node sub = subChildren.item(1);
-            Formula subFormula = (Formula)parseElement((Element)sub);
+            Formula subFormula = (Formula)parseElement((Element)sub, ruleName);
             formula.setSubFormula(subFormula);
             return formula;
         }
-        if(tagName.equals("and")) {
+        else if(tagName.equals("and")) {
             AndFormula formula = new AndFormula(tagName);
             NodeList subChildren = element.getChildNodes();
             Node first = subChildren.item(1);
-            Formula firstFormula = (Formula)parseElement((Element)first);
+            Formula firstFormula = (Formula)parseElement((Element)first, ruleName);
             Node second = subChildren.item(3);
-            Formula secondFormula = (Formula)parseElement((Element)second);
+            Formula secondFormula = (Formula)parseElement((Element)second, ruleName);
             formula.setSubFormula(firstFormula,secondFormula);
             return formula;
         }
-        if(tagName.equals("or")) {
+        else if(tagName.equals("or")) {
             OrFormula formula = new OrFormula(tagName);
             NodeList subChildren = element.getChildNodes();
             Node first = subChildren.item(1);
-            Formula firstFormula = (Formula)parseElement((Element)first);
+            Formula firstFormula = (Formula)parseElement((Element)first, ruleName);
             Node second = subChildren.item(3);
-            Formula secondFormula = (Formula)parseElement((Element)second);
+            Formula secondFormula = (Formula)parseElement((Element)second, ruleName);
             formula.setSubFormula(firstFormula,secondFormula);
             return formula;
         }
-        if(tagName.equals("implies")) {
+        else if(tagName.equals("implies")) {
             ImpliesFormula formula = new ImpliesFormula(tagName);
             NodeList subChildren = element.getChildNodes();
             Node first = subChildren.item(1);
-            Formula firstFormula = (Formula)parseElement((Element)first);
+            Formula firstFormula = (Formula)parseElement((Element)first, ruleName);
             Node second = subChildren.item(3);
-            Formula secondFormula = (Formula)parseElement((Element)second);
+            Formula secondFormula = (Formula)parseElement((Element)second, ruleName);
             formula.setSubFormula(firstFormula,secondFormula);
             return formula;
         }
-        if(tagName.equals("not")) {
+        else if(tagName.equals("not")) {
             NotFormula formula = new NotFormula(tagName);
             NodeList subChildren = element.getChildNodes();
             Node sub = subChildren.item(1);
-            Formula subFormula = (Formula)parseElement((Element)sub);
+            Formula subFormula = (Formula)parseElement((Element)sub, ruleName);
             formula.setSubFormula(subFormula);
             return formula;
         }
-        if(tagName.equals("bfunction")) {
+        else if(tagName.equals("bfunc")) {
             String name = new String();
             NamedNodeMap map = element.getAttributes();
             //如果该元素存在属性
@@ -195,13 +198,13 @@ public class RuleLoader {
                 short nodeType = node.getNodeType();
                 if(nodeType == Node.ELEMENT_NODE) {
                     //是元素，继续递归
-                    String[] param = (String[])parseElement((Element)node);
+                    String[] param = (String[])parseElement((Element)node, ruleName);
                     formula.addParam(param[0],param[1],param[2]);
                 }
             }
             return formula;
         }
-        if(tagName.equals("param")) {
+        else if(tagName.equals("param")) {
             String[] param = new String[3];
             //属性处理
             NamedNodeMap map = element.getAttributes();
@@ -227,7 +230,7 @@ public class RuleLoader {
         }
         return null;
     }
-    public static ArrayList<Rule> parserXml(String fileName) { 
+    public static HashSet<Rule> parserXml(String fileName) { 
         try { 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
             DocumentBuilder db = dbf.newDocumentBuilder(); 
@@ -235,7 +238,7 @@ public class RuleLoader {
             
             //获得根元素结点
             Element root = document.getDocumentElement();
-            parseElement(root);
+            parseElement(root, null);
             //System.out.println("constraints解析完毕"); 
             
         } catch (FileNotFoundException e) { 

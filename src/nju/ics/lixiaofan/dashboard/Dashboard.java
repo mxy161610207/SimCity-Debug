@@ -157,7 +157,7 @@ public class Dashboard extends JFrame{
 				for(Car car : TrafficMap.cars.values()){
 					car.loc = null;
 					car.dir = -1;
-					car.state = 0;
+					car.status = 0;
 					car.expectation = 0;
 					car.finalState = 0;
 					car.dest = null;

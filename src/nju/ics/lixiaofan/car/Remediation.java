@@ -17,7 +17,7 @@ public class Remediation implements Runnable{
 			while(true){
 				long currentTime = System.currentTimeMillis();
 				for(Car car:TrafficMap.cars.values())
-					if(car.isConnected && car.state != -1 && currentTime - car.lastInstrTime > 60000)
+					if(car.isConnected && car.status != -1 && currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				
 				try {
@@ -62,7 +62,7 @@ public class Remediation implements Runnable{
 					}
 					//stop cmd
 					else if (cmd.cmd == 0) {
-						cmd.car.state = 0;
+						cmd.car.status = 0;
 						cmd.car.stopTime = System.currentTimeMillis();
 						if(cmd.car.dest != null && (cmd.car.dest == cmd.car.loc || cmd.car.dest.isCombined && cmd.car.dest.combined.contains(cmd.car.loc)
 								&& cmd.car.dt != null)){

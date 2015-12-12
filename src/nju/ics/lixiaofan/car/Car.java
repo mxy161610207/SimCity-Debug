@@ -20,7 +20,7 @@ public class Car {
 	public boolean isConnected = false;
 	public String name = null;//only for zenwheels
 //	public int frequency;//0: A|grey	1: B|orange	2: C|green	3: blue
-	public int state = 0;//0: still	1: moving	-1: uncertain
+	public int status = 0;//0: still	1: moving	-1: uncertain
 	public int expectation = 0;//0: wanna stop	1: wanna move	-1: none
 	public int finalState = 0;//the same as expectation
 	public int dir = -1;//0: N	1: S	2: W	3: E
@@ -75,7 +75,7 @@ public class Car {
 	}
 	
 	public String getState(){
-		switch(state){
+		switch(status){
 		case 0:
 			return "Stopped";
 		case 1:

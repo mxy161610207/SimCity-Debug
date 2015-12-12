@@ -21,4 +21,8 @@ public class Sensor {
 	public boolean isTriggered = false;
 	public int showPos = -1;//4 types in total
 	public int px, py;
+	
+	public final static int INITIAL = 0;
+	public final static int DETECTED = 1;
+	public final static int UNDETECTED = 2;
 }
