@@ -1,5 +1,6 @@
 package nju.ics.lixiaofan.consistency.middleware;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -26,10 +27,12 @@ public class ChangeOperate {
     	
     	switch (change.getType()) {
 		case ContextChange.ADDITION:
-			change.getPattern().addContext(change.getContext().getName(), change.getContext());
+			change.getPattern().addContext(change.getContext());
+			change.getContext().addPattern(change.getPattern());
 			break;
 		case ContextChange.DELETION:
-			change.getPattern().deleteContext(change.getContext().getName());
+			change.getPattern().deleteContext(change.getContext());
+			change.getContext().deletePattern(change.getPattern());
 			break;
 		case ContextChange.UPDATE:
 			break;
@@ -40,20 +43,24 @@ public class ChangeOperate {
     }
 	
 	//对一条change的处理(Drop-latest/Drop-all/Drop-random)
-	public static void singleChangeTrivial(ContextChange change,String strategy) {
-		if(!change(change))
-			return;
-		/*ArrayList<Link> link = */Detection.singleChangeDetect(change);
-//        if(link != null) {//该context经检测是一致的
-//            Resolution.resolve(change,link,strategy);
-//        }
-	}
-	
-	public static void singleChange(ContextChange change,String strategy) {
-		//对一条change的处理(Drop-latest/Drop-all/Drop-random)
+	public static void singleChange(ContextChange change, String strategy) {
 		if(strategy.equals("Drop-latest") || strategy.equals("Drop-all") || strategy.equals("Drop-random")) {
-			singleChangeTrivial(change,strategy);
+			/*ArrayList<Link> link = */Detection.singleChangeDetect(change);
+//	        if(link != null) {//该context经检测是一致的
+//	            Resolution.resolve(change,link,strategy);
+//	        }
         }
 	}
-
+	
+	//对多条change的处理(Drop-latest/Drop-all/Drop-random)
+	//return value: true/false: inconsistency detected/undetected
+	public static boolean multiChange(ArrayList<ContextChange> changes, String strategy) {
+		if(strategy.equals("Drop-latest") || strategy.equals("Drop-all") || strategy.equals("Drop-random")) {
+			/*ArrayList<Link> link = */Detection.multiChangeDetect(changes);
+//	        if(link != null) {//该context经检测是一致的
+//	            Resolution.resolve(change,link,strategy);
+//	        }
+        }
+		return false;
+	}
 }

@@ -8,7 +8,8 @@ package nju.ics.lixiaofan.consistency.context;
 
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,8 +23,9 @@ public class Pattern {
     public String name;
 //    private ArrayList<String> fields = new ArrayList<String>();
     private HashMap<String, Object> fields = new HashMap<String, Object>();//各个field以及其对应的值
-    private HashMap<String, Context> contexts = new HashMap<String, Context>();
-    private HashSet<String> rules = new HashSet<String>();//rules that use this pattern
+    private Queue<Context> contexts = new LinkedList<Context>();
+    private int ctxNum = Integer.MAX_VALUE;
+    private String rule;//assumption: a pattern can only be used by one rule
     
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(Pattern.class.getName());
@@ -40,8 +42,12 @@ public class Pattern {
     	return name;
     }
     
-    public void addRule(String rule){
-    	rules.add(rule);
+    public void setRule(String rule){
+    	this.rule = rule;
+    }
+    
+    public String getRule(){
+    	return rule;
     }
     
 //    public ArrayList<String> getFields() {
@@ -52,13 +58,13 @@ public class Pattern {
     	return fields;
     }
     
-    public HashMap<String, Context> getContexts() {
+    public Queue<Context> getContexts() {
     	return contexts;
     }
     
-    public Context getContext(String name){
-    	return contexts.get(name);
-    }
+//    public Context getContext(String name){
+//    	return contexts.get(name);
+//    }
     
 //    public void addField(String field) {
 //        fields.add(field);
@@ -68,17 +74,21 @@ public class Pattern {
         fields.put(key,value);
     }
     
-    public void addContext (String key,Context e) {
-        contexts.put(key,e);
+    public void addContext (Context ctx) {
+        contexts.add(ctx);
     }
     
-    public boolean deleteContext(String key) {
-        if(contexts.containsKey(key)) {
-            contexts.remove(key);
-            return true;
-        }
-        else
-            return false;
+    public void deleteContext(Context ctx) {
+        if(contexts.contains(ctx))
+            contexts.remove(ctx);
+    }
+    
+    public void setContxtNum(int num){
+    	this.ctxNum = num;
+    }
+    
+    public boolean isFull(){
+    	return contexts.size() == ctxNum;
     }
     
     @Override

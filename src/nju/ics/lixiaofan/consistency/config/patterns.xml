@@ -12,7 +12,7 @@
 		<object>any</object>
 		<prev>any</prev>
 	</pattern>
-
+<!--  
 	<pattern>
 		<id>car</id>
 		<timestamp>any</timestamp>
@@ -24,7 +24,7 @@
 		<object>any</object>
 		<prev>any</prev>
 	</pattern>
-
+-->
 	<pattern>
 		<id>orange_car1</id>
 		<timestamp>any</timestamp>

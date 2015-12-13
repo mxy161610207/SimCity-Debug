@@ -99,7 +99,7 @@ public class RuleLoader {
                     }
             }
             formula.setPattern(var, Middleware.getPatterns().get(pat));
-            Middleware.getPatterns().get(pat).addRule(ruleName);
+            Middleware.getPatterns().get(pat).setRule(ruleName);
             
             NodeList subChildren = element.getChildNodes();
             Node sub = subChildren.item(1);
@@ -129,7 +129,7 @@ public class RuleLoader {
                     }
             }
             formula.setPattern(var, Middleware.getPatterns().get(pat));
-            Middleware.getPatterns().get(pat).addRule(ruleName);
+            Middleware.getPatterns().get(pat).setRule(ruleName);
             
             NodeList subChildren = element.getChildNodes();
             Node sub = subChildren.item(1);

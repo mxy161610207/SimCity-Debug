@@ -27,8 +27,9 @@ public class ContextChange {
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(ContextChange.class.getName());
     
-    public ContextChange(int type, Context context) {
+    public ContextChange(int type, Pattern pattern, Context context) {
     	this.type = type;
+    	this.pattern = pattern;
     	this.context = context;
 	}
     

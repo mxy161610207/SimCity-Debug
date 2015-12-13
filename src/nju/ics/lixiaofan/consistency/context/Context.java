@@ -8,6 +8,7 @@ package nju.ics.lixiaofan.consistency.context;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -51,22 +52,33 @@ public class Context {
         return name;
     }
     
-    //TODO
     public boolean matches(Pattern pattern){
-//    	for(pattern.)
+    	for(Map.Entry<String, Object> entry : pattern.getFields().entrySet()){
+    		if(entry.getValue().equals("any"))
+    			continue;
+    		else if(!fields.containsKey(entry.getKey()) || !fields.get(entry.getKey()).equals(entry.getValue()))
+    			return false;
+    	}
     	
-    	return false;
+    	return true;
     }
     
     public void addPattern(Pattern pattern) {
         patterns.add(pattern);
     }
+    
+    public void deletePattern(Pattern pattern) {
+        patterns.remove(pattern);
+    }
+    
     public Set<Pattern> getPatterns() {
         return patterns;
     }
+    
     public void setState(int state) {
         this.state = state;
     }
+    
     public int getState() {
         return state;
     }

@@ -7,6 +7,7 @@
 package nju.ics.lixiaofan.consistency.middleware;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -28,7 +29,7 @@ public class Middleware {
     public static int changeNum = 0;
     public static int ctxNum = 0;
     
-    private static Queue<ContextChange> queue = new LinkedList<ContextChange>();
+    private static Queue<Collection<ArrayList<ContextChange>>> queue = new LinkedList<Collection<ArrayList<ContextChange>>>();
     private static Thread handler = new Thread(){
     	public void run() {
     		while(true){
@@ -42,9 +43,14 @@ public class Middleware {
 					}
     			}
     			
-    			ContextChange change = queue.poll();
-    			changeNum++;
-    	        ChangeOperate.singleChange(change, resolutionStrategy);
+    			Collection<ArrayList<ContextChange>> sequences = queue.poll();
+    			for(ArrayList<ContextChange> sequence : sequences){
+    				changeNum += sequence.size();
+        	        if(ChangeOperate.multiChange(sequence, resolutionStrategy)){
+        	        	//if an inconsistency is detected, then no need to check the rest (just resolve)
+        	        	break;
+        	        }
+    			}
     		}
     	}
     };
@@ -59,6 +65,14 @@ public class Middleware {
 //        System.out.println(patternList.size());
         for(Pattern pattern : patternList){
         	patterns.put(pattern.getName(), pattern);
+        	switch (pattern.getName()) {
+			case "latest":
+				pattern.setContxtNum(1);
+				break;
+			default:
+				pattern.setContxtNum(2);
+				break;
+			}
 //        	System.out.println(pattern.getName());
 //        	for(Map.Entry entry : pattern.getFields().entrySet())
 //        		System.out.println(entry.getKey() + " " + entry.getValue());
@@ -81,22 +95,6 @@ public class Middleware {
         handler.start();
 	}
     
-    public static void main(String[] args) {
-       new Middleware();
-        
-//        //循环获取每一条change并进行处理
-//        Demo demo = new Demo("src/nju/ics/lixiaofan/consistency/config/changes.txt");
-////        long bs = Calendar.getInstance().getTimeInMillis();
-//        while(demo.hasNextChange()) {//循环处理changes
-//            changeNum++;
-//            //System.out.println(changeNum);
-//            ChangeOperate.singleChange(demo.nextChange(), resolutionStrategy);
-//            //display();
-//            //System.exit(1);
-//        }
-////        System.out.println(Calendar.getInstance().getTimeInMillis() - bs);
-    }
-    
 	public static void add(Object subject, Object direction, Object status,
 			Object category, Object predicate, Object prev, Object object,
 			Object timestamp) {
@@ -111,12 +109,25 @@ public class Middleware {
 		context.addField("object", object);
 		context.addField("timestamp", timestamp);
 		
-		ArrayList<ContextChange> sequence = new ArrayList<ContextChange>();
-		//TODO search for the matched pattern
+		HashMap<String, ArrayList<ContextChange>> sequences = new HashMap<String, ArrayList<ContextChange>>();
 		for(Pattern pattern : patterns.values()){
-			if(context.matches(pattern))
+			if(context.matches(pattern)){
+				if(!sequences.containsKey(pattern.getRule()))
+					sequences.put(pattern.getRule(), new ArrayList<ContextChange>());
+				if(pattern.isFull()){
+					ContextChange deletion = new ContextChange(ContextChange.DELETION, pattern, pattern.getContexts().peek());
+					sequences.get(pattern.getRule()).add(deletion);
+				}
+				
+				ContextChange addition = new ContextChange(ContextChange.ADDITION, pattern, context);
+				sequences.get(pattern.getRule()).add(addition);
+			}
 		}
 		
+		synchronized (queue) {
+			queue.add(sequences.values());
+			queue.notify();
+		}
 	}
     
     public static HashMap<String,Pattern> getPatterns() {
@@ -127,13 +138,29 @@ public class Middleware {
     	return rules;
     }
     
+//  public static void main(String[] args) {
+//  new Middleware();
+//   
+////   //循环获取每一条change并进行处理
+////   Demo demo = new Demo("src/nju/ics/lixiaofan/consistency/config/changes.txt");
+//////   long bs = Calendar.getInstance().getTimeInMillis();
+////   while(demo.hasNextChange()) {//循环处理changes
+////       changeNum++;
+////       //System.out.println(changeNum);
+////       ChangeOperate.singleChange(demo.nextChange(), resolutionStrategy);
+////       //display();
+////       //System.exit(1);
+////   }
+//////   System.out.println(Calendar.getInstance().getTimeInMillis() - bs);
+//}
+    
     public static void display() {
         for (Map.Entry<String, Pattern> entry : patterns.entrySet()) {
             String name = (String)entry.getKey();
             Pattern context = (Pattern)entry.getValue();
             System.out.println(name + ":");
-            for (Map.Entry<String, Context> entry2 : context.getContexts().entrySet()) {
-                System.out.print(" " + entry2.getKey());
+            for (Context ctx : context.getContexts()) {
+                System.out.print(" " + ctx.getName());
             }
             System.out.println("");
         }

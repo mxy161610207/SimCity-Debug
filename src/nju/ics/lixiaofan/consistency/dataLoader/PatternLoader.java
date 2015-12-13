@@ -117,7 +117,8 @@ public class PatternLoader {
     			NodeList fields = child.getChildNodes();
     			for(int j = 1;j < fields.getLength();j += 2){
     				Node field = fields.item(j);
-    				pattern.addField(field.getNodeName(), field.getFirstChild().getNodeValue());
+    				if(!field.getNodeName().equals("id"))
+    					pattern.addField(field.getNodeName(), field.getFirstChild().getNodeValue());
     			}
     			patterns.add(pattern);
         	}

@@ -25,9 +25,8 @@ public class Resolution {
         if(strategy.equals("Drop-all")) {
         	Set<Context> contexts = getContexts(links);
         	for(Context context : contexts) {
-        		ContextChange newChange = new ContextChange(ContextChange.DELETION, context);
         		for(Pattern pattern : context.getPatterns()){
-        			newChange.setPattern(pattern);
+        			ContextChange newChange = new ContextChange(ContextChange.DELETION, pattern, context);
 	                if(ChangeOperate.change(newChange))
 	                	Detection.singleChangeDetect(newChange);
         		}
@@ -41,8 +40,8 @@ public class Resolution {
         else if(strategy.equals("Drop-random")) {
         	Set<Context> contexts = getContexts(links);
         	Context context = new ArrayList<Context>(contexts).get((int)Math.random()*contexts.size());
-        	ContextChange newChange = new ContextChange(ContextChange.DELETION, context);
     		for(Pattern pattern : context.getPatterns()){
+    			ContextChange newChange = new ContextChange(ContextChange.DELETION, pattern, context);
     			newChange.setPattern(pattern);
                 if(ChangeOperate.change(newChange))
                 	Detection.singleChangeDetect(newChange);

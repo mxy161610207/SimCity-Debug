@@ -1,5 +1,6 @@
 package nju.ics.lixiaofan.consistency.middleware;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,8 +21,7 @@ public class Detection {
 	}
 	
     //ECC/PCC检测
-    public static Set<Link> detect(Rule rule, ContextChange change) {
-        Set<Link> diffLinks = new HashSet<Link>(), prevLinks = rule.getLinks();
+    public static void detect(Rule rule, ContextChange change) {
         Assignment node = new Assignment();
         if(Configuration.getConfigStr("checkingStragegy").equals("PCC")) {
         	if(change.getType() != ContextChange.UPDATE){
@@ -31,8 +31,7 @@ public class Detection {
         	}
         	else{
         		Context ctx = change.getPattern().getContext(change.getContext().getName());
-        		ContextChange original = new ContextChange(ContextChange.DELETION, ctx);
-        		original.setPattern(change.getPattern());
+        		ContextChange original = new ContextChange(ContextChange.DELETION, change.getPattern(), ctx);
                 ChangeOperate.change(original);
                 rule.setFormula(createTreePCC(rule.getFormula(), original));
 	            rule.getFormula().evaluatePCC(node, original);
@@ -47,56 +46,28 @@ public class Detection {
 	            rule.getFormula().generatePCC(change);
                 change.setType(ContextChange.UPDATE);//reset its type
         	}
-//            if(change.getOperate() == 1) {
-            if(!rule.getValue()) {
-                diffLinks = diff(rule.getLinks(), prevLinks);
-                /*System.out.println("lastLink");
-                for(int x = 0;x < lastLink.size();x++)
-                    System.out.println(rule.getId() + lastLink.get(x).toString());
-                System.out.println("link");
-                for(int x = 0;x < link.size();x++)
-                    System.out.println(rule.getId() + link.get(x).toString());
-                System.out.println("differenceLink");*/
-                for(Link l : diffLinks)
-                    System.out.println(Middleware.changeNum + " " + rule.getName() + l.toString());                       
-            }
-//            }
-//            else {
-//                diffLinks = diff(rule.getLinks(), prevLinks);
-//                if(!rule.getValue()) {
-//                    /*System.out.println("lastLink");
-//                    for(int x = 0;x < lastLink.size();x++)
-//                        System.out.println(rule.getId() + lastLink.get(x).toString());
-//                    System.out.println("link");
-//                    for(int x = 0;x < link.size();x++)
-//                        System.out.println(rule.getId() + link.get(x).toString());
-//                    System.out.println("differenceLink");*/
-//                	for(Link l : diffLinks)
-//                        System.out.println(MiddleWare.changeNum + " " + rule.getId() + l.toString());                         
-//                }
-//            }
         }
 		if(Configuration.getConfigStr("checkingStragegy").equals("ECC")) {
 			rule.setFormula(createTreeECC(rule.getFormula()));
 			rule.getFormula().evaluateECC(node);
         	rule.getFormula().generateECC();
-            if(!rule.getValue()) {
-                diffLinks = diff(rule.getLinks(), prevLinks);
-                for(Link l : diffLinks)
-                    System.out.println(Middleware.changeNum + " " + rule.getName() + l.toString());  
-            }
         }
-        return diffLinks;
     }
      
     //对一条change的检测
 	public static Set<Link> singleChangeDetect(ContextChange change) {
-		if(change == null)
+		if(change == null || !ChangeOperate.change(change))
 			return new HashSet<Link>();
         if(Configuration.getConfigStr("schedulingStrategy").equals("OFF")) {       
             for(Rule rule : rules) {//循环检测所有的约束
                 if(rule.affect(change)) {
-                	Set<Link> diffLinks = detect(rule,change);//如果存在不一致，做resolution
+                	Set<Link> diffLinks = new HashSet<Link>(), prevLinks = rule.getLinks();
+                	detect(rule, change);
+                    if(!rule.getValue()) {
+                        diffLinks = diff(rule.getLinks(), prevLinks);
+                        for(Link l : diffLinks)
+                            System.out.println(Middleware.changeNum + " " + rule.getName() + l.toString());                       
+                    }
                 	if(!diffLinks.isEmpty())
                 		return diffLinks;
                 }
@@ -104,6 +75,12 @@ public class Detection {
         }
         return null;
     }
+	
+    //对多条change的检测
+	public static Set<Link> multiChangeDetect(ArrayList<ContextChange> changes) {
+		//TODO
+		return null;
+	}
    
 	//构建计算树（PCC）
 	private static Formula createTreePCC(Formula formula,ContextChange change) {
@@ -207,7 +184,7 @@ public class Detection {
             ForallFormula result = new ForallFormula("forall");
             result.setPattern(((ForallFormula)formula).getVariable(),((ForallFormula)formula).getPattern());
             result.setSubFormula(((ForallFormula)formula).getSubFormula());
-            for(Context ctx : ((ForallFormula)formula).getPattern().getContexts().values()) {
+            for(Context ctx : ((ForallFormula)formula).getPattern().getContexts()) {
                 SubNode element = new SubNode(ctx);
                 element.setFormula(createTreeECC(((ForallFormula)formula).getSubFormula()));
                 result.addSubNode(element);
@@ -218,7 +195,7 @@ public class Detection {
             ExistsFormula result = new ExistsFormula("exists");
             result.setPattern(((ExistsFormula)formula).getVariable(),((ExistsFormula)formula).getPattern());
             result.setSubFormula(((ExistsFormula)formula).getSubFormula());
-            for (Context ctx : ((ForallFormula)formula).getPattern().getContexts().values()) {
+            for (Context ctx : ((ForallFormula)formula).getPattern().getContexts()) {
                 SubNode element = new SubNode(ctx);
                 element.setFormula(createTreeECC(((ExistsFormula)formula).getSubFormula()));
                 result.addSubNode(element);
