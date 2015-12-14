@@ -61,8 +61,6 @@ public class Demo extends Changes{
             change.setType(ContextChange.ADDITION);
         else if(s[0].matches("[-]"))
             change.setType(ContextChange.DELETION);
-        else if(s[0].matches("[#]"))
-            change.setType(ContextChange.UPDATE);
 //        change.setPatternName(s[1]);
 //        change.setContextName(s[2]);
         

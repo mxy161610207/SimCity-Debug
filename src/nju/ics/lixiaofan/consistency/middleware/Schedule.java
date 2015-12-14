@@ -60,14 +60,14 @@ public class Schedule {
         if(changes.size() >= N) {
             ContextChange topChange = changes.get(0);
             changes.remove(0);
-            if(ChangeOperate.change(topChange)) {
-                return;
-            }
+            Operation.change(topChange);
             for(int i = 0;i < rules.size();i++) {
                 Rule rule = rules.get(i);
                 Set<Link> links = new HashSet<Link>();
                 if(rule.sch.get(topChange).equals("yes")) {
-                    links = Detection.detect(rule,topChange);
+                	links = rule.getLinks();
+                    Detection.check(rule,topChange);
+                    links = Detection.diff(rule.getLinks(), links);
                 }
                 if(!links.isEmpty()) {
                     Resolution.resolve(change,links,Configuration.getConfigStr("resolutionStrategy"));

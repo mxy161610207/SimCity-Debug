@@ -2,29 +2,27 @@ package nju.ics.lixiaofan.consistency.middleware;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.consistency.context.Pattern;
 import nju.ics.lixiaofan.consistency.context.Rule;
+import nju.ics.lixiaofan.consistency.formula.Link;
 
-public class ChangeOperate {
+public class Operation {
     public static HashMap<String,Pattern> patterns = new HashMap<String,Pattern>();
 	@SuppressWarnings("unused")
-	private static HashSet<Rule> rules = new HashSet<Rule>();
+	private static HashMap<String, Rule> rules = new HashMap<String, Rule>();
 	
-	public ChangeOperate(HashMap<String,Pattern> patterns, HashSet<Rule> rules) {
-		ChangeOperate.patterns = patterns;
-		ChangeOperate.rules = rules;
+	public Operation(HashMap<String,Pattern> patterns, HashMap<String, Rule> rules) {
+		Operation.patterns = patterns;
+		Operation.rules = rules;
 		new Detection(patterns, rules);
 		//new Resolution(contextsForResolve);
 	}
 
     //contextchange操作
-    public static boolean change(ContextChange change) {
-    	if(change.getPattern() == null)
-    		return false;
-    	
+    public static void change(ContextChange change) {
     	switch (change.getType()) {
 		case ContextChange.ADDITION:
 			change.getPattern().addContext(change.getContext());
@@ -34,18 +32,15 @@ public class ChangeOperate {
 			change.getPattern().deleteContext(change.getContext());
 			change.getContext().deletePattern(change.getPattern());
 			break;
-		case ContextChange.UPDATE:
-			break;
 		default:
-			return false;
+			break;
 		}
-        return true;
     }
 	
 	//对一条change的处理(Drop-latest/Drop-all/Drop-random)
-	public static void singleChange(ContextChange change, String strategy) {
+	public static void operate(ContextChange change, String strategy) {
 		if(strategy.equals("Drop-latest") || strategy.equals("Drop-all") || strategy.equals("Drop-random")) {
-			/*ArrayList<Link> link = */Detection.singleChangeDetect(change);
+			/*ArrayList<Link> link = */Detection.detect(change);
 //	        if(link != null) {//该context经检测是一致的
 //	            Resolution.resolve(change,link,strategy);
 //	        }
@@ -53,13 +48,14 @@ public class ChangeOperate {
 	}
 	
 	//对多条change的处理(Drop-latest/Drop-all/Drop-random)
-	//return value: true/false: inconsistency detected/undetected
-	public static boolean multiChange(ArrayList<ContextChange> changes, String strategy) {
+	//return value: if an inconsistency is detected, return true, vice versa
+	public static boolean operate(Rule rule, ArrayList<ContextChange> changes, String strategy) {
 		if(strategy.equals("Drop-latest") || strategy.equals("Drop-all") || strategy.equals("Drop-random")) {
-			/*ArrayList<Link> link = */Detection.multiChangeDetect(changes);
-//	        if(link != null) {//该context经检测是一致的
-//	            Resolution.resolve(change,link,strategy);
-//	        }
+			Set<Link> links = Detection.detect(rule, changes);
+	        if(links != null && !links.isEmpty()){
+	            Resolution.resolve(rule, changes, links, strategy);
+	            return true;
+	        }
         }
 		return false;
 	}

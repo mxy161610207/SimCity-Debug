@@ -7,15 +7,17 @@
 package nju.ics.lixiaofan.consistency.middleware;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.consistency.context.*;
 import nju.ics.lixiaofan.consistency.dataLoader.*;
+import nju.ics.lixiaofan.sensor.BrickHandler;
+import nju.ics.lixiaofan.sensor.Sensor;
 
 /**
  *
@@ -24,12 +26,11 @@ import nju.ics.lixiaofan.consistency.dataLoader.*;
  */
 public class Middleware {
     private static HashMap<String, Pattern> patterns = new HashMap<String, Pattern>();
-    private static HashSet<Rule> rules = new HashSet<Rule>();
+    private static HashMap<String, Rule> rules = new HashMap<String, Rule>();
     private static String resolutionStrategy;
     public static int changeNum = 0;
-    public static int ctxNum = 0;
     
-    private static Queue<Collection<ArrayList<ContextChange>>> queue = new LinkedList<Collection<ArrayList<ContextChange>>>();
+    private static Queue<HashMap<String, ArrayList<ContextChange>>> queue = new LinkedList<HashMap<String, ArrayList<ContextChange>>>();
     private static Thread handler = new Thread(){
     	public void run() {
     		while(true){
@@ -43,13 +44,19 @@ public class Middleware {
 					}
     			}
     			
-    			Collection<ArrayList<ContextChange>> sequences = queue.poll();
-    			for(ArrayList<ContextChange> sequence : sequences){
-    				changeNum += sequence.size();
-        	        if(ChangeOperate.multiChange(sequence, resolutionStrategy)){
-        	        	//if an inconsistency is detected, then no need to check the rest (just resolve)
+    			HashMap<String, ArrayList<ContextChange>> sequences = queue.poll();
+    			boolean detected = false;
+    			for(Map.Entry<String, ArrayList<ContextChange>> entry : sequences.entrySet()){
+    				changeNum += entry.getValue().size();
+    				detected = Operation.operate(rules.get(entry.getKey()), entry.getValue(), resolutionStrategy);
+    				//if an inconsistency is detected, then no need to check the rest (already violated)
+        	        if(detected)
         	        	break;
-        	        }
+    			}
+    			if(!detected){
+    				@SuppressWarnings("unchecked")
+					Context ctx = ((ArrayList<ContextChange>[])(sequences.values().toArray()))[0].get(0).getContext();
+    				BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"));
     			}
     		}
     	}
@@ -61,9 +68,8 @@ public class Middleware {
         c.init("/nju/ics/lixiaofan/consistency/config/System.properties");
                
         //读context具体内容，得到contexts
-        HashSet<Pattern> patternList = PatternLoader.parserXml("src/nju/ics/lixiaofan/consistency/config/patterns.xml");
-//        System.out.println(patternList.size());
-        for(Pattern pattern : patternList){
+        HashSet<Pattern> patternSet = PatternLoader.parserXml("src/nju/ics/lixiaofan/consistency/config/patterns.xml");
+        for(Pattern pattern : patternSet){
         	patterns.put(pattern.getName(), pattern);
         	switch (pattern.getName()) {
 			case "latest":
@@ -79,27 +85,21 @@ public class Middleware {
         }
         
         //读constraint，得到rules
-        rules = RuleLoader.parserXml("src/nju/ics/lixiaofan/consistency/config/rules.xml");
+       	HashSet<Rule> ruleSet = RuleLoader.parserXml("src/nju/ics/lixiaofan/consistency/config/rules.xml");
+       	for(Rule rule : ruleSet)
+       		rules.put(rule.getName(), rule);
         
         //单条change处理
-        new ChangeOperate(patterns,rules);
+        new Operation(patterns,rules);
         
-//        if(Configuration.getConfigStr("optimizingStrategy").equals("ON")) {
-//            for(int i = 0;i < rules.size();i++) {
-//                String temp = Configuration.getConfigStr("goalLink" + (i+1));
-//                rules.get(i).getFormula().setGoal(temp);
-//            }
-//        }
         resolutionStrategy = Configuration.getConfigStr("resolutionStrategy");
         
         handler.start();
 	}
     
 	public static void add(Object subject, Object direction, Object status,
-			Object category, Object predicate, Object prev, Object object,
-			Object timestamp) {
+			Object category, Object predicate, Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
 		Context context = new Context();
-		context.setName(String.valueOf(ctxNum++));
 		context.addField("subject", subject);
 		context.addField("direction", direction);
 		context.addField("status", status);
@@ -108,6 +108,8 @@ public class Middleware {
 		context.addField("prev", prev);
 		context.addField("object", object);
 		context.addField("timestamp", timestamp);
+		context.addField("car", car);
+		context.addField("sensor", sensor);
 		
 		HashMap<String, ArrayList<ContextChange>> sequences = new HashMap<String, ArrayList<ContextChange>>();
 		for(Pattern pattern : patterns.values()){
@@ -124,17 +126,18 @@ public class Middleware {
 			}
 		}
 		
-		synchronized (queue) {
-			queue.add(sequences.values());
-			queue.notify();
-		}
+		if(!sequences.isEmpty())
+			synchronized (queue) {
+				queue.add(sequences);
+				queue.notify();
+			}
 	}
     
     public static HashMap<String,Pattern> getPatterns() {
     	return patterns;
     }
     
-    public static HashSet<Rule> getRules() {
+    public static HashMap<String, Rule> getRules() {
     	return rules;
     }
     

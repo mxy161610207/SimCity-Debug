@@ -18,11 +18,9 @@ public class ContextChange {
 	private int type;
 	private Pattern pattern;
 	private Context context;
-	private ContextChange original = null;//only to store the original change for update type
     
 	public final static int ADDITION = 1;
 	public final static int DELETION = 2;
-	public final static int UPDATE = 3;
 	
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(ContextChange.class.getName());
@@ -50,14 +48,6 @@ public class ContextChange {
     
     public void setContext(Context context) {
         this.context = context;
-    }
-    
-    public void setOriginal(ContextChange original){
-    	this.original = original;
-    }
-    
-    public ContextChange getOriginal(){
-    	return original;
     }
     
     public Pattern getPattern() {

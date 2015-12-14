@@ -26,12 +26,15 @@ public class Context {
 	private Set<Pattern> patterns = new HashSet<Pattern>();//ÊôÓÚÄÄĞ©pattern
     
 	private int state;//undecided,consistent,bad,inconsistent
+	public static int ctxNum = 0;
     
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(Context.class.getName());
     
     public Context() {
         state = -1;
+        this.name = "ctx_" + ctxNum;
+        ctxNum++;
     }
     public HashMap<String,Object> getFields() {
     	return fields;

@@ -52,13 +52,6 @@ public class BrickServer {
 		}
 	};
 	
-//	public static void main(String[] args) throws IOException {
-//		initValues();
-//		
-//		server = new ServerSocket(9999);
-//		new Thread(new BrickListener(server, ctds)).start();
-//	}
-	
 	public BrickServer() {
 		BrickHandler.initValues();
 		keyListener.start();

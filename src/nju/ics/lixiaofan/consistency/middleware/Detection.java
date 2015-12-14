@@ -13,41 +13,22 @@ import nju.ics.lixiaofan.consistency.formula.BFunc.Param;
 
 public class Detection {
 	public static HashMap<String,Pattern> patterns = new HashMap<String,Pattern>();
-	private static HashSet<Rule> rules = new HashSet<Rule>();
+	private static HashMap<String, Rule> rules = new HashMap<String, Rule>();
 	
-	public Detection(HashMap<String,Pattern> patterns, HashSet<Rule> rules) {
+	public Detection(HashMap<String,Pattern> patterns, HashMap<String, Rule> rules) {
 		Detection.patterns = patterns;
 		Detection.rules = rules;
 	}
 	
     //ECC/PCC检测
-    public static void detect(Rule rule, ContextChange change) {
+    public static void check(Rule rule, ContextChange change) {
         Assignment node = new Assignment();
         if(Configuration.getConfigStr("checkingStragegy").equals("PCC")) {
-        	if(change.getType() != ContextChange.UPDATE){
-	            rule.setFormula(createTreePCC(rule.getFormula(),change));
-	            rule.getFormula().evaluatePCC(node,change);
-	            rule.getFormula().generatePCC(change);
-        	}
-        	else{
-        		Context ctx = change.getPattern().getContext(change.getContext().getName());
-        		ContextChange original = new ContextChange(ContextChange.DELETION, change.getPattern(), ctx);
-                ChangeOperate.change(original);
-                rule.setFormula(createTreePCC(rule.getFormula(), original));
-	            rule.getFormula().evaluatePCC(node, original);
-	            rule.getFormula().generatePCC(original);
-	            original.setType(ContextChange.UPDATE);
-	            change.setOriginal(original);//if this change need resolution, then use the original to update
-                
-                change.setType(ContextChange.ADDITION);
-                ChangeOperate.change(change);
-                rule.setFormula(createTreePCC(rule.getFormula(), change));
-	            rule.getFormula().evaluatePCC(node, change);
-	            rule.getFormula().generatePCC(change);
-                change.setType(ContextChange.UPDATE);//reset its type
-        	}
+            rule.setFormula(createTreePCC(rule.getFormula(), change));
+            rule.getFormula().evaluatePCC(node, change);
+            rule.getFormula().generatePCC(change);
         }
-		if(Configuration.getConfigStr("checkingStragegy").equals("ECC")) {
+        else if(Configuration.getConfigStr("checkingStragegy").equals("ECC")) {
 			rule.setFormula(createTreeECC(rule.getFormula()));
 			rule.getFormula().evaluateECC(node);
         	rule.getFormula().generateECC();
@@ -55,21 +36,14 @@ public class Detection {
     }
      
     //对一条change的检测
-	public static Set<Link> singleChangeDetect(ContextChange change) {
-		if(change == null || !ChangeOperate.change(change))
-			return new HashSet<Link>();
+	public static Set<Link> detect(ContextChange change) {
         if(Configuration.getConfigStr("schedulingStrategy").equals("OFF")) {       
-            for(Rule rule : rules) {//循环检测所有的约束
+            for(Rule rule : rules.values()) {//循环检测所有的约束
                 if(rule.affect(change)) {
-                	Set<Link> diffLinks = new HashSet<Link>(), prevLinks = rule.getLinks();
-                	detect(rule, change);
-                    if(!rule.getValue()) {
-                        diffLinks = diff(rule.getLinks(), prevLinks);
-                        for(Link l : diffLinks)
-                            System.out.println(Middleware.changeNum + " " + rule.getName() + l.toString());                       
-                    }
-                	if(!diffLinks.isEmpty())
-                		return diffLinks;
+//                	Set<Link> prevLinks = rule.getLinks();
+                	Operation.change(change);
+                	check(rule, change);
+                	return rule.getValue() ? null : rule.getLinks();//diff(rule.getLinks(), prevLinks);
                 }
             }
         }
@@ -77,9 +51,13 @@ public class Detection {
     }
 	
     //对多条change的检测
-	public static Set<Link> multiChangeDetect(ArrayList<ContextChange> changes) {
-		//TODO
-		return null;
+	public static Set<Link> detect(Rule rule, ArrayList<ContextChange> changes) {
+//		Set<Link> prevLinks = rule.getLinks();
+		for(ContextChange change : changes){
+			Operation.change(change);
+			check(rule, change);
+		}
+		return rule.getValue() ? null : rule.getLinks();//diff(rule.getLinks(), prevLinks);
 	}
    
 	//构建计算树（PCC）

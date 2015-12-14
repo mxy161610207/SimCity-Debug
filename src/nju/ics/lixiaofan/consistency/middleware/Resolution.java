@@ -13,6 +13,7 @@ import java.util.Set;
 import nju.ics.lixiaofan.consistency.context.Context;
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.consistency.context.Pattern;
+import nju.ics.lixiaofan.consistency.context.Rule;
 import nju.ics.lixiaofan.consistency.formula.Link;
 
 /**
@@ -27,15 +28,13 @@ public class Resolution {
         	for(Context context : contexts) {
         		for(Pattern pattern : context.getPatterns()){
         			ContextChange newChange = new ContextChange(ContextChange.DELETION, pattern, context);
-	                if(ChangeOperate.change(newChange))
-	                	Detection.singleChangeDetect(newChange);
+	                Detection.detect(newChange);
         		}
         	}
         }
         else if(strategy.equals("Drop-latest")) {
             ContextChange newChange = flip(change);
-            if(ChangeOperate.change(newChange))
-            	Detection.singleChangeDetect(newChange);
+            Detection.detect(newChange);
         }
         else if(strategy.equals("Drop-random")) {
         	Set<Context> contexts = getContexts(links);
@@ -43,13 +42,21 @@ public class Resolution {
     		for(Pattern pattern : context.getPatterns()){
     			ContextChange newChange = new ContextChange(ContextChange.DELETION, pattern, context);
     			newChange.setPattern(pattern);
-                if(ChangeOperate.change(newChange))
-                	Detection.singleChangeDetect(newChange);
+                Detection.detect(newChange);
     		}
         }
     }
     
-    public static Set<Context> getContexts(Set<Link> links) {
+	public static void resolve(Rule rule, ArrayList<ContextChange> changes, Set<Link> links, String strategy) {
+		if(strategy.equals("Drop-latest")){
+			ArrayList<ContextChange> newChanges = new ArrayList<ContextChange>();
+			for(int i = changes.size()-1;i >= 0;i--)
+				newChanges.add(flip(changes.get(i)));
+			Detection.detect(rule, newChanges);
+		}
+	}
+    
+    private static Set<Context> getContexts(Set<Link> links) {
     	Set<Context> result = new HashSet<Context>();
         for(Link l : links)
             result.addAll(l.getBinding().values());
@@ -57,23 +64,11 @@ public class Resolution {
     }
     
     //获得相反的change
-	public static ContextChange flip(ContextChange change) {
+	private static ContextChange flip(ContextChange change) {
         ContextChange flipChange = new ContextChange();
-        if(change.getType() == ContextChange.UPDATE){
-        	flipChange.setPattern(change.getOriginal().getPattern());
-            flipChange.setContext(change.getOriginal().getContext());
-            flipChange.setContext(change.getOriginal().getContext());
-            flipChange.setType(ContextChange.UPDATE);
-        }
-        else{
-	        flipChange.setPattern(change.getPattern());
-	        flipChange.setContext(change.getContext());
-	        flipChange.setContext(change.getContext());
-	        if(change.getType() != ContextChange.DELETION)
-	        	flipChange.setType(ContextChange.DELETION);
-	        else
-	        	flipChange.setType(ContextChange.ADDITION);
-        }
+        flipChange.setPattern(change.getPattern());
+        flipChange.setContext(change.getContext());
+        flipChange.setType(change.getType() == ContextChange.DELETION ? ContextChange.ADDITION : ContextChange.DELETION);
         return flipChange;
     }
 }
