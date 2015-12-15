@@ -36,6 +36,10 @@ public class Car {
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<Citizen>();
 	
+	public static final int STILL = 0;
+	public static final int MOVING = 1;
+	public static final int UNCERTAIN = -1;
+	
 	public static final String ORANGE = "Orange Car";
 	public static final String GREEN = "Green Car";
 	public static final String BLACK = "Black Car";

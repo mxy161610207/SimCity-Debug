@@ -12,6 +12,7 @@ import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.TrafficPolice;
@@ -27,6 +28,7 @@ public class Main {
 	public static void main(String[] args) {
 		readConfig();
 		addModule();
+		new Middleware();
 		new Dashboard();
 		new RCServer();
 		new Delivery();

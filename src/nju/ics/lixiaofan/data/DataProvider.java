@@ -3,9 +3,11 @@ package nju.ics.lixiaofan.data;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import nju.ics.lixiaofan.car.Car;
+import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.city.TrafficMap;
@@ -28,6 +30,14 @@ public class DataProvider {
 	
 	public static Street[] getStreets(){
 		return TrafficMap.streets;
+	}
+	
+	public static Map<String, Section> getSections(){
+		return TrafficMap.sections;
+	}
+	
+	public static Section getSection(String name){
+		return TrafficMap.sections.get(name);
 	}
 	
 	public static Set<DeliveryTask> getDelivTasks(){

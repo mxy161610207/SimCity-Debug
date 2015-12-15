@@ -173,7 +173,7 @@ public class Detection {
             ExistsFormula result = new ExistsFormula("exists");
             result.setPattern(((ExistsFormula)formula).getVariable(),((ExistsFormula)formula).getPattern());
             result.setSubFormula(((ExistsFormula)formula).getSubFormula());
-            for (Context ctx : ((ForallFormula)formula).getPattern().getContexts()) {
+            for (Context ctx : ((ExistsFormula)formula).getPattern().getContexts()) {
                 SubNode element = new SubNode(ctx);
                 element.setFormula(createTreeECC(((ExistsFormula)formula).getSubFormula()));
                 result.addSubNode(element);

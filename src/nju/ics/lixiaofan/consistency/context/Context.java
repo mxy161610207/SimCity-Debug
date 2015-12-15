@@ -35,13 +35,15 @@ public class Context {
         state = -1;
         this.name = "ctx_" + ctxNum;
         ctxNum++;
+        addField("name", name);
     }
     public HashMap<String,Object> getFields() {
     	return fields;
     }
-    public String get(String field) {
-        return (String)fields.get(field);
-    }
+    
+//    public String get(String field) {
+//        return (String)fields.get(field);
+//    }
     
     public void addField(String fieldName, Object value) {
         fields.put(fieldName, value);

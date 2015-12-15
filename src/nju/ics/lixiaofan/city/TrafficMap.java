@@ -4,9 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +27,7 @@ public class TrafficMap extends JPanel{
 	public static ConcurrentHashMap<String, Car> cars = new ConcurrentHashMap<String, Car>();
 	public static Crossing[] crossings = new Crossing[9];
 	public static Street[] streets = new Street[32];
-	public static Section[] sections = new Section[crossings.length+streets.length];
+	public static Map<String, Section> sections = new HashMap<String, Section>();
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
 	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<Building.Type, Building>();
@@ -56,7 +58,7 @@ public class TrafficMap extends JPanel{
 			add(b.icon);
 			placeBuilding(b);
 		}
-		for(Section s : sections)
+		for(Section s : sections.values())
 			add(s.icon);
 	}
 	
@@ -211,12 +213,11 @@ public class TrafficMap extends JPanel{
 	}
 	
 	public static void initSections() {
-		int sectIdx = 0;
 		for(int i = 0;i < 9;i++){
 			crossings[i] = new Crossing();
-			sections[sectIdx++] = crossings[i];
 			crossings[i].id = i;
 			crossings[i].name = "Crossing "+i;
+			sections.put(crossings[i].name, crossings[i]);
 			crossings[i].icon = new CrossingIcon();
 			crossings[i].icon.id = i;
 			crossings[i].icon.section = crossings[i];
@@ -233,9 +234,9 @@ public class TrafficMap extends JPanel{
 		}
 		for(int i = 0;i < 32;i++){
 			streets[i] = new Street();
-			sections[sectIdx++] = streets[i];
 			streets[i].id = i;
 			streets[i].name = "Street "+i;
+			sections.put(streets[i].name, streets[i]);
 			streets[i].icon = new StreetIcon();
 			streets[i].icon.id = i;
 			streets[i].icon.section = streets[i];

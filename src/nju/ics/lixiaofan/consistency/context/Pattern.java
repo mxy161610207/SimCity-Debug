@@ -9,7 +9,6 @@ package nju.ics.lixiaofan.consistency.context;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Queue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,10 +19,10 @@ import org.apache.commons.logging.LogFactory;
  * 每一个对象都是一类contexts
  */
 public class Pattern {
-    public String name;
+    private String name;
 //    private ArrayList<String> fields = new ArrayList<String>();
     private HashMap<String, Object> fields = new HashMap<String, Object>();//各个field以及其对应的值
-    private Queue<Context> contexts = new LinkedList<Context>();
+    private LinkedList<Context> contexts = new LinkedList<Context>();
     private int ctxNum = Integer.MAX_VALUE;
     private String rule;//assumption: a pattern can only be used by one rule
     
@@ -58,7 +57,7 @@ public class Pattern {
     	return fields;
     }
     
-    public Queue<Context> getContexts() {
+    public LinkedList<Context> getContexts() {
     	return contexts;
     }
     
@@ -74,16 +73,20 @@ public class Pattern {
         fields.put(key,value);
     }
     
-    public void addContext (Context ctx) {
+    public void addContext(Context ctx) {
         contexts.add(ctx);
     }
+    
+	public void addContext(int ctxIdx, Context context) {
+		contexts.add(ctxIdx, context);
+	}
     
     public void deleteContext(Context ctx) {
         if(contexts.contains(ctx))
             contexts.remove(ctx);
     }
     
-    public void setContxtNum(int num){
+    public void setCtxMaxNum(int num){
     	this.ctxNum = num;
     }
     

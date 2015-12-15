@@ -6,6 +6,10 @@
 
 package nju.ics.lixiaofan.consistency.middleware;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +18,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import nju.ics.lixiaofan.car.Car;
+import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.context.*;
 import nju.ics.lixiaofan.consistency.dataLoader.*;
 import nju.ics.lixiaofan.sensor.BrickHandler;
@@ -30,7 +35,7 @@ public class Middleware {
     private static String resolutionStrategy;
     public static int changeNum = 0;
     
-    private static Queue<HashMap<String, ArrayList<ContextChange>>> queue = new LinkedList<HashMap<String, ArrayList<ContextChange>>>();
+    private static Queue<Context> queue = new LinkedList<Context>();
     private static Thread handler = new Thread(){
     	public void run() {
     		while(true){
@@ -44,18 +49,25 @@ public class Middleware {
 					}
     			}
     			
-    			HashMap<String, ArrayList<ContextChange>> sequences = queue.poll();
-    			boolean detected = false;
-    			for(Map.Entry<String, ArrayList<ContextChange>> entry : sequences.entrySet()){
-    				changeNum += entry.getValue().size();
-    				detected = Operation.operate(rules.get(entry.getKey()), entry.getValue(), resolutionStrategy);
-    				//if an inconsistency is detected, then no need to check the rest (already violated)
-        	        if(detected)
-        	        	break;
+    			Context context = queue.poll();
+    			HashMap<String, ArrayList<ContextChange>> sequence = new HashMap<String, ArrayList<ContextChange>>();
+    			for(Pattern pattern : patterns.values()){
+    				if(context.matches(pattern)){
+    					if(!sequence.containsKey(pattern.getRule()))
+    						sequence.put(pattern.getRule(), new ArrayList<ContextChange>());
+    					if(pattern.isFull()){
+    						ContextChange deletion = new ContextChange(ContextChange.DELETION, pattern, pattern.getContexts().peek());
+    						sequence.get(pattern.getRule()).add(deletion);
+    					}
+    					
+    					ContextChange addition = new ContextChange(ContextChange.ADDITION, pattern, context);
+    					sequence.get(pattern.getRule()).add(addition);
+    				}
     			}
-    			if(!detected){
+    			
+    			if(!sequence.isEmpty() && Operation.operate(sequence, resolutionStrategy)){
     				@SuppressWarnings("unchecked")
-					Context ctx = ((ArrayList<ContextChange>[])(sequences.values().toArray()))[0].get(0).getContext();
+					Context ctx = ((ArrayList<ContextChange>)(sequence.values().toArray()[0])).get(0).getContext();
     				BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"));
     			}
     		}
@@ -73,10 +85,10 @@ public class Middleware {
         	patterns.put(pattern.getName(), pattern);
         	switch (pattern.getName()) {
 			case "latest":
-				pattern.setContxtNum(1);
+				pattern.setCtxMaxNum(1);
 				break;
 			default:
-				pattern.setContxtNum(2);
+				pattern.setCtxMaxNum(2);
 				break;
 			}
 //        	System.out.println(pattern.getName());
@@ -89,11 +101,8 @@ public class Middleware {
        	for(Rule rule : ruleSet)
        		rules.put(rule.getName(), rule);
         
-        //单条change处理
         new Operation(patterns,rules);
-        
         resolutionStrategy = Configuration.getConfigStr("resolutionStrategy");
-        
         handler.start();
 	}
     
@@ -111,26 +120,10 @@ public class Middleware {
 		context.addField("car", car);
 		context.addField("sensor", sensor);
 		
-		HashMap<String, ArrayList<ContextChange>> sequences = new HashMap<String, ArrayList<ContextChange>>();
-		for(Pattern pattern : patterns.values()){
-			if(context.matches(pattern)){
-				if(!sequences.containsKey(pattern.getRule()))
-					sequences.put(pattern.getRule(), new ArrayList<ContextChange>());
-				if(pattern.isFull()){
-					ContextChange deletion = new ContextChange(ContextChange.DELETION, pattern, pattern.getContexts().peek());
-					sequences.get(pattern.getRule()).add(deletion);
-				}
-				
-				ContextChange addition = new ContextChange(ContextChange.ADDITION, pattern, context);
-				sequences.get(pattern.getRule()).add(addition);
-			}
+		synchronized (queue) {
+			queue.add(context);
+			queue.notify();
 		}
-		
-		if(!sequences.isEmpty())
-			synchronized (queue) {
-				queue.add(sequences);
-				queue.notify();
-			}
 	}
     
     public static HashMap<String,Pattern> getPatterns() {
@@ -140,6 +133,34 @@ public class Middleware {
     public static HashMap<String, Rule> getRules() {
     	return rules;
     }
+    
+    public static void main(String[] args) {
+    	new TrafficMap();
+		new Middleware();
+        File file = new File("test case.txt");
+        
+        Queue<String> list = new LinkedList<String>();
+        if (file.exists() && file.isFile()) {
+            try{
+                BufferedReader input = new BufferedReader(new FileReader(file));
+                String text;
+                while((text = input.readLine()) != null)
+                    list.add(text);
+                input.close();
+            }  
+            catch(IOException ioException){
+                System.err.println("File Error!");
+            }
+        }
+		
+        while(!list.isEmpty()){
+        	String testCase = list.poll();
+        	String[] s = testCase.split(", ");
+        	
+        	add(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], null, null);
+        }
+        
+	}
     
 //  public static void main(String[] args) {
 //  new Middleware();

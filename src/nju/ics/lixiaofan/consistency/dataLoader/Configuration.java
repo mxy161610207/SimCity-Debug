@@ -37,7 +37,7 @@ public class Configuration {
         } catch (IOException ex) {
             logger.error(ex);
         }
-        logger.info("SystemProperty initialization OK!");
+//        logger.info("SystemProperty initialization OK!");
     }
     
     public static String getConfigStr(String key) {

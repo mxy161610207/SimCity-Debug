@@ -77,7 +77,7 @@ public class Dashboard extends JFrame{
 		public void run() {
 			while(true){
 				blink = !blink;
-				for(Section s : TrafficMap.sections){
+				for(Section s : TrafficMap.sections.values()){
 					if(s.cars.isEmpty())
 						continue;
 					if (s.cars.size() > 1 || s.cars.peek().isLoading)
@@ -111,7 +111,7 @@ public class Dashboard extends JFrame{
 //		JLabel maplenLabel = new JLabel(mapLen);
 //		add(maplenLabel);
 		
-		for(Section s : TrafficMap.sections)
+		for(Section s : TrafficMap.sections.values())
 			s.icon.addMouseListener(new SectionIconListener(s));
 		for(Building b : TrafficMap.buildings.values())
 			b.icon.addMouseListener(new BuildingIconListener(b));
@@ -157,7 +157,7 @@ public class Dashboard extends JFrame{
 				for(Car car : TrafficMap.cars.values()){
 					car.loc = null;
 					car.dir = -1;
-					car.status = 0;
+					car.status = Car.STILL;
 					car.expectation = 0;
 					car.finalState = 0;
 					car.dest = null;
@@ -456,7 +456,7 @@ public class Dashboard extends JFrame{
 		int min = Integer.MAX_VALUE, tmp;
 		Section section = null;
 //		System.out.println(x+", "+y);
-		for(Section s : TrafficMap.sections){
+		for(Section s : TrafficMap.sections.values()){
 //			System.out.println(s.name+"\t"+s.icon.coord.centerX+", "+s.icon.coord.centerY);
 			tmp = (int) (Math.pow(x-s.icon.coord.centerX, 2) + Math.pow(y-s.icon.coord.centerY, 2));
 			if(tmp < min){

@@ -50,8 +50,12 @@ public class Resolution {
 	public static void resolve(Rule rule, ArrayList<ContextChange> changes, Set<Link> links, String strategy) {
 		if(strategy.equals("Drop-latest")){
 			ArrayList<ContextChange> newChanges = new ArrayList<ContextChange>();
-			for(int i = changes.size()-1;i >= 0;i--)
-				newChanges.add(flip(changes.get(i)));
+//			System.out.println("Resolution");
+			for(int i = changes.size()-1;i >= 0;i--){
+				ContextChange newChange = flip(changes.get(i));
+				newChanges.add(newChange);
+//				System.out.println((newChange.getType()==1?"ADD":"DEL")+"\t"+newChange.getContext().getName()+"\t"+newChange.getPattern().getName());
+			}
 			Detection.detect(rule, newChanges);
 		}
 	}
@@ -68,6 +72,7 @@ public class Resolution {
         ContextChange flipChange = new ContextChange();
         flipChange.setPattern(change.getPattern());
         flipChange.setContext(change.getContext());
+        flipChange.setCtxIdx(change.getCtxIdx());
         flipChange.setType(change.getType() == ContextChange.DELETION ? ContextChange.ADDITION : ContextChange.DELETION);
         return flipChange;
     }

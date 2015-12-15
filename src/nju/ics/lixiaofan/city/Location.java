@@ -7,7 +7,7 @@ public abstract class Location {
 	public static Location LocOf(String name){
 		if(name == null)
 			return null;
-		for(Section s : TrafficMap.sections)
+		for(Section s : TrafficMap.sections.values())
 			if(s.name.equals(name))
 				return s;
 		for(Building b : TrafficMap.buildings.values())

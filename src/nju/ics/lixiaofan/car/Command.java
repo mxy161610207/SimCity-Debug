@@ -57,7 +57,7 @@ public class Command {
 		if(cmd >= STOP && cmd <= RIGHT){
 			car.expectation = cmd;
 			if(cmd != car.status)
-				car.status = -1;
+				car.status = Car.UNCERTAIN;
 			if(cmd == 0 && car.lastInstr == 1)
 				car.lastStopInstrTime = System.currentTimeMillis();
 			car.lastInstr = cmd;
@@ -73,12 +73,12 @@ public class Command {
 	}
 	
 	public static void wake(Car car){
-		if(car == null || !car.isConnected || car.status == -1)
+		if(car == null || !car.isConnected || car.status == Car.UNCERTAIN)
 			return;
 		
 		CmdSender.send(car, car.status);
 		car.expectation = car.status;
-		if(car.status == 0 && car.lastInstr == 1)
+		if(car.status == Car.STILL && car.lastInstr == 1)
 			car.lastStopInstrTime = System.currentTimeMillis();
 		car.lastInstr = car.status;
 		car.lastInstrTime = System.currentTimeMillis();

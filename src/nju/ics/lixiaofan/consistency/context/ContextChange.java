@@ -18,6 +18,7 @@ public class ContextChange {
 	private int type;
 	private Pattern pattern;
 	private Context context;
+	private int ctxIdx = -1;//the index where the context should be added to or deleted from the pattern queue
     
 	public final static int ADDITION = 1;
 	public final static int DELETION = 2;
@@ -61,4 +62,12 @@ public class ContextChange {
     public Context getContext() {
         return context;
     }
+
+	public int getCtxIdx() {
+		return ctxIdx;
+	}
+
+	public void setCtxIdx(int index) {
+		this.ctxIdx = index;
+	}
 }

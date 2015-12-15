@@ -49,6 +49,10 @@ public abstract class Section extends Location{
 			return null;
 	}
 	
+	public boolean sameAs(Section s){
+		return this == s || isCombined && combined.contains(s);
+	}
+	
 	public void addWaitingCar(Car car){
 		synchronized (waiting) {
 			if(!waiting.contains(car)){

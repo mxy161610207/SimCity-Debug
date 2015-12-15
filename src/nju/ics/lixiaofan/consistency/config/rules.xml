@@ -5,9 +5,11 @@
 		<id>rule_00</id>
 		<formula>
 			<forall var="v1" in="latest">
-				<bfunc name="still_status">
-					<param pos="1" var="v1" field="status" />
-				</bfunc>
+			    <not>
+					<bfunc name="still_status">
+						<param pos="1" var="v1" field="status" />
+					</bfunc>
+				</not>
 			</forall>
 		</formula>
 	</rule>
@@ -18,17 +20,25 @@
 			<forall var="v1" in="orange_car1">
 				<not>
 					<exists var="v2" in="orange_car2">
-						<and>
-							<not>
-								<bfunc name="same_location">
-									<param pos="1" var="v1" field="object" />
-									<param pos="2" var="v2" field="object" />
+					    <and>
+					        <not>
+								<bfunc name="same">
+									<param pos="1" var="v1" field="name" />
+									<param pos="2" var="v2" field="name" />
 								</bfunc>
 							</not>
-							<bfunc name="same_time">
-								<param pos="1" var="v1" field="timestamp" />
-								<param pos="2" var="v2" field="timestamp" />
-							</bfunc>
+							<and>
+								<not>
+									<bfunc name="same_location">
+										<param pos="1" var="v1" field="object" />
+										<param pos="2" var="v2" field="object" />
+									</bfunc>
+								</not>
+								<bfunc name="same_time">
+									<param pos="1" var="v1" field="timestamp" />
+									<param pos="2" var="v2" field="timestamp" />
+								</bfunc>
+							</and>
 						</and>
 					</exists>
 				</not>
@@ -42,17 +52,25 @@
 			<forall var="v1" in="green_car1">
 				<not>
 					<exists var="v2" in="green_car2">
-						<and>
-							<not>
-								<bfunc name="same_location">
-									<param pos="1" var="v1" field="object" />
-									<param pos="2" var="v2" field="object" />
+					    <and>
+					        <not>
+								<bfunc name="same">
+									<param pos="1" var="v1" field="name" />
+									<param pos="2" var="v2" field="name" />
 								</bfunc>
 							</not>
-							<bfunc name="same_time">
-								<param pos="1" var="v1" field="timestamp" />
-								<param pos="2" var="v2" field="timestamp" />
-							</bfunc>
+							<and>
+								<not>
+									<bfunc name="same_location">
+										<param pos="1" var="v1" field="object" />
+										<param pos="2" var="v2" field="object" />
+									</bfunc>
+								</not>
+								<bfunc name="same_time">
+									<param pos="1" var="v1" field="timestamp" />
+									<param pos="2" var="v2" field="timestamp" />
+								</bfunc>
+							</and>
 						</and>
 					</exists>
 				</not>
@@ -66,17 +84,25 @@
 			<forall var="v1" in="black_car1">
 				<not>
 					<exists var="v2" in="black_car2">
-						<and>
-							<not>
-								<bfunc name="same_location">
-									<param pos="1" var="v1" field="object" />
-									<param pos="2" var="v2" field="object" />
+					    <and>
+					        <not>
+								<bfunc name="same">
+									<param pos="1" var="v1" field="name" />
+									<param pos="2" var="v2" field="name" />
 								</bfunc>
 							</not>
-							<bfunc name="same_time">
-								<param pos="1" var="v1" field="timestamp" />
-								<param pos="2" var="v2" field="timestamp" />
-							</bfunc>
+							<and>
+								<not>
+									<bfunc name="same_location">
+										<param pos="1" var="v1" field="object" />
+										<param pos="2" var="v2" field="object" />
+									</bfunc>
+								</not>
+								<bfunc name="same_time">
+									<param pos="1" var="v1" field="timestamp" />
+									<param pos="2" var="v2" field="timestamp" />
+								</bfunc>
+							</and>
 						</and>
 					</exists>
 				</not>
@@ -90,17 +116,25 @@
 			<forall var="v1" in="white_car1">
 				<not>
 					<exists var="v2" in="white_car2">
-						<and>
-							<not>
-								<bfunc name="same_location">
-									<param pos="1" var="v1" field="object" />
-									<param pos="2" var="v2" field="object" />
+					    <and>
+					        <not>
+								<bfunc name="same">
+									<param pos="1" var="v1" field="name" />
+									<param pos="2" var="v2" field="name" />
 								</bfunc>
 							</not>
-							<bfunc name="same_time">
-								<param pos="1" var="v1" field="timestamp" />
-								<param pos="2" var="v2" field="timestamp" />
-							</bfunc>
+							<and>
+								<not>
+									<bfunc name="same_location">
+										<param pos="1" var="v1" field="object" />
+										<param pos="2" var="v2" field="object" />
+									</bfunc>
+								</not>
+								<bfunc name="same_time">
+									<param pos="1" var="v1" field="timestamp" />
+									<param pos="2" var="v2" field="timestamp" />
+								</bfunc>
+							</and>
 						</and>
 					</exists>
 				</not>
@@ -114,17 +148,25 @@
 			<forall var="v1" in="red_car1">
 				<not>
 					<exists var="v2" in="red_car2">
-						<and>
-							<not>
-								<bfunc name="same_location">
-									<param pos="1" var="v1" field="object" />
-									<param pos="2" var="v2" field="object" />
+					    <and>
+					        <not>
+								<bfunc name="same">
+									<param pos="1" var="v1" field="name" />
+									<param pos="2" var="v2" field="name" />
 								</bfunc>
 							</not>
-							<bfunc name="same_time">
-								<param pos="1" var="v1" field="timestamp" />
-								<param pos="2" var="v2" field="timestamp" />
-							</bfunc>
+							<and>
+								<not>
+									<bfunc name="same_location">
+										<param pos="1" var="v1" field="object" />
+										<param pos="2" var="v2" field="object" />
+									</bfunc>
+								</not>
+								<bfunc name="same_time">
+									<param pos="1" var="v1" field="timestamp" />
+									<param pos="2" var="v2" field="timestamp" />
+								</bfunc>
+							</and>
 						</and>
 					</exists>
 				</not>
@@ -138,17 +180,25 @@
 			<forall var="v1" in="silver_suv1">
 				<not>
 					<exists var="v2" in="silver_suv2">
-						<and>
-							<not>
-								<bfunc name="same_location">
-									<param pos="1" var="v1" field="object" />
-									<param pos="2" var="v2" field="object" />
+					    <and>
+					        <not>
+								<bfunc name="same">
+									<param pos="1" var="v1" field="name" />
+									<param pos="2" var="v2" field="name" />
 								</bfunc>
 							</not>
-							<bfunc name="same_time">
-								<param pos="1" var="v1" field="timestamp" />
-								<param pos="2" var="v2" field="timestamp" />
-							</bfunc>
+							<and>
+								<not>
+									<bfunc name="same_location">
+										<param pos="1" var="v1" field="object" />
+										<param pos="2" var="v2" field="object" />
+									</bfunc>
+								</not>
+								<bfunc name="same_time">
+									<param pos="1" var="v1" field="timestamp" />
+									<param pos="2" var="v2" field="timestamp" />
+								</bfunc>
+							</and>
 						</and>
 					</exists>
 				</not>

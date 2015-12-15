@@ -199,7 +199,7 @@ public class RuleLoader {
                 if(nodeType == Node.ELEMENT_NODE) {
                     //ÊÇÔªËØ£¬¼ÌÐøµÝ¹é
                     String[] param = (String[])parseElement((Element)node, ruleName);
-                    formula.addParam(param[0],param[1],param[2]);
+                    formula.addParam(param[0], param[1], param[2]);
                 }
             }
             return formula;

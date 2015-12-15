@@ -94,8 +94,8 @@ public class BrickHandler extends Thread{
 			sensor.nextSection.removeWaitingCar(car);
 			Dashboard.carEnter(car, sensor.nextSection);
 			
-			if(car.status != 1)
-				car.status = 1;
+			if(car.status != Car.MOVING)
+				car.status = Car.MOVING;
 			car.lastDetectedTime = System.currentTimeMillis();
 			sensor.car = car;
 			sensor.isTriggered = true;
@@ -146,7 +146,7 @@ public class BrickHandler extends Thread{
 			//do triggered stuff		
 //				System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
 			if(car.dest != null){
-				if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
+				if(car.dest.sameAs(car.loc)){
 					car.finalState = 0;
 					Command.send(car, 0);
 					car.sendRequest(0);
@@ -264,7 +264,7 @@ public class BrickHandler extends Thread{
 		Section section = sensor.nextSection;
 		if(section.isOccupied()){
 			for(Car car : section.cars)
-				if(car.status != 0)
+				if(car.status != Car.STILL)
 					return false;
 		}
 		return true;
