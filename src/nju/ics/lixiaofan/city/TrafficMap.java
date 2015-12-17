@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JPanel;
 
 import nju.ics.lixiaofan.car.Car;
+import nju.ics.lixiaofan.city.Section.BallonIcon;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street;
@@ -54,12 +55,16 @@ public class TrafficMap extends JPanel{
 			add(c.icon);
 			new Thread(c).start();
 		}
+		for(Section s : sections.values()){
+			add(s.balloon);
+		}
 		for(Building b : buildings.values()){
 			add(b.icon);
 			placeBuilding(b);
 		}
-		for(Section s : sections.values())
+		for(Section s : sections.values()){
 			add(s.icon);
+		}
 	}
 	
 	protected void paintChildren(Graphics g) {
@@ -321,6 +326,13 @@ public class TrafficMap extends JPanel{
 			streets[i].icon.coord.centerY = streets[i].icon.coord.y + streets[i].icon.coord.h/2;
 			streets[i].icon.setBounds(streets[i].icon.coord.x, streets[i].icon.coord.y, 
 					streets[i].icon.coord.w, streets[i].icon.coord.h);
+		}
+		
+		for(Section section : sections.values()){
+			section.balloon = new Section.BallonIcon();
+			section.balloon.setBounds(section.icon.coord.centerX
+					- BallonIcon.WIDTH / 2, section.icon.coord.centerY
+					- BallonIcon.HEIGHT, BallonIcon.WIDTH, BallonIcon.HEIGHT);
 		}
 		
 		setCombined();

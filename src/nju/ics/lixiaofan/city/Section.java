@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import nju.ics.lixiaofan.car.Car;
@@ -35,6 +37,7 @@ public abstract class Section extends Location{
 	public Queue<Car> waiting = new LinkedList<Car>();
 	public Set<Sensor> sensors = new HashSet<Sensor>();
 	public SectionIcon icon = null;
+	public BallonIcon balloon = null;
 	
 	public static Section sectionOf(String name){
 		if(name == null)
@@ -165,6 +168,39 @@ public abstract class Section extends Location{
 				FontMetrics fm = g.getFontMetrics();
 				g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2);
 			}
+		}
+	}
+	
+	public static class BallonIcon extends JButton{
+		private static final long serialVersionUID = 1L;
+		public static int WIDTH = 50;
+		public static int HEIGHT = 50;
+		public Section section = null;
+		public String text;
+		
+		public BallonIcon() {
+			setOpaque(false);
+			setContentAreaFilled(false);
+			setBorderPainted(false);
+//			setVisible(false);
+			ImageIcon imageIcon = new ImageIcon("res/red_balloon.gif");
+			Image image = imageIcon.getImage();
+			if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
+				image = image.getScaledInstance(WIDTH, -1, Image.SCALE_SMOOTH);
+			else
+				image = image.getScaledInstance(-1, HEIGHT, Image.SCALE_SMOOTH);
+			imageIcon = new ImageIcon(image);
+			setIcon(imageIcon);
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			
+			String str = "test";
+			FontMetrics fm = g.getFontMetrics();
+			g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2);
+			g.drawString("!FP!", (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2-10);
 		}
 	}
 	

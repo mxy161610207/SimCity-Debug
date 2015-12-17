@@ -11,10 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-
 /**
  *
  * @author bingying
@@ -28,9 +24,10 @@ public class Context {
 	private int state;//undecided,consistent,bad,inconsistent
 	public static int ctxNum = 0;
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(Context.class.getName());
-    
+	public static final int Normal = 0;
+	public static final int FP = 1;
+	public static final int FN = 2;
+	
     public Context() {
         state = -1;
         this.name = "ctx_" + ctxNum;

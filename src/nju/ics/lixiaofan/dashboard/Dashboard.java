@@ -563,9 +563,6 @@ public class Dashboard extends JFrame{
 		
 		section.cars.add(car);
 		car.loc = section;
-//		if (section instanceof Street || section instanceof Crossing
-//				&& (section.id == 2 || section.id == 6))
-//			car.dir = section.dir[0];
 		section.icon.repaint();
 		if(section.isCombined){
 			//only combined sections can change a car's direction
@@ -592,6 +589,10 @@ public class Dashboard extends JFrame{
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
 			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, car.name, section.name));
+	}
+	
+	public static void displayPopup(String text, TrafficMap.Coord coord){
+		
 	}
 	
 	private class BuildingIconListener implements MouseListener{

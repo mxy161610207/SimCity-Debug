@@ -51,6 +51,7 @@ public class Middleware {
     			
     			Context context = queue.poll();
     			HashMap<String, ArrayList<ContextChange>> sequence = new HashMap<String, ArrayList<ContextChange>>();
+    			//generate the sequence derived by the context
     			for(Pattern pattern : patterns.values()){
     				if(context.matches(pattern)){
     					if(!sequence.containsKey(pattern.getRule()))
@@ -65,11 +66,16 @@ public class Middleware {
     				}
     			}
     			
-    			if(!sequence.isEmpty() && Operation.operate(sequence, resolutionStrategy)){
-    				@SuppressWarnings("unchecked")
-					Context ctx = ((ArrayList<ContextChange>)(sequence.values().toArray()[0])).get(0).getContext();
-    				BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"));
+    			ArrayList<Context> contexts = Operation.operate(sequence, resolutionStrategy);
+    			if(contexts != null){
+    				for(Context ctx : contexts)
+    					if(ctx == context)
+    						BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"), Context.Normal);
+    					else
+    						BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"), Context.FN);
     			}
+    			else
+    				BrickHandler.add((Car)context.getFields().get("car"), (Sensor)context.getFields().get("sensor"), Context.FP);
     		}
     	}
     };

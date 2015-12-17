@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import nju.ics.lixiaofan.consistency.context.Context;
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.consistency.context.Pattern;
 import nju.ics.lixiaofan.consistency.context.Rule;
@@ -77,18 +78,25 @@ public class Operation {
 		return true;
 	}
 	
-	public static boolean operate(HashMap<String, ArrayList<ContextChange>> sequence, String strategy) {
-		ArrayList<Entry<String, ArrayList<ContextChange>>> entries = 
-			new ArrayList<Entry<String, ArrayList<ContextChange>>>(sequence.entrySet());
-		for(int i = 0;i < entries.size();i++){
-			if(!operate(rules.get(entries.get(i).getKey()), entries.get(i).getValue(), strategy)){
-				//drop the context where no inconsistency detected before
-				for(int j = 0;j < i;j++)
-					Resolution.resolve(rules.get(entries.get(j).getKey()), entries.get(j).getValue(), null, strategy);
-				//if an inconsistency is detected, then no need to check the rest (already violated)
-				return false;
+	public static ArrayList<Context> operate(HashMap<String, ArrayList<ContextChange>> sequence, String strategy) {
+		if(sequence.isEmpty())
+			return null;
+		if(strategy.equals("Drop-latest")){
+			ArrayList<Entry<String, ArrayList<ContextChange>>> entries = 
+				new ArrayList<Entry<String, ArrayList<ContextChange>>>(sequence.entrySet());
+			for(int i = 0;i < entries.size();i++){
+				if(!operate(rules.get(entries.get(i).getKey()), entries.get(i).getValue(), strategy)){
+					//drop the context where no inconsistency detected before
+					for(int j = 0;j < i;j++)
+						Resolution.resolve(rules.get(entries.get(j).getKey()), entries.get(j).getValue(), null, strategy);
+					//if an inconsistency is detected, then no need to check the rest (already violated)
+					return null;
+				}
 			}
+			ArrayList<Context> result = new ArrayList<Context>();
+			result.add(entries.get(0).getValue().get(0).getContext());
+			return result;
 		}
-		return true;
+		return null;
 	}
 }

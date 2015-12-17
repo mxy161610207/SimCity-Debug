@@ -28,8 +28,8 @@ public class Main {
 	public static void main(String[] args) {
 		readConfig();
 		addModule();
-		new Middleware();
 		new Dashboard();
+		new Middleware();
 		new RCServer();
 		new Delivery();
 		new TrafficPolice();

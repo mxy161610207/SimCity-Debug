@@ -46,7 +46,13 @@ public class BrickHandler extends Thread{
 				if(info == null)
 					continue;
 				
-				stateSwitch(info.car, info.sensor);
+				if (info.type == nju.ics.lixiaofan.consistency.context.Context.Normal
+						|| info.type == nju.ics.lixiaofan.consistency.context.Context.FN)
+					stateSwitch(info.car, info.sensor);
+				else if(info.type == nju.ics.lixiaofan.consistency.context.Context.FP){
+					Dashboard.displayPopup("FP: "+ info.sensor.getName() + "detected " + info.car.name + "passing by!",
+							info.sensor.nextSection.icon.coord);
+				}
 			}
 		}
 	};
@@ -240,8 +246,8 @@ public class BrickHandler extends Thread{
 		}
 	}
 	
-	public static void add(Car car, Sensor sensor){
-		SensoryInfo info = new SensoryInfo(car, sensor);
+	public static void add(Car car, Sensor sensor, int type){
+		SensoryInfo info = new SensoryInfo(car, sensor, type);
 		synchronized (checkedData) {
 			checkedData.add(info);
 			checkedData.notify();
@@ -296,9 +302,11 @@ public class BrickHandler extends Thread{
 	private static class SensoryInfo{
 		public Car car;
 		public Sensor sensor;
-		public SensoryInfo(Car car, Sensor sensor) {
+		public int type;
+		public SensoryInfo(Car car, Sensor sensor, int type) {
 			this.car = car;
 			this.sensor = sensor;
+			this.type = type;
 		}
 	}
 }

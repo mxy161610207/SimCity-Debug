@@ -58,9 +58,15 @@ public class Building extends Location{
 				g.setColor(Color.gray);
 			else
 				return;
-				
+			
 			g.drawRect(1, 1, getWidth()-2, getHeight()-2);
 		}
+		
+//		@Override
+//		protected void paintComponent(Graphics g) {
+//			super.paintComponent(g);
+//			g.drawString("test", 10, 10);
+//		}
 		
 		public void setIcon(){
 			switch (building.type) {

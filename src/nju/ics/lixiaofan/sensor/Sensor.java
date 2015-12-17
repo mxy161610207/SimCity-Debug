@@ -25,4 +25,8 @@ public class Sensor {
 	public final static int INITIAL = 0;
 	public final static int DETECTED = 1;
 	public final static int UNDETECTED = 2;
+	
+	public String getName(){
+		return "B"+bid+"S"+(sid+1);
+	}
 }
