@@ -21,6 +21,8 @@ import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street.StreetIcon;
 import nju.ics.lixiaofan.city.TrafficMap.Coord;
+import nju.ics.lixiaofan.consistency.context.Context;
+import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.sensor.Sensor;
 
@@ -171,36 +173,70 @@ public abstract class Section extends Location{
 		}
 	}
 	
+	public void displayBalloon(int type, String sensor, String car) {
+		balloon.type = type;
+		balloon.sensor = sensor;
+		balloon.car = car;
+		balloon.duration = 3000;//display for 3s
+		balloon.setIcon(Middleware.isResolutionEnabled());
+		balloon.setVisible(true);
+	}
+	
 	public static class BallonIcon extends JButton{
 		private static final long serialVersionUID = 1L;
-		public static int WIDTH = 50;
-		public static int HEIGHT = 50;
+		public static int WIDTH = 70;
+		public static int HEIGHT = 70;
+		private static HashMap<String, ImageIcon> balloons = new HashMap<>();
 		public Section section = null;
-		public String text;
+		public int duration = 0;
+		public int type;
+		public String sensor = "", car = "";
 		
 		public BallonIcon() {
 			setOpaque(false);
 			setContentAreaFilled(false);
 			setBorderPainted(false);
-//			setVisible(false);
-			ImageIcon imageIcon = new ImageIcon("res/red_balloon.gif");
-			Image image = imageIcon.getImage();
-			if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
-				image = image.getScaledInstance(WIDTH, -1, Image.SCALE_SMOOTH);
-			else
-				image = image.getScaledInstance(-1, HEIGHT, Image.SCALE_SMOOTH);
-			imageIcon = new ImageIcon(image);
-			setIcon(imageIcon);
+			setVisible(false);
 		}
 		
 		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			
-			String str = "test";
 			FontMetrics fm = g.getFontMetrics();
+			String str = "";
+			if(type == Context.FP)
+				str = "-FP-";
+			else if(type == Context.FN)
+				str = "-FN-";
+			g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2-24);
+			str = sensor;
+			g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2-12);
+			str = car;
 			g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2);
-			g.drawString("!FP!", (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2-10);
+		}
+		
+		public static void readBalloonImage(){
+			HashMap<String, String> files = new HashMap<String, String>();
+			files.put("red", "res/red_balloon.png");
+			files.put("green", "res/green_balloon.png");
+			for(Map.Entry<String, String> file : files.entrySet()){
+				ImageIcon imageIcon = new ImageIcon(file.getValue());
+				Image image = imageIcon.getImage();
+				if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
+					image = image.getScaledInstance(WIDTH, -1, Image.SCALE_SMOOTH);
+				else
+					image = image.getScaledInstance(-1, HEIGHT, Image.SCALE_SMOOTH);
+				imageIcon = new ImageIcon(image);
+				balloons.put(file.getKey(), imageIcon);
+			}
+		}
+		
+		private void setIcon(boolean resolutionEnabled){
+			if(resolutionEnabled)
+				setIcon(balloons.get("green"));
+			else
+				setIcon(balloons.get("red"));
 		}
 	}
 	

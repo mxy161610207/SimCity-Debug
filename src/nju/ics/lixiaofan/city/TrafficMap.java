@@ -328,11 +328,12 @@ public class TrafficMap extends JPanel{
 					streets[i].icon.coord.w, streets[i].icon.coord.h);
 		}
 		
+		Section.BallonIcon.readBalloonImage();
 		for(Section section : sections.values()){
 			section.balloon = new Section.BallonIcon();
-			section.balloon.setBounds(section.icon.coord.centerX
-					- BallonIcon.WIDTH / 2, section.icon.coord.centerY
-					- BallonIcon.HEIGHT, BallonIcon.WIDTH, BallonIcon.HEIGHT);
+			section.balloon.setBounds(section.icon.coord.centerX- BallonIcon.WIDTH / 2,
+					section.icon.coord.centerY - BallonIcon.HEIGHT, BallonIcon.WIDTH, BallonIcon.HEIGHT);
+//			section.displayBalloon(2, "B2S2", "Red Car");
 		}
 		
 		setCombined();

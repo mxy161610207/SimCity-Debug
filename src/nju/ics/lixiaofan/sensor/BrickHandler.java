@@ -46,12 +46,25 @@ public class BrickHandler extends Thread{
 				if(info == null)
 					continue;
 				
-				if (info.type == nju.ics.lixiaofan.consistency.context.Context.Normal
-						|| info.type == nju.ics.lixiaofan.consistency.context.Context.FN)
+				switch (info.type) {
+				case nju.ics.lixiaofan.consistency.context.Context.Normal:
 					stateSwitch(info.car, info.sensor);
-				else if(info.type == nju.ics.lixiaofan.consistency.context.Context.FP){
-					Dashboard.displayPopup("FP: "+ info.sensor.getName() + "detected " + info.car.name + "passing by!",
-							info.sensor.nextSection.icon.coord);
+					break;
+				case nju.ics.lixiaofan.consistency.context.Context.FN:
+					if(Middleware.isDetectionEnabled()){
+						info.sensor.nextSection.displayBalloon(info.type, info.sensor.getName(), info.car.name);
+						if(Middleware.isResolutionEnabled())
+							stateSwitch(info.car, info.sensor);
+					}
+					break;
+				case nju.ics.lixiaofan.consistency.context.Context.FP:
+					if(Middleware.isDetectionEnabled())
+						info.sensor.nextSection.displayBalloon(info.type, info.sensor.getName(), info.car.name);
+					if(!Middleware.isResolutionEnabled())
+						stateSwitch(info.car, info.sensor);
+					break;
+				default:
+					break;
 				}
 			}
 		}

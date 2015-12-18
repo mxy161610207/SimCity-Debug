@@ -50,6 +50,12 @@ public class Middleware {
     			}
     			
     			Context context = queue.poll();
+    			if(!Middleware.isDetectionEnabled()){
+					BrickHandler.add((Car) context.getFields().get("car"),
+							(Sensor) context.getFields().get("sensor"),
+							Context.Normal);
+    				continue;
+    			}
     			HashMap<String, ArrayList<ContextChange>> sequence = new HashMap<String, ArrayList<ContextChange>>();
     			//generate the sequence derived by the context
     			for(Pattern pattern : patterns.values()){
@@ -57,7 +63,8 @@ public class Middleware {
     					if(!sequence.containsKey(pattern.getRule()))
     						sequence.put(pattern.getRule(), new ArrayList<ContextChange>());
     					if(pattern.isFull()){
-    						ContextChange deletion = new ContextChange(ContextChange.DELETION, pattern, pattern.getContexts().peek());
+							ContextChange deletion = new ContextChange(ContextChange.DELETION,
+									pattern, pattern.getContexts().peek());
     						sequence.get(pattern.getRule()).add(deletion);
     					}
     					
@@ -69,13 +76,19 @@ public class Middleware {
     			ArrayList<Context> contexts = Operation.operate(sequence, resolutionStrategy);
     			if(contexts != null){
     				for(Context ctx : contexts)
-    					if(ctx == context)
-    						BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"), Context.Normal);
-    					else
-    						BrickHandler.add((Car)ctx.getFields().get("car"), (Sensor)ctx.getFields().get("sensor"), Context.FN);
+						if (ctx == context)
+							BrickHandler.add((Car) ctx.getFields().get("car"),
+									(Sensor) ctx.getFields().get("sensor"),
+									Context.Normal);
+						else
+							BrickHandler.add((Car) ctx.getFields().get("car"),
+									(Sensor) ctx.getFields().get("sensor"),
+									Context.FN);
     			}
     			else
-    				BrickHandler.add((Car)context.getFields().get("car"), (Sensor)context.getFields().get("sensor"), Context.FP);
+					BrickHandler.add((Car) context.getFields().get("car"),
+							(Sensor) context.getFields().get("sensor"),
+							Context.FP);
     		}
     	}
     };
@@ -195,4 +208,21 @@ public class Middleware {
             System.out.println("");
         }
     }
+    
+    private static boolean detectionFlag = false, resolutionFlag = false;
+    public static boolean isDetectionEnabled() {
+		return detectionFlag;
+	}
+
+	public static void setDetectionFlag(boolean detectionFlag) {
+		Middleware.detectionFlag = detectionFlag;
+	}
+
+	public static boolean isResolutionEnabled() {
+		return resolutionFlag;
+	}
+
+	public static void setResolutionFlag(boolean resolutionFlag) {
+		Middleware.resolutionFlag = resolutionFlag;
+	}
 }

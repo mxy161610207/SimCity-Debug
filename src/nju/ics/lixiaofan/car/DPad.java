@@ -47,18 +47,19 @@ public class DPad extends JPanel{
 	};
 	
 	public DPad() {
-		setLayout(new GridLayout(3, 3, 5, 5));
-		setSize(100, 20);
-		add(new JPanel());
-		add(jbf);
-		add(new JPanel());
-		add(jbl);
-		add(jbs);
-		add(jbr);
-		add(new JPanel());
-		add(jbb);
+//		setLayout(new GridLayout(3, 3, 5, 5));
 //		add(new JPanel());
-		add(startB);
+//		add(jbf);
+//		add(new JPanel());
+//		add(jbl);
+//		add(jbs);
+//		add(jbr);
+//		add(new JPanel());
+//		add(jbb);
+//		add(startB);
+		setLayout(new GridLayout(1, 2, 5, 5));
+		add(jbf);
+		add(jbs);
 		jbl.setEnabled(false);
 		jbr.setEnabled(false);
 		jbb.setEnabled(false);

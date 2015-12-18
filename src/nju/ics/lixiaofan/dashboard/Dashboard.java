@@ -33,6 +33,7 @@ import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.event.Event;
@@ -67,24 +68,34 @@ public class Dashboard extends JFrame{
 	private static JButton deliverButton = new JButton("Deliver"),
 			startdButton = new JButton("Start"),
 			canceldButton = new JButton("Cancel");
-	private static JCheckBox jchkSensor = new JCheckBox("Sensors"), jchkSection = new JCheckBox("Sections"); 
+	private static JCheckBox jchkSensor = new JCheckBox("Sensors"), jchkSection = new JCheckBox("Sections"),
+			jchkDetection = new JCheckBox("Detection"), jchkResolution = new JCheckBox("Resolution"); 
 	private static JTextArea srcta = new JTextArea(), dstta = new JTextArea();
 	private static Location src = null, dst = null;
-	private static JPanel deliveryPanel = new JPanel();
+	private static JPanel deliveryPanel = new JPanel(), CCPanel = new JPanel(), miscPanel = new JPanel();
 	private static boolean isDeliveryStarted = false;
 	public static boolean blink = false;
 	private static Runnable blinkThread = new Runnable() {
+		private int duration = 500;
 		public void run() {
 			while(true){
 				blink = !blink;
 				for(Section s : TrafficMap.sections.values()){
+					if(s.balloon.duration > 0){
+						if(!s.balloon.isVisible())
+							s.balloon.setVisible(true);
+						s.balloon.duration -= duration;
+					}
+					else if(s.balloon.isVisible())
+						s.balloon.setVisible(false);
+					
 					if(s.cars.isEmpty())
 						continue;
 					if (s.cars.size() > 1 || s.cars.peek().isLoading)
 						s.icon.repaint();
 				}
 				try {
-					Thread.sleep(500);
+					Thread.sleep(duration);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -105,12 +116,6 @@ public class Dashboard extends JFrame{
 		add(leftPanel);
 		add(rightPanel);
 		
-//		String mapLen = "";
-//		for(int i = 0;i < 19;i++)
-//			mapLen = mapLen.concat("          ");
-//		JLabel maplenLabel = new JLabel(mapLen);
-//		add(maplenLabel);
-		
 		for(Section s : TrafficMap.sections.values())
 			s.icon.addMouseListener(new SectionIconListener(s));
 		for(Building b : TrafficMap.buildings.values())
@@ -122,16 +127,12 @@ public class Dashboard extends JFrame{
 		gbc.gridx = 1;
 		gbc.weightx = 0;
 		gbl.setConstraints(mapPanel, gbc);
-//		gbc.gridy = 0;
-//		gbc.weighty = 0;
-//		gbl.setConstraints(maplenLabel, gbc);
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 		gbc.weighty = 1;
 		gbl.setConstraints(rightPanel, gbc);
 		
 //		mapPanel.setBackground(Color.WHITE);
-
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
 		gbc.weightx = 1;
@@ -170,11 +171,11 @@ public class Dashboard extends JFrame{
 		});
 		
 		JLabel delivlabel = new JLabel("Delivery Tasks                ");
-		gbc.gridy = 1;
+		gbc.gridy++;
 		gbl.setConstraints(delivlabel, gbc);
 		leftPanel.add(delivlabel);
 		
-		gbc.gridy = 2;
+		gbc.gridy++;
 		gbc.weighty = 1;
 		gbl.setConstraints(delivtaScroll, gbc);
 		leftPanel.add(delivtaScroll);
@@ -184,13 +185,13 @@ public class Dashboard extends JFrame{
 		updateDelivQ();
 		
 		JLabel remedylabel = new JLabel("Remediation Cmds");
-		gbc.gridy = 3;
+		gbc.gridy++;
 		gbc.gridheight = 1;
 		gbc.weighty = 0;
 		gbl.setConstraints(remedylabel, gbc);
 		leftPanel.add(remedylabel);
 		
-		gbc.gridy = 4;
+		gbc.gridy++;
 		gbc.weighty = 1;
 		gbl.setConstraints(remedytaScroll, gbc);
 		leftPanel.add(remedytaScroll);
@@ -206,7 +207,7 @@ public class Dashboard extends JFrame{
 		gbl.setConstraints(vcLabel, gbc);
 		leftPanel.add(vcLabel);
 		
-		gbc.gridy = 1;
+		gbc.gridy++;
 		gbc.gridheight = 2;
 		gbc.weighty = 0;
 		gbl.setConstraints(VCPanel, gbc);
@@ -214,14 +215,14 @@ public class Dashboard extends JFrame{
 //		carta.setLineWrap(true);
 //		carta.setWrapStyleWord(true);
 //		carta.setEditable(false);
-		gbc.gridheight = 1;
 		
-		gbc.gridy = 3;
+		gbc.gridy += gbc.gridheight;
+		gbc.gridheight = 1;
 		JLabel rcLabel = new JLabel("Road Condition");
 		gbl.setConstraints(rcLabel, gbc);
 		leftPanel.add(rcLabel);
 		
-		gbc.gridy = 4;
+		gbc.gridy++;
 //		gbc.gridheight = 2;
 //		gbc.weighty = 0;
 		gbl.setConstraints(roadtaScroll, gbc);
@@ -268,7 +269,7 @@ public class Dashboard extends JFrame{
 			}
 		});
 		
-		gbc.gridy = 1;
+		gbc.gridy++;
 		JPanel radioButtonsPanel = new JPanel();
 		gbl.setConstraints(radioButtonsPanel, gbc);
 		rightPanel.add(radioButtonsPanel);
@@ -316,39 +317,63 @@ public class Dashboard extends JFrame{
 			}
 		});
 		
-		gbc.gridy = 2;
-		DPad cframe = new DPad();
-		gbl.setConstraints(cframe, gbc);
-		rightPanel.add(cframe);
+		gbc.gridy++;
+		DPad dpad = new DPad();
+		gbl.setConstraints(dpad, gbc);
+		rightPanel.add(dpad);
 		
-		gbc.gridy = 3;
-		gbc.gridwidth = 1;
+		gbc.gridy++;
+		gbl.setConstraints(miscPanel, gbc);
+		rightPanel.add(miscPanel);
+		miscPanel.setBorder(BorderFactory.createTitledBorder("Misc"));
+		miscPanel.setLayout(new GridLayout(1, 0));
+		miscPanel.add(jchkSection);
+		miscPanel.add(jchkSensor);
+		
 		jchkSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionevent) {
 				TrafficMap.showSections = jchkSection.isSelected();
 				mapPanel.repaint();
 			}
 		});
-		gbl.setConstraints(jchkSection, gbc);
-		rightPanel.add(jchkSection);
 		
-		gbc.gridx = 1;
 		jchkSensor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TrafficMap.showSensors = jchkSensor.isSelected();
 				mapPanel.repaint();
 			}
 		});
-		gbl.setConstraints(jchkSensor, gbc);
-		rightPanel.add(jchkSensor);
+		
+		gbc.gridy++;
+		gbl.setConstraints(CCPanel, gbc);
+		rightPanel.add(CCPanel);
+		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
+		CCPanel.setLayout(new GridLayout(1, 0));
+		CCPanel.add(jchkDetection);
+		CCPanel.add(jchkResolution);
+		
+		jchkDetection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Middleware.setDetectionFlag(jchkDetection.isSelected());
+				if(!jchkDetection.isSelected() && jchkResolution.isSelected())
+					jchkResolution.doClick();
+			}
+		});
+		
+		jchkResolution.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Middleware.setResolutionFlag(jchkResolution.isSelected());
+				if(!jchkDetection.isSelected() && jchkResolution.isSelected())
+					jchkDetection.doClick();
+			}
+		});
 		
 		JLabel srclabel = new JLabel("Src:");
 		srcta.setEditable(false);
 		JLabel dstlabel = new JLabel("Dst:");
 		dstta.setEditable(false);
 		
-		gbc.gridx = 0;
-		gbc.gridy = 4;
+		gbc.gridy++;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbl.setConstraints(deliveryPanel, gbc);
 		rightPanel.add(deliveryPanel);
@@ -422,12 +447,12 @@ public class Dashboard extends JFrame{
 			}
 		});
 		
-		gbc.gridy = 5;
+		gbc.gridy++;
 		JLabel logLabel = new JLabel("Log");
 		gbl.setConstraints(logLabel, gbc);
 		rightPanel.add(logLabel);
 		
-		gbc.gridy = 6;
+		gbc.gridy++;
 		gbc.weighty = 1;
 		gbl.setConstraints(logtaScroll, gbc);
 		rightPanel.add(logtaScroll);
@@ -589,10 +614,6 @@ public class Dashboard extends JFrame{
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
 			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, car.name, section.name));
-	}
-	
-	public static void displayPopup(String text, TrafficMap.Coord coord){
-		
 	}
 	
 	private class BuildingIconListener implements MouseListener{
