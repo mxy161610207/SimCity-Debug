@@ -16,6 +16,8 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+import sun.audio.AudioPlayer;
+
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
@@ -31,7 +33,8 @@ public abstract class Section extends Location{
 	public Map<Section, Section> exits = new HashMap<Section, Section>(); //entrance -> exit
 	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance
 	public int[] dir = {-1, -1};
-	public Queue<Car> cars = new LinkedList<Car>();
+	public Queue<Car> cars = new LinkedList<Car>();//may contain phantoms
+	public Set<String> realCars = new HashSet<String>();
 	public Car[] permitted = {null};//making its class an array to share its value among the combined
 	public boolean isCombined = false;
 	public Set<Section> combined = null;
@@ -116,9 +119,17 @@ public abstract class Section extends Location{
 			case 0:
 				g.setColor(Color.GREEN); break;
 			case 1:
-				g.setColor(Color.YELLOW); break;
+				if(section.realCars.isEmpty())
+					g.setColor(Color.YELLOW); 
+				else{
+					g.setColor(Color.RED);
+					AudioPlayer.player.start(TrafficMap.crashAS);
+				}
+				break;
 			default:
-				g.setColor(Color.RED); break;
+				g.setColor(Color.RED);
+				AudioPlayer.player.start(TrafficMap.crashAS);
+				break;
 			}
 			
 			if(this instanceof CrossingIcon)
@@ -126,6 +137,7 @@ public abstract class Section extends Location{
 			else if(this instanceof StreetIcon)
 				g.fillRoundRect(0, 0, coord.w, coord.h, coord.arcw, coord.arch);
 			
+			n += section.realCars.size();
 			if(n > 0){
 				boolean vertical = this instanceof StreetIcon ? ((StreetIcon )this).isVertical : false;
 				int x = vertical ? (coord.w - cubeSize) / 2 : (coord.w-n*cubeSize-(n-1)*cubeInset) / 2;
@@ -155,6 +167,33 @@ public abstract class Section extends Location{
 					}
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
+					g.drawString("FAKE", x, y+10);
+					
+					g.drawRect(x, y, cubeSize, cubeSize);
+					if(vertical)
+						y += cubeSize + cubeInset;
+					else
+						x += cubeSize + cubeInset;
+				}
+				
+				for(String car : section.realCars){
+					switch(car){
+					case Car.ORANGE:
+						g.setColor(Color.ORANGE); break;
+					case Car.BLACK:
+						g.setColor(Color.BLACK); break;
+					case Car.WHITE:
+						g.setColor(Color.WHITE); break;
+					case Car.RED:
+						g.setColor(Color.RED); break;
+					case Car.GREEN:
+						g.setColor(Color.GREEN); break;
+					case Car.SILVER:
+						g.setColor(CarIcon.SILVER); break;
+					}
+					g.fillRect(x, y, cubeSize, cubeSize);
+					g.setColor(Color.BLACK);
+					g.drawString("REAL", x, y+10);
 					g.drawRect(x, y, cubeSize, cubeSize);
 					if(vertical)
 						y += cubeSize + cubeInset;

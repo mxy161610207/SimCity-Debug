@@ -48,20 +48,20 @@ public class BrickHandler extends Thread{
 				
 				switch (info.type) {
 				case nju.ics.lixiaofan.consistency.context.Context.Normal:
-					stateSwitch(info.car, info.sensor);
+					stateSwitch(info.car, info.sensor, true);
 					break;
 				case nju.ics.lixiaofan.consistency.context.Context.FN:
 					if(Middleware.isDetectionEnabled()){
 						info.sensor.nextSection.displayBalloon(info.type, info.sensor.getName(), info.car.name);
 						if(Middleware.isResolutionEnabled())
-							stateSwitch(info.car, info.sensor);
+							stateSwitch(info.car, info.sensor, true);
 					}
 					break;
 				case nju.ics.lixiaofan.consistency.context.Context.FP:
 					if(Middleware.isDetectionEnabled())
 						info.sensor.nextSection.displayBalloon(info.type, info.sensor.getName(), info.car.name);
 					if(!Middleware.isResolutionEnabled())
-						stateSwitch(info.car, info.sensor);
+						stateSwitch(info.car, info.sensor, false);
 					break;
 				default:
 					break;
@@ -98,7 +98,7 @@ public class BrickHandler extends Thread{
 		}
 	}
 	
-	private void stateSwitch(Car car, Sensor sensor){
+	private void stateSwitch(Car car, Sensor sensor, boolean isCtxTrue){
 		switch(sensor.state){
 		case Sensor.UNDETECTED:{
 			sensor.state = Sensor.DETECTED;
@@ -107,8 +107,20 @@ public class BrickHandler extends Thread{
 //				calibrateAngle(car, sensor[id]); 
 			System.out.println("Entering Car: "+car.name);
 			
-			if(sensor.prevSensor.state == Sensor.DETECTED && sensor.prevSensor.car == car)
+			if(isCtxTrue && sensor.prevSensor.car == car && sensor.prevSensor.state == Sensor.DETECTED)
 				sensor.prevSensor.state = Sensor.UNDETECTED;
+			
+			//TODO need supplements about handling phantoms
+			if(isCtxTrue){
+				if(car.realLoc != null){
+					car.realLoc.realCars.remove(car.name);
+					car.realLoc = null;
+				}
+			}
+			else{
+				car.realLoc = car.loc;
+				car.loc.realCars.add(car.name);
+			}
 			
 			sensor.nextSection.removeWaitingCar(car);
 			Dashboard.carEnter(car, sensor.nextSection);

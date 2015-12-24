@@ -3,6 +3,8 @@ package nju.ics.lixiaofan.city;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +16,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
+
+import sun.audio.AudioStream;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section.BallonIcon;
@@ -44,8 +48,15 @@ public class TrafficMap extends JPanel{
 	private static final int u3 = sw+(cw+sh)/2;
 	private static final int u4 = u+sh;
 	public static final int size = 4*(sw+cw)+sh;
+	
+	public static AudioStream crashAS = null;
 
 	public TrafficMap() {
+		try {
+			crashAS = new AudioStream(new FileInputStream("res/crash.wav"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		setLayout(null);
 		setPreferredSize(new Dimension(size, size));
 		initSections();

@@ -25,6 +25,7 @@ public class Car {
 	public int finalState = 0;//the same as expectation
 	public int dir = -1;//0: N	1: S	2: W	3: E
 	public Section loc = null;
+	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public DeliveryTask dt = null;
 	public Section dest = null;
 	public boolean isLoading = false;//loading or unloading
