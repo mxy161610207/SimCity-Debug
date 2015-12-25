@@ -11,6 +11,7 @@ import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
+import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -62,6 +63,8 @@ public class Delivery {
 					}
 					car = res.car;
 					Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
+					if(!car.isReal())
+						TrafficMap.playOhNOSound();
 					car.dt = dt;
 					dt.car = car;
 					dt.phase = 1;
@@ -69,7 +72,6 @@ public class Delivery {
 					if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
 						if(car.status == Car.STILL){
 							car.isLoading = true;
-//							car.loc.icon.repaint();
 							//trigger start loading event
 							if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
 								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));

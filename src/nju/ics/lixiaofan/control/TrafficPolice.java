@@ -5,6 +5,7 @@ import java.util.Queue;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.city.Section;
+import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -50,6 +51,14 @@ public class TrafficPolice implements Runnable{
 				}
 				else if(r.cmd == 1){
 					if(reqSec.isOccupied()){
+						boolean real = false;
+						for(Car car : reqSec.cars)
+							if(car.isReal()){
+								real = true;
+								break;
+							}
+						if(!real)
+							TrafficMap.playOhNOSound();
 						//tell the car to stop
 						System.out.println(r.car.name+" need to STOP!!!");
 						reqSec.addWaitingCar(r.car);

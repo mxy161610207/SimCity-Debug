@@ -75,6 +75,10 @@ public class Car {
 		return "U";
 	}
 	
+	public boolean isReal(){
+		return realLoc == null;
+	}
+	
 	public static Car carOf(String name){
 		return TrafficMap.cars.get(name);
 	}

@@ -16,8 +16,6 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-import sun.audio.AudioPlayer;
-
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
@@ -123,12 +121,12 @@ public abstract class Section extends Location{
 					g.setColor(Color.YELLOW); 
 				else{
 					g.setColor(Color.RED);
-					AudioPlayer.player.start(TrafficMap.crashAS);
+					TrafficMap.playCrashSound();
 				}
 				break;
 			default:
 				g.setColor(Color.RED);
-				AudioPlayer.player.start(TrafficMap.crashAS);
+				TrafficMap.playCrashSound();
 				break;
 			}
 			

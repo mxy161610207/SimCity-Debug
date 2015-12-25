@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
 
+import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
 import nju.ics.lixiaofan.car.Car;
@@ -49,11 +50,12 @@ public class TrafficMap extends JPanel{
 	private static final int u4 = u+sh;
 	public static final int size = 4*(sw+cw)+sh;
 	
-	public static AudioStream crashAS = null;
+	private static AudioStream crashAS = null, ohNoAS = null;
 
 	public TrafficMap() {
 		try {
 			crashAS = new AudioStream(new FileInputStream("res/crash.wav"));
+			ohNoAS = new AudioStream(new FileInputStream("res/oh_no.wav"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -107,6 +109,14 @@ public class TrafficMap extends JPanel{
 					}
 				}
 		}
+	}
+	
+	public static void playCrashSound(){
+		AudioPlayer.player.start(TrafficMap.crashAS);
+	}
+	
+	public static void playOhNOSound(){
+		AudioPlayer.player.start(TrafficMap.ohNoAS);
 	}
 	
 	private void placeBuilding(Building building){
