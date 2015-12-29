@@ -37,7 +37,8 @@ public class TrafficMap extends JPanel{
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
 	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<Building.Type, Building>();
-	public static boolean showSensors = false, showSections = false;
+	public static boolean showSensor = false, showSection = false, showBalloon = false,
+			playCrashSound = false,	playErrorSound = false;
 	public final static boolean dir = true;
 	
 	public static final int sh = 37;//street height
@@ -50,12 +51,12 @@ public class TrafficMap extends JPanel{
 	private static final int u4 = u+sh;
 	public static final int size = 4*(sw+cw)+sh;
 	
-	private static AudioStream crashAS = null, ohNoAS = null;
+	private static AudioStream crashAS = null, errorAS = null;
 
 	public TrafficMap() {
 		try {
 			crashAS = new AudioStream(new FileInputStream("res/crash.wav"));
-			ohNoAS = new AudioStream(new FileInputStream("res/oh_no.wav"));
+			errorAS = new AudioStream(new FileInputStream("res/oh_no.wav"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -83,7 +84,7 @@ public class TrafficMap extends JPanel{
 	protected void paintChildren(Graphics g) {
 		super.paintChildren(g);
 		//draw sensors
-		if(showSensors){
+		if(showSensor){
 			g.setColor(Color.BLACK);
 			for(List<Sensor> slist : sensors)
 				for(Sensor s : slist){
@@ -112,11 +113,13 @@ public class TrafficMap extends JPanel{
 	}
 	
 	public static void playCrashSound(){
-		AudioPlayer.player.start(TrafficMap.crashAS);
+		if(playCrashSound)
+			AudioPlayer.player.start(TrafficMap.crashAS);
 	}
 	
-	public static void playOhNOSound(){
-		AudioPlayer.player.start(TrafficMap.ohNoAS);
+	public static void playErrorSound(){
+		if(playErrorSound)
+			AudioPlayer.player.start(TrafficMap.errorAS);
 	}
 	
 	private void placeBuilding(Building building){

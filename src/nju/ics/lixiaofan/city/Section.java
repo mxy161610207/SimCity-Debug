@@ -201,7 +201,7 @@ public abstract class Section extends Location{
 			}
 			
 			//draw sections
-			if(TrafficMap.showSections){
+			if(TrafficMap.showSection){
 				g.setColor(Color.BLACK);
 				String str = id+"";
 				FontMetrics fm = g.getFontMetrics();
@@ -211,6 +211,8 @@ public abstract class Section extends Location{
 	}
 	
 	public void displayBalloon(int type, String sensor, String car) {
+		if(!TrafficMap.showBalloon)
+			return;
 		balloon.type = type;
 		balloon.sensor = sensor;
 		balloon.car = car;

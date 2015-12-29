@@ -58,7 +58,7 @@ public class TrafficPolice implements Runnable{
 								break;
 							}
 						if(!real)
-							TrafficMap.playOhNOSound();
+							TrafficMap.playErrorSound();
 						//tell the car to stop
 						System.out.println(r.car.name+" need to STOP!!!");
 						reqSec.addWaitingCar(r.car);

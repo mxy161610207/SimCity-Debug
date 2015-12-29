@@ -1,5 +1,7 @@
 package nju.ics.lixiaofan.dashboard;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -68,7 +70,9 @@ public class Dashboard extends JFrame{
 	private static JButton deliverButton = new JButton("Deliver"),
 			startdButton = new JButton("Start"),
 			canceldButton = new JButton("Cancel");
-	private static JCheckBox jchkSensor = new JCheckBox("Sensors"), jchkSection = new JCheckBox("Sections"),
+	private static JCheckBox jchkSensor = new JCheckBox("Sensor"), jchkSection = new JCheckBox("Section"),
+			jchkBalloon = new JCheckBox("Balloon"), jchkCrash = new JCheckBox("Crash Sound"),
+			jchkError = new JCheckBox("Error Sound"),
 			jchkDetection = new JCheckBox("Detection"), jchkResolution = new JCheckBox("Resolution"); 
 	private static JTextArea srcta = new JTextArea(), dstta = new JTextArea();
 	private static Location src = null, dst = null;
@@ -235,7 +239,7 @@ public class Dashboard extends JFrame{
 		gbc.gridx = gbc.gridy = 0;
 		gbc.gridheight = gbc.gridwidth = 1;
 		gbc.weightx = gbc.weighty = 0;
-		rightPanel.setLayout(gbl);	
+		rightPanel.setLayout(gbl);
 		
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbl.setConstraints(carbox,gbc);	
@@ -325,22 +329,46 @@ public class Dashboard extends JFrame{
 		gbc.gridy++;
 		gbl.setConstraints(miscPanel, gbc);
 		rightPanel.add(miscPanel);
-		miscPanel.setBorder(BorderFactory.createTitledBorder("Misc"));
-		miscPanel.setLayout(new GridLayout(1, 0));
+		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
+		miscPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		//TODO temporarily hard coded
+		miscPanel.setPreferredSize(new Dimension(200, 90));
 		miscPanel.add(jchkSection);
 		miscPanel.add(jchkSensor);
+		miscPanel.add(jchkBalloon);
+		miscPanel.add(jchkCrash);
+		miscPanel.add(jchkError);
 		
 		jchkSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionevent) {
-				TrafficMap.showSections = jchkSection.isSelected();
+				TrafficMap.showSection = jchkSection.isSelected();
 				mapPanel.repaint();
 			}
 		});
 		
 		jchkSensor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TrafficMap.showSensors = jchkSensor.isSelected();
+				TrafficMap.showSensor = jchkSensor.isSelected();
 				mapPanel.repaint();
+			}
+		});
+		
+		jchkBalloon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TrafficMap.showBalloon = jchkBalloon.isSelected();
+				mapPanel.repaint();
+			}
+		});
+		
+		jchkCrash.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TrafficMap.playCrashSound = jchkCrash.isSelected();
+			}
+		});
+		
+		jchkError.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TrafficMap.playErrorSound = jchkError.isSelected();
 			}
 		});
 		
@@ -348,17 +376,32 @@ public class Dashboard extends JFrame{
 		gbl.setConstraints(CCPanel, gbc);
 		rightPanel.add(CCPanel);
 		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
-		CCPanel.setLayout(new GridLayout(1, 0));
+		CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		CCPanel.add(jchkDetection);
 		CCPanel.add(jchkResolution);
 		
 		jchkDetection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Middleware.setDetectionFlag(jchkDetection.isSelected());
-				if(!jchkDetection.isSelected() && jchkResolution.isSelected())
-					jchkResolution.doClick();
+				if(!jchkDetection.isSelected()){
+					if(jchkResolution.isSelected())
+						jchkResolution.doClick();
+					if(jchkBalloon.isSelected())
+						jchkBalloon.doClick();
+					if(jchkCrash.isSelected())
+						jchkCrash.doClick();
+					if(jchkError.isSelected())
+						jchkError.doClick();
+				}
+				
+				jchkBalloon.setEnabled(jchkDetection.isSelected());
+				jchkCrash.setEnabled(jchkDetection.isSelected());
+				jchkError.setEnabled(jchkDetection.isSelected());
 			}
 		});
+		jchkBalloon.setEnabled(jchkDetection.isSelected());
+		jchkCrash.setEnabled(jchkDetection.isSelected());
+		jchkError.setEnabled(jchkDetection.isSelected());
 		
 		jchkResolution.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {

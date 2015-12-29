@@ -64,7 +64,7 @@ public class Delivery {
 					car = res.car;
 					Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
 					if(!car.isReal())
-						TrafficMap.playOhNOSound();
+						TrafficMap.playErrorSound();
 					car.dt = dt;
 					dt.car = car;
 					dt.phase = 1;
