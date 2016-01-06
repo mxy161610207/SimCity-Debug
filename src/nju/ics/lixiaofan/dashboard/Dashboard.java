@@ -129,14 +129,11 @@ public class Dashboard extends JFrame{
 		gbc.weightx = gbc.weighty = 1;
 		gbl.setConstraints(leftPanel, gbc);
 		gbc.gridx = 1;
-		gbc.weightx = 0;
+		gbc.weightx = gbc.weighty = 0;
 		gbl.setConstraints(mapPanel, gbc);
 		gbc.gridx = 2;
-		gbc.gridy = 0;
 		gbc.weighty = 1;
 		gbl.setConstraints(rightPanel, gbc);
-		
-//		mapPanel.setBackground(Color.WHITE);
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
 		gbc.weightx = 1;

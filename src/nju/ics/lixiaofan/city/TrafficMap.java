@@ -61,6 +61,7 @@ public class TrafficMap extends JPanel{
 			e.printStackTrace();
 		}
 		setLayout(null);
+//		setSize(new Dimension(size, size));
 		setPreferredSize(new Dimension(size, size));
 		initSections();
 		initSensors();

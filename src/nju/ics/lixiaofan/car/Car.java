@@ -58,7 +58,13 @@ public class Car {
 	public void sendRequest(int cmd) {
 		if(loc == null)
 			return;
-		TrafficPolice.sendRequest(this, loc, cmd);
+		TrafficPolice.sendRequest(this, dir, loc, cmd);
+	}
+	
+	public void sendRequest(Section next) {
+		if(loc == null)
+			return;
+		TrafficPolice.sendRequest(this, dir, loc, 3, next);
 	}
 	
 	public String getDir(){

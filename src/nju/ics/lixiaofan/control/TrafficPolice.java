@@ -29,12 +29,10 @@ public class TrafficPolice implements Runnable{
 					}
 				}
 			}
-//			System.out.println("Crossing "+id+" handler awake!!!");
 			System.out.println("Traffic Police awake!!!");
 			Request r = req.poll();
-			Section reqSec = null;
-			reqSec = r.loc.adjs.get((int)(r.car.dir));
-//			System.out.println(r.loc.name+" "+r.car.dir);
+			Section reqSec = r.loc.adjs.get(r.dir);
+//			System.out.println(r.loc.name+" "+r.dir);
 			if(reqSec == null)
 				System.out.println("reqSec is null");
 			
@@ -87,11 +85,22 @@ public class TrafficPolice implements Runnable{
 							EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, 1));
 					}
 				}
-				//the car is already stopped
 				else if(r.cmd == 2){
+					//the car is already stopped
 					if(r.car.finalState == 1){
 						reqSec.addWaitingCar(r.car);
 						System.out.println(r.car.name+" waits for "+reqSec.name);
+					}
+				}
+				else if(r.cmd == 3){
+					//inform the traffic police of the entry event
+					r.next.removeWaitingCar(r.car);
+					if(!reqSec.sameAs(r.next)){
+						reqSec.removeWaitingCar(r.car);
+						if(r.car == reqSec.permitted[0]){
+							reqSec.permitted[0] = null;
+							sendNotice(reqSec);
+						}
 					}
 				}
 			}
@@ -157,16 +166,19 @@ public class TrafficPolice implements Runnable{
 		}
 	};
 	
-	public static void sendRequest(Car car, Section location, int cmd){
+	public static void sendRequest(Car car, int dir, Section loc, int cmd){
+		sendRequest(car, dir, loc, cmd, null);
+	}
+	
+	public static void sendRequest(Car car, int dir, Section loc, int cmd, Section next) {
 		synchronized (req) {
-			req.add(new Request(car, location, cmd));
+			req.add(new Request(car, dir, loc, cmd, next));
 			req.notify();
 		}
-//		System.out.println(car.name+" send Request "+cmd+" to Crossing "+id);
 		System.out.println(car.name+" send Request "+cmd+" to Traffic Police");
 		//trigger send request event
 		if(EventManager.hasListener(Event.Type.CAR_SEND_REQUEST))
-			EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, car.name, car.loc.name, cmd));
+			EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, car.name, loc.name, cmd));
 	}
 	
 	public static void sendNotice(Section loc){
@@ -175,12 +187,15 @@ public class TrafficPolice implements Runnable{
 	
 	private static class Request{
 		Car car;
-		Section loc;
+		int dir;
+		Section loc, next;
 		int cmd;
-		public Request(Car car, Section loc, int cmd) {
+		public Request(Car car, int dir, Section loc, int cmd, Section next) {
 			this.car = car;
+			this.dir = dir;
 			this.loc = loc;
 			this.cmd = cmd;
+			this.next = next;
 		}
 		
 		public Request(Section loc) {

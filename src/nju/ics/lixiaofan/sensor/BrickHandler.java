@@ -122,9 +122,12 @@ public class BrickHandler extends Thread{
 				car.loc.realCars.add(car.name);
 			}
 			
-			sensor.nextSection.removeWaitingCar(car);
+			Section prev = car.loc;
+			//inform the traffic police of the entry event
+			car.sendRequest(sensor.nextSection);
+//			sensor.nextSection.removeWaitingCar(car);
 			Dashboard.carEnter(car, sensor.nextSection);
-			
+			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
 			if(car.status != Car.MOVING)
 				car.status = Car.MOVING;
 			car.lastDetectedTime = System.currentTimeMillis();
@@ -191,17 +194,13 @@ public class BrickHandler extends Thread{
 					car.sendRequest(1);
 					Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
 				}
-				else if(car.expectation == 1)
-					car.sendRequest(1);
 				else
-					car.sendRequest(0);
+					car.sendRequest(car.expectation == 1 ? 1 : 0);
 			}
-			else if(car.expectation == 1)
-				car.sendRequest(1);
 			else
-				car.sendRequest(0);
+				car.sendRequest(car.expectation == 1 ? 1 : 0);
 		
-			TrafficPolice.sendNotice(sensor.prevSection);
+			TrafficPolice.sendNotice(prev);
 		}
 		break;
 		}
