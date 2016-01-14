@@ -9,7 +9,7 @@ public class AppPkg implements Serializable{
 	String car;
 	int dir;
 	int cmd;
-	String loc;
+	String loc, realLoc;
 	int delivid;
 	String src, dest;
 	int phase;
@@ -27,6 +27,10 @@ public class AppPkg implements Serializable{
 	public String act;
 	public double ratioX, ratioY;
 	public boolean isVisible;
+	
+	int ctxType;
+	String sensor, section;
+	boolean isResolutionEnabled;
 	
 	public AppPkg() {
 	}
@@ -136,6 +140,23 @@ public class AppPkg implements Serializable{
 		type = 13;
 		this.citizen = citizen;
 		this.isVisible = visible;
+		return this;
+	}
+	
+	public AppPkg setCarRealLoc(String car, String realLoc){
+		type = 14;
+		this.car = car;
+		this.realLoc = realLoc;
+		return this;
+	}
+	
+	public AppPkg setBalloon(String section, int ctxType, String sensor, String car, boolean isResolutionEnabled){
+		type = 15;
+		this.section = section;
+		this.ctxType = ctxType;
+		this.sensor = sensor;
+		this.car = car;
+		this.isResolutionEnabled = isResolutionEnabled;
 		return this;
 	}
 }

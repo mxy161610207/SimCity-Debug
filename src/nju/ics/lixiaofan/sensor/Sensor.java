@@ -8,6 +8,7 @@ import nju.ics.lixiaofan.city.Section.Street;
 public class Sensor {
 	public int bid;
 	public int sid;
+	public String name;
 	public int state;
 	public Crossing crossing;
 	public Street street;
@@ -25,8 +26,4 @@ public class Sensor {
 	public final static int INITIAL = 0;
 	public final static int DETECTED = 1;
 	public final static int UNDETECTED = 2;
-	
-	public String getName(){
-		return "B"+bid+"S"+(sid+1);
-	}
 }

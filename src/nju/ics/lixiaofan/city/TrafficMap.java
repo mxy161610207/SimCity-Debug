@@ -466,11 +466,12 @@ public class TrafficMap extends JPanel{
 		}
 	}
 
-	private static void setSensor(int cid, int sid, int c, int s, int dir){
-		Sensor sensor = sensors.get(cid).get(sid);
-		sensor.bid = cid;
+	private static void setSensor(int bid, int sid, int c, int s, int dir){
+		Sensor sensor = sensors.get(bid).get(sid);
+		sensor.bid = bid;
 		sensor.sid = sid;
 		sensor.state = 2;
+		sensor.name = "B" + bid + "S" + (sid+1);
 		sensor.crossing = crossings[c];
 		sensor.street = streets[s];
 		crossings[c].sensors.add(sensor);

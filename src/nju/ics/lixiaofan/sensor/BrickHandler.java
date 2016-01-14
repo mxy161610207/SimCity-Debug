@@ -19,6 +19,8 @@ import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.data.DataProvider;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
+import nju.ics.lixiaofan.monitor.AppPkg;
+import nju.ics.lixiaofan.monitor.PkgHandler;
 
 public class BrickHandler extends Thread{
 	private static List<Command> queue = Remediation.queue;
@@ -52,14 +54,18 @@ public class BrickHandler extends Thread{
 					break;
 				case nju.ics.lixiaofan.consistency.context.Context.FN:
 					if(Middleware.isDetectionEnabled()){
-						info.sensor.nextSection.displayBalloon(info.type, info.sensor.getName(), info.car.name);
+						info.sensor.nextSection.displayBalloon(info.type,
+								info.sensor.name, info.car.name,
+								Middleware.isResolutionEnabled());
 						if(Middleware.isResolutionEnabled())
 							stateSwitch(info.car, info.sensor, true);
 					}
 					break;
 				case nju.ics.lixiaofan.consistency.context.Context.FP:
 					if(Middleware.isDetectionEnabled())
-						info.sensor.nextSection.displayBalloon(info.type, info.sensor.getName(), info.car.name);
+						info.sensor.nextSection.displayBalloon(info.type,
+								info.sensor.name, info.car.name,
+								Middleware.isResolutionEnabled());
 					if(!Middleware.isResolutionEnabled())
 						stateSwitch(info.car, info.sensor, false);
 					break;
@@ -115,11 +121,13 @@ public class BrickHandler extends Thread{
 				if(car.realLoc != null){
 					car.realLoc.realCars.remove(car.name);
 					car.realLoc = null;
+					PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));
 				}
 			}
 			else{
 				car.realLoc = car.loc;
 				car.loc.realCars.add(car.name);
+				PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.realLoc.name));
 			}
 			
 			Section prev = car.loc;

@@ -22,8 +22,9 @@ import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street.StreetIcon;
 import nju.ics.lixiaofan.city.TrafficMap.Coord;
 import nju.ics.lixiaofan.consistency.context.Context;
-import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.dashboard.Dashboard;
+import nju.ics.lixiaofan.monitor.AppPkg;
+import nju.ics.lixiaofan.monitor.PkgHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public abstract class Section extends Location{
@@ -165,9 +166,10 @@ public abstract class Section extends Location{
 					}
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
-					g.drawString("FAKE", x, y+10);
-					
 					g.drawRect(x, y, cubeSize, cubeSize);
+					if(car.realLoc != null)
+						g.drawString("FAKE", x, y+10);
+					
 					if(vertical)
 						y += cubeSize + cubeInset;
 					else
@@ -191,8 +193,8 @@ public abstract class Section extends Location{
 					}
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
-					g.drawString("REAL", x, y+10);
 					g.drawRect(x, y, cubeSize, cubeSize);
+					g.drawString("REAL", x, y+10);
 					if(vertical)
 						y += cubeSize + cubeInset;
 					else
@@ -210,15 +212,17 @@ public abstract class Section extends Location{
 		}
 	}
 	
-	public void displayBalloon(int type, String sensor, String car) {
+	public void displayBalloon(int type, String sensor, String car, boolean isResolutionEnabled) {
 		if(!TrafficMap.showBalloon)
 			return;
 		balloon.type = type;
 		balloon.sensor = sensor;
 		balloon.car = car;
 		balloon.duration = 3000;//display for 3s
-		balloon.setIcon(Middleware.isResolutionEnabled());
+		balloon.setIcon(isResolutionEnabled);
 		balloon.setVisible(true);
+		
+		PkgHandler.send(new AppPkg().setBalloon(name, type, sensor, car, isResolutionEnabled));
 	}
 	
 	public static class BallonIcon extends JButton{
@@ -226,7 +230,6 @@ public abstract class Section extends Location{
 		public static int WIDTH = 70;
 		public static int HEIGHT = 70;
 		private static HashMap<String, ImageIcon> balloons = new HashMap<>();
-		public Section section = null;
 		public int duration = 0;
 		public int type;
 		public String sensor = "", car = "";
