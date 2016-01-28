@@ -29,7 +29,7 @@ public class TrafficPolice implements Runnable{
 					}
 				}
 			}
-			System.out.println("Traffic Police awake!!!");
+//			System.out.println("Traffic Police awake!!!");
 			Request r = req.poll();
 			Section reqSec = r.loc.adjs.get(r.dir);
 //			System.out.println(r.loc.name+" "+r.dir);

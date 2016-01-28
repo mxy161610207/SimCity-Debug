@@ -12,12 +12,13 @@ import nju.ics.lixiaofan.event.EventManager;
 public class Remediation implements Runnable{
 	public static List<Command> queue = new LinkedList<Command>();
 	public static Object getwork = new Object(), workdone = new Object();
-	private Runnable wakeTask = new Runnable() {
+	private Runnable wakeThread = new Runnable() {
 		public void run() {
 			while(true){
 				long currentTime = System.currentTimeMillis();
-				for(Car car:TrafficMap.cars.values())
-					if(car.isConnected && car.status != Car.UNCERTAIN && currentTime - car.lastInstrTime > 60000)
+				for(Car car : TrafficMap.cars.values())
+					if (car.isConnected && car.getRealStatus() != Car.UNCERTAIN
+							&& currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				
 				try {
@@ -30,7 +31,7 @@ public class Remediation implements Runnable{
 	};
 	
 	public Remediation() {
-		new Thread(wakeTask).start();
+		new Thread(wakeThread).start();
 	}
 	
 	public void run() {
@@ -58,16 +59,14 @@ public class Remediation implements Runnable{
 					if(cmd.cmd == 1){
 						cmd.deadline = getDeadline(cmd.car.type, 1, ++cmd.level);
 						Command.send(cmd, false);
-						addCmd(cmd);
+//						insertCmd(cmd);//comment this line to remedy only once
 					}
 					//stop cmd
 					else if (cmd.cmd == 0) {
 						cmd.car.status = Car.STILL;
 						cmd.car.stopTime = System.currentTimeMillis();
-						if(cmd.car.dest != null && (cmd.car.dest == cmd.car.loc || cmd.car.dest.isCombined && cmd.car.dest.combined.contains(cmd.car.loc)
-								&& cmd.car.dt != null)){
-							cmd.car.isLoading = true;
-//							cmd.car.loc.icon.repaint();
+						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
+							cmd.car.setLoading(true);
 							//trigger start loading event
 							if(cmd.car.dt.phase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
 								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
@@ -79,10 +78,9 @@ public class Remediation implements Runnable{
 						//trigger stop event
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));
-						
-						if (queue.isEmpty())
-							break;
 					}
+					if (queue.isEmpty())
+						break;
 					cmd = queue.get(0);
 				}
 				if(donesth){
@@ -98,7 +96,7 @@ public class Remediation implements Runnable{
 		}
 	}
 	
-	public static void addCmd(Command cmd){
+	public static void insertCmd(Command cmd){
 		if(cmd == null)
 			return;
 		synchronized (queue) {
@@ -114,15 +112,15 @@ public class Remediation implements Runnable{
 	}
 	
 	public static long getDeadline(int type, int cmd, int level){
-		if(type == 3)
+//		if(type == 3)
 			return System.currentTimeMillis() + 1000;
-		switch(level){
-		default:
-			if(cmd == 0)
-				return System.currentTimeMillis() + 500;
-			else
-				return System.currentTimeMillis() + 500;
-		}
+//		switch(level){
+//		default:
+//			if(cmd == 0)
+//				return System.currentTimeMillis() + 500;
+//			else
+//				return System.currentTimeMillis() + 500;
+//		}
 	}
 	
 	public static void printQueue(){

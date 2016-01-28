@@ -77,38 +77,32 @@ public class CitizenControl implements Runnable{
 	private Runnable picker = new Runnable() {
 		public void run() {
 			while(true){
-				for(Citizen citizen : citizens)
+				for(Citizen citizen : citizens){
+//					System.out.println(citizen.name);
 					if(citizen.act == null){
 						if(!citizen.icon.isVisible()){
 							sendActReq(citizen, Activity.Wander);
 							continue;
 						}
-						double d = Math.random();
-						if(d < 0.01)
-							sendActReq(citizen, Activity.Wander);
-						else if(d < 0.35){
-							if(citizen.job != Citizen.Job.Doctor)
-								sendActReq(citizen, Activity.GetSick);
-						}
-						else if(d < 0.6){
-							sendActReq(citizen, Activity.GetHungry);
-						}
-//						else if(d < 0.8){
-//							switch (citizen.job) {
-//							case IronMan:
-//								sendActReq(citizen, Activity.RescueTheWorld);
-//								break;
-//							default:
-//								break;
-//							}
+						sendActReq(citizen, Activity.GetHungry);
+//						double d = Math.random();
+//						if(d < 0.01)
+//							sendActReq(citizen, Activity.Wander);
+//						else if(d < 0.35){
+//							if(citizen.job != Citizen.Job.Doctor)
+//								sendActReq(citizen, Activity.GetSick);
 //						}
-						else{
-							if(citizen.job == Job.Student)
-								sendActReq(citizen, Activity.GoToSchool);
-							else
-								sendActReq(citizen, Activity.GoToWork);
-						}
+//						else if(d < 0.6){
+//							sendActReq(citizen, Activity.GetHungry);
+//						}
+//						else{
+//							if(citizen.job == Job.Student)
+//								sendActReq(citizen, Activity.GoToSchool);
+//							else
+//								sendActReq(citizen, Activity.GoToWork);
+//						}
 					}
+				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

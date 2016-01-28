@@ -70,6 +70,7 @@ public class Operation {
 //	        		System.out.println();
 //	        	}
 //	        	System.out.println("---------------------");
+	        	System.out.println("Violated Rule: " + rule.getName());
 	            Resolution.resolve(rule, changes, links, strategy);
 	            return false;
 	        }
@@ -94,7 +95,8 @@ public class Operation {
 				}
 			}
 			ArrayList<Context> result = new ArrayList<Context>();
-			result.add(entries.get(0).getValue().get(0).getContext());
+			ArrayList<ContextChange> firstRuleChanges = entries.get(0).getValue();
+			result.add(firstRuleChanges.get(firstRuleChanges.size()-1).getContext());
 			return result;
 		}
 		return null;

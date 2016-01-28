@@ -125,9 +125,9 @@ public class PkgHandler implements Runnable{
 		
 		for(DeliveryTask dtask : DataProvider.getDelivTasks()){
 			if(dtask.car == null)
-				oos.writeObject(new AppPkg().setDelivery(dtask.id, null, dtask.src.name, dtask.dst.name, dtask.phase));
+				oos.writeObject(new AppPkg().setDelivery(dtask.id, null, dtask.src.name, dtask.dest.name, dtask.phase));
 			else
-				oos.writeObject(new AppPkg().setDelivery(dtask.id, dtask.car.name, dtask.src.name, dtask.dst.name, dtask.phase));
+				oos.writeObject(new AppPkg().setDelivery(dtask.id, dtask.car.name, dtask.src.name, dtask.dest.name, dtask.phase));
 		}
 		
 		for(Building building : TrafficMap.buildings.values())

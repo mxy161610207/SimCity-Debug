@@ -98,4 +98,11 @@ public class Context {
         str += fields.get("id");
         return str;
     }
+    
+    public void print(){
+    	System.out.println(name);
+    	for(Map.Entry<String, Object> e : fields.entrySet())
+    		System.out.println(e.getKey() + " " + e.getValue());
+    	System.out.println("------------");
+    }
 }

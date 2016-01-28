@@ -24,9 +24,9 @@ public class OutputTest{
 				System.out.println("EventListener\tType:Crash Cars:"+cars+"Loc:"+event.location+" Time:"+event.time);
 				break;
 			case DELIVERY_RELEASED:
-				System.out.println("EventListener\tType:Deliv rls Src:"+event.dtask.src.name+" Dst:"+event.dtask.dst.name+" Time:"+event.time); break;
+				System.out.println("EventListener\tType:Deliv rls Src:"+event.dtask.src.name+" Dst:"+event.dtask.dest.name+" Time:"+event.time); break;
 			case DELIVERY_COMPLETED:
-				System.out.println("EventListener\tType:Deliv cpt Src:"+event.dtask.src.name+" Dst:"+event.dtask.dst.name+" Time:"+event.time); break;
+				System.out.println("EventListener\tType:Deliv cpt Src:"+event.dtask.src.name+" Dst:"+event.dtask.dest.name+" Time:"+event.time); break;
 			case CAR_START_LOADING:
 				System.out.println("EventListener\tType:Start load Car:"+event.car+" Loc:"+event.location+" Time:"+event.time); break;
 			case CAR_END_LOADING:

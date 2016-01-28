@@ -33,10 +33,10 @@ public abstract class Section extends Location{
 	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance
 	public int[] dir = {-1, -1};
 	public Queue<Car> cars = new LinkedList<Car>();//may contain phantoms
-	public Set<String> realCars = new HashSet<String>();
+	public Queue<String> realCars = new LinkedList<String>();
 	public Car[] permitted = {null};//making its class an array to share its value among the combined
-	public boolean isCombined = false;
-	public Set<Section> combined = null;
+//	public boolean isCombined = false;
+	public Set<Section> combined = new HashSet<Section>();
 	public Object mutex = new Object();
 	public Queue<Car> waiting = new LinkedList<Car>();
 	public Set<Sensor> sensors = new HashSet<Sensor>();
@@ -44,6 +44,7 @@ public abstract class Section extends Location{
 	public BallonIcon balloon = null;
 	
 	public static Section sectionOf(String name){
+//		System.out.println(name);
 		if(name == null)
 			return null;
 		String[] strs = name.split(" ");
@@ -57,7 +58,11 @@ public abstract class Section extends Location{
 	}
 	
 	public boolean sameAs(Section s){
-		return this == s || isCombined && combined.contains(s);
+		return this == s || combined.contains(s);
+	}
+	
+	public boolean isCombined(){
+		return !combined.isEmpty();
 	}
 	
 	public void addWaitingCar(Car car){
@@ -113,22 +118,17 @@ public abstract class Section extends Location{
 		protected void paintComponent(Graphics g) {
 //			System.out.println("children");
 			super.paintComponent(g);
-			int n = section.cars.size();
+			int n = section.realCars.size();
+			for(Car car : section.cars)
+				if(car.isReal())
+					n++;
 			switch(n){
 			case 0:
 				g.setColor(Color.GREEN); break;
 			case 1:
-				if(section.realCars.isEmpty())
-					g.setColor(Color.YELLOW); 
-				else{
-					g.setColor(Color.RED);
-					TrafficMap.playCrashSound();
-				}
-				break;
+				g.setColor(Color.YELLOW); break;
 			default:
-				g.setColor(Color.RED);
-				TrafficMap.playCrashSound();
-				break;
+				g.setColor(Color.RED); break;
 			}
 			
 			if(this instanceof CrossingIcon)
@@ -136,9 +136,9 @@ public abstract class Section extends Location{
 			else if(this instanceof StreetIcon)
 				g.fillRoundRect(0, 0, coord.w, coord.h, coord.arcw, coord.arch);
 			
-			n += section.realCars.size();
+			n = section.cars.size() + section.realCars.size();
 			if(n > 0){
-				boolean vertical = this instanceof StreetIcon ? ((StreetIcon )this).isVertical : false;
+				boolean vertical = this instanceof StreetIcon ? ((StreetIcon) this).isVertical : false;
 				int x = vertical ? (coord.w - cubeSize) / 2 : (coord.w-n*cubeSize-(n-1)*cubeInset) / 2;
 				int y = vertical ? (coord.h-n*cubeSize-(n-1)*cubeInset) / 2 : (coord.h - cubeSize) / 2;
 				

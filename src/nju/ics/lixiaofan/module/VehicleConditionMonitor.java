@@ -10,7 +10,7 @@ public class VehicleConditionMonitor implements EventListener{
 	public void eventTriggered(Event event) {
 		switch (event.type) {
 		case ADD_CAR:
-		case CAR_CRASH:
+//		case CAR_CRASH:
 		case CAR_ENTER:
 		case CAR_MOVE:
 		case CAR_LEAVE:
@@ -19,6 +19,7 @@ public class VehicleConditionMonitor implements EventListener{
 		case CAR_END_LOADING:
 		case CAR_START_UNLOADING:
 		case CAR_END_UNLOADING:
+//			System.out.println(event.type.toString() + "\t" + event.car);
 			Dashboard.updateVehicleCondition(Car.carOf(event.car));
 			break;
 		default:

@@ -74,8 +74,10 @@ public class Middleware {
     			}
     			
     			ArrayList<Context> contexts = Operation.operate(sequence, resolutionStrategy);
+//    			context.print();
     			if(contexts != null){
-    				for(Context ctx : contexts)
+    				for(Context ctx : contexts){
+//    					ctx.print();
 						if (ctx == context)
 							BrickHandler.add((Car) ctx.getFields().get("car"),
 									(Sensor) ctx.getFields().get("sensor"),
@@ -84,6 +86,7 @@ public class Middleware {
 							BrickHandler.add((Car) ctx.getFields().get("car"),
 									(Sensor) ctx.getFields().get("sensor"),
 									Context.FN);
+    				}
     			}
     			else
 					BrickHandler.add((Car) context.getFields().get("car"),
@@ -104,10 +107,10 @@ public class Middleware {
         	patterns.put(pattern.getName(), pattern);
         	switch (pattern.getName()) {
 			case "latest":
-				pattern.setCtxMaxNum(1);
+				pattern.setMaxCtxNum(1);
 				break;
 			default:
-				pattern.setCtxMaxNum(2);
+				pattern.setMaxCtxNum(2);
 				break;
 			}
 //        	System.out.println(pattern.getName());

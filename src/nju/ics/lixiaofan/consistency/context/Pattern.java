@@ -86,7 +86,7 @@ public class Pattern {
             contexts.remove(ctx);
     }
     
-    public void setCtxMaxNum(int num){
+    public void setMaxCtxNum(int num){
     	this.ctxNum = num;
     }
     

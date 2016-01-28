@@ -48,17 +48,17 @@ public class Command {
 	}	
 	
 	public static void send(Car car, int cmd, int level, boolean remedy){
-		if(car == null || car.status == cmd)
+		if(car == null)
 			return;
-//		if(cmd == 0 && level > 4)
-//			return;
 
 		CmdSender.send(car, cmd);
 		if(cmd >= STOP && cmd <= RIGHT){
-			car.expectation = cmd;
+			car.trend = cmd;
 			if(cmd != car.status)
 				car.status = Car.UNCERTAIN;
-			if(cmd == 0 && car.lastInstr == 1)
+			if(!car.isReal() && cmd != car.realStatus)
+				car.realStatus = Car.UNCERTAIN;
+			if(cmd == Car.STILL && car.lastInstr == Car.MOVING)
 				car.lastStopInstrTime = System.currentTimeMillis();
 			car.lastInstr = cmd;
 			car.lastInstrTime = System.currentTimeMillis();
@@ -73,14 +73,13 @@ public class Command {
 	}
 	
 	public static void wake(Car car){
-		if(car == null || !car.isConnected || car.status == Car.UNCERTAIN)
+		if(car == null || !car.isConnected || car.getRealStatus() == Car.UNCERTAIN)
 			return;
-		
-		CmdSender.send(car, car.status);
-		car.expectation = car.status;
-		if(car.status == Car.STILL && car.lastInstr == 1)
+		CmdSender.send(car, car.getRealStatus());
+//		car.trend = car.status;
+		if(car.getRealStatus() == Car.STILL && car.lastInstr == Car.MOVING)
 			car.lastStopInstrTime = System.currentTimeMillis();
-		car.lastInstr = car.status;
+		car.lastInstr = car.getRealStatus();
 		car.lastInstrTime = System.currentTimeMillis();
 	}
 	
@@ -98,7 +97,7 @@ public class Command {
 				}
 			}
 			if(addition)
-					Remediation.addCmd(new Command(car, cmd));
+					Remediation.insertCmd(new Command(car, cmd));
 			Dashboard.updateRemedyQ();
 			Remediation.printQueue();
 		}
@@ -141,10 +140,10 @@ class CmdSender implements Runnable{
 				case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
 					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
 					rc.out.flush();
-					rc.lastInstrTime = System.currentTimeMillis();
+//					rc.lastInstrTime = System.currentTimeMillis();
 					break;
 				case Command.HORN:
-					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3000");
+					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_2000");
 					rc.out.flush();
 					break;
 				default:

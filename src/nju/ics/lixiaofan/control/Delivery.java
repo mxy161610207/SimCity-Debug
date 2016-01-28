@@ -69,9 +69,9 @@ public class Delivery {
 					dt.car = car;
 					dt.phase = 1;
 					car.dest = res.section;
-					if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
+					if(car.dest.sameAs(car.loc)){
 						if(car.status == Car.STILL){
-							car.isLoading = true;
+							car.setLoading(true);
 							//trigger start loading event
 							if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
 								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
@@ -133,13 +133,13 @@ public class Delivery {
 				}
 				else{
 					Section next = sect.entrances.get(prev[i]);
-					if(next == null && prev[i].isCombined)
+					if(next == null)
 						for(Section s : prev[i].combined){
 							next = sect.entrances.get(s);
 							if(next != null)
 								break;
 						}
-					if(next != start && (!start.isCombined || !start.combined.contains(next))){
+					if(!next.sameAs(start)){
 						queue.add(next);
 						prev[i] = sect;
 						if(!oneWay)
@@ -183,21 +183,20 @@ public class Delivery {
 						DeliveryTask dt = it.next();
 						Car car = dt.car;
 						long recent = Math.max(car.stopTime, dt.startTime);
-						if ((car.loc == car.dest || car.dest.isCombined
-								&& car.dest.combined.contains(car.loc)) && car.status == Car.STILL
-								&& System.currentTimeMillis() - recent > 3000) {
+						if (car.loc.sameAs(car.dest) && car.status == Car.STILL
+							&& System.currentTimeMillis() - recent > 3000) {
 							//head for the src
 							if(dt.phase == 1){
 								dt.phase = 2;
-								car.dest = dt.dst instanceof Section ? (Section)dt.dst : selectNearestSection(car.loc, car.dir, ((Building)dt.dst).addrs);
-								car.isLoading = false;
+								car.dest = dt.dest instanceof Section ? (Section)dt.dest : selectNearestSection(car.loc, car.dir, ((Building)dt.dest).addrs);
+								car.setLoading(false);
 								Dashboard.appendLog(car.name+" finished loading");
 								//trigger end loading event
 								if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
 									EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
 								
-								if(car.dest == car.loc || (car.dest.isCombined && car.dest.combined.contains(car.loc))){
-									car.isLoading = true;
+								if(car.dest.sameAs(car.loc)){
+									car.setLoading(true);
 									dt.startTime = System.currentTimeMillis();
 //									car.loc.icon.repaint();
 									//trigger start unloading event
@@ -216,13 +215,14 @@ public class Delivery {
 							}
 							//head for the dst
 							else{
+								it.remove();
 								dt.phase = 3;
 								car.dt = null;
 								car.dest = null;
 								car.finalState = 1;
-								car.isLoading = false;
+								car.setLoading(false);
+								car.loc.icon.repaint();
 								car.sendRequest(1);
-								it.remove();
 								allBusy = false;
 								Dashboard.appendLog(car.name+" finished unloading");
 								//trigger end unloading event
@@ -267,13 +267,13 @@ public class Delivery {
 				return sect;
 			
 			Section next = sect.exits.get(prev);
-			if(next == null && prev.isCombined)
+			if(next == null)
 				for(Section s : prev.combined){
 					next = sect.exits.get(s);
 					if(next != null)
 						break;
 				}
-			if(next != start && (!start.isCombined || !start.combined.contains(next)))
+			if(!next.sameAs(start))
 				queue.add(next);
 			prev = sect;
 		}
@@ -307,16 +307,16 @@ public class Delivery {
 	
 	public static class DeliveryTask implements Cloneable{
 		public int id;
-		public Location src = null, dst = null;
+		public Location src = null, dest = null;
 		public Car car;
 		public int phase;//0: search car; 1: to src 2: to dest
 		public long startTime = 0;
 		public Citizen citizen = null;
 		
-		public DeliveryTask(Location src, Location dst, Citizen citizen) {
+		public DeliveryTask(Location src, Location dest, Citizen citizen) {
 			this.id = Delivery.taskid++;
 			this.src = src;
-			this.dst = dst;
+			this.dest = dest;
 			this.phase = 0;
 			this.startTime = System.currentTimeMillis();
 			this.citizen = citizen;

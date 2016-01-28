@@ -82,30 +82,30 @@ public class BFunc extends Formula {
     }
     
     private boolean funcBeforeTime(HashMap<String, Context> var) {
-    	String v1 = (String) getValue(1, var);
-    	String v2 = (String) getValue(2, var);
-    	if (v1 == null || v2 == null)
-    		return false;
+    	long v1 = (long) getValue(1, var);
+    	long v2 = (long) getValue(2, var);
+//    	if (v1 == null || v2 == null)
+//    		return false;
     	
-		return Long.valueOf(v1) < Long.valueOf(v2);
+		return v1 < v2;
 	}
 
 	private boolean funcSameTime(HashMap<String, Context> var) {
-		String v1 = (String) getValue(1, var);
-    	String v2 = (String) getValue(2, var);
-    	if (v1 == null || v2 == null)
-    		return false;
+		long v1 = (long) getValue(1, var);
+		long v2 = (long) getValue(2, var);
+//    	if (v1 == null || v2 == null)
+//    		return false;
     	
-    	//two contexts of one car occurring less than 200ms will be considered same time
-		return Math.abs(Long.valueOf(v1) - Long.valueOf(v2)) < 200;
+    	//two contexts of one car occurring less than 300ms will be considered same time
+		return Math.abs(v1 - v2) < 300;
 	}
 
 	private boolean funcStillStatus(HashMap<String, Context> var) {
-		String v1 = (String) getValue(1, var);
-		if(v1 == null)
-			return false;
+		int v1 = (int) getValue(1, var);
+//		if(v1 == null)
+//			return false;
 		
-		return Integer.valueOf(v1) == Car.STILL;
+		return v1 == Car.STILL;
 	}
 
 	private boolean funcSameLocation(HashMap<String, Context> var) {

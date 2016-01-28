@@ -21,11 +21,10 @@ public class Car {
 	public String name = null;//only for zenwheels
 //	public int frequency;//0: A|grey	1: B|orange	2: C|green	3: blue
 	public int status = 0;//0: still	1: moving	-1: uncertain
-	public int expectation = 0;//0: wanna stop	1: wanna move	-1: none
-	public int finalState = 0;//the same as expectation
+	public int trend = 0;//0: tend to stop	1: tend to move	-1: none
+	public int finalState = 0;//
 	public int dir = -1;//0: N	1: S	2: W	3: E
 	public Section loc = null;
-	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public DeliveryTask dt = null;
 	public Section dest = null;
 	public boolean isLoading = false;//loading or unloading
@@ -36,6 +35,8 @@ public class Car {
 	public int lastInstr = -1;
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<Citizen>();
+	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
+	public int realDir = -1, realStatus = 0;
 	
 	public static final int STILL = 0;
 	public static final int MOVING = 1;
@@ -58,16 +59,37 @@ public class Car {
 	public void sendRequest(int cmd) {
 		if(loc == null)
 			return;
-		TrafficPolice.sendRequest(this, dir, loc, cmd);
+		TrafficPolice.sendRequest(this, dir, loc, cmd);//TODO dir and loc
 	}
 	
 	public void sendRequest(Section next) {
 		if(loc == null)
 			return;
-		TrafficPolice.sendRequest(this, dir, loc, 3, next);
+		TrafficPolice.sendRequest(this, dir, loc, 3, next);//TODO
 	}
 	
-	public String getDir(){
+	public void setLoading(boolean loading){
+		isLoading = loading;
+		if(loc == null)
+			return;
+		loc.icon.repaint();
+		for(Section s : loc.combined)
+			s.icon.repaint();
+	}
+	
+	public String getDirStr(){
+		return getDirStr(dir);
+	}
+	
+	public String getRealDirStr(){
+		return getDirStr(getRealDir());
+	}
+	
+	public int getRealDir(){
+		return isReal() ? dir : realDir;
+	}
+	
+	private String getDirStr(int dir){
 		switch(dir){
 		case 0:
 			return "N";
@@ -89,7 +111,15 @@ public class Car {
 		return TrafficMap.cars.get(name);
 	}
 	
-	public String getState(){
+	public String getStatusStr(){
+		return getStatusStr(status);
+	}
+	
+	public String getRealStatusStr(){
+		return getStatusStr(getRealStatus());
+	}
+	
+	private String getStatusStr(int status){
 		switch(status){
 		case 0:
 			return "Stopped";
@@ -100,6 +130,10 @@ public class Car {
 		default:
 			return null;	
 		}
+	}
+	
+	public int getRealStatus(){
+		return isReal() ? status : realStatus;
 	}
 	
 	public static class CarIcon extends JButton{

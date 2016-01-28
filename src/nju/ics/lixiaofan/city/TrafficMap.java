@@ -31,8 +31,18 @@ import nju.ics.lixiaofan.sensor.Sensor;
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
 	public static ConcurrentHashMap<String, Car> cars = new ConcurrentHashMap<String, Car>();
-	public static Crossing[] crossings = new Crossing[9];
-	public static Street[] streets = new Street[32];
+	public static Crossing[] crossings = { new Crossing(), new Crossing(),
+			new Crossing(), new Crossing(), new Crossing(), new Crossing(),
+			new Crossing(), new Crossing(), new Crossing() };
+	public static Street[] streets = { new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street(), new Street(), new Street(),
+			new Street(), new Street() };
 	public static Map<String, Section> sections = new HashMap<String, Section>();
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
@@ -51,17 +61,11 @@ public class TrafficMap extends JPanel{
 	private static final int u4 = u+sh;
 	public static final int size = 4*(sw+cw)+sh;
 	
-	private static AudioStream crashAS = null, errorAS = null;
+//	private static AudioStream crashAS = null, errorAS = null;
 
 	public TrafficMap() {
-		try {
-			crashAS = new AudioStream(new FileInputStream("res/crash.wav"));
-			errorAS = new AudioStream(new FileInputStream("res/oh_no.wav"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		setLayout(null);
-//		setSize(new Dimension(size, size));
+		setSize(new Dimension(size, size));
 		setPreferredSize(new Dimension(size, size));
 		initSections();
 		initSensors();
@@ -114,13 +118,22 @@ public class TrafficMap extends JPanel{
 	}
 	
 	public static void playCrashSound(){
-		if(playCrashSound)
-			AudioPlayer.player.start(TrafficMap.crashAS);
+		if(playCrashSound){
+			try {
+				AudioPlayer.player.start(new AudioStream(new FileInputStream("res/crash.wav")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public static void playErrorSound(){
 		if(playErrorSound)
-			AudioPlayer.player.start(TrafficMap.errorAS);
+			try {
+				AudioPlayer.player.start(new AudioStream(new FileInputStream("res/oh_no.wav")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
 	private void placeBuilding(Building building){
@@ -237,14 +250,13 @@ public class TrafficMap extends JPanel{
 		}
 		Set<Section> newS = new HashSet<Section>();
 		for(Section s : building.addrs)
-			if(s.isCombined)
-				newS.addAll(s.combined);
+			newS.addAll(s.combined);
 		building.addrs.addAll(newS);
 	}
 	
 	public static void initSections() {
 		for(int i = 0;i < 9;i++){
-			crossings[i] = new Crossing();
+//			crossings[i] = new Crossing();
 			crossings[i].id = i;
 			crossings[i].name = "Crossing "+i;
 			sections.put(crossings[i].name, crossings[i]);
@@ -263,7 +275,7 @@ public class TrafficMap extends JPanel{
 					crossings[i].icon.coord.w, crossings[i].icon.coord.h);
 		}
 		for(int i = 0;i < 32;i++){
-			streets[i] = new Street();
+//			streets[i] = new Street();
 			streets[i].id = i;
 			streets[i].name = "Street "+i;
 			sections.put(streets[i].name, streets[i]);
@@ -358,7 +370,7 @@ public class TrafficMap extends JPanel{
 			section.balloon = new Section.BallonIcon();
 			section.balloon.setBounds(section.icon.coord.centerX- BallonIcon.WIDTH / 2,
 					section.icon.coord.centerY - BallonIcon.HEIGHT, BallonIcon.WIDTH, BallonIcon.HEIGHT);
-//			section.displayBalloon(2, "B2S2", "Red Car");
+			section.displayBalloon(2, "B2S2", "Red Car", true);
 		}
 		
 		setCombined();
@@ -693,13 +705,14 @@ public class TrafficMap extends JPanel{
 	
 	private static void setCombined(Set<Section> sections){
 		for(Section s : sections){
-			s.isCombined = true;
-			if(s.combined == null)
-				s.combined = new HashSet<Section>();
+//			s.isCombined = true;
+//			if(s.combined == null)
+//				s.combined = new HashSet<Section>();
 			for(Section other : sections)
 				if(other != s){
 					s.combined.add(other);
 					other.cars = s.cars;
+					other.realCars = s.realCars;
 					other.mutex = s.mutex;
 					other.permitted = s.permitted;
 					other.waiting = s.waiting;

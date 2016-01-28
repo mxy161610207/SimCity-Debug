@@ -80,6 +80,7 @@ public class RCServer{
 						String key = strs[i];
 						if(TrafficMap.cars.containsKey(key) && !TrafficMap.cars.get(key).isConnected){
 							Car car = TrafficMap.cars.get(key);
+//							System.out.println(car.name +" "+car.loc);
 							car.isConnected = true;
 							Dashboard.addCar(car);
 //							synchronized (RCServer.rc) {

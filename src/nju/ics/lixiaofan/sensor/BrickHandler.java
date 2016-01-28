@@ -107,44 +107,52 @@ public class BrickHandler extends Thread{
 	private void stateSwitch(Car car, Sensor sensor, boolean isCtxTrue){
 		switch(sensor.state){
 		case Sensor.UNDETECTED:{
-			sensor.state = Sensor.DETECTED;
-			System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" ENTERING!!!");
-			
-//				calibrateAngle(car, sensor[id]); 
-			System.out.println("Entering Car: "+car.name);
-			
-			if(isCtxTrue && sensor.prevSensor.car == car && sensor.prevSensor.state == Sensor.DETECTED)
-				sensor.prevSensor.state = Sensor.UNDETECTED;
-			
 			//TODO need supplements about handling phantoms
 			if(isCtxTrue){
-				if(car.realLoc != null){
+				sensor.state = Sensor.DETECTED;
+				if(sensor.prevSensor.car == car && sensor.prevSensor.state == Sensor.DETECTED)
+					sensor.prevSensor.state = Sensor.UNDETECTED;
+				sensor.car = car;
+				
+				if(!car.isReal()){
+					Section fakeLoc = car.loc;
+					car.loc = car.realLoc;
 					car.realLoc.realCars.remove(car.name);
 					car.realLoc = null;
-					PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));
+					car.dir = car.realDir;
+					car.status = car.realStatus;
+					Dashboard.carLeave(car, fakeLoc);
+					PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));//TODO bug here
 				}
 			}
-			else{
-				car.realLoc = car.loc;
+			else if(car.isReal()){
 				car.loc.realCars.add(car.name);
+				car.realLoc = car.loc;
+				car.realDir = car.dir;
+				car.realStatus = car.status;
 				PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.realLoc.name));
 			}
+//			else if(car.loc.sameAs(sensor.nextSection)){
+//				//the phantom already in this section
+//				break;
+//			}
+			
+			System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects car: "+car.name);
+//			calibrateAngle(car, sensor[id]);
 			
 			Section prev = car.loc;
 			//inform the traffic police of the entry event
 			car.sendRequest(sensor.nextSection);
-//			sensor.nextSection.removeWaitingCar(car);
 			Dashboard.carEnter(car, sensor.nextSection);
 			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
 			if(car.status != Car.MOVING)
 				car.status = Car.MOVING;
 			car.lastDetectedTime = System.currentTimeMillis();
-			sensor.car = car;
 			sensor.isTriggered = true;
-//				setCarDir(car, sensor);
+//			setCarDir(car, sensor);
 			//trigger context
 			if(ContextManager.hasListener())
-				ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDir()));
+				ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
 			
 			//trigger entering event
 			if(EventManager.hasListener(Event.Type.CAR_ENTER))
@@ -177,7 +185,7 @@ public class BrickHandler extends Thread{
 							break;
 						}
 					}
-					Remediation.addCmd(newCmd);
+					Remediation.insertCmd(newCmd);
 					if(donesth){
 						Dashboard.updateRemedyQ();
 						Remediation.printQueue();
@@ -186,7 +194,7 @@ public class BrickHandler extends Thread{
 			}
 			
 			//do triggered stuff		
-//				System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
+//			System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
 			if(car.dest != null){
 				if(car.dest.sameAs(car.loc)){
 					car.finalState = 0;
@@ -203,10 +211,10 @@ public class BrickHandler extends Thread{
 					Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
 				}
 				else
-					car.sendRequest(car.expectation == 1 ? 1 : 0);
+					car.sendRequest(car.trend == 1 ? 1 : 0);
 			}
 			else
-				car.sendRequest(car.expectation == 1 ? 1 : 0);
+				car.sendRequest(car.trend == 1 ? 1 : 0);
 		
 			TrafficPolice.sendNotice(prev);
 		}
@@ -227,13 +235,13 @@ public class BrickHandler extends Thread{
 			if(d > leavingValue[bid][sid]){
 				if(isFalsePositive2(sensor)){
 					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
-							+"\tread: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
+							+"\treading: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
 					break;
 				}
 				sensor.state = Sensor.UNDETECTED;
 //				System.out.println(sdf.format(new Date()));
 				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" +
-						"\tread: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
+						"\treading: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
 			}
 			break;
 		case Sensor.UNDETECTED:
@@ -251,20 +259,44 @@ public class BrickHandler extends Thread{
 //					+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
 				
 				Car car = null;
-				for(Car tmp : sensor.prevSection.cars){
-					if(tmp.dir == sensor.dir){
+				int dir = -1, status = 0;
+				boolean isReal = false;
+				//check real cars first if exists
+				for(String name : sensor.prevSection.realCars){
+					Car tmp = Car.carOf(name);
+					if(tmp.realDir == sensor.dir){
+						isReal = true;
 						car = tmp;
+						dir = tmp.realDir;
+						status = tmp.realStatus;
 						break;
 					}
 				}
 				if(car == null){
-					System.out.println("Can't find car!3");
+					for(Car tmp : sensor.prevSection.cars){
+						if(tmp.dir == sensor.dir){
+							isReal = tmp.isReal();
+							car = tmp;
+							dir = car.dir;
+							status = car.status;
+							break;
+						}
+					}
+				}
+				if(car == null){
+					System.out.println("B"+bid+"S"+(sid+1)+": Can't find car!\treading: "+d);
 					sensor.state = Sensor.UNDETECTED;
 					break;
 				}
 				
-				Middleware.add(car.name, car.dir, car.status, "movement", "enter",
-						sensor.prevSection.name, sensor.nextSection.name, System.currentTimeMillis(), car, sensor);
+				//TODO if the car is fake, directly label this context FP and add to checkedData
+				if(isReal)
+					Middleware.add(car.name, dir, status, "movement", "enter",
+							sensor.prevSection.name, sensor.nextSection.name,
+							System.currentTimeMillis(), car, sensor);
+				else
+					BrickHandler.add(car, sensor,
+							nju.ics.lixiaofan.consistency.context.Context.FP);
 			}
 			break;
 		}
@@ -300,11 +332,12 @@ public class BrickHandler extends Thread{
 	
 	private boolean isFalsePositive2(Sensor sensor){
 		Section section = sensor.nextSection;
-		if(section.isOccupied()){
-			for(Car car : section.cars)
-				if(car.status != Car.STILL)
-					return false;
-		}
+		for(Car car : section.cars)
+			if(car.isReal() && car.status != Car.STILL)
+				return false;
+		for(String name : section.realCars)
+			if(Car.carOf(name).realStatus != Car.STILL)
+				return false;
 		return true;
 	}
 	

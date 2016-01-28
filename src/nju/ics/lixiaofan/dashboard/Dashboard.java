@@ -1,6 +1,5 @@
 package nju.ics.lixiaofan.dashboard;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -74,8 +73,8 @@ public class Dashboard extends JFrame{
 			jchkBalloon = new JCheckBox("Balloon"), jchkCrash = new JCheckBox("Crash Sound"),
 			jchkError = new JCheckBox("Error Sound"),
 			jchkDetection = new JCheckBox("Detection"), jchkResolution = new JCheckBox("Resolution"); 
-	private static JTextArea srcta = new JTextArea(), dstta = new JTextArea();
-	private static Location src = null, dst = null;
+	private static JTextArea srcta = new JTextArea(), destta = new JTextArea();
+	private static Location src = null, dest = null;
 	private static JPanel deliveryPanel = new JPanel(), CCPanel = new JPanel(), miscPanel = new JPanel();
 	private static boolean isDeliveryStarted = false;
 	public static boolean blink = false;
@@ -95,7 +94,7 @@ public class Dashboard extends JFrame{
 					
 					if(s.cars.isEmpty())
 						continue;
-					if (s.cars.size() > 1 || s.cars.peek().isLoading)
+					if (!s.cars.isEmpty() && s.cars.peek().isLoading)
 						s.icon.repaint();
 				}
 				try {
@@ -126,7 +125,8 @@ public class Dashboard extends JFrame{
 			b.icon.addMouseListener(new BuildingIconListener(b));
 		
 		gbc.gridx = 0;
-		gbc.weightx = gbc.weighty = 1;
+		gbc.weightx = 0;//1;
+		gbc.weighty = 1;
 		gbl.setConstraints(leftPanel, gbc);
 		gbc.gridx = 1;
 		gbc.weightx = gbc.weighty = 0;
@@ -136,7 +136,7 @@ public class Dashboard extends JFrame{
 		gbl.setConstraints(rightPanel, gbc);
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
-		gbc.weightx = 1;
+		gbc.weightx = 0;//1;
 		gbc.weighty = 0;
 		leftPanel.setLayout(gbl);
 		
@@ -160,7 +160,8 @@ public class Dashboard extends JFrame{
 					car.loc = null;
 					car.dir = -1;
 					car.status = Car.STILL;
-					car.expectation = 0;
+					car.realLoc = null;
+					car.trend = 0;
 					car.finalState = 0;
 					car.dest = null;
 					car.isLoading = false;
@@ -327,9 +328,9 @@ public class Dashboard extends JFrame{
 		gbl.setConstraints(miscPanel, gbc);
 		rightPanel.add(miscPanel);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
-		miscPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		//TODO temporarily hard coded
-		miscPanel.setPreferredSize(new Dimension(200, 90));
+//		miscPanel.setLayout(new GridLayout(2, 0));
+//		TODO temporarily hard coded
+//		miscPanel.setPreferredSize(new Dimension(200, 90));
 		miscPanel.add(jchkSection);
 		miscPanel.add(jchkSensor);
 		miscPanel.add(jchkBalloon);
@@ -411,7 +412,7 @@ public class Dashboard extends JFrame{
 		JLabel srclabel = new JLabel("Src:");
 		srcta.setEditable(false);
 		JLabel dstlabel = new JLabel("Dst:");
-		dstta.setEditable(false);
+		destta.setEditable(false);
 		
 		gbc.gridy++;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -421,7 +422,7 @@ public class Dashboard extends JFrame{
 		deliveryPanel.add(srclabel);
 		deliveryPanel.add(srcta);
 		deliveryPanel.add(dstlabel);
-		deliveryPanel.add(dstta);
+		deliveryPanel.add(destta);
 		deliveryPanel.add(deliverButton);
 		deliveryPanel.add(startdButton);
 		deliveryPanel.add(canceldButton);
@@ -444,7 +445,7 @@ public class Dashboard extends JFrame{
 		dgbl.setConstraints(dstlabel, dgbc);
 		dgbc.gridx = 1;
 		dgbc.weightx = 1;
-		dgbl.setConstraints(dstta, dgbc);
+		dgbl.setConstraints(destta, dgbc);
 		dgbc.gridx = 0;
 		dgbc.gridy = 2;
 		dgbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -456,7 +457,7 @@ public class Dashboard extends JFrame{
 		dgbl.setConstraints(canceldButton, dgbc);
 		startdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				src = dst = null;
+				src = dest = null;
 				updateDeliverySrc();
 				updateDeliveryDst();
 				isDeliveryStarted = true;
@@ -473,8 +474,8 @@ public class Dashboard extends JFrame{
 				startdButton.setVisible(true);
 				canceldButton.setVisible(false);
 				
-				if(src != null && dst != null)
-					Delivery.add(src, dst);
+				if(src != null && dest != null)
+					Delivery.add(src, dest);
 			}
 		});
 		
@@ -506,6 +507,10 @@ public class Dashboard extends JFrame{
 					addCar(car);
 
 		new Thread(blinkThread).start();
+		jchkResolution.doClick();
+		jchkBalloon.doClick();
+		jchkCrash.doClick();
+		jchkError.doClick();
 		
 		setTitle("Dashboard");
 //		setSize(1200,mapPanel);
@@ -537,7 +542,7 @@ public class Dashboard extends JFrame{
 		if(!s.cars.isEmpty()){
 			str += "Cars:\n";
 			for(Car car : s.cars){
-				str += car.name + " (" + car.getState() + ") "+car.getDir();
+				str += car.name + " (" + car.getStatusStr() + ") "+car.getDirStr();
 				if(car.dest != null)
 					str += " Dest:" + car.dest.name;
 				str += "\n";
@@ -546,7 +551,14 @@ public class Dashboard extends JFrame{
 		if(!s.waiting.isEmpty()){
 			str += "Waiting Cars:\n";
 			for(Car car : s.waiting)
-				str += car.name + " (" + car.getState() + ") "+car.getDir()+"\n";
+				str += car.name + " (" + car.getStatusStr() + ") "+car.getDirStr()+"\n";
+		}
+		if(!s.realCars.isEmpty()){
+			str += "Real Cars:\n";
+			for(String name : s.realCars){
+				Car car = Car.carOf(name);
+				str += name + " (" + car.getRealStatusStr() + ") "+car.getRealDirStr()+"\n";
+			}
 		}
 		roadta.setText(str);
 	}
@@ -559,10 +571,10 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static void updateDeliveryDst(){
-		if(dst != null)
-			dstta.setText(dst.name);
+		if(dest != null)
+			destta.setText(dest.name);
 		else
-			dstta.setText("");
+			destta.setText("");
 	}
 	
 	public static synchronized void updateDelivQ(){
@@ -571,7 +583,7 @@ public class Dashboard extends JFrame{
 		queue.addAll(Delivery.deliveryTasks);
 		delivta.setText("Nums: " + queue.size());
 		for(DeliveryTask dt : queue)
-			delivta.append("\nPhase: "+dt.phase+" Src: "+dt.src.name+" Dst: "+dt.dst.name);
+			delivta.append("\nPhase: "+dt.phase+" Src: "+dt.src.name+" Dst: "+dt.dest.name);
 	}
 	
 	public static synchronized void updateRemedyQ(){
@@ -599,7 +611,9 @@ public class Dashboard extends JFrame{
 				car.dir = car.loc.dir[0];
 				PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
 			}
-			carEnter(car, car.loc);
+			Section loc = car.loc;
+			car.loc = null;
+			carEnter(car, loc);
 			PkgHandler.send(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		}
 		VCPanel.addCar(car);
@@ -622,14 +636,25 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static void carEnter(Car car, Section section){
-		if(car == null || section == null)
+		if(car == null || section == null || section.sameAs(car.loc))
 			return;
-		carLeave(car, car.loc);
-		
-		section.cars.add(car);
+		Section prev = car.loc;
 		car.loc = section;
+		section.cars.add(car);
+		carLeave(car, prev);
+		
+		int real = section.realCars.size();
+		for(Car c : section.cars)
+			if(c.isReal())
+				real++;
+		
+		if(real > 1){
+			System.out.println("REAL CRASH");
+			TrafficMap.playCrashSound();
+		}
+		
 		section.icon.repaint();
-		if(section.isCombined){
+		if(section.isCombined()){
 			//only combined sections can change a car's direction
 			car.dir = section.dir[0];
 			for(Section s : section.combined)
@@ -647,7 +672,7 @@ public class Dashboard extends JFrame{
 		if(car.loc == section)
 			car.loc = null;
 		section.icon.repaint();
-		if(section.isCombined){
+		if(section.isCombined()){
 			for(Section s : section.combined)
 				s.icon.repaint();
 		}
@@ -671,10 +696,10 @@ public class Dashboard extends JFrame{
 				if (src == null) {
 					src = building;
 					updateDeliverySrc();
-				} else if (dst == null) {
+				} else if (dest == null) {
 					if (building == src)
 						return;
-					dst = building;
+					dest = building;
 					updateDeliveryDst();
 					deliverButton.setEnabled(true);
 				}
@@ -715,10 +740,11 @@ public class Dashboard extends JFrame{
 				if (src == null) {
 					src = section;
 					updateDeliverySrc();
-				} else if (dst == null) {
-					if (section == src || section.isCombined && section.combined.contains(src))
+				} 
+				else if (dest == null) {
+					if (src instanceof Section && section.sameAs((Section) src))
 						return;
-					dst = section;
+					dest = section;
 					updateDeliveryDst();
 					deliverButton.setEnabled(true);
 				}

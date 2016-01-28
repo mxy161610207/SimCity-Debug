@@ -79,6 +79,8 @@ public class Citizen implements Runnable{
 				if(!icon.isVisible()){
 					int x = (int) (Math.random() * xmax);
 					int y = (int) (Math.random() * ymax);
+					x = TrafficMap.streets[23].icon.coord.x;
+					y = TrafficMap.streets[23].icon.coord.y;
 					icon.setLocation(x, y);
 					icon.setVisible(true);
 					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
@@ -86,28 +88,28 @@ public class Citizen implements Runnable{
 					PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size));
 					PkgHandler.send(new AppPkg().setCitizen(name, true));
 				}
-				int x, y;
-				for(int count = 0;count < 3;count++){
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					x = (int) (icon.getX() + 50 * Math.random() - 25);
-					if(x < 0)
-						x = 0;
-					else if(x > xmax)
-						x = xmax;
-					y = (int) (icon.getY() + 50 * Math.random() - 25);
-					if(y < 0)
-						y = 0;
-					else if(y > ymax)
-						y = ymax;
-					icon.setLocation(x, y);
-					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
-					
-					PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size));
-				}
+//				int x, y;
+//				for(int count = 0;count < 3;count++){
+//					try {
+//						Thread.sleep(1000);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//					x = (int) (icon.getX() + 50 * Math.random() - 25);
+//					if(x < 0)
+//						x = 0;
+//					else if(x > xmax)
+//						x = xmax;
+//					y = (int) (icon.getY() + 50 * Math.random() - 25);
+//					if(y < 0)
+//						y = 0;
+//					else if(y > ymax)
+//						y = ymax;
+//					icon.setLocation(x, y);
+//					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
+//					
+//					PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size));
+//				}
 				CitizenControl.sendActReq(this, null, true);
 				break;
 			}
@@ -144,7 +146,10 @@ public class Citizen implements Runnable{
 					CitizenControl.sendActReq(this, null, true);
 				}
 				else{
-					if(nextAct != Activity.AtWork && nextAct != Activity.InClass && nextAct != Activity.UnderTreatment)
+					if (nextAct != Activity.AtWork
+							&& nextAct != Activity.InClass
+							&& nextAct != Activity.UnderTreatment
+							&& nextAct != Activity.HavingMeals)
 						dest = null;
 					CitizenControl.sendActReq(this, nextAct);
 					nextAct = null;
@@ -214,10 +219,11 @@ public class Citizen implements Runnable{
 				break;
 			case AtWork:case InClass:case UnderTreatment:case HavingMeals:{
 				loc = dest;
-				int xmax = ((Building)dest).icon.getWidth()-CitizenIcon.SIZE;
-				int ymax = ((Building)dest).icon.getHeight()-CitizenIcon.SIZE;
-				int x = (int) (Math.random() * xmax) + ((Building)dest).icon.coord.x;
-				int y = (int) (Math.random() * ymax) + ((Building)dest).icon.coord.y;
+//				System.out.println(dest instanceof Building);
+				int xmax = ((Building) dest).icon.getWidth() - CitizenIcon.SIZE;
+				int ymax = ((Building) dest).icon.getHeight() - CitizenIcon.SIZE;
+				int x = (int) (Math.random() * xmax) + ((Building) dest).icon.coord.x;
+				int y = (int) (Math.random() * ymax) + ((Building) dest).icon.coord.y;
 				icon.setLocation(x, y);
 				
 				PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size));
