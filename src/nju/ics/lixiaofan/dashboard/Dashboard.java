@@ -25,10 +25,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
+import nju.ics.lixiaofan.car.RCServer;
 import nju.ics.lixiaofan.car.Remediation;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Location;
@@ -73,7 +75,7 @@ public class Dashboard extends JFrame{
 			jchkBalloon = new JCheckBox("Balloon"), jchkCrash = new JCheckBox("Crash Sound"),
 			jchkError = new JCheckBox("Error Sound"),
 			jchkDetection = new JCheckBox("Detection"), jchkResolution = new JCheckBox("Resolution"); 
-	private static JTextArea srcta = new JTextArea(), destta = new JTextArea();
+	private static JTextField srctf = new JTextField(), desttf = new JTextField(), console  = new JTextField("Console");
 	private static Location src = null, dest = null;
 	private static JPanel deliveryPanel = new JPanel(), CCPanel = new JPanel(), miscPanel = new JPanel();
 	private static boolean isDeliveryStarted = false;
@@ -205,12 +207,40 @@ public class Dashboard extends JFrame{
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.weighty = 0;
+		gbl.setConstraints(console, gbc);
+		leftPanel.add(console);
+		//console commands
+		console.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String cmd = console.getText();
+				if(cmd.startsWith("add car ")){
+					String car = cmd.substring("add car ".length()).toLowerCase();
+					switch(car){
+					case "r":case "red":case "red car":
+						RCServer.addCar(Car.RED);	break;
+					case "b":case "black":case "black car":
+						RCServer.addCar(Car.BLACK);	break;
+					case "w":case "white":case "white car":
+						RCServer.addCar(Car.WHITE);	break;
+					case "o":case "orange":case "orange car":
+						RCServer.addCar(Car.ORANGE);	break;
+					case "g":case "green":case "green car":
+						RCServer.addCar(Car.GREEN);	break;
+					case "s":case "silver":case "suv":case "silver suv":
+						RCServer.addCar(Car.SILVER);	break;
+					}
+				}
+			}
+		});
+		
+		gbc.gridx = 1;
+		gbc.gridy++;
 		JLabel vcLabel = new JLabel("Vehicle Condition                     ");
 		gbl.setConstraints(vcLabel, gbc);
 		leftPanel.add(vcLabel);
 		
 		gbc.gridy++;
-		gbc.gridheight = 2;
+		gbc.gridheight = 1;
 		gbc.weighty = 0;
 		gbl.setConstraints(VCPanel, gbc);
 		leftPanel.add(VCPanel);
@@ -347,7 +377,8 @@ public class Dashboard extends JFrame{
 		jchkSensor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				TrafficMap.showSensor = jchkSensor.isSelected();
-				mapPanel.repaint();
+//				mapPanel.repaint();
+				TrafficMap.showSensors();
 			}
 		});
 		
@@ -410,9 +441,9 @@ public class Dashboard extends JFrame{
 		});
 		
 		JLabel srclabel = new JLabel("Src:");
-		srcta.setEditable(false);
+		srctf.setEditable(false);
 		JLabel dstlabel = new JLabel("Dst:");
-		destta.setEditable(false);
+		desttf.setEditable(false);
 		
 		gbc.gridy++;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -420,9 +451,9 @@ public class Dashboard extends JFrame{
 		rightPanel.add(deliveryPanel);
 		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Delivery"));
 		deliveryPanel.add(srclabel);
-		deliveryPanel.add(srcta);
+		deliveryPanel.add(srctf);
 		deliveryPanel.add(dstlabel);
-		deliveryPanel.add(destta);
+		deliveryPanel.add(desttf);
 		deliveryPanel.add(deliverButton);
 		deliveryPanel.add(startdButton);
 		deliveryPanel.add(canceldButton);
@@ -438,14 +469,14 @@ public class Dashboard extends JFrame{
 		dgbc.gridx = 1;
 		dgbc.weightx = 1;
 		dgbc.gridwidth = GridBagConstraints.REMAINDER;
-		dgbl.setConstraints(srcta, dgbc);
+		dgbl.setConstraints(srctf, dgbc);
 		dgbc.gridx = 0;
 		dgbc.gridy = 1;
 		dgbc.weightx = 0;
 		dgbl.setConstraints(dstlabel, dgbc);
 		dgbc.gridx = 1;
 		dgbc.weightx = 1;
-		dgbl.setConstraints(destta, dgbc);
+		dgbl.setConstraints(desttf, dgbc);
 		dgbc.gridx = 0;
 		dgbc.gridy = 2;
 		dgbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -565,16 +596,16 @@ public class Dashboard extends JFrame{
 	
 	public static void updateDeliverySrc(){
 		if(src != null)
-			srcta.setText(src.name);
+			srctf.setText(src.name);
 		else
-			srcta.setText("");
+			srctf.setText("");
 	}
 	
 	public static void updateDeliveryDst(){
 		if(dest != null)
-			destta.setText(dest.name);
+			desttf.setText(dest.name);
 		else
-			destta.setText("");
+			desttf.setText("");
 	}
 	
 	public static synchronized void updateDelivQ(){
@@ -709,7 +740,7 @@ public class Dashboard extends JFrame{
 				// right click
 			} else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0) {
 				// middle click
-				System.out.println("middle clicked");
+//				System.out.println("middle clicked");
 			}
 		}
 

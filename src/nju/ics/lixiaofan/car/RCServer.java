@@ -43,6 +43,10 @@ public class RCServer{
 		new Thread(new Remediation()).start();
 	}
 	
+	public static void addCar(String name){
+		RCListener.addCar(name);
+	}
+	
 	private static class RCListener implements Runnable{
 		private Socket socket;
 		DataInputStream in = null;
@@ -77,32 +81,35 @@ public class RCServer{
 				if(strs[0].equals("zenwheels")){
 					int i = 1;
 					while(i < strs.length){
-						String key = strs[i];
-						if(TrafficMap.cars.containsKey(key) && !TrafficMap.cars.get(key).isConnected){
-							Car car = TrafficMap.cars.get(key);
-//							System.out.println(car.name +" "+car.loc);
-							car.isConnected = true;
-							Dashboard.addCar(car);
-//							synchronized (RCServer.rc) {
-//								Dashboard.updateRCConn();
-//							}
-							//calibrate
-							if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
-								CmdSender.send(car, 3);
-							}
-							synchronized (Delivery.searchTasks) {
-								if(Delivery.allBusy){
-									Delivery.allBusy = false;
-									Delivery.searchTasks.notify();
-								}
-							}
-							//trigger add car event
-							if(EventManager.hasListener(Event.Type.ADD_CAR))
-								EventManager.trigger(new Event(Event.Type.ADD_CAR, car.name, car.loc.name));
-						}
+						addCar(strs[i]);
 						i += 2;
 					}
 				}
+			}
+		}
+		
+		private static void addCar(String name){
+			if(TrafficMap.cars.containsKey(name) && !TrafficMap.cars.get(name).isConnected){
+				Car car = TrafficMap.cars.get(name);
+//				System.out.println(car.name +" "+car.loc);
+				car.isConnected = true;
+				Dashboard.addCar(car);
+//				synchronized (RCServer.rc) {
+//					Dashboard.updateRCConn();
+//				}
+				//calibrate
+				if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
+					CmdSender.send(car, 3);
+				}
+				synchronized (Delivery.searchTasks) {
+					if(Delivery.allBusy){
+						Delivery.allBusy = false;
+						Delivery.searchTasks.notify();
+					}
+				}
+				//trigger add car event
+				if(EventManager.hasListener(Event.Type.ADD_CAR))
+					EventManager.trigger(new Event(Event.Type.ADD_CAR, car.name, car.loc.name));
 			}
 		}
 	}

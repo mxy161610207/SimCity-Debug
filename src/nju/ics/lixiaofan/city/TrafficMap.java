@@ -3,6 +3,9 @@ package nju.ics.lixiaofan.city;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import sun.audio.AudioPlayer;
@@ -26,6 +30,7 @@ import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.city.Section.Street.StreetIcon;
+import nju.ics.lixiaofan.sensor.BrickHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public class TrafficMap extends JPanel{
@@ -70,6 +75,9 @@ public class TrafficMap extends JPanel{
 		initSections();
 		initSensors();
 		
+		for(List<Sensor> list : sensors)
+			for(Sensor s : list)
+				add(s.button);
 		for(Citizen c : citizens){
 			add(c.icon);
 			new Thread(c).start();
@@ -86,36 +94,36 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	protected void paintChildren(Graphics g) {
-		super.paintChildren(g);
-		//draw sensors
-		if(showSensor){
-			g.setColor(Color.BLACK);
-			for(List<Sensor> slist : sensors)
-				for(Sensor s : slist){
-					switch (s.showPos) {
-					case 0:
-						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py-28);
-						g.drawLine(s.px, s.py-25, s.px, s.py);
-						break;
-					case 1:
-						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px+27, s.py+4);
-						g.drawLine(s.px, s.py, s.px+25, s.py);
-						break;
-					case 2:
-						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py+37);
-						g.drawLine(s.px, s.py, s.px, s.py+25);
-						break;
-					case 3:
-						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-57, s.py+4);
-						g.drawLine(s.px-25, s.py, s.px, s.py);
-						break;
-					default:
-						break;
-					}
-				}
-		}
-	}
+//	protected void paintChildren(Graphics g) {
+//		super.paintChildren(g);
+//		//draw sensors
+//		if(showSensor){
+//			g.setColor(Color.BLACK);
+//			for(List<Sensor> list : sensors)
+//				for(Sensor s : list){
+//					switch (s.showPos) {
+//					case 0:
+//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py-28);
+//						g.drawLine(s.px, s.py-25, s.px, s.py);
+//						break;
+//					case 1:
+//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px+27, s.py+4);
+//						g.drawLine(s.px, s.py, s.px+25, s.py);
+//						break;
+//					case 2:
+//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py+37);
+//						g.drawLine(s.px, s.py, s.px, s.py+25);
+//						break;
+//					case 3:
+//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-57, s.py+4);
+//						g.drawLine(s.px-25, s.py, s.px, s.py);
+//						break;
+//					default:
+//						break;
+//					}
+//				}
+//		}
+//	}
 	
 	public static void playCrashSound(){
 		if(playCrashSound){
@@ -134,6 +142,12 @@ public class TrafficMap extends JPanel{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+	}
+	
+	public static void showSensors(){
+		for(List<Sensor> list : TrafficMap.sensors)
+			for(Sensor s : list)
+				s.button.setVisible(showSensor);
 	}
 	
 	private void placeBuilding(Building building){
@@ -370,7 +384,7 @@ public class TrafficMap extends JPanel{
 			section.balloon = new Section.BallonIcon();
 			section.balloon.setBounds(section.icon.coord.centerX- BallonIcon.WIDTH / 2,
 					section.icon.coord.centerY - BallonIcon.HEIGHT, BallonIcon.WIDTH, BallonIcon.HEIGHT);
-			section.displayBalloon(2, "B2S2", "Red Car", true);
+//			section.displayBalloon(2, "B2S2", "Red Car", true);
 		}
 		
 		setCombined();
@@ -482,7 +496,7 @@ public class TrafficMap extends JPanel{
 		Sensor sensor = sensors.get(bid).get(sid);
 		sensor.bid = bid;
 		sensor.sid = sid;
-		sensor.state = 2;
+		sensor.state = Sensor.UNDETECTED;
 		sensor.name = "B" + bid + "S" + (sid+1);
 		sensor.crossing = crossings[c];
 		sensor.street = streets[s];
@@ -509,6 +523,11 @@ public class TrafficMap extends JPanel{
 			sensor.px = sensor.crossing.icon.coord.x + sensor.crossing.icon.coord.w/2;
 			sensor.py = sensor.street.icon.coord.y;
 		}
+		sensor.button = new JButton(sensor.name);
+		sensor.button.setVisible(false);
+		sensor.button.setMargin(new Insets(0, 0, 0, 0));
+		sensor.button.setBounds(sensor.px-18, sensor.py-8, 36, 16);
+		sensor.button.addMouseListener(new Sensor.ButtonListener(bid, sid));
 		
 		if(TrafficMap.dir)
 			sensor.dir = dir;

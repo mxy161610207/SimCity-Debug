@@ -1,5 +1,10 @@
 package nju.ics.lixiaofan.sensor;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JButton;
+
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.Section.Crossing;
@@ -22,8 +27,29 @@ public class Sensor {
 	public boolean isTriggered = false;
 	public int showPos = -1;//4 types in total
 	public int px, py;
+	public JButton button = null;
 	
 	public final static int INITIAL = 0;
 	public final static int DETECTED = 1;
 	public final static int UNDETECTED = 2;
+	
+	public static class ButtonListener extends MouseAdapter{
+		private int bid, sid;
+		public ButtonListener(int bid, int sid) {
+			this.bid = bid;
+			this.sid = sid;
+		}
+		public void mousePressed(MouseEvent e) {
+			switch (e.getButton()) {
+			case MouseEvent.BUTTON1:
+//				System.out.println("left click");
+				BrickHandler.add(bid, sid, 0);
+				break;
+			case MouseEvent.BUTTON3:
+//				System.out.println("right click");
+				BrickHandler.add(bid, sid, 20);
+				break;
+			}		
+		}
+	}
 }
