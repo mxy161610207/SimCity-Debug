@@ -33,8 +33,10 @@ public class TrafficPolice implements Runnable{
 			Request r = req.poll();
 			Section reqSec = r.loc.adjs.get(r.dir);
 //			System.out.println(r.loc.name+" "+r.dir);
-			if(reqSec == null)
-				System.out.println("reqSec is null");
+			if(reqSec == null){
+				System.err.println("reqSec is null");
+				continue;
+			}
 			
 			synchronized (reqSec.mutex) {
 				if(r.cmd == 0){
@@ -42,8 +44,9 @@ public class TrafficPolice implements Runnable{
 						reqSec.removeWaitingCar(r.car);
 					else
 						reqSec.addWaitingCar(r.car);
-					if(r.car == reqSec.permitted[0]){
-						reqSec.permitted[0] = null;
+					if(r.car == reqSec.getPermitted()){
+						reqSec.setPermitted(null);
+						
 						sendNotice(reqSec);
 					}
 				}
@@ -66,7 +69,7 @@ public class TrafficPolice implements Runnable{
 						if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 							EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, 0));
 					}
-					else if(reqSec.permitted[0] != null && r.car != reqSec.permitted[0]){
+					else if(reqSec.getPermitted() != null && r.car != reqSec.getPermitted()){
 						//tell the car to stop
 						System.out.println(r.car.name+" need to STOP!!!2");
 						reqSec.addWaitingCar(r.car);
@@ -78,7 +81,7 @@ public class TrafficPolice implements Runnable{
 					else{
 						//tell the car to enter
 						System.out.println(r.car.name+" can ENTER!!!");
-						reqSec.permitted[0] = r.car;
+						reqSec.setPermitted(r.car);
 						Command.send(r.car, 1);
 						//trigger recv response event
 						if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
@@ -97,8 +100,8 @@ public class TrafficPolice implements Runnable{
 					r.next.removeWaitingCar(r.car);
 					if(!reqSec.sameAs(r.next)){
 						reqSec.removeWaitingCar(r.car);
-						if(r.car == reqSec.permitted[0]){
-							reqSec.permitted[0] = null;
+						if(r.car == reqSec.getPermitted()){
+							reqSec.setPermitted(null);
 							sendNotice(reqSec);
 						}
 					}
@@ -129,11 +132,11 @@ public class TrafficPolice implements Runnable{
 				synchronized (loc.mutex) {
 					synchronized (loc.waiting) {
 						if(loc.waiting.isEmpty())
-							loc.permitted[0] = null;
+							loc.setPermitted(null);
 						else{
 							Car car = loc.waiting.peek();
 							if(car.loc.cars.size() == 1){
-								loc.permitted[0] = car;
+								loc.setPermitted(car);
 								Command.send(car, 1);
 								System.out.println((loc instanceof Street?"Street ":"Crossing ")+loc.id+" notify "+car.name+" to enter");
 								//trigger recv response event
@@ -143,7 +146,7 @@ public class TrafficPolice implements Runnable{
 							else{
 								for(Car wcar : loc.waiting)
 									if(wcar.loc.cars.size() == 1 || wcar.loc.cars.peek() == wcar){
-										loc.permitted[0] = wcar;
+										loc.setPermitted(wcar);
 										Command.send(wcar, 1);
 										System.out.println((loc instanceof Street?"Street ":"Crossing ")+loc.id+" notify "+wcar.name+" to enter");
 										//trigger recv response event

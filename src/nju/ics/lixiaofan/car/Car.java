@@ -13,13 +13,14 @@ import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.control.TrafficPolice;
+import nju.ics.lixiaofan.event.Event;
+import nju.ics.lixiaofan.event.EventManager;
 
 public class Car {
 //	public int id;
 	public int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
 	public boolean isConnected = false;
 	public String name = null;//only for zenwheels
-//	public int frequency;//0: A|grey	1: B|orange	2: C|green	3: blue
 	public int status = 0;//0: still	1: moving	-1: uncertain
 	public int trend = 0;//0: tend to stop	1: tend to move	-1: none
 	public int finalState = 0;//
@@ -35,6 +36,7 @@ public class Car {
 	public int lastInstr = -1;
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<Citizen>();
+	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public int realDir = -1, realStatus = 0;
 	
@@ -66,6 +68,52 @@ public class Car {
 		if(loc == null)
 			return;
 		TrafficPolice.sendRequest(this, dir, loc, 3, next);//TODO
+	}
+	
+	public void enter(Section section){
+		if(section == null || section.sameAs(loc))
+			return;
+		Section prev = loc;
+		loc = section;
+		leave(prev);
+		section.cars.add(this);
+		
+		int real = section.realCars.size();
+		for(Car c : section.cars)
+			if(c.isReal())
+				real++;
+		
+		if(real > 1){
+			System.out.println("REAL CRASH");
+			TrafficMap.playCrashSound();
+		}
+		
+		section.icon.repaint();
+		if(section.isCombined()){
+			//only combined sections can change a car's direction
+			dir = section.dir[0];
+			for(Section s : section.combined)
+				s.icon.repaint();
+		}
+		//trigger move event
+		if(EventManager.hasListener(Event.Type.CAR_MOVE))
+			EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
+	}
+	
+	public void leave(Section section){
+		if(section == null)
+			return;
+		section.cars.remove(this);
+		if(loc == section)
+			loc = null;
+		section.icon.repaint();
+		if(section.isCombined()){
+			for(Section s : section.combined)
+				s.icon.repaint();
+		}
+		//trigger leaving event
+		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
+			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, name, section.name));
 	}
 	
 	public void setLoading(boolean loading){

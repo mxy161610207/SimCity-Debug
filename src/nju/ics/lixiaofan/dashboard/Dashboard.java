@@ -39,8 +39,6 @@ import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
-import nju.ics.lixiaofan.event.Event;
-import nju.ics.lixiaofan.event.EventManager;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
 import nju.ics.lixiaofan.sensor.BrickHandler;
@@ -145,17 +143,13 @@ public class Dashboard extends JFrame{
 		JButton resetButton = new JButton("Reset");
 		gbl.setConstraints(resetButton, gbc);
 		leftPanel.add(resetButton);
+		//TODO reset the statuses of cars to consistency
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				for(int i = 0;i < TrafficMap.crossings.length;i++){
-						TrafficMap.crossings[i].cars.clear();
-						TrafficMap.crossings[i].waiting.clear();
-						TrafficMap.crossings[i].permitted[0] = null;
-				}
-				for(int i = 0;i < TrafficMap.streets.length;i++){
-						TrafficMap.streets[i].cars.clear();
-						TrafficMap.streets[i].waiting.clear();
-						TrafficMap.streets[i].permitted[0] = null;
+				for(Section section : TrafficMap.sections.values()){
+					section.cars.clear();
+					section.waiting.clear();
+					section.setPermitted(null);
 				}
 			
 				for(Car car : TrafficMap.cars.values()){
@@ -359,7 +353,7 @@ public class Dashboard extends JFrame{
 		rightPanel.add(miscPanel);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
 //		miscPanel.setLayout(new GridLayout(2, 0));
-//		TODO temporarily hard coded
+//		temporarily hard coded
 //		miscPanel.setPreferredSize(new Dimension(200, 90));
 		miscPanel.add(jchkSection);
 		miscPanel.add(jchkSensor);
@@ -644,7 +638,7 @@ public class Dashboard extends JFrame{
 			}
 			Section loc = car.loc;
 			car.loc = null;
-			carEnter(car, loc);
+			car.enter(loc);
 			PkgHandler.send(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		}
 		VCPanel.addCar(car);
@@ -664,52 +658,6 @@ public class Dashboard extends JFrame{
 		if(carbox.getItemCount() == 0)
 			return null;
 		return Car.carOf((String) carbox.getSelectedItem());
-	}
-	
-	public static void carEnter(Car car, Section section){
-		if(car == null || section == null || section.sameAs(car.loc))
-			return;
-		Section prev = car.loc;
-		car.loc = section;
-		section.cars.add(car);
-		carLeave(car, prev);
-		
-		int real = section.realCars.size();
-		for(Car c : section.cars)
-			if(c.isReal())
-				real++;
-		
-		if(real > 1){
-			System.out.println("REAL CRASH");
-			TrafficMap.playCrashSound();
-		}
-		
-		section.icon.repaint();
-		if(section.isCombined()){
-			//only combined sections can change a car's direction
-			car.dir = section.dir[0];
-			for(Section s : section.combined)
-				s.icon.repaint();
-		}
-		//trigger move event
-		if(EventManager.hasListener(Event.Type.CAR_MOVE))
-			EventManager.trigger(new Event(Event.Type.CAR_MOVE, car.name, car.loc.name));
-	}
-	
-	public static void carLeave(Car car, Section section){
-		if(car == null || section == null)
-			return;
-		section.cars.remove(car);
-		if(car.loc == section)
-			car.loc = null;
-		section.icon.repaint();
-		if(section.isCombined()){
-			for(Section s : section.combined)
-				s.icon.repaint();
-		}
-		//trigger leaving event
-		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
-			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, car.name, section.name));
 	}
 	
 	private class BuildingIconListener implements MouseListener{
@@ -788,7 +736,7 @@ public class Dashboard extends JFrame{
 						dirButtons[i].setEnabled(false);
 					if (section.cars.contains(selectedCar)) {
 						selectedCar.dir = -1;
-						carLeave(selectedCar, section);
+						selectedCar.leave(section);
 					} else {
 						dirButtons[section.dir[0]].setEnabled(true);
 						if (section.dir[1] >= 0)
@@ -803,7 +751,7 @@ public class Dashboard extends JFrame{
 							selectedCar.dir = section.dir[0];
 							// dirButtons[section.dir[0]].doClick();
 						}
-						carEnter(selectedCar, section);
+						selectedCar.enter(section);
 					}
 					PkgHandler.send(new AppPkg().setCar(selectedCar.name, selectedCar.dir, section.name));
 				}

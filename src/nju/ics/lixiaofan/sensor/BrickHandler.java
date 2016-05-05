@@ -110,9 +110,11 @@ public class BrickHandler extends Thread{
 			//TODO need supplements about handling phantoms
 			if(isCtxTrue){
 				sensor.state = Sensor.DETECTED;
-				if(sensor.prevSensor.car == car && sensor.prevSensor.state == Sensor.DETECTED)
-					sensor.prevSensor.state = Sensor.UNDETECTED;
 				sensor.car = car;
+				if(sensor.prevSensor.state == Sensor.DETECTED && sensor.prevSensor.car == car){
+					sensor.prevSensor.state = Sensor.UNDETECTED;
+					sensor.prevSensor.car = null;
+				}
 				
 				if(!car.isReal()){
 					Section fakeLoc = car.loc;
@@ -121,7 +123,7 @@ public class BrickHandler extends Thread{
 					car.realLoc = null;
 					car.dir = car.realDir;
 					car.status = car.realStatus;
-					Dashboard.carLeave(car, fakeLoc);
+					car.leave(fakeLoc);
 					PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));//TODO bug here
 				}
 			}
@@ -143,13 +145,10 @@ public class BrickHandler extends Thread{
 			Section prev = car.loc;
 			//inform the traffic police of the entry event
 			car.sendRequest(sensor.nextSection);
-			Dashboard.carEnter(car, sensor.nextSection);
-			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
-			if(car.status != Car.MOVING)
-				car.status = Car.MOVING;
+			car.enter(sensor.nextSection);//set both loc and dir
+//			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
+			car.status = Car.MOVING;
 			car.lastDetectedTime = System.currentTimeMillis();
-			sensor.isTriggered = true;
-//			setCarDir(car, sensor);
 			//trigger context
 			if(ContextManager.hasListener())
 				ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
@@ -165,6 +164,7 @@ public class BrickHandler extends Thread{
 				if(EventManager.hasListener(Event.Type.CAR_CRASH))
 					EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, car.loc.name));
 			}
+			
 			if(!queue.isEmpty()){
 				synchronized (queue) {
 					Command newCmd = null;
@@ -225,20 +225,18 @@ public class BrickHandler extends Thread{
 	private void stateSwitch(int bid, int sid, int d){
 		Sensor sensor = DataProvider.getSensors().get(bid).get(sid);
 		switch(sensor.state){
-//		case Sensor.INITIAL:
-//			if(d > leavingValue[bid][sid])
-//				sensor.state = 2;
-//			else if(d < enteringValue[bid][sid])
-//				sensor.state = 1;
-//			break;
 		case Sensor.DETECTED:
 			if(d > leavingValue[bid][sid]){
-				if(isFalsePositive2(sensor)){
+//				if(isFalsePositive2(sensor)){
+				if(sensor.car != null && sensor.car.isReal() 
+						&& sensor.car.loc.sameAs(sensor.nextSection)
+						&& sensor.car.status == Car.STILL){
 					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
 							+"\treading: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
 					break;
 				}
 				sensor.state = Sensor.UNDETECTED;
+				sensor.car = null;
 //				System.out.println(sdf.format(new Date()));
 				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" +
 						"\treading: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
@@ -325,21 +323,23 @@ public class BrickHandler extends Thread{
 //				if(car.dir == sensor.dir && car.status != 0)
 //					return false;
 //				else
-//					System.out.println("Sensor dir: "+sensor.dir+"\tCar dir: " + car.dir +"\tCar state: "+car.status);
+//					System.out.println("Sensor dir: "+sensor.dir
+//							+"\tCar dir: " + car.dir
+//							+"\tCar state: "+car.status);
 //		}
 //		return true;
 //	}
 	
-	private boolean isFalsePositive2(Sensor sensor){
-		Section section = sensor.nextSection;
-		for(Car car : section.cars)
-			if(car.isReal() && car.status != Car.STILL)
-				return false;
-		for(String name : section.realCars)
-			if(Car.carOf(name).realStatus != Car.STILL)
-				return false;
-		return true;
-	}
+//	private boolean isFalsePositive2(Sensor sensor){
+//		Section section = sensor.nextSection;
+//		for(Car car : section.cars)
+//			if(car.isReal() && car.status != Car.STILL)
+//				return false;
+//		for(String name : section.realCars)
+//			if(Car.carOf(name).realStatus != Car.STILL)
+//				return false;
+//		return true;
+//	}
 	
 	public static void resetState(){
 		for(List<Sensor> list : DataProvider.getSensors())

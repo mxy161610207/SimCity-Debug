@@ -34,8 +34,7 @@ public abstract class Section extends Location{
 	public int[] dir = {-1, -1};
 	public Queue<Car> cars = new LinkedList<Car>();//may contain phantoms
 	public Queue<String> realCars = new LinkedList<String>();
-	public Car[] permitted = {null};//making its class an array to share its value among the combined
-//	public boolean isCombined = false;
+	Car[] permitted = {null};//let its type be an array to share its value among the combined
 	public Set<Section> combined = new HashSet<Section>();
 	public Object mutex = new Object();
 	public Queue<Car> waiting = new LinkedList<Car>();
@@ -63,6 +62,14 @@ public abstract class Section extends Location{
 	
 	public boolean isCombined(){
 		return !combined.isEmpty();
+	}
+	
+	public void setPermitted(Car car){
+		permitted[0] = car;
+	}
+	
+	public Car getPermitted(){
+		return permitted[0];
 	}
 	
 	public void addWaitingCar(Car car){

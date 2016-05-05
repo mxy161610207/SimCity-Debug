@@ -19,7 +19,6 @@ import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
-import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.data.DataProvider;
 
 public class PkgHandler implements Runnable{
@@ -84,11 +83,11 @@ public class PkgHandler implements Runnable{
 					if(car != null){
 						if(sect.cars.contains(car)){
 							car.dir = -1;
-							Dashboard.carLeave(car, sect);
+							car.leave(sect);
 						}
 						else{
 							car.dir = p.dir;
-							Dashboard.carEnter(car, sect);
+							car.enter(sect);
 						}
 					}
 				}

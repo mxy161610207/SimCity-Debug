@@ -1,11 +1,7 @@
 package nju.ics.lixiaofan.city;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,24 +26,19 @@ import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street;
 import nju.ics.lixiaofan.city.Section.Street.StreetIcon;
-import nju.ics.lixiaofan.sensor.BrickHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
 	public static ConcurrentHashMap<String, Car> cars = new ConcurrentHashMap<String, Car>();
-	public static Crossing[] crossings = { new Crossing(), new Crossing(),
-			new Crossing(), new Crossing(), new Crossing(), new Crossing(),
-			new Crossing(), new Crossing(), new Crossing() };
-	public static Street[] streets = { new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street(), new Street(), new Street(),
-			new Street(), new Street() };
+	public static Crossing[] crossings = new Crossing[9];
+	public static Street[] streets = new Street[32];
+	static{
+		for(int i = 0;i < crossings.length;i++)
+			crossings[i] = new Crossing();
+		for(int i = 0;i < streets.length;i++)
+			streets[i] = new Street();
+	}
 	public static Map<String, Section> sections = new HashMap<String, Section>();
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
@@ -724,9 +715,6 @@ public class TrafficMap extends JPanel{
 	
 	private static void setCombined(Set<Section> sections){
 		for(Section s : sections){
-//			s.isCombined = true;
-//			if(s.combined == null)
-//				s.combined = new HashSet<Section>();
 			for(Section other : sections)
 				if(other != s){
 					s.combined.add(other);
