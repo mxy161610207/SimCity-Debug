@@ -13,6 +13,7 @@ import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.control.TrafficPolice;
+import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
@@ -61,13 +62,13 @@ public class Car {
 	public void sendRequest(int cmd) {
 		if(loc == null)
 			return;
-		TrafficPolice.sendRequest(this, dir, loc, cmd);//TODO dir and loc
+		TrafficPolice.add(this, dir, loc, cmd);//TODO dir and loc
 	}
 	
 	public void sendRequest(Section next) {
 		if(loc == null)
 			return;
-		TrafficPolice.sendRequest(this, dir, loc, 3, next);//TODO
+		TrafficPolice.add(this, dir, loc, 3, next);//TODO
 	}
 	
 	public void enter(Section section){
@@ -85,7 +86,7 @@ public class Car {
 		
 		if(real > 1){
 			System.out.println("REAL CRASH");
-			TrafficMap.playCrashSound();
+			Dashboard.playCrashSound();
 		}
 		
 		section.icon.repaint();

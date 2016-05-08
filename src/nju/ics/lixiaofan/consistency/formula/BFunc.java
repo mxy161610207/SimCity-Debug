@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.consistency.context.Context;
 import nju.ics.lixiaofan.consistency.context.ContextChange;
-import nju.ics.lixiaofan.data.DataProvider;
+import nju.ics.lixiaofan.resource.ResourceProvider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,7 +114,7 @@ public class BFunc extends Formula {
     	if (v1 == null || v2 == null)
     		return false;
     	
-		return DataProvider.getSection(v1).sameAs(DataProvider.getSection(v2));
+		return ResourceProvider.getSection(v1).sameAs(ResourceProvider.getSection(v2));
 	}
     
     @Override

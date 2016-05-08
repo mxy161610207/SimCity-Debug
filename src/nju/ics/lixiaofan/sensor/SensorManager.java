@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.control.Reset;
 
 public class SensorManager {
 	private static ConcurrentHashMap<Sensor, Set<SensorListerner>> listeners = new ConcurrentHashMap<Sensor, Set<SensorListerner>>();
@@ -48,6 +49,8 @@ public class SensorManager {
 	}
 	
 	public synchronized static void trigger(Sensor sensor, int value){
+		if(Reset.isResetting())
+			return;
 		if(listeners.containsKey(sensor))
 			synchronized (queue) {
 				queue.add(new SensorValue(sensor, value));
@@ -55,9 +58,17 @@ public class SensorManager {
 			}
 	}
 	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
+		}
+	}
+	
 	private static Queue<SensorValue> queue = new LinkedList<SensorValue>();
-	private static Thread worker = new Thread(){
+	private static Thread worker = new Thread("SensorManager Worker"){
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(queue.isEmpty()){
 					synchronized (queue) {
@@ -65,8 +76,15 @@ public class SensorManager {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
+				}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clear();
+					continue;
 				}
 				
 				SensorValue sv = null;

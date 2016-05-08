@@ -1,7 +1,6 @@
 package nju.ics.lixiaofan.sensor;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -14,23 +13,25 @@ import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.context.Context;
 import nju.ics.lixiaofan.context.ContextManager;
+import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.control.TrafficPolice;
 import nju.ics.lixiaofan.dashboard.Dashboard;
-import nju.ics.lixiaofan.data.DataProvider;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
+import nju.ics.lixiaofan.resource.ResourceProvider;
 
 public class BrickHandler extends Thread{
-	private static List<Command> queue = Remediation.queue;
+//	private static List<Command> queue = Remediation.getQueue();
 	private static int enteringValue[][] = new int[10][4];
 	private static int leavingValue[][] = new int[10][4];
 	private static Queue<SensoryData> rawData = new LinkedList<SensoryData>();
-	
 	private static Queue<SensoryInfo> checkedData = new LinkedList<SensoryInfo>();
-	private Thread checkedDataHandler = new Thread(){
+	private Thread checkedDataHandler = new Thread("Checked Data Handler"){
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(checkedData.isEmpty()){
 					try {
@@ -39,7 +40,14 @@ public class BrickHandler extends Thread{
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						if(Reset.isResetting() && Reset.checkThread(curThread))
+							clearCheckedData();
 					}
+				}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clearCheckedData();
+					continue;
 				}
 				SensoryInfo info = null;
 				synchronized (checkedData) {
@@ -76,12 +84,15 @@ public class BrickHandler extends Thread{
 		}
 	};
 	
-	public BrickHandler() {
+	public BrickHandler(String name) {
+		super(name);
 		checkedDataHandler.start();
 	}
 	
 	@Override
 	public void run() {
+		Thread curThread = Thread.currentThread();
+		Reset.addThread(curThread);
 		while(true){
 			while(rawData.isEmpty()){
 				try {
@@ -90,16 +101,23 @@ public class BrickHandler extends Thread{
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+					if(Reset.isResetting() && Reset.checkThread(curThread))
+						clearRawData();
 				}
+			}
+			if(Reset.isResetting()){
+				if(Reset.checkThread(curThread))
+					clearRawData();
+				continue;
 			}
 			SensoryData data = null;
 			synchronized (rawData) {
 				data = rawData.poll();
 			}
-			if(data == null || data.bid >= DataProvider.getSensors().size()
-				|| data.sid >= DataProvider.getSensors().get(data.bid).size())
+			if(data == null || data.bid >= ResourceProvider.getSensors().size()
+				|| data.sid >= ResourceProvider.getSensors().get(data.bid).size())
 				continue;
-			SensorManager.trigger(DataProvider.getSensors().get(data.bid).get(data.sid), data.d);
+			SensorManager.trigger(ResourceProvider.getSensors().get(data.bid).get(data.sid), data.d);
 			stateSwitch(data.bid, data.sid, data.d);
 		}
 	}
@@ -165,33 +183,7 @@ public class BrickHandler extends Thread{
 					EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, car.loc.name));
 			}
 			
-			if(!queue.isEmpty()){
-				synchronized (queue) {
-					Command newCmd = null;
-					boolean donesth = false;
-					for(Iterator<Command> it = queue.iterator();it.hasNext();){
-						Command cmd = it.next();
-						if(cmd.car == car){
-							donesth = true;
-							it.remove();
-							//stop command
-							if(cmd.cmd == 0){
-								cmd.level = 1;
-								cmd.deadline = Remediation.getDeadline(cmd.car.type, 0, 1);
-								Command.send(cmd, false);
-								cmd.car.lastStopInstrTime = System.currentTimeMillis();
-								newCmd = cmd;
-							}
-							break;
-						}
-					}
-					Remediation.insertCmd(newCmd);
-					if(donesth){
-						Dashboard.updateRemedyQ();
-						Remediation.printQueue();
-					}
-				}
-			}
+			Remediation.updateWhenDetected(car);
 			
 			//do triggered stuff		
 //			System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
@@ -223,10 +215,10 @@ public class BrickHandler extends Thread{
 	}
 
 	private void stateSwitch(int bid, int sid, int d){
-		Sensor sensor = DataProvider.getSensors().get(bid).get(sid);
+		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
 		switch(sensor.state){
 		case Sensor.DETECTED:
-			if(d > leavingValue[bid][sid]){
+			if(d >= leavingValue[bid][sid]){
 //				if(isFalsePositive2(sensor)){
 				if(sensor.car != null && sensor.car.isReal() 
 						&& sensor.car.loc.sameAs(sensor.nextSection)
@@ -243,7 +235,7 @@ public class BrickHandler extends Thread{
 			}
 			break;
 		case Sensor.UNDETECTED:
-			if(d < enteringValue[bid][sid]){
+			if(d <= enteringValue[bid][sid]){
 //				if(isFalsePositive(sensor)){
 //					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
 //							+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
@@ -301,6 +293,8 @@ public class BrickHandler extends Thread{
 	}
 
 	public static void add(int bid, int sid, int d){
+		if(Reset.isResetting())
+			return;
 		SensoryData datum = new SensoryData(bid, sid, d);
 		synchronized (rawData) {
 			rawData.add(datum);
@@ -309,10 +303,24 @@ public class BrickHandler extends Thread{
 	}
 	
 	public static void add(Car car, Sensor sensor, int type){
+		if(Reset.isResetting())
+			return;
 		SensoryInfo info = new SensoryInfo(car, sensor, type);
 		synchronized (checkedData) {
 			checkedData.add(info);
 			checkedData.notify();
+		}
+	}
+	
+	public static void clearRawData(){
+		synchronized (rawData) {
+			rawData.clear();
+		}
+	}
+	
+	public static void clearCheckedData(){
+		synchronized (checkedData) {
+			checkedData.clear();
 		}
 	}
 	
@@ -342,7 +350,7 @@ public class BrickHandler extends Thread{
 //	}
 	
 	public static void resetState(){
-		for(List<Sensor> list : DataProvider.getSensors())
+		for(List<Sensor> list : ResourceProvider.getSensors())
 			for(Sensor sensor : list)
 				sensor.state = Sensor.UNDETECTED;
 	}
@@ -350,8 +358,8 @@ public class BrickHandler extends Thread{
 	public static void initValues(){
 		for(int i = 0;i < enteringValue.length;i++)
 			for(int j = 0;j < enteringValue[0].length;j++){
-				enteringValue[i][j] = 11;
-				leavingValue[i][j] = 10;
+				enteringValue[i][j] = 10;
+				leavingValue[i][j] = 11;
 			}
 	}
 	

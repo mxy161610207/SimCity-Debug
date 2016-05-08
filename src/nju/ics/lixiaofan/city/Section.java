@@ -210,7 +210,7 @@ public abstract class Section extends Location{
 			}
 			
 			//draw sections
-			if(TrafficMap.showSection){
+			if(Dashboard.showSection){
 				g.setColor(Color.BLACK);
 				String str = id+"";
 				FontMetrics fm = g.getFontMetrics();
@@ -220,7 +220,7 @@ public abstract class Section extends Location{
 	}
 	
 	public void displayBalloon(int type, String sensor, String car, boolean isResolutionEnabled) {
-		if(!TrafficMap.showBalloon)
+		if(!Dashboard.showBalloon)
 			return;
 		balloon.type = type;
 		balloon.sensor = sensor;

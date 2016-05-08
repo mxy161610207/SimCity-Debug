@@ -28,7 +28,7 @@ public class RCServer{
 				try {
 					Socket socket = server.accept();
 					rc = new CarRC(0, 0, socket, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()));
-					new Thread(new RCListener(socket)).start();
+					new Thread(new RCListener(socket), "RC Listener").start();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -38,9 +38,9 @@ public class RCServer{
 	};
 	
 	public RCServer() {
-		new Thread(listener).start();
-		new Thread(new CmdSender()).start();
-		new Thread(new Remediation()).start();
+		new Thread(listener, "RC Server").start();
+		new Thread(new CmdSender(), "Command Sender").start();
+		new Thread(new Remediation(), "Remedy Thread").start();
 	}
 	
 	public static void addCar(String name){
@@ -64,7 +64,7 @@ public class RCServer{
 		@Override
 		public void run() {
 			try {
-				new DataOutputStream(socket.getOutputStream());
+//				new DataOutputStream(socket.getOutputStream());
 				in = new DataInputStream(socket.getInputStream());
 			} catch (IOException e) {
 				e.printStackTrace();

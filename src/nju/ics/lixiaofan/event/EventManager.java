@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.event.Event.Type;
 
 public class EventManager {
@@ -37,11 +38,19 @@ public class EventManager {
 	}
 	
 	public synchronized static void trigger(Event event){
+		if(Reset.isResetting())
+			return;
 		if(hasListener(event.type))
 			synchronized (queue) {
 				queue.add(event);
 				queue.notify();
 			}
+	}
+	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
+		}
 	}
 	
 	public static boolean hasListener(Type type){
@@ -55,8 +64,10 @@ public class EventManager {
 	}
 	
 	private static Queue<Event> queue = new LinkedList<Event>();
-	private static Thread worker = new Thread(){
+	private static Thread worker = new Thread("EventManager Worker"){
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(queue.isEmpty()){
 					synchronized (queue) {
@@ -64,8 +75,15 @@ public class EventManager {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
+				}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clear();
+					continue;
 				}
 				
 				Event event = null;

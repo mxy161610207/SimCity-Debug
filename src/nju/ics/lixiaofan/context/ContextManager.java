@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import nju.ics.lixiaofan.control.Reset;
+
 public class ContextManager {
 	private static Set<ContextListener> listeners = new HashSet<ContextListener>();
 	
@@ -19,6 +21,8 @@ public class ContextManager {
 	}
 	
 	public synchronized static void trigger(Context context){
+		if(Reset.isResetting())
+			return;
 		if(!listeners.isEmpty())
 			synchronized (queue) {
 				queue.add(context);
@@ -30,9 +34,17 @@ public class ContextManager {
 		return !listeners.isEmpty();
 	}
 	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
+		}
+	}
+	
 	private static Queue<Context> queue = new LinkedList<Context>();
-	private static Thread worker = new Thread(){
+	private static Thread worker = new Thread("ContextManager Worker"){
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(queue.isEmpty()){
 					synchronized (queue) {
@@ -40,10 +52,16 @@ public class ContextManager {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
 				}
-				
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clear();
+					continue;
+				}
 				Context context = null;
 				synchronized (queue) {
 					context = queue.poll();

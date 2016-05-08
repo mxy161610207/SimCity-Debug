@@ -12,8 +12,8 @@ import nju.ics.lixiaofan.consistency.context.Rule;
 import nju.ics.lixiaofan.consistency.formula.Link;
 
 public class Operation {
-    public static HashMap<String,Pattern> patterns = new HashMap<String,Pattern>();
-	private static HashMap<String, Rule> rules = new HashMap<String, Rule>();
+    public static HashMap<String,Pattern> patterns;
+	private static HashMap<String, Rule> rules;
 	
 	public Operation(HashMap<String,Pattern> patterns, HashMap<String, Rule> rules) {
 		Operation.patterns = patterns;

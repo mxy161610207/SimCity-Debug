@@ -5,8 +5,8 @@ import java.util.Queue;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.city.Section;
-import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.city.Section.Street;
+import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
@@ -14,11 +14,13 @@ public class TrafficPolice implements Runnable{
 	public static Queue<Request> req = new LinkedList<Request>();
 	private static Notifier notifier = new Notifier();
 	public TrafficPolice() {
-		new Thread(notifier).start();
-		new Thread(this).start();
+		new Thread(notifier, "Traffice Notifier").start();
+		new Thread(this, "Traffic Police").start();
 	}
 	
 	public void run() {
+		Thread curThread = Thread.currentThread();
+		Reset.addThread(curThread);
 		while(true){
 			while(req.isEmpty()){
 				synchronized (req) {
@@ -26,8 +28,15 @@ public class TrafficPolice implements Runnable{
 						req.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						if(Reset.isResetting() && Reset.checkThread(curThread))
+							clear();
 					}
 				}
+			}
+			if(Reset.isResetting()){
+				if(Reset.checkThread(curThread))
+					clear();
+				continue;
 			}
 //			System.out.println("Traffic Police awake!!!");
 			Request r = req.poll();
@@ -59,7 +68,7 @@ public class TrafficPolice implements Runnable{
 								break;
 							}
 						if(!real)
-							TrafficMap.playErrorSound();
+							Dashboard.playErrorSound();
 						//tell the car to stop
 						System.out.println(r.car.name+" need to STOP!!!");
 						reqSec.addWaitingCar(r.car);
@@ -110,10 +119,12 @@ public class TrafficPolice implements Runnable{
 		}
 	}
 
-	static class Notifier implements Runnable {
+	private static class Notifier implements Runnable {
 		Queue<Request> req = new LinkedList<Request>();
 		
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(req.isEmpty()){
 					synchronized (req) {
@@ -121,8 +132,15 @@ public class TrafficPolice implements Runnable{
 							req.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
+				}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clear();
+					continue;
 				}
 				
 				Request r = req.poll();
@@ -161,19 +179,29 @@ public class TrafficPolice implements Runnable{
 			}	
 		}
 		
-		public void sendNotice(Section loc){
+		public void add(Section loc){
+			if(Reset.isResetting())
+				return;
 			synchronized (req) {
 				req.add(new Request(loc));
 				req.notify();
 			}
 		}
+		
+		public void clear(){
+			synchronized (req) {
+				req.clear();
+			}
+		}
 	};
 	
-	public static void sendRequest(Car car, int dir, Section loc, int cmd){
-		sendRequest(car, dir, loc, cmd, null);
+	public static void add(Car car, int dir, Section loc, int cmd){
+		add(car, dir, loc, cmd, null);
 	}
 	
-	public static void sendRequest(Car car, int dir, Section loc, int cmd, Section next) {
+	public static void add(Car car, int dir, Section loc, int cmd, Section next) {
+		if(Reset.isResetting())
+			return;
 		synchronized (req) {
 			req.add(new Request(car, dir, loc, cmd, next));
 			req.notify();
@@ -185,7 +213,13 @@ public class TrafficPolice implements Runnable{
 	}
 	
 	public static void sendNotice(Section loc){
-		notifier.sendNotice(loc);
+		notifier.add(loc);
+	}
+	
+	public static void clear(){
+		synchronized (req) {
+			req.clear();
+		}
 	}
 	
 	private static class Request{

@@ -14,37 +14,37 @@ public class DPad extends JPanel{
 	private JButton jbl = new JButton("Left");
 	private JButton jbr = new JButton("Right");
 	private JButton jbs = new JButton("Stop");
-	private JButton startB = new JButton("Beep");
+//	private JButton startB = new JButton("Beep");
 	
-	private boolean startBeep = false;
-	private Object beepObj = new Object();
-	private Runnable beepThread = new Runnable() {
-		boolean moving = false;
-		@Override
-		public void run() {
-			try {
-				while(true){
-					while(!startBeep)
-						synchronized (beepObj) {
-							beepObj.wait();
-						}
-	
-					if(moving){
-						moving = false;
-						Command.send(Dashboard.getSelectedCar(), 0);
-					}
-					else{
-						moving = true;
-						Command.send(Dashboard.getSelectedCar(), 1);
-					}
-					Thread.sleep(250);
-				} 
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	};
+//	private boolean startBeep = false;
+//	private Object beepObj = new Object();
+//	private Runnable beepThread = new Runnable() {
+//		boolean moving = false;
+//		@Override
+//		public void run() {
+//			try {
+//				while(true){
+//					while(!startBeep)
+//						synchronized (beepObj) {
+//							beepObj.wait();
+//						}
+//	
+//					if(moving){
+//						moving = false;
+//						Command.send(Dashboard.getSelectedCar(), 0);
+//					}
+//					else{
+//						moving = true;
+//						Command.send(Dashboard.getSelectedCar(), 1);
+//					}
+//					Thread.sleep(250);
+//				} 
+//			}
+//			catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	};
 	
 	public DPad() {
 //		setLayout(new GridLayout(3, 3, 5, 5));
@@ -63,7 +63,7 @@ public class DPad extends JPanel{
 		jbl.setEnabled(false);
 		jbr.setEnabled(false);
 		jbb.setEnabled(false);
-		startB.setEnabled(false);
+//		startB.setEnabled(false);
 		jbs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(Dashboard.getSelectedCar() != null){
@@ -99,19 +99,19 @@ public class DPad extends JPanel{
 					Command.send(Dashboard.getSelectedCar(), 4);
 			}
 		});
-		startB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(startBeep){
-					startBeep = false;
-				}
-				else{
-					startBeep = true;
-					synchronized (beepObj) {
-						beepObj.notify();
-					}		
-				}
-			}
-		});	
-		new Thread(beepThread).start();
+//		startB.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent arg0) {
+//				if(startBeep){
+//					startBeep = false;
+//				}
+//				else{
+//					startBeep = true;
+//					synchronized (beepObj) {
+//						beepObj.notify();
+//					}		
+//				}
+//			}
+//		});	
+//		new Thread(beepThread).start();
 	}
 }

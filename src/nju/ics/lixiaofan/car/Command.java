@@ -1,20 +1,18 @@
 package nju.ics.lixiaofan.car;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import nju.ics.lixiaofan.dashboard.Dashboard;
+import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.control.Reset;
 
 public class Command {
 	public Car car = null;
 	public int cmd = -1;
 	public int level = 1;
 	public long deadline = 1000;
-	
-	public int type = 0;//0: normal 1: wake car 2: wake rc
-	public CarRC rc = null;
+	public int type = 0;//0: normal 1: wake car 2: reset
 	
 	public final static int STOP = 0;
 	public final static int FORWARD = 1;
@@ -24,11 +22,6 @@ public class Command {
 	public final static int NO_STEER = 5;
 	public final static int HORN = 6;
 	
-	public Command(CarRC rc) {
-		this.rc = rc;
-		type = 2;
-	}
-	
 	public Command(Car car, int cmd) {
 		this.car = car;
 		this.cmd = cmd;
@@ -36,10 +29,8 @@ public class Command {
 	}
 	
 	public Command(Car car, int cmd, int type) {
-		this.car = car;
-		this.cmd = cmd;
+		this(car, cmd);
 		this.type = type;
-		deadline = Remediation.getDeadline(type, cmd, 1);
 	}
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
@@ -64,7 +55,7 @@ public class Command {
 			car.lastInstrTime = System.currentTimeMillis();
 			
 			if(remedy)
-				addRemedyCommand(car, cmd);
+				Remediation.addRemedyCommand(car, cmd);
 		}
 	}
 	
@@ -75,7 +66,7 @@ public class Command {
 	public static void wake(Car car){
 		if(car == null || !car.isConnected || car.getRealStatus() == Car.UNCERTAIN)
 			return;
-		CmdSender.send(car, car.getRealStatus());
+		CmdSender.send(car, car.getRealStatus(), 1);
 //		car.trend = car.status;
 		if(car.getRealStatus() == Car.STILL && car.lastInstr == Car.MOVING)
 			car.lastStopInstrTime = System.currentTimeMillis();
@@ -83,27 +74,17 @@ public class Command {
 		car.lastInstrTime = System.currentTimeMillis();
 	}
 	
-	public static void addRemedyCommand(Car car, int cmd){
-		boolean addition = true;
-		synchronized (Remediation.queue) {
-			for(Iterator<Command> it = Remediation.queue.iterator();it.hasNext();){
-				Command cmd2 = it.next();
-				if(cmd2.car == car){
-					if(cmd2.cmd != cmd)
-						it.remove();
-					else
-						addition = false;
-					break;
+	public static void resetAllCars(){
+		CmdSender.clear();
+		for(Car car : TrafficMap.cars.values())
+			if(car.isConnected){
+				try {
+					RCServer.rc.out.writeUTF(car.name+"_"+Command.STOP+"_30");
+					RCServer.rc.out.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
-			if(addition)
-					Remediation.insertCmd(new Command(car, cmd));
-			Dashboard.updateRemedyQ();
-			Remediation.printQueue();
-		}
-		synchronized (Remediation.getwork) {
-			Remediation.getwork.notify();
-		}
 	}
 }
 
@@ -111,6 +92,9 @@ class CmdSender implements Runnable{
 	public static Queue<Command> queue = new LinkedList<Command>();
 	
 	public void run() {
+		//TODO
+		Thread curThread = Thread.currentThread();
+		Reset.addThread(curThread);
 		while(true){
 			while(queue.isEmpty()){
 				synchronized (queue) {
@@ -118,17 +102,24 @@ class CmdSender implements Runnable{
 						queue.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						//TODO
+						if(Reset.isResetting() && Reset.checkThread(curThread))
+							clear();
 					}
 				}
 			}
+			//TODO
+			if(Reset.isResetting()){
+				if(Reset.checkThread(curThread))
+					clear();
+				continue;
+			}
+			
 			Command cmd = null;
 			synchronized (queue) {
 				cmd = queue.poll();
 			}
-			if(cmd == null)
-				continue;
-			
-			CarRC rc = RCServer.rc;//cmd.car.rc;
+			CarRC rc = RCServer.rc;
 			if(rc == null)
 				continue;
 			try {
@@ -157,9 +148,22 @@ class CmdSender implements Runnable{
 	}
 
 	public static void send(Car car, int cmd){
+		send(car, cmd, 0);
+	}
+	
+	public static void send(Car car, int cmd, int type){
+		//TODO
+		if(Reset.isResetting())
+			return;
 		synchronized (queue) {
-			queue.add(new Command(car, cmd));
+			queue.add(new Command(car, cmd, type));
 			queue.notify();
+		}
+	}
+	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
 		}
 	}
 }

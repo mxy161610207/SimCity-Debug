@@ -8,10 +8,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.swing.BorderFactory;
@@ -27,6 +31,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
+
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
@@ -39,9 +46,11 @@ import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
+import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
-import nju.ics.lixiaofan.sensor.BrickHandler;
+import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.sensor.Sensor;
 
 public class Dashboard extends JFrame{
 	private static final long serialVersionUID = 1L;
@@ -66,13 +75,16 @@ public class Dashboard extends JFrame{
 	private static JRadioButton[] dirButtons = { new JRadioButton("North"),
 			new JRadioButton("South"), new JRadioButton("West"),
 			new JRadioButton("East") };
-	private static JButton deliverButton = new JButton("Deliver"),
+	private static JButton resetButton = new JButton("Reset"),
+			deliverButton = new JButton("Deliver"),
 			startdButton = new JButton("Start"),
 			canceldButton = new JButton("Cancel");
 	private static JCheckBox jchkSensor = new JCheckBox("Sensor"), jchkSection = new JCheckBox("Section"),
 			jchkBalloon = new JCheckBox("Balloon"), jchkCrash = new JCheckBox("Crash Sound"),
 			jchkError = new JCheckBox("Error Sound"),
 			jchkDetection = new JCheckBox("Detection"), jchkResolution = new JCheckBox("Resolution"); 
+	public static boolean showSensor = false, showSection = false, showBalloon = false,
+			playCrashSound = false,	playErrorSound = false;
 	private static JTextField srctf = new JTextField(), desttf = new JTextField(), console  = new JTextField("Console");
 	private static Location src = null, dest = null;
 	private static JPanel deliveryPanel = new JPanel(), CCPanel = new JPanel(), miscPanel = new JPanel();
@@ -140,31 +152,36 @@ public class Dashboard extends JFrame{
 		gbc.weighty = 0;
 		leftPanel.setLayout(gbl);
 		
-		JButton resetButton = new JButton("Reset");
 		gbl.setConstraints(resetButton, gbc);
 		leftPanel.add(resetButton);
+//		resetButton.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				for(Section section : TrafficMap.sections.values()){
+//					section.cars.clear();
+//					section.waiting.clear();
+//					section.setPermitted(null);
+//				}
+//			
+//				for(Car car : TrafficMap.cars.values()){
+//					car.loc = null;
+//					car.dir = -1;
+//					car.status = Car.STILL;
+//					car.realLoc = null;
+//					car.trend = 0;
+//					car.finalState = 0;
+//					car.dest = null;
+//					car.isLoading = false;
+//				}
+//				
+//				BrickHandler.resetState();
+//				mapPanel.repaint();
+//			}
+//		});
+		
 		//TODO reset the statuses of cars to consistency
-		resetButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				for(Section section : TrafficMap.sections.values()){
-					section.cars.clear();
-					section.waiting.clear();
-					section.setPermitted(null);
-				}
-			
-				for(Car car : TrafficMap.cars.values()){
-					car.loc = null;
-					car.dir = -1;
-					car.status = Car.STILL;
-					car.realLoc = null;
-					car.trend = 0;
-					car.finalState = 0;
-					car.dest = null;
-					car.isLoading = false;
-				}
-				
-				BrickHandler.resetState();
-				mapPanel.repaint();
+		resetButton.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				ResourceProvider.execute(new Reset.ResetTask(e.getButton() == MouseEvent.BUTTON1));
 			}
 		});
 		
@@ -363,35 +380,36 @@ public class Dashboard extends JFrame{
 		
 		jchkSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionevent) {
-				TrafficMap.showSection = jchkSection.isSelected();
+				showSection = jchkSection.isSelected();
 				mapPanel.repaint();
 			}
 		});
 		
 		jchkSensor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TrafficMap.showSensor = jchkSensor.isSelected();
-//				mapPanel.repaint();
-				TrafficMap.showSensors();
+				showSensor = jchkSensor.isSelected();
+				for(List<Sensor> list : TrafficMap.sensors)
+					for(Sensor s : list)
+						s.button.setVisible(showSensor);
 			}
 		});
 		
 		jchkBalloon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TrafficMap.showBalloon = jchkBalloon.isSelected();
+				showBalloon = jchkBalloon.isSelected();
 				mapPanel.repaint();
 			}
 		});
 		
 		jchkCrash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TrafficMap.playCrashSound = jchkCrash.isSelected();
+				playCrashSound = jchkCrash.isSelected();
 			}
 		});
 		
 		jchkError.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				TrafficMap.playErrorSound = jchkError.isSelected();
+				playErrorSound = jchkError.isSelected();
 			}
 		});
 		
@@ -531,7 +549,7 @@ public class Dashboard extends JFrame{
 				if(car.isConnected)
 					addCar(car);
 
-		new Thread(blinkThread).start();
+		new Thread(blinkThread, "Blink Thread").start();
 		jchkResolution.doClick();
 		jchkBalloon.doClick();
 		jchkCrash.doClick();
@@ -612,8 +630,8 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static synchronized void updateRemedyQ(){
-		remedyta.setText("Nums: "+Remediation.queue.size());
-		for(Command cmd:Remediation.queue){
+		remedyta.setText("Nums: "+Remediation.getQueue().size());
+		for(Command cmd : Remediation.getQueue()){
 			remedyta.append("\n"+cmd.car.name+" "+((cmd.cmd==0)?"S":"F")+" "+cmd.level+" "+cmd.deadline);
 		}
 	}
@@ -658,6 +676,29 @@ public class Dashboard extends JFrame{
 		if(carbox.getItemCount() == 0)
 			return null;
 		return Car.carOf((String) carbox.getSelectedItem());
+	}
+	
+	public static void playCrashSound(){
+		if(playCrashSound){
+			try {
+				AudioPlayer.player.start(new AudioStream(new FileInputStream("res/crash.wav")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void playErrorSound(){
+		if(playErrorSound)
+			try {
+				AudioPlayer.player.start(new AudioStream(new FileInputStream("res/oh_no.wav")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	}
+	
+	public static void enableResetButton(boolean b){
+		resetButton.setEnabled(b);
 	}
 	
 	private class BuildingIconListener implements MouseListener{
@@ -777,4 +818,3 @@ public class Dashboard extends JFrame{
 		}
 	} 
 }
-

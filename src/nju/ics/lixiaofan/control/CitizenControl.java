@@ -20,10 +20,12 @@ public class CitizenControl implements Runnable{
 	private static Queue<ActReq> queue = new LinkedList<ActReq>();
 	
 	public CitizenControl() {
-		new Thread(this).start();
-		new Thread(picker).start();
+		new Thread(this, "Citizen Control").start();
+		new Thread(picker, "Citizen Action Picker").start();
 	}
 	public void run() {
+		Thread curThread = Thread.currentThread();
+		Reset.addThread(curThread);
 		while(true){
 			while(queue.isEmpty()){
 				synchronized (queue) {
@@ -31,11 +33,18 @@ public class CitizenControl implements Runnable{
 						queue.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						if(Reset.isResetting() && Reset.checkThread(curThread))
+							clear();
 					}
 				}
 			}
-			ActReq ar = queue.poll();
+			if(Reset.isResetting()){
+				if(Reset.checkThread(curThread))
+					clear();
+				continue;
+			}
 			
+			ActReq ar = queue.poll();
 			synchronized (ar.citizen) {
 				ar.citizen.act = ar.act;
 				PkgHandler.send(new AppPkg().setCitizen(ar.citizen.name, ar.act != null ? ar.act.toString() : "None"));
@@ -60,11 +69,19 @@ public class CitizenControl implements Runnable{
 	}
 	
 	private static void sendActReq(ActReq ar){
+		if(Reset.isResetting())
+			return;
 		synchronized (queue) {
 			queue.add(ar);
 			queue.notify();
 		}
 	};
+	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
+		}
+	}
 	
 	public static void sendActReq(Citizen citizen, Activity act, boolean fromSelf){
 		sendActReq(new ActReq(citizen, act, fromSelf));

@@ -2,8 +2,6 @@ package nju.ics.lixiaofan.city;
 
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,9 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section.BallonIcon;
@@ -43,8 +38,6 @@ public class TrafficMap extends JPanel{
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
 	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<Building.Type, Building>();
-	public static boolean showSensor = false, showSection = false, showBalloon = false,
-			playCrashSound = false,	playErrorSound = false;
 	public final static boolean dir = true;
 	
 	public static final int sh = 37;//street height
@@ -71,7 +64,7 @@ public class TrafficMap extends JPanel{
 				add(s.button);
 		for(Citizen c : citizens){
 			add(c.icon);
-			new Thread(c).start();
+			new Thread(c, c.name).start();
 		}
 		for(Section s : sections.values()){
 			add(s.balloon);
@@ -115,31 +108,6 @@ public class TrafficMap extends JPanel{
 //				}
 //		}
 //	}
-	
-	public static void playCrashSound(){
-		if(playCrashSound){
-			try {
-				AudioPlayer.player.start(new AudioStream(new FileInputStream("res/crash.wav")));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public static void playErrorSound(){
-		if(playErrorSound)
-			try {
-				AudioPlayer.player.start(new AudioStream(new FileInputStream("res/oh_no.wav")));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
-	
-	public static void showSensors(){
-		for(List<Sensor> list : TrafficMap.sensors)
-			for(Sensor s : list)
-				s.button.setVisible(showSensor);
-	}
 	
 	private void placeBuilding(Building building){
 		if(building == null || building.block < 0 || building.block > 15)

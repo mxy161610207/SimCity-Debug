@@ -21,6 +21,7 @@ import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.context.*;
 import nju.ics.lixiaofan.consistency.dataLoader.*;
+import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.sensor.BrickHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 
@@ -36,17 +37,26 @@ public class Middleware {
     public static int changeNum = 0;
     
     private static Queue<Context> queue = new LinkedList<Context>();
-    private static Thread handler = new Thread(){
+    private static Thread handler = new Thread("MiddleWare Handler"){
     	public void run() {
     		while(true){
+    			Thread curThread = Thread.currentThread();
+    			Reset.addThread(curThread);
     			while(queue.isEmpty()){
     				synchronized (queue) {
     					try {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
+    			}
+    			if(Reset.isResetting()){
+    				if(Reset.checkThread(curThread))
+    					clear();
+    				continue;
     			}
     			
     			Context context = queue.poll();
@@ -130,6 +140,8 @@ public class Middleware {
     
 	public static void add(Object subject, Object direction, Object status,
 			Object category, Object predicate, Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
+		if(Reset.isResetting())
+			return;
 		Context context = new Context();
 		context.addField("subject", subject);
 		context.addField("direction", direction);
@@ -145,6 +157,12 @@ public class Middleware {
 		synchronized (queue) {
 			queue.add(context);
 			queue.notify();
+		}
+	}
+	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
 		}
 	}
     

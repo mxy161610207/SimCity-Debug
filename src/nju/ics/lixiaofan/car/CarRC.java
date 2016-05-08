@@ -31,17 +31,6 @@ public class CarRC {
 		this.in = in;
 		this.out = out;
 	}
-	public static String carOf(int i){
-		switch(i){
-		case 0:
-			return "BattleTank";
-		case 1:
-			return "TankBot";
-		case 2:
-			return "CarBot";
-		}
-		return null;
-	}
 	
 	public static String locationOf(int i){
 		switch(i){

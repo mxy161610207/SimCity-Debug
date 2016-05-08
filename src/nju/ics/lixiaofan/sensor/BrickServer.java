@@ -11,7 +11,7 @@ public class BrickServer {
 //	private static ServerSocket server = null;
 	private static DatagramSocket server = null;
 	private int sensor2print = 0;
-	private Thread keyListener = new Thread() {
+	private Thread keyListener = new Thread("Keyboard Listener") {
 		@Override
 		public void run() {
 			@SuppressWarnings("resource")
@@ -24,14 +24,14 @@ public class BrickServer {
 		}
 	};
 
-	private Thread brickListener = new Thread(){
+	private Thread brickListener = new Thread("Brick Listener"){
 		public void run() {
 			try {
 				server = new DatagramSocket(9999);
 			} catch (SocketException e) {
 				e.printStackTrace();
 			}
-			new BrickHandler().start();
+			new BrickHandler("Brick Handler").start();
 			byte[] buf = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(buf, buf.length);
 			while(true){

@@ -11,7 +11,6 @@ import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
-import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -23,12 +22,14 @@ public class Delivery {
 	public static boolean allBusy = false;
 	
 	public Delivery() {
-		new Thread(carSearcher).start();
-		new Thread(carMonitor).start();
+		new Thread(carSearcher, "Car Searcher").start();
+		new Thread(carMonitor, "Car Monitor").start();
 	}
 	
 	private Runnable carSearcher = new Runnable(){
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(searchTasks.isEmpty() || allBusy)
 					synchronized (searchTasks) {
@@ -36,8 +37,15 @@ public class Delivery {
 							searchTasks.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clearSearchTasks();
 						}
 					}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clearSearchTasks();
+					continue;
+				}
 				DeliveryTask dt = null;
 				synchronized (searchTasks) {
 					dt = searchTasks.peek();
@@ -64,7 +72,7 @@ public class Delivery {
 					car = res.car;
 					Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
 					if(!car.isReal())
-						TrafficMap.playErrorSound();
+						Dashboard.playErrorSound();
 					car.dt = dt;
 					dt.car = car;
 					dt.phase = 1;
@@ -93,8 +101,8 @@ public class Delivery {
 					}
 					searchTasks.poll();
 				}
-				synchronized (deliveryTasks) {
-					if(dt != null){
+				if(dt != null && !Reset.isResetting()){
+					synchronized (deliveryTasks) {
 						deliveryTasks.add(dt);
 						deliveryTasks.notify();
 					}
@@ -170,14 +178,23 @@ public class Delivery {
 	private Runnable carMonitor = new Runnable(){
 		public void run() {
 			while(true){
+				Thread curThread = Thread.currentThread();
+				Reset.addThread(curThread);
 				while(deliveryTasks.isEmpty())
 					synchronized (deliveryTasks) {
 						try {
 							deliveryTasks.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clearDeliveryTasks();
 						}
 					}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clearDeliveryTasks();
+					continue;
+				}
 				synchronized (deliveryTasks) {
 					for(Iterator<DeliveryTask> it = deliveryTasks.iterator();it.hasNext();){
 						DeliveryTask dt = it.next();
@@ -281,7 +298,7 @@ public class Delivery {
 	}
 	
 	private static void add(DeliveryTask dtask){
-		if(dtask == null)
+		if(dtask == null || Reset.isResetting())
 			return;
 		synchronized (searchTasks) {
 			searchTasks.add(dtask);
@@ -303,6 +320,18 @@ public class Delivery {
 	
 	public static void add(Location src, Location dst){
 		add(src, dst, null);
+	}
+	
+	public static void clearSearchTasks(){
+		synchronized (searchTasks) {
+			searchTasks.clear();
+		}
+	}
+	
+	public static void clearDeliveryTasks(){
+		synchronized (deliveryTasks) {
+			deliveryTasks.clear();
+		}
 	}
 	
 	public static class DeliveryTask implements Cloneable{

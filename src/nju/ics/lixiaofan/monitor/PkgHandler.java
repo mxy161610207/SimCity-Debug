@@ -18,8 +18,9 @@ import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
+import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
-import nju.ics.lixiaofan.data.DataProvider;
+import nju.ics.lixiaofan.resource.ResourceProvider;
 
 public class PkgHandler implements Runnable{
 	private static Queue<AppPkg> queue = new LinkedList<AppPkg>();
@@ -31,10 +32,12 @@ public class PkgHandler implements Runnable{
 		PkgHandler.sockets = sockets;
 		PkgHandler.in = in;
 		PkgHandler.out = out;
-		new Thread(sender).start();
+		new Thread(sender, "PkgHandler Sender").start();
 	}
 	
 	public void run() {
+		Thread curThread = Thread.currentThread();
+		Reset.addThread(curThread);
 		while(true){
 			while(queue.isEmpty()){
 				synchronized (queue) {
@@ -42,10 +45,16 @@ public class PkgHandler implements Runnable{
 						queue.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						if(Reset.isResetting() && Reset.checkThread(curThread))
+							clear();
 					}
 				}
 			}
-			
+			if(Reset.isResetting()){
+				if(Reset.checkThread(curThread))
+					clear();
+				continue;
+			}
 			AppPkg p = null;
 			synchronized (queue) {
 				p = queue.poll();
@@ -101,11 +110,19 @@ public class PkgHandler implements Runnable{
 		}
 	}
 	
-	public void add(AppPkg p){
+	public static void add(AppPkg p){
+		if(Reset.isResetting())
+			return;
 		synchronized (queue) {
 			queue.add(p);
 			queue.notify();
 		}		
+	}
+	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
+		}
 	}
 
 	public static void send(AppPkg p){
@@ -122,7 +139,7 @@ public class PkgHandler implements Runnable{
 				oos.writeObject(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		} 
 		
-		for(DeliveryTask dtask : DataProvider.getDelivTasks()){
+		for(DeliveryTask dtask : ResourceProvider.getDelivTasks()){
 			if(dtask.car == null)
 				oos.writeObject(new AppPkg().setDelivery(dtask.id, null, dtask.src.name, dtask.dest.name, dtask.phase));
 			else
@@ -143,18 +160,20 @@ public class PkgHandler implements Runnable{
 	}
 	
 	private static class Sender implements Runnable {
-		Queue<AppPkg> queue = new LinkedList<AppPkg>();
+		private Queue<AppPkg> queue = new LinkedList<AppPkg>();
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
 				while(sockets.isEmpty()){
-					synchronized (queue) {
-						queue.clear();
-					}
+					clear();
 					synchronized (sockets) {
 						try {
 							sockets.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
 				}
@@ -164,8 +183,15 @@ public class PkgHandler implements Runnable{
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							if(Reset.isResetting() && Reset.checkThread(curThread))
+								clear();
 						}
 					}
+				}
+				if(Reset.isResetting()){
+					if(Reset.checkThread(curThread))
+						clear();
+					continue;
 				}
 				if(sockets.isEmpty())
 					continue;
@@ -198,9 +224,15 @@ public class PkgHandler implements Runnable{
 					queue.notify();
 				}
 		}
+		
+		public void clear(){
+			synchronized (queue) {
+				queue.clear();
+			}
+		}
 	};
 	
-	public static class  Receiver implements Runnable {
+	public static class Receiver implements Runnable {
 		Socket socket = null;
 		public Receiver(Socket socket) {
 			this.socket = socket;
@@ -208,14 +240,9 @@ public class PkgHandler implements Runnable{
 
 		public void run() {
 			ObjectInputStream ois = in.get(socket);
-			AppPkg p = null;
 			while(true){
 				try {
-					p = (AppPkg) ois.readObject();
-					synchronized (queue) {
-						queue.add(p);
-						queue.notify();
-					}
+					add((AppPkg) ois.readObject());
 				} catch (OptionalDataException e) {
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {

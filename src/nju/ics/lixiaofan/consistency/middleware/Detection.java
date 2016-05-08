@@ -12,8 +12,8 @@ import nju.ics.lixiaofan.consistency.formula.*;
 import nju.ics.lixiaofan.consistency.formula.BFunc.Param;
 
 public class Detection {
-	public static HashMap<String,Pattern> patterns = new HashMap<String,Pattern>();
-	private static HashMap<String, Rule> rules = new HashMap<String, Rule>();
+	public static HashMap<String,Pattern> patterns;
+	private static HashMap<String, Rule> rules;
 	
 	public Detection(HashMap<String,Pattern> patterns, HashMap<String, Rule> rules) {
 		Detection.patterns = patterns;

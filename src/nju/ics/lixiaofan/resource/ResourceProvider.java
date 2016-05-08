@@ -1,10 +1,12 @@
-package nju.ics.lixiaofan.data;
+package nju.ics.lixiaofan.resource;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Section;
@@ -15,7 +17,13 @@ import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.sensor.Sensor;
 
-public class DataProvider {
+public class ResourceProvider {
+	private static ExecutorService threadPool = Executors.newCachedThreadPool();
+	
+	public static void execute(Runnable command){
+		threadPool.execute(command);
+	}
+	
 	public static Collection<Car> getCars(){
 		return TrafficMap.cars.values();
 	}

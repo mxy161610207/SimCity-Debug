@@ -22,7 +22,7 @@ public class AppServer {
 				e.printStackTrace();
 			}
 			PkgHandler handler = new PkgHandler(sockets, in, out);
-			new Thread(handler).start();
+			new Thread(handler, "PkgHandler").start();
 			while(true){
 				try {
 					Socket socket = server.accept();
@@ -34,7 +34,7 @@ public class AppServer {
 						sockets.add(socket);
 						sockets.notify();
 					}
-					new Thread(new PkgHandler.Receiver(socket)).start();
+					new Thread(new PkgHandler.Receiver(socket), "PkgHandler Receiver").start();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -43,6 +43,6 @@ public class AppServer {
 	};
 	
 	public AppServer() {
-		new Thread(listener).start();
+		new Thread(listener, "App Server").start();
 	}
 }

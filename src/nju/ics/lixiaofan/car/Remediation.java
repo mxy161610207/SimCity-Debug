@@ -5,13 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 public class Remediation implements Runnable{
-	public static List<Command> queue = new LinkedList<Command>();
-	public static Object getwork = new Object(), workdone = new Object();
+	private static List<Command> queue = new LinkedList<Command>();
+	//public static Object getwork = new Object();//, workdone = new Object();
 	private Runnable wakeThread = new Runnable() {
 		public void run() {
 			while(true){
@@ -31,23 +32,31 @@ public class Remediation implements Runnable{
 	};
 	
 	public Remediation() {
-		new Thread(wakeThread).start();
+		new Thread(wakeThread, "Wake Thread").start();
 	}
 	
 	public void run() {
+		Thread curThread = Thread.currentThread();
+		Reset.addThread(curThread);
 		while(true){
 			while(queue.isEmpty()){
-				synchronized (workdone) {
-					workdone.notify();
-				}
-				synchronized (getwork) {
+				synchronized (queue) {
 					try {
-						getwork.wait();
+						queue.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						if(Reset.isResetting() && Reset.checkThread(curThread))
+							clear();
 					}
 				}
 			}
+			
+			if(Reset.isResetting()){
+				if(Reset.checkThread(curThread))
+					clear();
+				continue;
+			}
+			
 			//remedy and update cars' states
 			synchronized (queue) {
 				Command cmd = queue.get(0);
@@ -96,9 +105,40 @@ public class Remediation implements Runnable{
 		}
 	}
 	
-	public static void insertCmd(Command cmd){
-		if(cmd == null)
+	public static void updateWhenDetected(Car car){
+		if(queue.isEmpty())
 			return;
+		synchronized (queue) {
+			Command newCmd = null;
+			boolean donesth = false;
+			for(Iterator<Command> it = queue.iterator();it.hasNext();){
+				Command cmd = it.next();
+				if(cmd.car == car){
+					donesth = true;
+					it.remove();
+					//stop command
+					if(cmd.cmd == 0){
+						cmd.level = 1;
+						cmd.deadline = Remediation.getDeadline(cmd.car.type, 0, 1);
+						Command.send(cmd, false);
+						cmd.car.lastStopInstrTime = System.currentTimeMillis();
+						newCmd = cmd;
+					}
+					break;
+				}
+			}
+			Remediation.insert(newCmd);
+			if(donesth){
+				Dashboard.updateRemedyQ();
+				printQueue();
+			}
+		}
+	}
+	
+	public static void insert(Command cmd){
+		if(cmd == null || Reset.isResetting())
+			return;
+		
 		synchronized (queue) {
 			int i;
 			for(i = 0;i < queue.size();i++)
@@ -108,6 +148,34 @@ public class Remediation implements Runnable{
 				}
 			if(i == queue.size())
 				queue.add(cmd);
+			
+			queue.notify();
+		}
+	}
+	
+	public static void addRemedyCommand(Car car, int cmd){
+		boolean addition = true;
+		synchronized (queue) {
+			for(Iterator<Command> it = queue.iterator();it.hasNext();){
+				Command cmd2 = it.next();
+				if(cmd2.car == car){
+					if(cmd2.cmd != cmd)
+						it.remove();
+					else
+						addition = false;
+					break;
+				}
+			}
+			if(addition)
+				insert(new Command(car, cmd));
+			Dashboard.updateRemedyQ();
+			printQueue();
+		}
+	}
+	
+	public static void clear(){
+		synchronized (queue) {
+			queue.clear();
 		}
 	}
 	
@@ -129,5 +197,9 @@ public class Remediation implements Runnable{
 			System.out.println(cmd.car.name+"\t"+((cmd.cmd==0)?"S":"F")+"\t"+cmd.level+"\t"+cmd.deadline);
 		}		
 		System.out.println("-----------------------");
+	}
+	
+	public static final List<Command> getQueue(){
+		return queue;
 	}
 }
