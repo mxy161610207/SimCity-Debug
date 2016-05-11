@@ -28,6 +28,10 @@ public class ResourceProvider {
 		return TrafficMap.cars.values();
 	}
 	
+	public static Set<Car> getConnectedCars(){
+		return TrafficMap.connectedCars;
+	}
+	
 	public static List<List<Sensor>> getSensors(){
 		return TrafficMap.sensors;
 	}

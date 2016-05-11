@@ -10,9 +10,6 @@ import java.util.Set;
 
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -21,8 +18,8 @@ import org.apache.commons.logging.LogFactory;
 public class NotFormula extends Formula {
     private Formula formula;
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(NotFormula.class.getName());
+//    @SuppressWarnings("unused")
+//	private static Log logger = LogFactory.getLog(NotFormula.class.getName());
     
     public NotFormula(String name) {
         super(name);
@@ -78,4 +75,12 @@ public class NotFormula extends Formula {
             formula.setGoal("null");
         }
     }
+    
+	@Override
+	public NotFormula createInitialFormula() {
+		NotFormula f = new NotFormula(type);
+    	f.value = value;
+    	f.formula = formula.createInitialFormula();
+		return f;
+	}
 }

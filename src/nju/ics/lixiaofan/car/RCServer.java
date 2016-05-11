@@ -89,17 +89,18 @@ public class RCServer{
 		}
 		
 		private static void addCar(String name){
-			if(TrafficMap.cars.containsKey(name) && !TrafficMap.cars.get(name).isConnected){
-				Car car = TrafficMap.cars.get(name);
+			Car car = TrafficMap.cars.get(name);
+			if(car != null && !car.isConnected){
 //				System.out.println(car.name +" "+car.loc);
 				car.isConnected = true;
+				TrafficMap.connectedCars.add(car);
 				Dashboard.addCar(car);
 //				synchronized (RCServer.rc) {
 //					Dashboard.updateRCConn();
 //				}
 				//calibrate
 				if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
-					CmdSender.send(car, 3);
+					CmdSender.send(car, Command.LEFT);
 				}
 				synchronized (Delivery.searchTasks) {
 					if(Delivery.allBusy){

@@ -25,7 +25,9 @@ import nju.ics.lixiaofan.sensor.Sensor;
 
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
+	public final static boolean dir = true;
 	public static ConcurrentHashMap<String, Car> cars = new ConcurrentHashMap<String, Car>();
+	public static Set<Car> connectedCars = new HashSet<Car>();
 	public static Crossing[] crossings = new Crossing[9];
 	public static Street[] streets = new Street[32];
 	static{
@@ -38,7 +40,6 @@ public class TrafficMap extends JPanel{
 	public static List<List<Sensor>> sensors = new ArrayList<List<Sensor>>();
 	public static List<Citizen> citizens = new ArrayList<Citizen>();
 	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<Building.Type, Building>();
-	public final static boolean dir = true;
 	
 	public static final int sh = 37;//street height
 	private static final int sw = sh * 2;//street width
@@ -49,8 +50,6 @@ public class TrafficMap extends JPanel{
 	private static final int u3 = sw+(cw+sh)/2;
 	private static final int u4 = u+sh;
 	public static final int size = 4*(sw+cw)+sh;
-	
-//	private static AudioStream crashAS = null, errorAS = null;
 
 	public TrafficMap() {
 		setLayout(null);
@@ -58,6 +57,7 @@ public class TrafficMap extends JPanel{
 		setPreferredSize(new Dimension(size, size));
 		initSections();
 		initSensors();
+		initBuildings();
 		
 		for(List<Sensor> list : sensors)
 			for(Sensor s : list)
@@ -71,163 +71,148 @@ public class TrafficMap extends JPanel{
 		}
 		for(Building b : buildings.values()){
 			add(b.icon);
-			placeBuilding(b);
 		}
 		for(Section s : sections.values()){
 			add(s.icon);
 		}
 	}
 	
-//	protected void paintChildren(Graphics g) {
-//		super.paintChildren(g);
-//		//draw sensors
-//		if(showSensor){
-//			g.setColor(Color.BLACK);
-//			for(List<Sensor> list : sensors)
-//				for(Sensor s : list){
-//					switch (s.showPos) {
-//					case 0:
-//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py-28);
-//						g.drawLine(s.px, s.py-25, s.px, s.py);
-//						break;
-//					case 1:
-//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px+27, s.py+4);
-//						g.drawLine(s.px, s.py, s.px+25, s.py);
-//						break;
-//					case 2:
-//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-15, s.py+37);
-//						g.drawLine(s.px, s.py, s.px, s.py+25);
-//						break;
-//					case 3:
-//						g.drawString("B"+s.bid+"S"+(s.sid+1), s.px-57, s.py+4);
-//						g.drawLine(s.px-25, s.py, s.px, s.py);
-//						break;
-//					default:
-//						break;
-//					}
-//				}
-//		}
-//	}
-	
-	private void placeBuilding(Building building){
-		if(building == null || building.block < 0 || building.block > 15)
-			return;
-		int size = streets[7].icon.coord.w;
-		int x = crossings[0].icon.coord.x - size;
-		int y = crossings[0].icon.coord.y - size;
-		int u = size + crossings[0].icon.coord.w;
-		x += (building.block % 4) * u;
-		y += (building.block / 4) * u;
-		building.icon.coord.x = x;
-		building.icon.coord.y = y;
-		building.icon.coord.w = building.icon.coord.h = size;
-		building.icon.coord.centerX = x + size/2;
-		building.icon.coord.centerY = y + size/2;
-		building.icon.setBounds(x, y, size, size);
-		building.icon.setIcon();
+	public static void reset(){
+		for(Car car : cars.values())
+			car.reset();
 		
-		switch (building.block) {
-		case 0:
-			building.addrs.add(streets[2]);
-			building.addrs.add(streets[6]);
-			building.addrs.add(crossings[0]);
-			break;
-		case 1:
-			building.addrs.add(streets[0]);
-			building.addrs.addAll(streets[0].combined);
-			building.addrs.add(streets[7]);
-			building.addrs.add(crossings[0]);
-			building.addrs.add(crossings[1]);
-			break;
-		case 2:
-			building.addrs.add(streets[3]);
-			building.addrs.add(streets[4]);
-			building.addrs.add(streets[8]);
-			building.addrs.add(crossings[1]);
-			building.addrs.add(crossings[2]);
-			break;
-		case 3:
-			building.addrs.add(streets[1]);
-			building.addrs.addAll(streets[1].combined);
-			break;
-		case 4:
-			building.addrs.add(streets[6]);
-			building.addrs.addAll(streets[6].combined);
-			building.addrs.add(streets[11]);
-			building.addrs.add(crossings[0]);
-			building.addrs.add(crossings[3]);
-			break;
-		case 5:case 6:case 9:case 10:{
-			int a = building.block / 9;
-			int b = 1 - (building.block % 2);
-			int offset = 8*a+b;
-			building.addrs.add(streets[7+offset]);
-			building.addrs.add(streets[10+offset]);
-			building.addrs.add(streets[11+offset]);
-			building.addrs.add(streets[15+offset]);
-			offset = 3*a+b;
-			building.addrs.add(crossings[offset]);
-			if(offset != 1)
-				building.addrs.add(crossings[1+offset]);
-			if(offset != 3)
-				building.addrs.add(crossings[3+offset]);
-			building.addrs.add(crossings[4+offset]);
-		}
-			break;
-		case 7:
-			building.addrs.add(streets[9]);
-			building.addrs.add(streets[13]);
-			building.addrs.add(streets[17]);
-			building.addrs.add(crossings[2]);
-			building.addrs.add(crossings[5]);
-			break;
-		case 8:
-			building.addrs.add(streets[14]);
-			building.addrs.add(streets[18]);
-			building.addrs.add(streets[22]);
-			building.addrs.add(crossings[3]);
-			building.addrs.add(crossings[6]);
-			break;
-		case 11:
-			building.addrs.add(streets[17]);
-			building.addrs.addAll(streets[17].combined);
-			building.addrs.add(streets[20]);
-			building.addrs.add(crossings[5]);
-			building.addrs.add(crossings[8]);
-			break;
-		case 12:
-			building.addrs.add(streets[22]);
-			building.addrs.addAll(streets[22].combined);
-			break;
-		case 13:
-			building.addrs.add(streets[27]);
-			building.addrs.add(streets[28]);
-			building.addrs.add(streets[23]);
-			building.addrs.add(crossings[6]);
-			building.addrs.add(crossings[7]);
-			break;
-		case 14:
-			building.addrs.add(streets[28]);
-			building.addrs.addAll(streets[28].combined);
-			building.addrs.add(streets[24]);
-			building.addrs.add(crossings[7]);
-			building.addrs.add(crossings[8]);
-			break;
-		case 15:
-			building.addrs.add(streets[25]);
-			building.addrs.add(streets[29]);
-			building.addrs.add(crossings[8]);
-			break;
-		default:
-			break;
-		}
-		Set<Section> newS = new HashSet<Section>();
-		for(Section s : building.addrs)
-			newS.addAll(s.combined);
-		building.addrs.addAll(newS);
+		for(Section s : sections.values())
+			s.reset();
+		
+		for(List<Sensor> list : sensors)
+			for(Sensor sensor : list)
+				sensor.reset();
+		
+		for(Citizen c : citizens)
+			c.reset();
 	}
 	
-	public static void initSections() {
+	private static void initBuildings(){
+		for(Building building : buildings.values()){
+			if(building.block < 0 || building.block > 15)
+				return;
+			int size = streets[7].icon.coord.w;
+			int x = crossings[0].icon.coord.x - size;
+			int y = crossings[0].icon.coord.y - size;
+			int u = size + crossings[0].icon.coord.w;
+			x += (building.block % 4) * u;
+			y += (building.block / 4) * u;
+			building.icon.coord.x = x;
+			building.icon.coord.y = y;
+			building.icon.coord.w = building.icon.coord.h = size;
+			building.icon.coord.centerX = x + size/2;
+			building.icon.coord.centerY = y + size/2;
+			building.icon.setBounds(x, y, size, size);
+			building.icon.setIcon();
+			
+			switch (building.block) {
+			case 0:
+				building.addrs.add(streets[2]);
+				building.addrs.add(streets[6]);
+				building.addrs.add(crossings[0]);
+				break;
+			case 1:
+				building.addrs.add(streets[0]);
+				building.addrs.addAll(streets[0].combined);
+				building.addrs.add(streets[7]);
+				building.addrs.add(crossings[0]);
+				building.addrs.add(crossings[1]);
+				break;
+			case 2:
+				building.addrs.add(streets[3]);
+				building.addrs.add(streets[4]);
+				building.addrs.add(streets[8]);
+				building.addrs.add(crossings[1]);
+				building.addrs.add(crossings[2]);
+				break;
+			case 3:
+				building.addrs.add(streets[1]);
+				building.addrs.addAll(streets[1].combined);
+				break;
+			case 4:
+				building.addrs.add(streets[6]);
+				building.addrs.addAll(streets[6].combined);
+				building.addrs.add(streets[11]);
+				building.addrs.add(crossings[0]);
+				building.addrs.add(crossings[3]);
+				break;
+			case 5:case 6:case 9:case 10:{
+				int a = building.block / 9;
+				int b = 1 - (building.block % 2);
+				int offset = 8*a+b;
+				building.addrs.add(streets[7+offset]);
+				building.addrs.add(streets[10+offset]);
+				building.addrs.add(streets[11+offset]);
+				building.addrs.add(streets[15+offset]);
+				offset = 3*a+b;
+				building.addrs.add(crossings[offset]);
+				if(offset != 1)
+					building.addrs.add(crossings[1+offset]);
+				if(offset != 3)
+					building.addrs.add(crossings[3+offset]);
+				building.addrs.add(crossings[4+offset]);
+			}
+				break;
+			case 7:
+				building.addrs.add(streets[9]);
+				building.addrs.add(streets[13]);
+				building.addrs.add(streets[17]);
+				building.addrs.add(crossings[2]);
+				building.addrs.add(crossings[5]);
+				break;
+			case 8:
+				building.addrs.add(streets[14]);
+				building.addrs.add(streets[18]);
+				building.addrs.add(streets[22]);
+				building.addrs.add(crossings[3]);
+				building.addrs.add(crossings[6]);
+				break;
+			case 11:
+				building.addrs.add(streets[17]);
+				building.addrs.addAll(streets[17].combined);
+				building.addrs.add(streets[20]);
+				building.addrs.add(crossings[5]);
+				building.addrs.add(crossings[8]);
+				break;
+			case 12:
+				building.addrs.add(streets[22]);
+				building.addrs.addAll(streets[22].combined);
+				break;
+			case 13:
+				building.addrs.add(streets[27]);
+				building.addrs.add(streets[28]);
+				building.addrs.add(streets[23]);
+				building.addrs.add(crossings[6]);
+				building.addrs.add(crossings[7]);
+				break;
+			case 14:
+				building.addrs.add(streets[28]);
+				building.addrs.addAll(streets[28].combined);
+				building.addrs.add(streets[24]);
+				building.addrs.add(crossings[7]);
+				building.addrs.add(crossings[8]);
+				break;
+			case 15:
+				building.addrs.add(streets[25]);
+				building.addrs.add(streets[29]);
+				building.addrs.add(crossings[8]);
+				break;
+			default:
+				break;
+			}
+			Set<Section> newS = new HashSet<Section>();
+			for(Section s : building.addrs)
+				newS.addAll(s.combined);
+			building.addrs.addAll(newS);
+		}
+	}
+	
+	private static void initSections() {
 		for(int i = 0;i < 9;i++){
 //			crossings[i] = new Crossing();
 			crossings[i].id = i;
@@ -350,7 +335,7 @@ public class TrafficMap extends JPanel{
 		setAdjs();
 	}
 	
-	public static void initSensors(){
+	private static void initSensors(){
 		for(int i = 0;i < 10;i++){
 			ArrayList<Sensor> loc = new ArrayList<Sensor>();
 			sensors.add(loc);
@@ -461,6 +446,8 @@ public class TrafficMap extends JPanel{
 		sensor.street = streets[s];
 		crossings[c].sensors.add(sensor);
 		streets[s].sensors.add(sensor);
+		sensor.entryThreshold = 9;
+		sensor.leaveThreshold = 12;
 		
 		if(sensor.crossing.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
 			sensor.showPos = 0;
@@ -556,7 +543,7 @@ public class TrafficMap extends JPanel{
 		crossings[8].adjs.put(2, streets[24]);
 		crossings[8].adjs.put(3, streets[25]);
 		
-		//TODO when sys dir is reversed, it's wrong
+		//TODO when city direction is reversed, this will be wrong
 		if(TrafficMap.dir){
 			streets[0].adjs.put(0, crossings[0]);
 			streets[0].adjs.put(1, crossings[1]);

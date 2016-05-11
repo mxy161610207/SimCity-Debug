@@ -99,4 +99,13 @@ public class OrFormula extends Formula {
         first.setGoal(goalLink);
         second.setGoal(goalLink);
     }
+    
+	@Override
+	public OrFormula createInitialFormula() {
+		OrFormula f = new OrFormula(type);
+    	f.value = value;
+    	f.first = first.createInitialFormula();
+    	f.second = second.createInitialFormula();
+		return f;
+	}
 }

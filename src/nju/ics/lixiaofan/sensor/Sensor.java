@@ -15,6 +15,7 @@ public class Sensor {
 	public int sid;
 	public String name;
 	public int state;
+	public int entryThreshold, leaveThreshold;
 	public Crossing crossing;
 	public Street street;
 	public Car car = null;
@@ -32,6 +33,22 @@ public class Sensor {
 	public final static int INITIAL = 0;
 	public final static int DETECTED = 1;
 	public final static int UNDETECTED = 2;
+	
+	public boolean entryDetected(int reading){
+		return reading <= entryThreshold;
+	}
+	
+	public boolean leaveDetected(int reading){
+		return reading >= leaveThreshold;
+	}
+	
+	public void setLeaveThreshold(int i){
+		leaveThreshold = i;
+	}
+	
+	public void reset() {
+		state = Sensor.INITIAL;//UNDETECTED;
+	}
 	
 	public static class ButtonListener extends MouseAdapter{
 		private int bid, sid;

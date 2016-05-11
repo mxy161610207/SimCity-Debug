@@ -11,22 +11,19 @@ import java.util.Set;
 
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
  * formula
  */
-public abstract class Formula {
+public abstract class Formula{
     protected String type; //公式类型
     protected boolean value; //存储之前的Boolean值
     protected Set<Link> links = new HashSet<Link>(); //存储之前的links
     protected String goalLink;
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(Formula.class.getName());
+//    @SuppressWarnings("unused")
+//	private static Log logger = LogFactory.getLog(Formula.class.getName());
     
     public Formula(String type) {
         this.type = type;
@@ -63,4 +60,6 @@ public abstract class Formula {
     public abstract boolean affect(ContextChange change);
     //OCC用
     public abstract void setGoal(String goal);
+    
+	public abstract Formula createInitialFormula();
 }

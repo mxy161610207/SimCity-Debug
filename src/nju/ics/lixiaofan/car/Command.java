@@ -49,10 +49,7 @@ public class Command {
 				car.status = Car.UNCERTAIN;
 			if(!car.isReal() && cmd != car.realStatus)
 				car.realStatus = Car.UNCERTAIN;
-			if(cmd == Car.STILL && car.lastInstr == Car.MOVING)
-				car.lastStopInstrTime = System.currentTimeMillis();
-			car.lastInstr = cmd;
-			car.lastInstrTime = System.currentTimeMillis();
+//			car.lastInstr = cmd;
 			
 			if(remedy)
 				Remediation.addRemedyCommand(car, cmd);
@@ -68,23 +65,46 @@ public class Command {
 			return;
 		CmdSender.send(car, car.getRealStatus(), 1);
 //		car.trend = car.status;
-		if(car.getRealStatus() == Car.STILL && car.lastInstr == Car.MOVING)
-			car.lastStopInstrTime = System.currentTimeMillis();
-		car.lastInstr = car.getRealStatus();
-		car.lastInstrTime = System.currentTimeMillis();
+//		car.lastInstr = car.getRealStatus();
 	}
 	
-	public static void resetAllCars(){
-		CmdSender.clear();
-		for(Car car : TrafficMap.cars.values())
-			if(car.isConnected){
-				try {
-					RCServer.rc.out.writeUTF(car.name+"_"+Command.STOP+"_30");
-					RCServer.rc.out.flush();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+	/**
+	 * Only called by Reset Thread
+	 */
+	public static void drive(Car car){
+		if(car.isConnected){
+			try {
+				RCServer.rc.out.writeUTF(car.name+"_"+Command.FORWARD+"_30");
+				RCServer.rc.out.flush();
+				car.lastInstrTime = System.currentTimeMillis();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		}
+	}
+	
+	/**
+	 * Only called by Reset Thread
+	 */
+	public static void stop(Car car){
+		if(car.isConnected){
+			try {
+				RCServer.rc.out.writeUTF(car.name+"_"+Command.STOP+"_30");
+				RCServer.rc.out.flush();
+				Reset.lastStopInstrTime = car.lastInstrTime = System.currentTimeMillis();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Only called by Reset Thread
+	 */
+	public static void stopAllCars(){
+//		CmdSender.clear();
+		for(Car car : TrafficMap.cars.values())
+			stop(car);
 	}
 }
 
@@ -103,14 +123,14 @@ class CmdSender implements Runnable{
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 						//TODO
-						if(Reset.isResetting() && Reset.checkThread(curThread))
+						if(Reset.isResetting() && Reset.isUnchecked(curThread))
 							clear();
 					}
 				}
 			}
 			//TODO
 			if(Reset.isResetting()){
-				if(Reset.checkThread(curThread))
+				if(Reset.isUnchecked(curThread))
 					clear();
 				continue;
 			}
@@ -119,28 +139,28 @@ class CmdSender implements Runnable{
 			synchronized (queue) {
 				cmd = queue.poll();
 			}
-			CarRC rc = RCServer.rc;
-			if(rc == null)
+			if(RCServer.rc == null)
 				continue;
 			try {
 				switch(cmd.cmd){
 				case Command.LEFT:case Command.RIGHT:
-					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3");
-					rc.out.flush();
+					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3");
+					RCServer.rc.out.flush();
 					break;
 				case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
-					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
-					rc.out.flush();
+					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
+					RCServer.rc.out.flush();
 //					rc.lastInstrTime = System.currentTimeMillis();
 					break;
 				case Command.HORN:
-					rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_2000");
-					rc.out.flush();
+					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_2000");
+					RCServer.rc.out.flush();
 					break;
 				default:
 					System.out.println("!!!UNKNOWN COMMAND!!!");
 					break;
 				}
+				cmd.car.lastInstrTime = System.currentTimeMillis();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

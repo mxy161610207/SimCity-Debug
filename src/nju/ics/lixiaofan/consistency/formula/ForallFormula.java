@@ -10,13 +10,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.consistency.context.Pattern;
 import nju.ics.lixiaofan.consistency.dataLoader.Configuration;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -29,7 +25,7 @@ public class ForallFormula extends Formula {
     private Formula subFormula;//×Ó¹«Ê½
     private LinkedList<SubNode> subNodes = new LinkedList<SubNode>();
     
-    public static Log logger = LogFactory.getLog(ForallFormula.class.getName());
+//    public static Log logger = LogFactory.getLog(ForallFormula.class.getName());
     
     public ForallFormula(String name) {
         super(name);
@@ -220,4 +216,13 @@ public class ForallFormula extends Formula {
         }
     }
     
+	@Override
+	public ForallFormula createInitialFormula() {
+		ForallFormula f = new ForallFormula(type);
+		f.value = value;
+		f.variable = variable;
+		f.pattern = pattern;
+		f.subFormula = subFormula.createInitialFormula();
+		return f;
+	}
 }

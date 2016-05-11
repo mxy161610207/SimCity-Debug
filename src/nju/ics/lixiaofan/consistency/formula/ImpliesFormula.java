@@ -10,9 +10,6 @@ import java.util.Set;
 
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -22,8 +19,8 @@ public class ImpliesFormula extends Formula {
     private Formula first; 
     private Formula second;
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(AndFormula.class.getName());
+//    @SuppressWarnings("unused")
+//	private static Log logger = LogFactory.getLog(AndFormula.class.getName());
     
     public ImpliesFormula(String name) {
         super(name);
@@ -107,4 +104,13 @@ public class ImpliesFormula extends Formula {
             second.setGoal("null");
         }
     }
+    
+	@Override
+	public ImpliesFormula createInitialFormula() {
+		ImpliesFormula f = new ImpliesFormula(type);
+    	f.value = value;
+    	f.first = first.createInitialFormula();
+    	f.second = second.createInitialFormula();
+		return f;
+	}
 }

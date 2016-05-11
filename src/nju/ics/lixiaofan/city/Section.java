@@ -33,7 +33,7 @@ public abstract class Section extends Location{
 	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance
 	public int[] dir = {-1, -1};
 	public Queue<Car> cars = new LinkedList<Car>();//may contain phantoms
-	public Queue<String> realCars = new LinkedList<String>();
+	public Queue<Car> realCars = new LinkedList<Car>();
 	Car[] permitted = {null};//let its type be an array to share its value among the combined
 	public Set<Section> combined = new HashSet<Section>();
 	public Object mutex = new Object();
@@ -183,8 +183,8 @@ public abstract class Section extends Location{
 						x += cubeSize + cubeInset;
 				}
 				
-				for(String car : section.realCars){
-					switch(car){
+				for(Car car : section.realCars){
+					switch(car.name){
 					case Car.ORANGE:
 						g.setColor(Color.ORANGE); break;
 					case Car.BLACK:
@@ -232,6 +232,13 @@ public abstract class Section extends Location{
 		PkgHandler.send(new AppPkg().setBalloon(name, type, sensor, car, isResolutionEnabled));
 	}
 	
+	public void reset() {
+		cars.clear();
+		realCars.clear();
+		setPermitted(null);
+		waiting.clear();
+	}
+	
 	public static class BallonIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		public static int WIDTH = 70;
@@ -248,7 +255,6 @@ public abstract class Section extends Location{
 			setVisible(false);
 		}
 		
-		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			

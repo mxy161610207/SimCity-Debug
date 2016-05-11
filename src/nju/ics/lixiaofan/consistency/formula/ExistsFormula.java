@@ -14,10 +14,6 @@ import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.consistency.context.Pattern;
 import nju.ics.lixiaofan.consistency.dataLoader.Configuration;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-
 /**
  *
  * @author bingying
@@ -29,8 +25,8 @@ public class ExistsFormula extends Formula{
     private Formula subFormula;//×Ó¹«Ê½
     private LinkedList<SubNode> subNodes = new LinkedList<SubNode>();
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(ForallFormula.class.getName());
+//    @SuppressWarnings("unused")
+//	private static Log logger = LogFactory.getLog(ForallFormula.class.getName());
     
     public ExistsFormula(String name) {
         super(name);
@@ -221,5 +217,14 @@ public class ExistsFormula extends Formula{
             subFormula.setGoal("null");
         }
     }
-    
+
+	@Override
+	public ExistsFormula createInitialFormula() {
+		ExistsFormula f = new ExistsFormula(type);
+		f.value = value;
+		f.variable = variable;
+		f.pattern = pattern;
+		f.subFormula = subFormula.createInitialFormula();
+		return f;
+	}
 }

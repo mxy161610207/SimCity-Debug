@@ -22,19 +22,17 @@ public class Car {
 	public int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
 	public boolean isConnected = false;
 	public String name = null;//only for zenwheels
-	public int status = 0;//0: still	1: moving	-1: uncertain
+	public int status = STILL;//0: still	1: moving	-1: uncertain
 	public int trend = 0;//0: tend to stop	1: tend to move	-1: none
-	public int finalState = 0;//
+	public int finalState = 0;
 	public int dir = -1;//0: N	1: S	2: W	3: E
 	public Section loc = null;
 	public DeliveryTask dt = null;
 	public Section dest = null;
 	public boolean isLoading = false;//loading or unloading
-	public long lastDetectedTime = 0;//the time when the car was last detected
-	public long lastInstrTime = System.currentTimeMillis();
-	public long lastStopInstrTime = 0;//the time when a stop instruction was last sent to this car
-	public long stopTime = System.currentTimeMillis();
-	public int lastInstr = -1;
+	public long lastInstrTime = System.currentTimeMillis();//used for waking cars
+	public long stopTime = System.currentTimeMillis();//used for delivery
+//	public int lastInstr = -1;
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<Citizen>();
 	
@@ -57,6 +55,21 @@ public class Car {
 		this.name = name;
 		this.loc = loc;
 		this.icon = new CarIcon(name);
+	}
+	
+	public void reset(){
+		status = STILL;
+		trend = 0;
+		finalState = 0;
+		dir = -1;
+		loc = null;
+		dt = null;
+		dest = null;
+		isLoading = false;
+		passengers.clear();
+		realLoc = null;
+		realDir = -1;
+		realStatus = 0;
 	}
 	
 	public void sendRequest(int cmd) {
@@ -85,7 +98,7 @@ public class Car {
 				real++;
 		
 		if(real > 1){
-			System.out.println("REAL CRASH");
+//			System.out.println("REAL CRASH");
 			Dashboard.playCrashSound();
 		}
 		
@@ -183,6 +196,10 @@ public class Car {
 	
 	public int getRealStatus(){
 		return isReal() ? status : realStatus;
+	}
+	
+	public Section getRealLoc(){
+		return isReal() ? loc : realLoc;
 	}
 	
 	public static class CarIcon extends JButton{

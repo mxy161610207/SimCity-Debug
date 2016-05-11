@@ -10,9 +10,6 @@ import java.util.Set;
 
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -22,8 +19,8 @@ public class AndFormula extends Formula {
     private Formula first; 
     private Formula second;
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(AndFormula.class.getName());
+//    @SuppressWarnings("unused")
+//	private static Log logger = LogFactory.getLog(AndFormula.class.getName());
     
     public AndFormula(String name) {
         super(name);
@@ -101,4 +98,13 @@ public class AndFormula extends Formula {
         first.setGoal(goalLink);
         second.setGoal(goalLink);
     }
+    
+	@Override
+	public AndFormula createInitialFormula() {
+		AndFormula f = new AndFormula(type);
+    	f.value = value;
+    	f.first = first.createInitialFormula();
+    	f.second = second.createInitialFormula();
+		return f;
+	}
 }

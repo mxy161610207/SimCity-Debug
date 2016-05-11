@@ -37,12 +37,12 @@ public class Delivery {
 							searchTasks.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && Reset.checkThread(curThread))
+							if(Reset.isResetting() && Reset.isUnchecked(curThread))
 								clearSearchTasks();
 						}
 					}
 				if(Reset.isResetting()){
-					if(Reset.checkThread(curThread))
+					if(Reset.isUnchecked(curThread))
 						clearSearchTasks();
 					continue;
 				}
@@ -186,12 +186,12 @@ public class Delivery {
 							deliveryTasks.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && Reset.checkThread(curThread))
+							if(Reset.isResetting() && Reset.isUnchecked(curThread))
 								clearDeliveryTasks();
 						}
 					}
 				if(Reset.isResetting()){
-					if(Reset.checkThread(curThread))
+					if(Reset.isUnchecked(curThread))
 						clearDeliveryTasks();
 					continue;
 				}

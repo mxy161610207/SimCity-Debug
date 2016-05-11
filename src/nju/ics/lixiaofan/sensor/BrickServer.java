@@ -7,7 +7,6 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 public class BrickServer {
-//	public static Hashtable<Integer, BrickHandlerInfo> bhi = new Hashtable<Integer, BrickHandlerInfo>();
 //	private static ServerSocket server = null;
 	private static DatagramSocket server = null;
 	private int sensor2print = 0;
@@ -53,7 +52,6 @@ public class BrickServer {
 	};
 	
 	public BrickServer() {
-		BrickHandler.initValues();
 		keyListener.start();
 		brickListener.start();
 	}

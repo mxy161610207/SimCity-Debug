@@ -21,9 +21,6 @@ import nju.ics.lixiaofan.consistency.context.Context;
 import nju.ics.lixiaofan.consistency.context.ContextChange;
 import nju.ics.lixiaofan.resource.ResourceProvider;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -31,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BFunc extends Formula {
 	//bfunc的参数存储
-    private HashMap<String,Param> params = new HashMap<String,Param>();
+    private HashMap<Integer, Param> params = new HashMap<Integer, Param>();
 	//bfunc的参数表示
     public static class Param {
         public String var = null, field = null;
@@ -41,22 +38,22 @@ public class BFunc extends Formula {
         }
     }
     
-    @SuppressWarnings("unused")
-	private  static Log logger = LogFactory.getLog(BFunc.class.getName());
+//    @SuppressWarnings("unused")
+//	private  static Log logger = LogFactory.getLog(BFunc.class.getName());
     
     public BFunc(String name) {
         super(name);
     }
     
-    public HashMap<String,Param> getParam() {
+    public HashMap<Integer, Param> getParam() {
     	return params;
     }
     
-    public void setParam(HashMap<String,Param> params) {
+    public void setParam(HashMap<Integer, Param> params) {
     	this.params = params;
     }
     
-    public void addParam(String pos, String var, String field) {
+    public void addParam(int pos, String var, String field) {
         if (params.get(pos) == null) {
             params.put(pos, new Param(var, field));
         } else {  // pos should be unique
@@ -72,7 +69,7 @@ public class BFunc extends Formula {
     }
     
     private Object getValue(int pos, HashMap<String,Context> varEnv) {
-        Param p = params.get(Integer.toString(pos));
+        Param p = params.get(pos);
         if (p == null) {
             System.out.println("incorrect position: " + pos);
             System.exit(1);
@@ -540,4 +537,12 @@ public class BFunc extends Formula {
 
     	return result;
     }
+
+	@Override
+	public BFunc createInitialFormula() {
+		BFunc f = new BFunc(type);
+    	f.value = value;
+    	f.params = new HashMap<Integer, Param>(params);
+		return f;
+	}
 }

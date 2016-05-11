@@ -62,6 +62,11 @@ public class Citizen implements Runnable{
 		return null;
 	}
 	
+	public void reset() {
+		act = nextAct = null;
+		loc = dest = null;
+	}
+	
 	public void run() {
 		Thread curThread = Thread.currentThread();
 		Reset.addThread(curThread);
@@ -72,11 +77,11 @@ public class Citizen implements Runnable{
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					if(Reset.isResetting())
-						Reset.checkThread(curThread);
+						Reset.isUnchecked(curThread);
 				}
 			}
 			if(Reset.isResetting()){
-				Reset.checkThread(curThread);
+				Reset.isUnchecked(curThread);
 				continue;
 			}
 			

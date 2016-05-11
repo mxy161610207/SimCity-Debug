@@ -93,7 +93,11 @@ public class Pattern {
     public boolean isFull(){
     	return contexts.size() == ctxNum;
     }
-    
+
+	public void reset() {
+		contexts.clear();
+	}
+	
     @Override
     public String toString() {
         String str = new String();

@@ -54,7 +54,7 @@ import nju.ics.lixiaofan.sensor.Sensor;
 
 public class Dashboard extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private static TrafficMap mapPanel = new TrafficMap();
+	private static TrafficMap trafficMap = new TrafficMap();
 	private static JPanel leftPanel = new JPanel();
 	private static JPanel rightPanel = new JPanel();
 	private static JComboBox<String> carbox =  new JComboBox<String>();
@@ -104,8 +104,8 @@ public class Dashboard extends JFrame{
 					else if(s.balloon.isVisible())
 						s.balloon.setVisible(false);
 					
-					if(s.cars.isEmpty())
-						continue;
+//					if(s.cars.isEmpty())
+//						continue;
 					if (!s.cars.isEmpty() && s.cars.peek().isLoading)
 						s.icon.repaint();
 				}
@@ -118,7 +118,7 @@ public class Dashboard extends JFrame{
 		}
 	};
 	
-//	public static void main(String[] args) throws IOException {
+//	public static void main(String[] args) {
 //	}
 
 	public Dashboard() {
@@ -127,7 +127,7 @@ public class Dashboard extends JFrame{
 		
 		gbc.fill = GridBagConstraints.BOTH;
 		setLayout(gbl);
-		add(mapPanel);
+		add(trafficMap);
 		add(leftPanel);
 		add(rightPanel);
 		
@@ -142,7 +142,7 @@ public class Dashboard extends JFrame{
 		gbl.setConstraints(leftPanel, gbc);
 		gbc.gridx = 1;
 		gbc.weightx = gbc.weighty = 0;
-		gbl.setConstraints(mapPanel, gbc);
+		gbl.setConstraints(trafficMap, gbc);
 		gbc.gridx = 2;
 		gbc.weighty = 1;
 		gbl.setConstraints(rightPanel, gbc);
@@ -154,34 +154,12 @@ public class Dashboard extends JFrame{
 		
 		gbl.setConstraints(resetButton, gbc);
 		leftPanel.add(resetButton);
-//		resetButton.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				for(Section section : TrafficMap.sections.values()){
-//					section.cars.clear();
-//					section.waiting.clear();
-//					section.setPermitted(null);
-//				}
-//			
-//				for(Car car : TrafficMap.cars.values()){
-//					car.loc = null;
-//					car.dir = -1;
-//					car.status = Car.STILL;
-//					car.realLoc = null;
-//					car.trend = 0;
-//					car.finalState = 0;
-//					car.dest = null;
-//					car.isLoading = false;
-//				}
-//				
-//				BrickHandler.resetState();
-//				mapPanel.repaint();
-//			}
-//		});
 		
-		//TODO reset the statuses of cars to consistency
 		resetButton.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-				ResourceProvider.execute(new Reset.ResetTask(e.getButton() == MouseEvent.BUTTON1));
+				resetButton.setEnabled(false);
+				Reset.isRealInc = e.getButton() == MouseEvent.BUTTON1;
+				ResourceProvider.execute(Reset.resetTask);
 			}
 		});
 		
@@ -381,7 +359,7 @@ public class Dashboard extends JFrame{
 		jchkSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionevent) {
 				showSection = jchkSection.isSelected();
-				mapPanel.repaint();
+				trafficMap.repaint();
 			}
 		});
 		
@@ -397,7 +375,7 @@ public class Dashboard extends JFrame{
 		jchkBalloon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				showBalloon = jchkBalloon.isSelected();
-				mapPanel.repaint();
+				trafficMap.repaint();
 			}
 		});
 		
@@ -564,7 +542,7 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static Section getNearestSection(int x, int y){
-		if(x < 0 || x >= mapPanel.getWidth() || y < 0 || y >= mapPanel.getHeight())
+		if(x < 0 || x >= trafficMap.getWidth() || y < 0 || y >= trafficMap.getHeight())
 			return null;
 		int min = Integer.MAX_VALUE, tmp;
 		Section section = null;
@@ -598,9 +576,8 @@ public class Dashboard extends JFrame{
 		}
 		if(!s.realCars.isEmpty()){
 			str += "Real Cars:\n";
-			for(String name : s.realCars){
-				Car car = Car.carOf(name);
-				str += name + " (" + car.getRealStatusStr() + ") "+car.getRealDirStr()+"\n";
+			for(Car car : s.realCars){
+				str += car.name + " (" + car.getRealStatusStr() + ") "+car.getRealDirStr()+"\n";
 			}
 		}
 		roadta.setText(str);
@@ -699,6 +676,10 @@ public class Dashboard extends JFrame{
 	
 	public static void enableResetButton(boolean b){
 		resetButton.setEnabled(b);
+	}
+	
+	public static void repaintTrafficMap(){
+		trafficMap.repaint();
 	}
 	
 	private class BuildingIconListener implements MouseListener{

@@ -150,7 +150,7 @@ public class Detection {
             BFunc result = new BFunc(formula.getType());
             result.setValue(((BFunc)formula).getValue());
             result.setLinks(((BFunc)formula).getLinks());
-            result.setParam(new HashMap<String, Param>(((BFunc)formula).getParam()));
+            result.setParam(new HashMap<Integer, Param>(((BFunc)formula).getParam()));
             return result;
         }
         return formula;
@@ -202,7 +202,7 @@ public class Detection {
         }
         else if(formula.getType().equals("bfunction")) {
             BFunc result = new BFunc(formula.getType());
-            result.setParam(new HashMap<String, Param>(((BFunc)formula).getParam()));
+            result.setParam(new HashMap<Integer, Param>(((BFunc)formula).getParam()));
             return result;
         }
         return formula;

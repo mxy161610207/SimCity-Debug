@@ -52,13 +52,13 @@ public class ContextManager {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && Reset.checkThread(curThread))
+							if(Reset.isResetting() && Reset.isUnchecked(curThread))
 								clear();
 						}
 					}
 				}
 				if(Reset.isResetting()){
-					if(Reset.checkThread(curThread))
+					if(Reset.isUnchecked(curThread))
 						clear();
 					continue;
 				}

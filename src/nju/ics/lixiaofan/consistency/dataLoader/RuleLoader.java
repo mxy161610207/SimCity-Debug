@@ -85,18 +85,18 @@ public class RuleLoader {
             String pat = null;
             //如果该元素存在属性
             if(map != null) {
-                    for(int i = 0; i < map.getLength(); i++) {
-                            //获得该元素的每一个属性
-                            Attr attr = (Attr)map.item(i);	
-                            String attrName = attr.getName();
-                            String attrValue = attr.getValue();
-                            if(attrName.equals("var")) {
-                                var = attrValue;
-                            }
-                            if(attrName.equals("in")) {
-                                pat = attrValue;
-                            }
+                for(int i = 0; i < map.getLength(); i++) {
+                    //获得该元素的每一个属性
+                    Attr attr = (Attr)map.item(i);	
+                    String attrName = attr.getName();
+                    String attrValue = attr.getValue();
+                    if(attrName.equals("var")) {
+                        var = attrValue;
                     }
+                    if(attrName.equals("in")) {
+                        pat = attrValue;
+                    }
+                }
             }
             formula.setPattern(var, Middleware.getPatterns().get(pat));
             Middleware.getPatterns().get(pat).setRule(ruleName);
@@ -199,7 +199,7 @@ public class RuleLoader {
                 if(nodeType == Node.ELEMENT_NODE) {
                     //是元素，继续递归
                     String[] param = (String[])parseElement((Element)node, ruleName);
-                    formula.addParam(param[0], param[1], param[2]);
+                    formula.addParam(Integer.parseInt(param[0]), param[1], param[2]);
                 }
             }
             return formula;

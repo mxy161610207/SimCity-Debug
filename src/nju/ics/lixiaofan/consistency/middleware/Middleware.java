@@ -48,13 +48,13 @@ public class Middleware {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && Reset.checkThread(curThread))
+							if(Reset.isResetting() && Reset.isUnchecked(curThread))
 								clear();
 						}
 					}
     			}
     			if(Reset.isResetting()){
-    				if(Reset.checkThread(curThread))
+    				if(Reset.isUnchecked(curThread))
     					clear();
     				continue;
     			}
@@ -130,10 +130,12 @@ public class Middleware {
         
         //¶Áconstraint£¬µÃµ½rules
        	HashSet<Rule> ruleSet = RuleLoader.parserXml("src/nju/ics/lixiaofan/consistency/config/rules.xml");
-       	for(Rule rule : ruleSet)
+       	for(Rule rule : ruleSet){
+       		rule.setInitialFormula();
        		rules.put(rule.getName(), rule);
+       	}
         
-        new Operation(patterns,rules);
+        new Operation(patterns, rules);
         resolutionStrategy = Configuration.getConfigStr("resolutionStrategy");
         handler.start();
 	}
@@ -164,6 +166,14 @@ public class Middleware {
 		synchronized (queue) {
 			queue.clear();
 		}
+	}
+	
+	public static void reset() {
+		for(Pattern p : patterns.values())
+			p.reset();
+		
+		for(Rule r : rules.values())
+			r.reset();
 	}
     
     public static HashMap<String,Pattern> getPatterns() {

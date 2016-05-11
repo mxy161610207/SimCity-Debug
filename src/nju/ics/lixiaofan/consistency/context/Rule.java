@@ -12,9 +12,6 @@ import java.util.Set;
 import nju.ics.lixiaofan.consistency.formula.Formula;
 import nju.ics.lixiaofan.consistency.formula.Link;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -22,12 +19,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Rule {
     private String name;
-    private nju.ics.lixiaofan.consistency.formula.Formula formula;//一阶逻辑公式
+    private Formula formula, initialFormula;//一阶逻辑公式
     
     public HashMap<ContextChange,String> sch;
     
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(Rule.class.getName());
+//    @SuppressWarnings("unused")
+//	private static Log logger = LogFactory.getLog(Rule.class.getName());
     
     public Rule(String name) {
         this.name = name;
@@ -45,11 +42,9 @@ public class Rule {
     	return formula;
     }
     
-    
     public Set<Link> getLinks() {
         return formula.getLinks();
     }
-    
     
     public boolean getValue() {
         return formula.getValue();
@@ -58,6 +53,16 @@ public class Rule {
     public boolean affect(ContextChange change) {
         return formula.affect(change);
     }
+    /**
+     * Only called when this rule is initialized
+     */
+	public void setInitialFormula() {
+		initialFormula = formula.createInitialFormula();
+	}
+	
+	public void reset() {
+		formula = initialFormula.createInitialFormula();
+	}
     
     public double hazardPairProb(ContextChange change,ContextChange laterChange) {
         return 0.9;

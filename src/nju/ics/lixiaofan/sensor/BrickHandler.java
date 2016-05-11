@@ -2,7 +2,6 @@ package nju.ics.lixiaofan.sensor;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -23,11 +22,8 @@ import nju.ics.lixiaofan.monitor.PkgHandler;
 import nju.ics.lixiaofan.resource.ResourceProvider;
 
 public class BrickHandler extends Thread{
-//	private static List<Command> queue = Remediation.getQueue();
-	private static int enteringValue[][] = new int[10][4];
-	private static int leavingValue[][] = new int[10][4];
-	private static Queue<SensoryData> rawData = new LinkedList<SensoryData>();
-	private static Queue<SensoryInfo> checkedData = new LinkedList<SensoryInfo>();
+	private static Queue<RawData> rawData = new LinkedList<RawData>();
+	private static Queue<CheckedData> checkedData = new LinkedList<CheckedData>();
 	private Thread checkedDataHandler = new Thread("Checked Data Handler"){
 		public void run() {
 			Thread curThread = Thread.currentThread();
@@ -40,16 +36,16 @@ public class BrickHandler extends Thread{
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						if(Reset.isResetting() && Reset.checkThread(curThread))
+						if(Reset.isResetting() && Reset.isUnchecked(curThread))
 							clearCheckedData();
 					}
 				}
 				if(Reset.isResetting()){
-					if(Reset.checkThread(curThread))
+					if(Reset.isUnchecked(curThread))
 						clearCheckedData();
 					continue;
 				}
-				SensoryInfo info = null;
+				CheckedData info = null;
 				synchronized (checkedData) {
 					info = checkedData.poll();
 				}
@@ -58,7 +54,7 @@ public class BrickHandler extends Thread{
 				
 				switch (info.type) {
 				case nju.ics.lixiaofan.consistency.context.Context.Normal:
-					stateSwitch(info.car, info.sensor, true);
+					switchState(info.car, info.sensor, true);
 					break;
 				case nju.ics.lixiaofan.consistency.context.Context.FN:
 					if(Middleware.isDetectionEnabled()){
@@ -66,7 +62,7 @@ public class BrickHandler extends Thread{
 								info.sensor.name, info.car.name,
 								Middleware.isResolutionEnabled());
 						if(Middleware.isResolutionEnabled())
-							stateSwitch(info.car, info.sensor, true);
+							switchState(info.car, info.sensor, true);
 					}
 					break;
 				case nju.ics.lixiaofan.consistency.context.Context.FP:
@@ -75,7 +71,7 @@ public class BrickHandler extends Thread{
 								info.sensor.name, info.car.name,
 								Middleware.isResolutionEnabled());
 					if(!Middleware.isResolutionEnabled())
-						stateSwitch(info.car, info.sensor, false);
+						switchState(info.car, info.sensor, false);
 					break;
 				default:
 					break;
@@ -101,16 +97,16 @@ public class BrickHandler extends Thread{
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-					if(Reset.isResetting() && Reset.checkThread(curThread))
+					if(Reset.isResetting() && Reset.isUnchecked(curThread))
 						clearRawData();
 				}
 			}
 			if(Reset.isResetting()){
-				if(Reset.checkThread(curThread))
+				if(Reset.isUnchecked(curThread))
 					clearRawData();
 				continue;
 			}
-			SensoryData data = null;
+			RawData data = null;
 			synchronized (rawData) {
 				data = rawData.poll();
 			}
@@ -118,11 +114,11 @@ public class BrickHandler extends Thread{
 				|| data.sid >= ResourceProvider.getSensors().get(data.bid).size())
 				continue;
 			SensorManager.trigger(ResourceProvider.getSensors().get(data.bid).get(data.sid), data.d);
-			stateSwitch(data.bid, data.sid, data.d);
+			switchState(data.bid, data.sid, data.d);
 		}
 	}
 	
-	private void stateSwitch(Car car, Sensor sensor, boolean isCtxTrue){
+	private void switchState(Car car, Sensor sensor, boolean isCtxTrue){
 		switch(sensor.state){
 		case Sensor.UNDETECTED:{
 			//TODO need supplements about handling phantoms
@@ -146,7 +142,7 @@ public class BrickHandler extends Thread{
 				}
 			}
 			else if(car.isReal()){
-				car.loc.realCars.add(car.name);
+				car.loc.realCars.add(car);
 				car.realLoc = car.loc;
 				car.realDir = car.dir;
 				car.realStatus = car.status;
@@ -166,7 +162,6 @@ public class BrickHandler extends Thread{
 			car.enter(sensor.nextSection);//set both loc and dir
 //			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
 			car.status = Car.MOVING;
-			car.lastDetectedTime = System.currentTimeMillis();
 			//trigger context
 			if(ContextManager.hasListener())
 				ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
@@ -214,28 +209,26 @@ public class BrickHandler extends Thread{
 		}
 	}
 
-	private void stateSwitch(int bid, int sid, int d){
+	private void switchState(int bid, int sid, int d){
 		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
 		switch(sensor.state){
 		case Sensor.DETECTED:
-			if(d >= leavingValue[bid][sid]){
+			if(sensor.leaveDetected(d)){
 //				if(isFalsePositive2(sensor)){
 				if(sensor.car != null && sensor.car.isReal() 
 						&& sensor.car.loc.sameAs(sensor.nextSection)
 						&& sensor.car.status == Car.STILL){
-					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
-							+"\treading: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
+					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!" +"\treading: " + d);
 					break;
 				}
 				sensor.state = Sensor.UNDETECTED;
 				sensor.car = null;
 //				System.out.println(sdf.format(new Date()));
-				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" +
-						"\treading: " + d + "\tleavingValue: " + leavingValue[bid][sid]);
+				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" + "\treading: " + d);
 			}
 			break;
 		case Sensor.UNDETECTED:
-			if(d <= enteringValue[bid][sid]){
+			if(sensor.entryDetected(d)){
 //				if(isFalsePositive(sensor)){
 //					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
 //							+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
@@ -252,13 +245,12 @@ public class BrickHandler extends Thread{
 				int dir = -1, status = 0;
 				boolean isReal = false;
 				//check real cars first if exists
-				for(String name : sensor.prevSection.realCars){
-					Car tmp = Car.carOf(name);
-					if(tmp.realDir == sensor.dir){
+				for(Car realCar : sensor.prevSection.realCars){
+					if(realCar.realDir == sensor.dir){
 						isReal = true;
-						car = tmp;
-						dir = tmp.realDir;
-						status = tmp.realStatus;
+						car = realCar;
+						dir = realCar.realDir;
+						status = realCar.realStatus;
 						break;
 					}
 				}
@@ -291,11 +283,47 @@ public class BrickHandler extends Thread{
 			break;
 		}
 	}
+	
+	/**
+	 * This method is only called in resetting phase and will locate cars
+	 * 
+	 */
+	private static void switchStateWhenResetting(int bid, int sid, int reading){
+		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
+		switch(sensor.state){
+		case Sensor.INITIAL:
+			if(sensor.entryDetected(reading))
+				sensor.state = Sensor.DETECTED;
+			else if(sensor.leaveDetected(reading))
+				sensor.state = Sensor.UNDETECTED;
+			break;
+		case Sensor.DETECTED:
+			if(sensor.leaveDetected(reading))
+				sensor.state = Sensor.UNDETECTED;
+			break;
+		case Sensor.UNDETECTED:
+			if(sensor.entryDetected(reading)){
+				sensor.state = Sensor.DETECTED;
+				Car car = Reset.locatedCar;
+				if(car != null && car.loc == null){//still not located, then locate it
+					Reset.locatedCar = null;
+					Command.stop(car);
+//					car.enter(sensor.nextSection);
+					car.loc = sensor.nextSection;
+					car.dir = car.loc.dir[1] == -1 ? car.loc.dir[0] : sensor.dir;
+					Reset.wakeUp();
+				}
+			}
+			break;
+		}
+	}
 
 	public static void add(int bid, int sid, int d){
-		if(Reset.isResetting())
+		if(Reset.isResetting()){
+			switchStateWhenResetting(bid, sid, d);
 			return;
-		SensoryData datum = new SensoryData(bid, sid, d);
+		}
+		RawData datum = new RawData(bid, sid, d);
 		synchronized (rawData) {
 			rawData.add(datum);
 			rawData.notify();
@@ -305,7 +333,7 @@ public class BrickHandler extends Thread{
 	public static void add(Car car, Sensor sensor, int type){
 		if(Reset.isResetting())
 			return;
-		SensoryInfo info = new SensoryInfo(car, sensor, type);
+		CheckedData info = new CheckedData(car, sensor, type);
 		synchronized (checkedData) {
 			checkedData.add(info);
 			checkedData.notify();
@@ -349,34 +377,28 @@ public class BrickHandler extends Thread{
 //		return true;
 //	}
 	
-	public static void resetState(){
-		for(List<Sensor> list : ResourceProvider.getSensors())
-			for(Sensor sensor : list)
-				sensor.state = Sensor.UNDETECTED;
-	}
+//	public static void initValues(){
+//		for(int i = 0;i < enteringValue.length;i++)
+//			for(int j = 0;j < enteringValue[0].length;j++){
+//				enteringValue[i][j] = 10;
+//				leavingValue[i][j] = 11;
+//			}
+//	}
 	
-	public static void initValues(){
-		for(int i = 0;i < enteringValue.length;i++)
-			for(int j = 0;j < enteringValue[0].length;j++){
-				enteringValue[i][j] = 10;
-				leavingValue[i][j] = 11;
-			}
-	}
-	
-	private static class SensoryData{
+	private static class RawData{
 		public int bid, sid, d;
-		public SensoryData(int bid, int sid, int d) {
+		public RawData(int bid, int sid, int d) {
 			this.bid = bid;
 			this.sid = sid;
 			this.d = d;
 		}
 	}
 	
-	private static class SensoryInfo{
+	private static class CheckedData{
 		public Car car;
 		public Sensor sensor;
 		public int type;
-		public SensoryInfo(Car car, Sensor sensor, int type) {
+		public CheckedData(Car car, Sensor sensor, int type) {
 			this.car = car;
 			this.sensor = sensor;
 			this.type = type;
