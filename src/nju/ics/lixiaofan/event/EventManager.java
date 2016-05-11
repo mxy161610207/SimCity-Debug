@@ -54,13 +54,7 @@ public class EventManager {
 	}
 	
 	public static boolean hasListener(Type type){
-//		System.out.println("type:"+type);
-//		if(listeners.containsKey(type)){
-//			System.out.println("contains "+type);
-//			if(listeners.get(type).size() > 0)
-//				System.out.println("size > 0");
-//		}
-		return listeners.containsKey(type) && listeners.get(type).size() > 0;
+		return listeners.containsKey(type) && !listeners.get(type).isEmpty();
 	}
 	
 	private static Queue<Event> queue = new LinkedList<Event>();
@@ -74,14 +68,14 @@ public class EventManager {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
-							e.printStackTrace();
-							if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//							e.printStackTrace();
+							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 								clear();
 						}
 					}
 				}
 				if(Reset.isResetting()){
-					if(Reset.isUnchecked(curThread))
+					if(!Reset.isThreadReset(curThread))
 						clear();
 					continue;
 				}

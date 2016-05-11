@@ -7,13 +7,13 @@ import java.util.Set;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
-import nju.ics.lixiaofan.car.Remediation;
+import nju.ics.lixiaofan.car.Remedy;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.context.Context;
 import nju.ics.lixiaofan.context.ContextManager;
 import nju.ics.lixiaofan.control.Reset;
-import nju.ics.lixiaofan.control.TrafficPolice;
+import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -35,13 +35,13 @@ public class BrickHandler extends Thread{
 							checkedData.wait();
 						}
 					} catch (InterruptedException e) {
-						e.printStackTrace();
-						if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//						e.printStackTrace();
+						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 							clearCheckedData();
 					}
 				}
 				if(Reset.isResetting()){
-					if(Reset.isUnchecked(curThread))
+					if(!Reset.isThreadReset(curThread))
 						clearCheckedData();
 					continue;
 				}
@@ -96,13 +96,13 @@ public class BrickHandler extends Thread{
 						rawData.wait();
 					}
 				} catch (InterruptedException e) {
-					e.printStackTrace();
-					if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//					e.printStackTrace();
+					if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 						clearRawData();
 				}
 			}
 			if(Reset.isResetting()){
-				if(Reset.isUnchecked(curThread))
+				if(!Reset.isThreadReset(curThread))
 					clearRawData();
 				continue;
 			}
@@ -158,7 +158,7 @@ public class BrickHandler extends Thread{
 			
 			Section prev = car.loc;
 			//inform the traffic police of the entry event
-			car.sendRequest(sensor.nextSection);
+			car.notifyPolice(sensor.nextSection);
 			car.enter(sensor.nextSection);//set both loc and dir
 //			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
 			car.status = Car.MOVING;
@@ -178,57 +178,67 @@ public class BrickHandler extends Thread{
 					EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, car.loc.name));
 			}
 			
-			Remediation.updateWhenDetected(car);
+			Remedy.updateWhenDetected(car);
 			
 			//do triggered stuff		
 //			System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
 			if(car.dest != null){
 				if(car.dest.sameAs(car.loc)){
-					car.finalState = 0;
-					Command.send(car, 0);
-					car.sendRequest(0);
-					Dashboard.appendLog(car.name+" reached dest");
+					car.finalState = Car.STOPPED;
+					Command.send(car, Command.STOP);
+					car.notifyPolice(Police.GONNA_STOP);
+					Dashboard.appendLog(car.name+" reached destination");
 					//trigger reach dest event
 					if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
 				}
-				else if(car.finalState == 0){
-					car.finalState = 1;
-					car.sendRequest(1);
+				else if(car.finalState == Car.STOPPED){
+					car.finalState = Car.MOVING;
+					car.notifyPolice(Police.GONNA_MOVE);
 					Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
 				}
 				else
-					car.sendRequest(car.trend == 1 ? 1 : 0);
+					car.notifyPolice(car.trend == Car.MOVING ? Police.GONNA_MOVE : Police.GONNA_STOP);
 			}
 			else
-				car.sendRequest(car.trend == 1 ? 1 : 0);
+				car.notifyPolice(car.trend == Car.MOVING ? Police.GONNA_MOVE : Police.GONNA_STOP);
 		
-			TrafficPolice.sendNotice(prev);
+			Police.sendNotice(prev);
 		}
 		break;
 		}
 	}
 
-	private void switchState(int bid, int sid, int d){
+	private void switchState(int bid, int sid, int reading){
 		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
 		switch(sensor.state){
+		case Sensor.INITIAL:
+			if(sensor.entryDetected(reading)){
+				sensor.state = Sensor.DETECTED;
+				switchState(bid, sid, reading);
+			}
+			else if(sensor.leaveDetected(reading)){
+				sensor.state = Sensor.UNDETECTED;
+				switchState(bid, sid, reading);
+			}
+			break;
 		case Sensor.DETECTED:
-			if(sensor.leaveDetected(d)){
+			if(sensor.leaveDetected(reading)){
 //				if(isFalsePositive2(sensor)){
 				if(sensor.car != null && sensor.car.isReal() 
 						&& sensor.car.loc.sameAs(sensor.nextSection)
-						&& sensor.car.status == Car.STILL){
-					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!" +"\treading: " + d);
+						&& sensor.car.status == Car.STOPPED){
+					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!" +"\treading: " + reading);
 					break;
 				}
 				sensor.state = Sensor.UNDETECTED;
 				sensor.car = null;
 //				System.out.println(sdf.format(new Date()));
-				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" + "\treading: " + d);
+				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" + "\treading: " + reading);
 			}
 			break;
 		case Sensor.UNDETECTED:
-			if(sensor.entryDetected(d)){
+			if(sensor.entryDetected(reading)){
 //				if(isFalsePositive(sensor)){
 //					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
 //							+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
@@ -266,7 +276,7 @@ public class BrickHandler extends Thread{
 					}
 				}
 				if(car == null){
-					System.out.println("B"+bid+"S"+(sid+1)+": Can't find car!\treading: "+d);
+					System.out.println("B"+bid+"S"+(sid+1)+": Can't find car!\treading: "+reading);
 					sensor.state = Sensor.UNDETECTED;
 					break;
 				}
@@ -292,10 +302,14 @@ public class BrickHandler extends Thread{
 		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
 		switch(sensor.state){
 		case Sensor.INITIAL:
-			if(sensor.entryDetected(reading))
+			if(sensor.entryDetected(reading)){
 				sensor.state = Sensor.DETECTED;
-			else if(sensor.leaveDetected(reading))
+				switchStateWhenResetting(bid, sid, reading);
+			}
+			else if(sensor.leaveDetected(reading)){
 				sensor.state = Sensor.UNDETECTED;
+				switchStateWhenResetting(bid, sid, reading);
+			}
 			break;
 		case Sensor.DETECTED:
 			if(sensor.leaveDetected(reading))
@@ -311,6 +325,7 @@ public class BrickHandler extends Thread{
 //					car.enter(sensor.nextSection);
 					car.loc = sensor.nextSection;
 					car.dir = car.loc.dir[1] == -1 ? car.loc.dir[0] : sensor.dir;
+					sensor.nextSection.cars.add(car);
 					Reset.wakeUp();
 				}
 			}

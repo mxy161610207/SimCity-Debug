@@ -66,18 +66,21 @@ class SensorHandler extends Thread{
 	SampleProvider[] sp;
 	boolean exit = false;
 	int[] dis, preDis;
+	long[] lastSentTime;
 	public SensorHandler() {
 		sensorNum = Client.sensorNum;
 		ir = new EV3IRSensor[sensorNum];
 		sp = new SampleProvider[sensorNum];
 		dis = new int[sensorNum];
 		preDis = new int[sensorNum];
+		lastSentTime = new long[sensorNum];
 		try{
 			for(int i = 0;i < sensorNum;i++){
 				ir[i] = new EV3IRSensor(LocalEV3.get().getPort("S" + (i+1)));
 				sp[i] = ir[i].getDistanceMode();
 				dis[i] = 255;
 				preDis[i] = -1;
+				lastSentTime[i] = 0;
 			}
 		}
 		catch(IllegalArgumentException e){
@@ -90,6 +93,7 @@ class SensorHandler extends Thread{
     	byte[] buf = new byte[12];
     	int2byte(Client.bid, buf, 0);
     	DatagramPacket packet = null;
+    	long curTime;
     	try {
 			packet = new DatagramPacket(buf, buf.length, InetAddress.getByName("192.168.1.100"),9999);
 		} catch (UnknownHostException e1) {
@@ -104,7 +108,8 @@ class SensorHandler extends Thread{
 	        	for(int i = 0;i < sensorNum;i++){
 		            sp[i].fetchSample(sample, 0);
 		            dis[i] = (int)sample[0];
-		            if(preDis[i] != dis[i]){
+		            curTime = System.currentTimeMillis();
+		            if(preDis[i] != dis[i] || curTime - lastSentTime[i] >= 50){
 			            try {
 //			            	Client.dos.writeUTF((i+1) + "_" + dis[i]);
 //			            	Client.dos.flush();
@@ -120,8 +125,14 @@ class SensorHandler extends Thread{
 							break;
 						}
 			            preDis[i] = dis[i];
+			            lastSentTime[i] = curTime;
 		            }
 	        	}
+	        	try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+//					e.printStackTrace();
+				}
 	        }
     	}
 	}

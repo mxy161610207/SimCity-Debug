@@ -69,7 +69,7 @@ public class DPad extends JPanel{
 				if(Dashboard.getSelectedCar() != null){
 					Dashboard.getSelectedCar().finalState = 0;
 					Command.send(Dashboard.getSelectedCar(), 0);
-					Dashboard.getSelectedCar().sendRequest(0);
+					Dashboard.getSelectedCar().notifyPolice(0);
 				}
 			}
 		});
@@ -77,7 +77,7 @@ public class DPad extends JPanel{
 			public void actionPerformed(ActionEvent arg0) {
 				if(Dashboard.getSelectedCar() != null){
 					Dashboard.getSelectedCar().finalState = 1;
-					Dashboard.getSelectedCar().sendRequest(1);
+					Dashboard.getSelectedCar().notifyPolice(1);
 				}
 			}
 		});

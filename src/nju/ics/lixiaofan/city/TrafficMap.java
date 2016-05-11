@@ -16,7 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import nju.ics.lixiaofan.car.Car;
-import nju.ics.lixiaofan.city.Section.BallonIcon;
+import nju.ics.lixiaofan.city.Section.BalloonIcon;
 import nju.ics.lixiaofan.city.Section.Crossing;
 import nju.ics.lixiaofan.city.Section.Crossing.CrossingIcon;
 import nju.ics.lixiaofan.city.Section.Street;
@@ -61,7 +61,7 @@ public class TrafficMap extends JPanel{
 		
 		for(List<Sensor> list : sensors)
 			for(Sensor s : list)
-				add(s.button);
+				add(s.icon);
 		for(Citizen c : citizens){
 			add(c.icon);
 			new Thread(c, c.name).start();
@@ -323,15 +323,15 @@ public class TrafficMap extends JPanel{
 					streets[i].icon.coord.w, streets[i].icon.coord.h);
 		}
 		
-		Section.BallonIcon.readBalloonImage();
+		Section.BalloonIcon.readBalloonImage();
 		for(Section section : sections.values()){
-			section.balloon = new Section.BallonIcon();
-			section.balloon.setBounds(section.icon.coord.centerX- BallonIcon.WIDTH / 2,
-					section.icon.coord.centerY - BallonIcon.HEIGHT, BallonIcon.WIDTH, BallonIcon.HEIGHT);
+			section.balloon = new Section.BalloonIcon();
+			section.balloon.setBounds(section.icon.coord.centerX- BalloonIcon.WIDTH / 2,
+					section.icon.coord.centerY - BalloonIcon.HEIGHT, BalloonIcon.WIDTH, BalloonIcon.HEIGHT);
 //			section.displayBalloon(2, "B2S2", "Red Car", true);
 		}
 		
-		setCombined();
+		combineSections();
 		setAdjs();
 	}
 	
@@ -469,11 +469,11 @@ public class TrafficMap extends JPanel{
 			sensor.px = sensor.crossing.icon.coord.x + sensor.crossing.icon.coord.w/2;
 			sensor.py = sensor.street.icon.coord.y;
 		}
-		sensor.button = new JButton(sensor.name);
-		sensor.button.setVisible(false);
-		sensor.button.setMargin(new Insets(0, 0, 0, 0));
-		sensor.button.setBounds(sensor.px-18, sensor.py-8, 36, 16);
-		sensor.button.addMouseListener(new Sensor.ButtonListener(bid, sid));
+		sensor.icon = new JButton(sensor.name);
+		sensor.icon.setVisible(false);
+		sensor.icon.setMargin(new Insets(0, 0, 0, 0));
+		sensor.icon.setBounds(sensor.px-18, sensor.py-8, 36, 16);
+		sensor.icon.addMouseListener(new Sensor.SensorIcon(bid, sid));
 		
 		if(TrafficMap.dir)
 			sensor.dir = dir;
@@ -626,30 +626,30 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	private static void setCombined(){
+	private static void combineSections(){
 		Set<Section> sections = new HashSet<Section>();
 		sections.add(streets[0]);
 		sections.add(streets[2]);
 		sections.add(streets[3]);
-		setCombined(sections);
+		Section.combine(sections);
 		
 		sections.clear();
 		sections.add(streets[6]);
 		sections.add(streets[10]);
 		sections.add(streets[14]);
-		setCombined(sections);
+		Section.combine(sections);
 		
 		sections.clear();
 		sections.add(streets[17]);
 		sections.add(streets[21]);
 		sections.add(streets[25]);
-		setCombined(sections);
+		Section.combine(sections);
 		
 		sections.clear();
 		sections.add(streets[28]);
 		sections.add(streets[29]);
 		sections.add(streets[31]);
-		setCombined(sections);
+		Section.combine(sections);
 		
 		sections.clear();
 		sections.add(streets[1]);
@@ -657,7 +657,7 @@ public class TrafficMap extends JPanel{
 		sections.add(streets[5]);
 		sections.add(streets[9]);
 		sections.add(crossings[2]);
-		setCombined(sections);
+		Section.combine(sections);
 		
 		sections.clear();
 		sections.add(streets[22]);
@@ -665,31 +665,11 @@ public class TrafficMap extends JPanel{
 		sections.add(streets[27]);
 		sections.add(streets[30]);
 		sections.add(crossings[6]);
-		setCombined(sections);
-	}
-	
-	private static void setCombined(Set<Section> sections){
-		for(Section s : sections){
-			for(Section other : sections)
-				if(other != s){
-					s.combined.add(other);
-					other.cars = s.cars;
-					other.realCars = s.realCars;
-					other.mutex = s.mutex;
-					other.permitted = s.permitted;
-					other.waiting = s.waiting;
-					other.adjs = s.adjs;
-					other.exits = s.exits;
-					other.entrances = s.entrances;
-					other.dir = s.dir;
-					other.sensors = s.sensors;
-				}
-		}
+		Section.combine(sections);
 	}
 	
 	private static Section sectionBehind(Sensor sensor){
 		int bid = sensor.bid, id = sensor.sid;
-		
 		switch(bid){
 		case 0:
 			return TrafficMap.dir ? sensor.street : sensor.crossing;

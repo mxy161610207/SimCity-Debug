@@ -36,11 +36,11 @@ public abstract class Section extends Location{
 	public Queue<Car> realCars = new LinkedList<Car>();
 	Car[] permitted = {null};//let its type be an array to share its value among the combined
 	public Set<Section> combined = new HashSet<Section>();
-	public Object mutex = new Object();
-	public Queue<Car> waiting = new LinkedList<Car>();
+//	public Object mutex = new Object();//used by police thread and its notifier
+	public Queue<Car> waiting = new LinkedList<Car>();//can replace mutex
 	public Set<Sensor> sensors = new HashSet<Sensor>();
 	public SectionIcon icon = null;
-	public BallonIcon balloon = null;
+	public BalloonIcon balloon = null;
 	
 	public static Section sectionOf(String name){
 //		System.out.println(name);
@@ -62,6 +62,25 @@ public abstract class Section extends Location{
 	
 	public boolean isCombined(){
 		return !combined.isEmpty();
+	}
+	
+	public static void combine(Set<Section> sections){
+		for(Section s : sections){
+			for(Section other : sections)
+				if(other != s){
+					s.combined.add(other);
+					other.cars = s.cars;
+					other.realCars = s.realCars;
+//					other.mutex = s.mutex;
+					other.permitted = s.permitted;
+					other.waiting = s.waiting;
+					other.adjs = s.adjs;
+					other.exits = s.exits;
+					other.entrances = s.entrances;
+					other.dir = s.dir;
+					other.sensors = s.sensors;
+				}
+		}
 	}
 	
 	public void setPermitted(Car car){
@@ -123,7 +142,7 @@ public abstract class Section extends Location{
 		}
 		
 		protected void paintComponent(Graphics g) {
-//			System.out.println("children");
+//			System.out.println(section.name);
 			super.paintComponent(g);
 			int n = section.realCars.size();
 			for(Car car : section.cars)
@@ -239,7 +258,7 @@ public abstract class Section extends Location{
 		waiting.clear();
 	}
 	
-	public static class BallonIcon extends JButton{
+	public static class BalloonIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		public static int WIDTH = 70;
 		public static int HEIGHT = 70;
@@ -248,7 +267,7 @@ public abstract class Section extends Location{
 		public int type;
 		public String sensor = "", car = "";
 		
-		public BallonIcon() {
+		public BalloonIcon() {
 			setOpaque(false);
 			setContentAreaFilled(false);
 			setBorderPainted(false);

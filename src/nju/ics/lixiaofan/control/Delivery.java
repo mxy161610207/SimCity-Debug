@@ -36,13 +36,13 @@ public class Delivery {
 						try {
 							searchTasks.wait();
 						} catch (InterruptedException e) {
-							e.printStackTrace();
-							if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//							e.printStackTrace();
+							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 								clearSearchTasks();
 						}
 					}
 				if(Reset.isResetting()){
-					if(Reset.isUnchecked(curThread))
+					if(!Reset.isThreadReset(curThread))
 						clearSearchTasks();
 					continue;
 				}
@@ -78,7 +78,7 @@ public class Delivery {
 					dt.phase = 1;
 					car.dest = res.section;
 					if(car.dest.sameAs(car.loc)){
-						if(car.status == Car.STILL){
+						if(car.status == Car.STOPPED){
 							car.setLoading(true);
 							//trigger start loading event
 							if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
@@ -87,7 +87,7 @@ public class Delivery {
 						else{
 							car.finalState = 0;
 							Command.send(car, 0);
-							car.sendRequest(0);
+							car.notifyPolice(0);
 						}
 						Dashboard.appendLog(car.name+" reached dest");
 						//trigger reach dest event
@@ -96,7 +96,7 @@ public class Delivery {
 					}
 					else{
 						car.finalState = 1;
-						car.sendRequest(1);
+						car.notifyPolice(1);
 						Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
 					}
 					searchTasks.poll();
@@ -177,21 +177,21 @@ public class Delivery {
 	
 	private Runnable carMonitor = new Runnable(){
 		public void run() {
+			Thread curThread = Thread.currentThread();
+			Reset.addThread(curThread);
 			while(true){
-				Thread curThread = Thread.currentThread();
-				Reset.addThread(curThread);
 				while(deliveryTasks.isEmpty())
 					synchronized (deliveryTasks) {
 						try {
 							deliveryTasks.wait();
 						} catch (InterruptedException e) {
-							e.printStackTrace();
-							if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//							e.printStackTrace();
+							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 								clearDeliveryTasks();
 						}
 					}
 				if(Reset.isResetting()){
-					if(Reset.isUnchecked(curThread))
+					if(!Reset.isThreadReset(curThread))
 						clearDeliveryTasks();
 					continue;
 				}
@@ -200,7 +200,7 @@ public class Delivery {
 						DeliveryTask dt = it.next();
 						Car car = dt.car;
 						long recent = Math.max(car.stopTime, dt.startTime);
-						if (car.loc.sameAs(car.dest) && car.status == Car.STILL
+						if (car.loc.sameAs(car.dest) && car.status == Car.STOPPED
 							&& System.currentTimeMillis() - recent > 3000) {
 							//head for the src
 							if(dt.phase == 1){
@@ -226,7 +226,7 @@ public class Delivery {
 								}
 								else{
 									car.finalState = 1;
-									car.sendRequest(1);
+									car.notifyPolice(1);
 									Dashboard.appendLog(car.name+" heads for dst "+car.dest.name);
 								}
 							}
@@ -239,7 +239,7 @@ public class Delivery {
 								car.finalState = 1;
 								car.setLoading(false);
 								car.loc.icon.repaint();
-								car.sendRequest(1);
+								car.notifyPolice(1);
 								allBusy = false;
 								Dashboard.appendLog(car.name+" finished unloading");
 								//trigger end unloading event

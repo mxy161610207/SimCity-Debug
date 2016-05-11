@@ -40,17 +40,17 @@ public class Reset {
 		allResetFlag = false;
 	}
 	
-	public static boolean isUnchecked(Thread thread){
+	public static boolean isThreadReset(Thread thread){
 		if(status.get(thread))
-			return false;
+			return true;
 		status.put(thread, true);
-		if(isAllReset())
+		if(areAllThreadsReset())
 			wakeUp();
-		return true;
+		return false;
 	}
 	
 	private static boolean allResetFlag = status.isEmpty();
-	private static boolean isAllReset(){
+	private static boolean areAllThreadsReset(){
 		if(allResetFlag)
 			return true;
 		for(Boolean b : status.values()){
@@ -95,7 +95,7 @@ public class Reset {
 			}
 			else{//Only moving cars and crashed cars need to be located 
 				for(Car car :ResourceProvider.getConnectedCars()){
-					if(car.status != Car.STILL)
+					if(car.getRealStatus() != Car.STOPPED)
 						car2Locate.add(car);
 					if(car.getRealLoc() != null){
 						Set<Car> crashedCars = new HashSet<Car>(car.getRealLoc().realCars);
@@ -183,6 +183,7 @@ public class Reset {
 			private void restore(Car car){
 				car.loc = loc;
 				car.dir = dir;
+				loc.cars.add(car);
 			}
 		}
 	};

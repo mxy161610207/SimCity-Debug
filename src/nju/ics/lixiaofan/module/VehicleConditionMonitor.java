@@ -20,7 +20,7 @@ public class VehicleConditionMonitor implements EventListener{
 		case CAR_START_UNLOADING:
 		case CAR_END_UNLOADING:
 //			System.out.println(event.type.toString() + "\t" + event.car);
-			Dashboard.updateVehicleCondition(Car.carOf(event.car));
+			Dashboard.updateVC(Car.carOf(event.car));
 			break;
 		default:
 			break;

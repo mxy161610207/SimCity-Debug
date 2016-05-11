@@ -15,7 +15,7 @@ import nju.ics.lixiaofan.event.EventManager;
 
 public class RCServer{
 	private static ServerSocket server = null;
-	public static CarRC rc = null;
+	static CarRC rc = null;
 	private static Runnable listener = new Runnable() {
 		public void run() {
 			try {
@@ -40,7 +40,7 @@ public class RCServer{
 	public RCServer() {
 		new Thread(listener, "RC Server").start();
 		new Thread(new CmdSender(), "Command Sender").start();
-		new Thread(new Remediation(), "Remedy Thread").start();
+		new Thread(new Remedy(), "Remedy Thread").start();
 	}
 	
 	public static void addCar(String name){

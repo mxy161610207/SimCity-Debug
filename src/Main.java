@@ -15,7 +15,7 @@ import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
-import nju.ics.lixiaofan.control.TrafficPolice;
+import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -32,7 +32,7 @@ public class Main {
 		new Middleware();
 		new RCServer();
 		new Delivery();
-		new TrafficPolice();
+		new Police();
 		new CitizenControl();
 		new BrickServer();
 		new AppServer();

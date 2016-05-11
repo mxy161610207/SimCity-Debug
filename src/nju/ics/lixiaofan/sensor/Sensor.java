@@ -28,7 +28,7 @@ public class Sensor {
 //	public boolean isTriggered = false;
 	public int showPos = -1;//4 types in total
 	public int px, py;
-	public JButton button = null;
+	public JButton icon = null;
 	
 	public final static int INITIAL = 0;
 	public final static int DETECTED = 1;
@@ -50,9 +50,9 @@ public class Sensor {
 		state = Sensor.INITIAL;//UNDETECTED;
 	}
 	
-	public static class ButtonListener extends MouseAdapter{
+	public static class SensorIcon extends MouseAdapter{
 		private int bid, sid;
-		public ButtonListener(int bid, int sid) {
+		public SensorIcon(int bid, int sid) {
 			this.bid = bid;
 			this.sid = sid;
 		}

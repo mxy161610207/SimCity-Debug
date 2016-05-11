@@ -12,17 +12,16 @@ import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
-import nju.ics.lixiaofan.control.TrafficPolice;
+import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 public class Car {
-//	public int id;
-	public int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
+	public final int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
 	public boolean isConnected = false;
-	public String name = null;//only for zenwheels
-	public int status = STILL;//0: still	1: moving	-1: uncertain
+	public final String name;//only for zenwheels
+	public int status = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int trend = 0;//0: tend to stop	1: tend to move	-1: none
 	public int finalState = 0;
 	public int dir = -1;//0: N	1: S	2: W	3: E
@@ -37,9 +36,9 @@ public class Car {
 	public Set<Citizen> passengers = new HashSet<Citizen>();
 	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
-	public int realDir = -1, realStatus = 0;
+	public int realDir, realStatus;
 	
-	public static final int STILL = 0;
+	public static final int STOPPED = 0;
 	public static final int MOVING = 1;
 	public static final int UNCERTAIN = -1;
 	
@@ -58,7 +57,7 @@ public class Car {
 	}
 	
 	public void reset(){
-		status = STILL;
+		status = STOPPED;
 		trend = 0;
 		finalState = 0;
 		dir = -1;
@@ -72,16 +71,16 @@ public class Car {
 		realStatus = 0;
 	}
 	
-	public void sendRequest(int cmd) {
+	public void notifyPolice(int cmd) {
 		if(loc == null)
 			return;
-		TrafficPolice.add(this, dir, loc, cmd);//TODO dir and loc
+		Police.add(this, dir, loc, cmd);
 	}
 	
-	public void sendRequest(Section next) {
+	public void notifyPolice(Section next) {
 		if(loc == null)
 			return;
-		TrafficPolice.add(this, dir, loc, 3, next);//TODO
+		Police.add(this, dir, loc, Police.ALREADY_ENTERED, next);
 	}
 	
 	public void enter(Section section){
@@ -162,7 +161,7 @@ public class Car {
 		case 3:
 			return "E";
 		}
-		return "U";
+		return null;
 	}
 	
 	public boolean isReal(){
@@ -204,7 +203,7 @@ public class Car {
 	
 	public static class CarIcon extends JButton{
 		private static final long serialVersionUID = 1L;
-		private String name = null;
+		private final String name;
 		public static final int SIZE = (int) (0.8*TrafficMap.sh);
 		public static final int INSET = (int) (0.2*TrafficMap.sh);
 		public static final Color SILVER = new Color(192, 192, 192);

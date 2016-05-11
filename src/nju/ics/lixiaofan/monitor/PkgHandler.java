@@ -44,14 +44,14 @@ public class PkgHandler implements Runnable{
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
-						if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//						e.printStackTrace();
+						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 							clear();
 					}
 				}
 			}
 			if(Reset.isResetting()){
-				if(Reset.isUnchecked(curThread))
+				if(!Reset.isThreadReset(curThread))
 					clear();
 				continue;
 			}
@@ -75,12 +75,12 @@ public class PkgHandler implements Runnable{
 				if(car != null){
 					if(p.cmd == 1){
 						car.finalState = 1;
-						car.sendRequest(1);
+						car.notifyPolice(1);
 					}
 					else if(p.cmd == 0){
 						car.finalState = 0;
 						Command.send(car, 0);
-						car.sendRequest(0);
+						car.notifyPolice(0);
 					}
 				}
 				break;
@@ -171,8 +171,8 @@ public class PkgHandler implements Runnable{
 						try {
 							sockets.wait();
 						} catch (InterruptedException e) {
-							e.printStackTrace();
-							if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//							e.printStackTrace();
+							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 								clear();
 						}
 					}
@@ -183,13 +183,13 @@ public class PkgHandler implements Runnable{
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && Reset.isUnchecked(curThread))
+							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 								clear();
 						}
 					}
 				}
 				if(Reset.isResetting()){
-					if(Reset.isUnchecked(curThread))
+					if(!Reset.isThreadReset(curThread))
 						clear();
 					continue;
 				}
@@ -198,8 +198,6 @@ public class PkgHandler implements Runnable{
 				AppPkg p = null;
 				synchronized (queue) {
 					p = queue.poll();
-					if(p == null)
-						continue;
 				}
 				for(int i = 0;i < sockets.size();i++){
 					Socket socket = sockets.get(i);

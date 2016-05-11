@@ -32,14 +32,14 @@ public class CitizenControl implements Runnable{
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
-						if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//						e.printStackTrace();
+						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 							clear();
 					}
 				}
 			}
 			if(Reset.isResetting()){
-				if(Reset.isUnchecked(curThread))
+				if(!Reset.isThreadReset(curThread))
 					clear();
 				continue;
 			}

@@ -102,7 +102,7 @@ public class BFunc extends Formula {
 //		if(v1 == null)
 //			return false;
 		
-		return v1 == Car.STILL;
+		return v1 == Car.STOPPED;
 	}
 
 	private boolean funcSameLocation(HashMap<String, Context> var) {

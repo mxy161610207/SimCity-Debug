@@ -5,12 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
-public class Remediation implements Runnable{
+public class Remedy implements Runnable{
 	private static List<Command> queue = new LinkedList<Command>();
 	//public static Object getwork = new Object();//, workdone = new Object();
 	private Runnable wakeThread = new Runnable() {
@@ -31,7 +32,7 @@ public class Remediation implements Runnable{
 		}
 	};
 	
-	public Remediation() {
+	public Remedy() {
 		new Thread(wakeThread, "Wake Thread").start();
 	}
 	
@@ -44,15 +45,15 @@ public class Remediation implements Runnable{
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
-						if(Reset.isResetting() && Reset.isUnchecked(curThread))
+//						e.printStackTrace();
+						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 							clear();
 					}
 				}
 			}
 			
 			if(Reset.isResetting()){
-				if(Reset.isUnchecked(curThread))
+				if(!Reset.isThreadReset(curThread))
 					clear();
 				continue;
 			}
@@ -72,7 +73,7 @@ public class Remediation implements Runnable{
 					}
 					//stop cmd
 					else if (cmd.cmd == 0) {
-						cmd.car.status = Car.STILL;
+						cmd.car.status = Car.STOPPED;
 						cmd.car.stopTime = System.currentTimeMillis();
 						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
 							cmd.car.setLoading(true);
@@ -83,7 +84,7 @@ public class Remediation implements Runnable{
 							else if(cmd.car.dt.phase == 2 && EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
 								EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
 						}
-						cmd.car.sendRequest(2);
+						cmd.car.notifyPolice(Police.ALREADY_STOPPED);
 						//trigger stop event
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));
@@ -119,14 +120,14 @@ public class Remediation implements Runnable{
 					//stop command
 					if(cmd.cmd == 0){
 						cmd.level = 1;
-						cmd.deadline = Remediation.getDeadline(cmd.car.type, 0, 1);
+						cmd.deadline = Remedy.getDeadline(cmd.car.type, 0, 1);
 						Command.send(cmd, false);
 						newCmd = cmd;
 					}
 					break;
 				}
 			}
-			Remediation.insert(newCmd);
+			Remedy.insert(newCmd);
 			if(donesth){
 				Dashboard.updateRemedyQ();
 				printQueue();
@@ -143,7 +144,7 @@ public class Remediation implements Runnable{
 			for(i = 0;i < queue.size();i++)
 				if(queue.get(i).deadline > cmd.deadline){
 					queue.add(i, cmd);
-					return;
+					break;
 				}
 			if(i == queue.size())
 				queue.add(cmd);

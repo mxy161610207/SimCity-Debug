@@ -17,7 +17,7 @@ public class VehicleConditionPanel extends JPanel{
 	private static final long serialVersionUID = 1L;
 	private Map<Car, Entry> entries = new HashMap<Car, Entry>();
 	public VehicleConditionPanel() {
-		setLayout(new GridLayout(0,1));
+		setLayout(new GridLayout(0, 1));
 //		setBackground(Color.WHITE);
 	}
 	

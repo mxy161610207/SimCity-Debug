@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.resource.ResourceProvider;
 
 public class Command {
 	public Car car = null;
@@ -14,8 +14,8 @@ public class Command {
 	public long deadline = 1000;
 	public int type = 0;//0: normal 1: wake car 2: reset
 	
-	public final static int STOP = 0;
-	public final static int FORWARD = 1;
+	public final static int STOP = Car.STOPPED;
+	public final static int FORWARD = Car.MOVING;
 	public final static int BACKWARD = 2;
 	public final static int LEFT = 3;
 	public final static int RIGHT = 4;
@@ -25,7 +25,7 @@ public class Command {
 	public Command(Car car, int cmd) {
 		this.car = car;
 		this.cmd = cmd;
-		deadline = Remediation.getDeadline(car.type, cmd, 1);
+		deadline = Remedy.getDeadline(car.type, cmd, 1);
 	}
 	
 	public Command(Car car, int cmd, int type) {
@@ -43,7 +43,7 @@ public class Command {
 			return;
 
 		CmdSender.send(car, cmd);
-		if(cmd >= STOP && cmd <= RIGHT){
+		if(cmd == STOP || cmd == FORWARD){
 			car.trend = cmd;
 			if(cmd != car.status)
 				car.status = Car.UNCERTAIN;
@@ -52,7 +52,7 @@ public class Command {
 //			car.lastInstr = cmd;
 			
 			if(remedy)
-				Remediation.addRemedyCommand(car, cmd);
+				Remedy.addRemedyCommand(car, cmd);
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class Command {
 	public static void wake(Car car){
 		if(car == null || !car.isConnected || car.getRealStatus() == Car.UNCERTAIN)
 			return;
-		CmdSender.send(car, car.getRealStatus(), 1);
+		CmdSender.send(car, car.getRealStatus(), FORWARD);
 //		car.trend = car.status;
 //		car.lastInstr = car.getRealStatus();
 	}
@@ -72,9 +72,13 @@ public class Command {
 	 * Only called by Reset Thread
 	 */
 	public static void drive(Car car){
+		if(RCServer.rc == null){
+			System.err.println("Not RC connected, cannot drive " + car.name);
+			return;
+		}
 		if(car.isConnected){
 			try {
-				RCServer.rc.out.writeUTF(car.name+"_"+Command.FORWARD+"_30");
+				RCServer.rc.out.writeUTF(car.name + "_" + FORWARD + "_30");
 				RCServer.rc.out.flush();
 				car.lastInstrTime = System.currentTimeMillis();
 			} catch (IOException e) {
@@ -87,9 +91,13 @@ public class Command {
 	 * Only called by Reset Thread
 	 */
 	public static void stop(Car car){
+		if(RCServer.rc == null){
+			System.err.println("RC disconnected, cannot stop " + car.name);
+			return;
+		}
 		if(car.isConnected){
 			try {
-				RCServer.rc.out.writeUTF(car.name+"_"+Command.STOP+"_30");
+				RCServer.rc.out.writeUTF(car.name + "_" + STOP + "_30");
 				RCServer.rc.out.flush();
 				Reset.lastStopInstrTime = car.lastInstrTime = System.currentTimeMillis();
 			} catch (IOException e) {
@@ -103,13 +111,14 @@ public class Command {
 	 */
 	public static void stopAllCars(){
 //		CmdSender.clear();
-		for(Car car : TrafficMap.cars.values())
-			stop(car);
+		for(Car car : ResourceProvider.getConnectedCars())
+			if(car.getRealStatus() != Car.STOPPED)
+				stop(car);
 	}
 }
 
 class CmdSender implements Runnable{
-	public static Queue<Command> queue = new LinkedList<Command>();
+	private static Queue<Command> queue = new LinkedList<Command>();
 	
 	public void run() {
 		//TODO
@@ -121,16 +130,16 @@ class CmdSender implements Runnable{
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+//						e.printStackTrace();
 						//TODO
-						if(Reset.isResetting() && Reset.isUnchecked(curThread))
+						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
 							clear();
 					}
 				}
 			}
 			//TODO
 			if(Reset.isResetting()){
-				if(Reset.isUnchecked(curThread))
+				if(!Reset.isThreadReset(curThread))
 					clear();
 				continue;
 			}
@@ -153,7 +162,7 @@ class CmdSender implements Runnable{
 //					rc.lastInstrTime = System.currentTimeMillis();
 					break;
 				case Command.HORN:
-					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_2000");
+					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_1500");
 					RCServer.rc.out.flush();
 					break;
 				default:

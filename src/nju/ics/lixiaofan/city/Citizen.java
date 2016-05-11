@@ -77,11 +77,11 @@ public class Citizen implements Runnable{
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					if(Reset.isResetting())
-						Reset.isUnchecked(curThread);
+						Reset.isThreadReset(curThread);
 				}
 			}
 			if(Reset.isResetting()){
-				Reset.isUnchecked(curThread);
+				Reset.isThreadReset(curThread);
 				continue;
 			}
 			
