@@ -4,7 +4,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
@@ -16,10 +15,11 @@ import nju.ics.lixiaofan.event.EventManager;
 public class RCServer{
 	private static ServerSocket server = null;
 	static CarRC rc = null;
+	private static final int PORT = 8888;
 	private static Runnable listener = new Runnable() {
 		public void run() {
 			try {
-				server = new ServerSocket(8888);
+				server = new ServerSocket(PORT);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -27,8 +27,10 @@ public class RCServer{
 			while(true){
 				try {
 					Socket socket = server.accept();
+					socket.setTcpNoDelay(true);
+					socket.setSoTimeout(0);
 					rc = new CarRC(0, 0, socket, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()));
-					new Thread(new RCListener(socket), "RC Listener").start();
+					new Thread(new RCListener(), "RC Listener").start();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -48,31 +50,34 @@ public class RCServer{
 	}
 	
 	private static class RCListener implements Runnable{
-		private Socket socket;
-		DataInputStream in = null;
+//		private Socket socket;
+//		DataInputStream in = null;
 		private boolean exit = false;
-		private String str;
-		public RCListener(Socket socket) {
-			this.socket = socket;
-			try {
-				this.socket.setTcpNoDelay(true);
-			} catch (SocketException e) {
-				e.printStackTrace();
-			}
-		}
+		
+//		public RCListener(Socket socket) {
+//			this.socket = socket;
+//			try {
+//				this.socket.setTcpNoDelay(true);
+//			} catch (SocketException e) {
+//				e.printStackTrace();
+//			}
+//		}
 
 		@Override
 		public void run() {
-			try {
-//				new DataOutputStream(socket.getOutputStream());
-				in = new DataInputStream(socket.getInputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
-				exit = true;
-			}
+//			try {
+////				new DataOutputStream(socket.getOutputStream());
+//				in = new DataInputStream(socket.getInputStream());
+////				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+////				br.re
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				exit = true;
+//			}
+			String str;
 			while(!exit){
 				try {
-					str = in.readUTF();
+					str = rc.in.readUTF();
 				} catch (IOException e) {
 					e.printStackTrace();
 					break;

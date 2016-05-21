@@ -11,13 +11,14 @@ import java.util.List;
 
 public class AppServer {
 	private static ServerSocket server = null;
+	private static final int PORT = 11111;
 	private static List<Socket> sockets = new ArrayList<Socket>();
 	private static HashMap<Socket, ObjectInputStream> in = new HashMap<Socket, ObjectInputStream>();
 	private static HashMap<Socket, ObjectOutputStream> out = new HashMap<Socket, ObjectOutputStream>();
 	private static Runnable listener = new Runnable() {
 		public void run() {
 			try {
-				server = new ServerSocket(11111);
+				server = new ServerSocket(PORT);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

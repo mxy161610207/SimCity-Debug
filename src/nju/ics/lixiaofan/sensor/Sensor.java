@@ -15,6 +15,7 @@ public class Sensor {
 	public int sid;
 	public String name;
 	public int state;
+	public int reading;
 	public int entryThreshold, leaveThreshold;
 	public Crossing crossing;
 	public Street street;
@@ -46,25 +47,44 @@ public class Sensor {
 		leaveThreshold = i;
 	}
 	
+	//TODO
 	public void reset() {
-		state = Sensor.INITIAL;//UNDETECTED;
+		if(entryDetected(reading))
+			state = DETECTED;
+		else if(leaveDetected(reading))
+			state = UNDETECTED;
+		else
+			state = Sensor.INITIAL;
 	}
 	
 	public static class SensorIcon extends MouseAdapter{
-		private int bid, sid;
-		public SensorIcon(int bid, int sid) {
-			this.bid = bid;
-			this.sid = sid;
+		private Sensor sensor;
+		public SensorIcon(Sensor sensor) {
+			this.sensor = sensor;
 		}
 		public void mousePressed(MouseEvent e) {
 			switch (e.getButton()) {
 			case MouseEvent.BUTTON1:
 //				System.out.println("left click");
-				BrickHandler.add(bid, sid, 0);
+				BrickHandler.add(sensor.bid, sensor.sid, 0);
 				break;
 			case MouseEvent.BUTTON3:
 //				System.out.println("right click");
-				BrickHandler.add(bid, sid, 20);
+				BrickHandler.add(sensor.bid, sensor.sid, 20);
+				break;
+			case MouseEvent.BUTTON2:
+				System.out.print(sensor.name + " ");
+				switch (sensor.state) {
+				case INITIAL:
+					System.out.println("INITIAL");
+					break;
+				case DETECTED:
+					System.out.println("DETECTED");
+					break;
+				case UNDETECTED:
+					System.out.println("UNDETECTED");
+					break;
+				}
 				break;
 			}		
 		}

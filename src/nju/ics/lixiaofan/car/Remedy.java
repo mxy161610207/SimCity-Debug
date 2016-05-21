@@ -10,12 +10,16 @@ import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
+import nju.ics.lixiaofan.sensor.BrickServer;
 
 public class Remedy implements Runnable{
 	private static List<Command> queue = new LinkedList<Command>();
 	//public static Object getwork = new Object();//, workdone = new Object();
 	private Runnable wakeThread = new Runnable() {
+		int count = 1, missed[] = new int[10];
 		public void run() {
+			for(int i = 0;i < missed.length;i++)
+				missed[i] = 0;
 			while(true){
 				long currentTime = System.currentTimeMillis();
 				for(Car car : TrafficMap.cars.values())
@@ -23,6 +27,18 @@ public class Remedy implements Runnable{
 							&& currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				
+				//check heartBeat
+				if(count == 0){
+					for(int bid = 0;bid < 10;bid++)
+						if(currentTime - BrickServer.recvTime[bid] > 5000){
+							missed[bid]++;
+							if(missed[bid] >= 3)
+								System.err.println("Brick " + bid + " is down");
+						}
+						else
+							missed[bid] = 0;
+				}
+				count = (count + 1) % 5;
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

@@ -11,12 +11,9 @@ import lejos.hardware.sensor.EV3IRSensor;
 import lejos.robotics.SampleProvider;
 
 public class Client {
-//	static Object obj = new Object();
-//	static Socket server = null;
-//	static DataOutputStream dos = null;
-//	static DataInputStream dis = null;
-	
 	static DatagramSocket server = null;
+	static String ip = "192.168.1.112";//"192.168.1.100"
+	static int port = 9999;
 	static int sensorNum;
 	static int bid = -1;
 	
@@ -58,92 +55,93 @@ public class Client {
 //			sensor.start();
 //		}
 	}
+	
+	static class SensorHandler extends Thread{
+		int sensorNum;
+		EV3IRSensor[] ir;
+		SampleProvider[] sp;
+		boolean exit = false;
+		int[] dis, preDis;
+		long[] lastSentTime;
+		public SensorHandler() {
+			sensorNum = Client.sensorNum;
+			ir = new EV3IRSensor[sensorNum];
+			sp = new SampleProvider[sensorNum];
+			dis = new int[sensorNum];
+			preDis = new int[sensorNum];
+			lastSentTime = new long[sensorNum];
+			try{
+				for(int i = 0;i < sensorNum;i++){
+					ir[i] = new EV3IRSensor(LocalEV3.get().getPort("S" + (i+1)));
+					sp[i] = ir[i].getDistanceMode();
+					dis[i] = 255;
+					preDis[i] = -1;
+					lastSentTime[i] = 0;
+				}
+			}
+			catch(IllegalArgumentException e){
+	    		exit = true;
+	    	}
+			
+		}
+		public void run() {
+	    	float [] sample = null;
+	    	byte[] buf = new byte[12];
+	    	int2byte(Client.bid, buf, 0);
+	    	DatagramPacket packet = null;
+	    	long curTime;
+	    	try {
+				packet = new DatagramPacket(buf, buf.length, InetAddress.getByName(ip), port);
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+			}
+	    	while(!exit){
+	    		sample = new float[sp[0].sampleSize()];
+	    		for(int i = 0;i < preDis.length;i++)
+	    			preDis[i] = -1;
+	    		
+		        while (!exit){
+		        	for(int i = 0;i < sensorNum;i++){
+			            sp[i].fetchSample(sample, 0);
+			            dis[i] = (int)sample[0];
+			            curTime = System.currentTimeMillis();
+			            if(preDis[i] != dis[i] || curTime - lastSentTime[i] >= 50){
+				            try {
+//				            	Client.dos.writeUTF((i+1) + "_" + dis[i]);
+//				            	Client.dos.flush();
+				            	int2byte(i, buf, 4);
+				            	int2byte(dis[i], buf, 8);
+				            	Client.server.send(packet);
+//				            	if(i == 3)
+//				            		System.out.println((i+1) + "_" + dis[i]);
+							} catch (IOException e) {
+			//					e.printStackTrace();
+								System.out.println("Connection is broken");
+								exit = true;
+								break;
+							}
+				            preDis[i] = dis[i];
+				            lastSentTime[i] = curTime;
+			            }
+		        	}
+		        	try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+//						e.printStackTrace();
+					}
+		        }
+	    	}
+		}
+		
+		public static void int2byte(int res, byte[] b, int offset) {  
+			b[offset] = (byte) (res & 0xff);// 最低位   
+			b[offset+1] = (byte) ((res >> 8) & 0xff);// 次低位   
+			b[offset+2] = (byte) ((res >> 16) & 0xff);// 次高位   
+			b[offset+3] = (byte) (res >>> 24);// 最高位,无符号右移。   
+		}
+	}
 }
 
-class SensorHandler extends Thread{
-	int sensorNum;
-	EV3IRSensor[] ir;
-	SampleProvider[] sp;
-	boolean exit = false;
-	int[] dis, preDis;
-	long[] lastSentTime;
-	public SensorHandler() {
-		sensorNum = Client.sensorNum;
-		ir = new EV3IRSensor[sensorNum];
-		sp = new SampleProvider[sensorNum];
-		dis = new int[sensorNum];
-		preDis = new int[sensorNum];
-		lastSentTime = new long[sensorNum];
-		try{
-			for(int i = 0;i < sensorNum;i++){
-				ir[i] = new EV3IRSensor(LocalEV3.get().getPort("S" + (i+1)));
-				sp[i] = ir[i].getDistanceMode();
-				dis[i] = 255;
-				preDis[i] = -1;
-				lastSentTime[i] = 0;
-			}
-		}
-		catch(IllegalArgumentException e){
-    		exit = true;
-    	}
-		
-	}
-	public void run() {
-    	float [] sample = null;
-    	byte[] buf = new byte[12];
-    	int2byte(Client.bid, buf, 0);
-    	DatagramPacket packet = null;
-    	long curTime;
-    	try {
-			packet = new DatagramPacket(buf, buf.length, InetAddress.getByName("192.168.1.100"),9999);
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		}
-    	while(!exit){
-    		sample = new float[sp[0].sampleSize()];
-    		for(int i = 0;i < preDis.length;i++)
-    			preDis[i] = -1;
-    		
-	        while (!exit){
-	        	for(int i = 0;i < sensorNum;i++){
-		            sp[i].fetchSample(sample, 0);
-		            dis[i] = (int)sample[0];
-		            curTime = System.currentTimeMillis();
-		            if(preDis[i] != dis[i] || curTime - lastSentTime[i] >= 50){
-			            try {
-//			            	Client.dos.writeUTF((i+1) + "_" + dis[i]);
-//			            	Client.dos.flush();
-			            	int2byte(i, buf, 4);
-			            	int2byte(dis[i], buf, 8);
-			            	Client.server.send(packet);
-//			            	if(i == 3)
-//			            		System.out.println((i+1) + "_" + dis[i]);
-						} catch (IOException e) {
-		//					e.printStackTrace();
-							System.out.println("Connection is broken");
-							exit = true;
-							break;
-						}
-			            preDis[i] = dis[i];
-			            lastSentTime[i] = curTime;
-		            }
-	        	}
-	        	try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-//					e.printStackTrace();
-				}
-	        }
-    	}
-	}
-	
-	public static void int2byte(int res, byte[] b, int offset) {  
-		b[offset] = (byte) (res & 0xff);// 最低位   
-		b[offset+1] = (byte) ((res >> 8) & 0xff);// 次低位   
-		b[offset+2] = (byte) ((res >> 16) & 0xff);// 次高位   
-		b[offset+3] = (byte) (res >>> 24);// 最高位,无符号右移。   
-	}
-}
 /*
 class IRSensorThread extends Thread{
     EV3IRSensor ir;

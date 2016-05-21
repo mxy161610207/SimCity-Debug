@@ -447,7 +447,7 @@ public class TrafficMap extends JPanel{
 		crossings[c].sensors.add(sensor);
 		streets[s].sensors.add(sensor);
 		sensor.entryThreshold = 9;
-		sensor.leaveThreshold = 12;
+		sensor.leaveThreshold = 10;
 		
 		if(sensor.crossing.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
 			sensor.showPos = 0;
@@ -473,7 +473,7 @@ public class TrafficMap extends JPanel{
 		sensor.icon.setVisible(false);
 		sensor.icon.setMargin(new Insets(0, 0, 0, 0));
 		sensor.icon.setBounds(sensor.px-18, sensor.py-8, 36, 16);
-		sensor.icon.addMouseListener(new Sensor.SensorIcon(bid, sid));
+		sensor.icon.addMouseListener(new Sensor.SensorIcon(sensor));
 		
 		if(TrafficMap.dir)
 			sensor.dir = dir;

@@ -169,6 +169,7 @@ public class Reset {
 			carInfo.clear();
 			resetting = false;
 			Dashboard.repaintTrafficMap();
+			Dashboard.updateVC();
 			Dashboard.enableResetButton(true);
 		}
 		

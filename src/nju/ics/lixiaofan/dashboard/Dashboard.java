@@ -592,6 +592,11 @@ public class Dashboard extends JFrame{
 		VCPanel.updateVC(car);
 	}
 	
+	public static synchronized void updateVC(){
+		for(Car car : ResourceProvider.getConnectedCars())
+			updateVC(car);
+	}
+	
 	public static synchronized void appendLog(String str){
 		logta.append(str+"\n");
 	}

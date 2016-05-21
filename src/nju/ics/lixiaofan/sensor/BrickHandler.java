@@ -110,11 +110,8 @@ public class BrickHandler extends Thread{
 			synchronized (rawData) {
 				data = rawData.poll();
 			}
-			if(data == null || data.bid >= ResourceProvider.getSensors().size()
-				|| data.sid >= ResourceProvider.getSensors().get(data.bid).size())
-				continue;
-			SensorManager.trigger(ResourceProvider.getSensors().get(data.bid).get(data.sid), data.d);
-			switchState(data.bid, data.sid, data.d);
+			SensorManager.trigger(data.sensor, data.reading);
+			switchState(data.sensor, data.reading);
 		}
 	}
 	
@@ -209,32 +206,31 @@ public class BrickHandler extends Thread{
 		}
 	}
 
-	private void switchState(int bid, int sid, int reading){
-		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
+	private void switchState(Sensor sensor, int reading){
 		switch(sensor.state){
-		case Sensor.INITIAL:
-			if(sensor.entryDetected(reading)){
-				sensor.state = Sensor.DETECTED;
-				switchState(bid, sid, reading);
-			}
-			else if(sensor.leaveDetected(reading)){
-				sensor.state = Sensor.UNDETECTED;
-				switchState(bid, sid, reading);
-			}
-			break;
+//		case Sensor.INITIAL:
+//			if(sensor.entryDetected(reading)){
+//				sensor.state = Sensor.DETECTED;
+//				switchState(sensor, reading);
+//			}
+//			else if(sensor.leaveDetected(reading)){
+//				sensor.state = Sensor.UNDETECTED;
+//				switchState(sensor, reading);
+//			}
+//			break;
 		case Sensor.DETECTED:
 			if(sensor.leaveDetected(reading)){
 //				if(isFalsePositive2(sensor)){
 				if(sensor.car != null && sensor.car.isReal() 
 						&& sensor.car.loc.sameAs(sensor.nextSection)
 						&& sensor.car.status == Car.STOPPED){
-					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!" +"\treading: " + reading);
+					System.out.println(sensor.name + " !!!FALSE POSITIVE!!!" +"\treading: " + reading);
 					break;
 				}
 				sensor.state = Sensor.UNDETECTED;
 				sensor.car = null;
 //				System.out.println(sdf.format(new Date()));
-				System.out.println("B"+bid+"S"+(sid+1)+" LEAVING!!!" + "\treading: " + reading);
+				System.out.println(sensor.name + " LEAVING!!!" + "\treading: " + reading);
 			}
 			break;
 		case Sensor.UNDETECTED:
@@ -276,11 +272,11 @@ public class BrickHandler extends Thread{
 					}
 				}
 				if(car == null){
-					System.out.println("B"+bid+"S"+(sid+1)+": Can't find car!\treading: "+reading);
+					System.out.println(sensor.name + ": Can't find car!\treading: "+reading);
 					sensor.state = Sensor.UNDETECTED;
 					break;
 				}
-				
+				System.out.println(sensor.name + " ENTERING!!!" + "\treading: " + reading);
 				//TODO if the car is fake, directly label this context FP and add to checkedData
 				if(isReal)
 					Middleware.add(car.name, dir, status, "movement", "enter",
@@ -298,19 +294,18 @@ public class BrickHandler extends Thread{
 	 * This method is only called in resetting phase and will locate cars
 	 * 
 	 */
-	private static void switchStateWhenResetting(int bid, int sid, int reading){
-		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
+	private static void switchStateWhenResetting(Sensor sensor, int reading){
 		switch(sensor.state){
-		case Sensor.INITIAL:
-			if(sensor.entryDetected(reading)){
-				sensor.state = Sensor.DETECTED;
-				switchStateWhenResetting(bid, sid, reading);
-			}
-			else if(sensor.leaveDetected(reading)){
-				sensor.state = Sensor.UNDETECTED;
-				switchStateWhenResetting(bid, sid, reading);
-			}
-			break;
+//		case Sensor.INITIAL:
+//			if(sensor.entryDetected(reading)){
+//				sensor.state = Sensor.DETECTED;
+//				switchStateWhenResetting(sensor, reading);
+//			}
+//			else if(sensor.leaveDetected(reading)){
+//				sensor.state = Sensor.UNDETECTED;
+//				switchStateWhenResetting(sensor, reading);
+//			}
+//			break;
 		case Sensor.DETECTED:
 			if(sensor.leaveDetected(reading))
 				sensor.state = Sensor.UNDETECTED;
@@ -333,12 +328,14 @@ public class BrickHandler extends Thread{
 		}
 	}
 
-	public static void add(int bid, int sid, int d){
+	public static void add(int bid, int sid, int reading){
+		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
+		sensor.reading = reading;
 		if(Reset.isResetting()){
-			switchStateWhenResetting(bid, sid, d);
+			switchStateWhenResetting(sensor, reading);
 			return;
 		}
-		RawData datum = new RawData(bid, sid, d);
+		RawData datum = new RawData(sensor, reading);
 		synchronized (rawData) {
 			rawData.add(datum);
 			rawData.notify();
@@ -401,11 +398,11 @@ public class BrickHandler extends Thread{
 //	}
 	
 	private static class RawData{
-		public int bid, sid, d;
-		public RawData(int bid, int sid, int d) {
-			this.bid = bid;
-			this.sid = sid;
-			this.d = d;
+		public Sensor sensor;
+		public int reading;
+		public RawData(Sensor sensor, int reading) {
+			this.sensor = sensor;
+			this.reading = reading;
 		}
 	}
 	
