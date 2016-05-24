@@ -10,35 +10,37 @@ import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
+import nju.ics.lixiaofan.resource.ResourceProvider;
 import nju.ics.lixiaofan.sensor.BrickServer;
 
 public class Remedy implements Runnable{
 	private static List<Command> queue = new LinkedList<Command>();
 	//public static Object getwork = new Object();//, workdone = new Object();
 	private Runnable wakeThread = new Runnable() {
-		int count = 1, missed[] = new int[10];
+		int missed[] = new int[10];
 		public void run() {
 			for(int i = 0;i < missed.length;i++)
 				missed[i] = 0;
+			long start = System.currentTimeMillis();
 			while(true){
 				long currentTime = System.currentTimeMillis();
-				for(Car car : TrafficMap.cars.values())
-					if (car.isConnected && car.getRealStatus() != Car.UNCERTAIN
-							&& currentTime - car.lastInstrTime > 60000)
+				for(Car car : ResourceProvider.getConnectedCars())
+					if (car.getRealStatus() != Car.UNCERTAIN && currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				
 				//check heartBeat
-				if(count == 0){
-					for(int bid = 0;bid < 10;bid++)
-						if(currentTime - BrickServer.recvTime[bid] > 5000){
-							missed[bid]++;
-							if(missed[bid] >= 3)
-								System.err.println("Brick " + bid + " is down");
-						}
-						else
-							missed[bid] = 0;
-				}
-				count = (count + 1) % 5;
+				for(int bid = 0;bid < 10;bid++)
+					if(BrickServer.recvTime[bid] > 0 && currentTime - BrickServer.recvTime[bid] > 3000){
+						missed[bid]++;
+//						if(missed[bid] >= 3)
+						System.err.println("Brick " + bid + " is down");
+						
+//						tplcnt++;						
+//						System.out.println("TP-LINK:"+tplcnt+" "+(tplcnt == 0?"N/A":(currentTime-start)/tplcnt));
+					}
+					else
+						missed[bid] = 0;
+//				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -115,7 +117,7 @@ public class Remedy implements Runnable{
 				}
 			}
 			try {
-				Thread.sleep(30);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

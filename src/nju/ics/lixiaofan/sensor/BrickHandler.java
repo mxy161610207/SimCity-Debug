@@ -272,7 +272,7 @@ public class BrickHandler extends Thread{
 					}
 				}
 				if(car == null){
-					System.out.println(sensor.name + ": Can't find car!\treading: "+reading);
+					System.out.println(sensor.name + ": Cannot find any car!\treading: "+reading);
 					sensor.state = Sensor.UNDETECTED;
 					break;
 				}

@@ -162,7 +162,7 @@ class CmdSender implements Runnable{
 //					rc.lastInstrTime = System.currentTimeMillis();
 					break;
 				case Command.HORN:
-					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_1500");
+					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_1000");
 					RCServer.rc.out.flush();
 					break;
 				default:

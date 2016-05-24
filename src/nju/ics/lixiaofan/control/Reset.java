@@ -82,7 +82,7 @@ public class Reset {
 	public static Car locatedCar = null;
 	public static long lastStopInstrTime;
 	public static Runnable resetTask = new Runnable() {
-		private final long maxWaitingTime = 2000;
+		private final long maxWaitingTime = 1500;
 		private Set<Car> car2Locate = new HashSet<Car>();
 		private Map<Car, CarInfo> carInfo = new HashMap<Car, CarInfo>();
 		public void run() {

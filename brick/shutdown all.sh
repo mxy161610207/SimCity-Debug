@@ -1,8 +1,7 @@
 #!/bin/sh
 cmd="poweroff"
-for i in {101..110}
+for i in {0..9}
 do
-	let bid=$i-101
-	echo "shutdown Brick $bid"
-	ssh root@192.168.1.$i $cmd &
+	echo "shutdown Brick $i"
+	ssh root@192.168.1.11$i $cmd &
 done
