@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -42,12 +43,12 @@ public class Car {
 	public static final int MOVING = 1;
 	public static final int UNCERTAIN = -1;
 	
-	public static final String ORANGE = "Orange Car";
-	public static final String GREEN = "Green Car";
-	public static final String BLACK = "Black Car";
-	public static final String WHITE = "White Car";
-	public static final String SILVER = "Silver SUV";
-	public static final String RED = "Red Car";
+	public static final String SILVER = "Silver SUV";//A
+	public static final String GREEN = "Green Car";//B
+	public static final String RED = "Red Car";//C
+	public static final String WHITE = "White Car";//D
+	public static final String BLACK = "Black Car";//E
+	public static final String ORANGE = "Orange Car";//F
 	
 	public Car(int type, String name, Section loc) {
 		this.type = type;
@@ -103,8 +104,7 @@ public class Car {
 		
 		section.icon.repaint();
 		if(section.isCombined()){
-			//only combined sections can change a car's direction
-			dir = section.dir[0];
+//			dir = section.dir[0];//only combined sections can change a car's direction
 			for(Section s : section.combined)
 				s.icon.repaint();
 		}
@@ -204,8 +204,8 @@ public class Car {
 	public static class CarIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		private final String name;
-		public static final int SIZE = (int) (0.8*TrafficMap.sh);
-		public static final int INSET = (int) (0.2*TrafficMap.sh);
+		public static final int SIZE = (int) (0.8*TrafficMap.SH);
+		public static final int INSET = (int) (0.2*TrafficMap.SH);
 		public static final Color SILVER = new Color(192, 192, 192);
 		public CarIcon(String name) {
 			setOpaque(false);

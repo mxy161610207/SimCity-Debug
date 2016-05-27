@@ -28,17 +28,18 @@ import nju.ics.lixiaofan.monitor.PkgHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public abstract class Section extends Location{
-	public Map<Integer, Section> adjs = new HashMap<Integer, Section>(); //physical adjacency
+	public Map<Integer, Section> adjSects = new HashMap<Integer, Section>(); //adjacent sections
+//	public Set<Sensor> sensors = new HashSet<Sensor>();
+	public Map<Integer, Sensor> adjSensors = new HashMap<Integer, Sensor>(); //adjacent sensors
 	public Map<Section, Section> exits = new HashMap<Section, Section>(); //entrance -> exit
 	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance
 	public int[] dir = {-1, -1};
 	public Queue<Car> cars = new LinkedList<Car>();//may contain phantoms
 	public Queue<Car> realCars = new LinkedList<Car>();
-	Car[] permitted = {null};//let its type be an array to share its value among the combined
+	public Car[] permitted = {null};//let its type be an array to share its value among the combined
 	public Set<Section> combined = new HashSet<Section>();
 //	public Object mutex = new Object();//used by police thread and its notifier
 	public Queue<Car> waiting = new LinkedList<Car>();//can replace mutex
-	public Set<Sensor> sensors = new HashSet<Sensor>();
 	public SectionIcon icon = null;
 	public BalloonIcon balloon = null;
 	
@@ -74,11 +75,11 @@ public abstract class Section extends Location{
 //					other.mutex = s.mutex;
 					other.permitted = s.permitted;
 					other.waiting = s.waiting;
-					other.adjs = s.adjs;
+					other.adjSects = s.adjSects;
+					other.adjSensors = s.adjSensors;
 					other.exits = s.exits;
 					other.entrances = s.entrances;
 					other.dir = s.dir;
-					other.sensors = s.sensors;
 				}
 		}
 	}
@@ -111,7 +112,7 @@ public abstract class Section extends Location{
 		return !cars.isEmpty();
 	}
 	
-	public static class SectionIcon extends JButton{
+	public static abstract class SectionIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		public final static int cubeSize = CarIcon.SIZE;
 		private final static int cubeInset = CarIcon.INSET;

@@ -21,6 +21,8 @@ public class Command {
 	public final static int RIGHT = 4;
 	public final static int NO_STEER = 5;
 	public final static int HORN = 6;
+	public final static int CONNECT = 7;
+	public final static int DISCONNECT = 8;
 	
 	public Command(Car car, int cmd) {
 		this.car = car;

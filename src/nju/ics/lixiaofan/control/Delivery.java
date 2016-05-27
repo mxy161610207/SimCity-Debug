@@ -85,9 +85,9 @@ public class Delivery {
 								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
 						}
 						else{
-							car.finalState = 0;
-							Command.send(car, 0);
-							car.notifyPolice(0);
+							car.finalState = Car.STOPPED;
+							Command.send(car, Command.STOP);
+							car.notifyPolice(Police.GONNA_STOP);
 						}
 						Dashboard.appendLog(car.name+" reached dest");
 						//trigger reach dest event
@@ -95,8 +95,8 @@ public class Delivery {
 							EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
 					}
 					else{
-						car.finalState = 1;
-						car.notifyPolice(1);
+						car.finalState = Car.MOVING;
+						car.notifyPolice(Police.GONNA_MOVE);
 						Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
 					}
 					searchTasks.poll();
@@ -219,27 +219,27 @@ public class Delivery {
 									//trigger start unloading event
 									if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
 										EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
-									Dashboard.appendLog(car.name+" reached dest");
+									Dashboard.appendLog(car.name+" reached destination");
 									//trigger reach dest event
 									if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 										EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
 								}
 								else{
-									car.finalState = 1;
-									car.notifyPolice(1);
-									Dashboard.appendLog(car.name+" heads for dst "+car.dest.name);
+									car.finalState = Car.MOVING;
+									car.notifyPolice(Police.GONNA_MOVE);
+									Dashboard.appendLog(car.name+" heads for dest "+car.dest.name);
 								}
 							}
-							//head for the dst
+							//head for the dest
 							else{
 								it.remove();
 								dt.phase = 3;
 								car.dt = null;
 								car.dest = null;
-								car.finalState = 1;
+								car.finalState = Car.MOVING;
 								car.setLoading(false);
 								car.loc.icon.repaint();
-								car.notifyPolice(1);
+								car.notifyPolice(Police.GONNA_MOVE);
 								allBusy = false;
 								Dashboard.appendLog(car.name+" finished unloading");
 								//trigger end unloading event
@@ -276,7 +276,7 @@ public class Delivery {
 		if(sects.contains(start))
 			return start;
 		Queue<Section> queue = new LinkedList<Section>();
-		queue.add(start.adjs.get(dir));//may be wrong
+		queue.add(start.adjSects.get(dir));//may be wrong
 		Section prev = start;
 		while(!queue.isEmpty()){
 			Section sect = queue.poll();

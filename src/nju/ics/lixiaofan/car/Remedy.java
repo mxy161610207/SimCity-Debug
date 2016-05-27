@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.dashboard.Dashboard;
@@ -21,7 +20,7 @@ public class Remedy implements Runnable{
 		public void run() {
 			for(int i = 0;i < missed.length;i++)
 				missed[i] = 0;
-			long start = System.currentTimeMillis();
+//			long start = System.currentTimeMillis();
 			while(true){
 				long currentTime = System.currentTimeMillis();
 				for(Car car : ResourceProvider.getConnectedCars())

@@ -12,35 +12,37 @@ import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 
-public class RCServer{
+public class RCServer implements Runnable{
 	private static ServerSocket server = null;
-	static CarRC rc = null;
+	private static Socket socket = null;
+	public static CarRC rc = null;
 	private static final int PORT = 8888;
-	private static Runnable listener = new Runnable() {
-		public void run() {
+	
+	public void run() {
+		try {
+//			server = new ServerSocket(PORT);
+			Runtime.getRuntime().exec("cmd.exe /c adb forward tcp:" + PORT + " tcp:" + PORT);//(");
+			socket = new Socket("localhost", PORT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+//		while(true){
 			try {
-				server = new ServerSocket(PORT);
+//				Socket socket = server.accept();
+				socket.setTcpNoDelay(true);
+				socket.setSoTimeout(0);
+				rc = new CarRC(0, 0, socket, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()));
+				new Thread(new RCListener(), "RC Listener").start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
-			while(true){
-				try {
-					Socket socket = server.accept();
-					socket.setTcpNoDelay(true);
-					socket.setSoTimeout(0);
-					rc = new CarRC(0, 0, socket, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()));
-					new Thread(new RCListener(), "RC Listener").start();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-			}
-		}
-	};
+//		}
+	}
 	
 	public RCServer() {
-		new Thread(listener, "RC Server").start();
+		new Thread(this, "RC Server").start();
 		new Thread(new CmdSender(), "Command Sender").start();
 		new Thread(new Remedy(), "Remedy Thread").start();
 	}
@@ -83,13 +85,15 @@ public class RCServer{
 					break;
 				}
 				String strs[] = str.split("_");
-				if(strs[0].equals("zenwheels")){
-					int i = 1;
-					while(i < strs.length){
-						addCar(strs[i]);
-						i += 2;
-					}
-				}
+//				if(strs[0].equals("zenwheels")){
+//					int i = 1;
+//					while(i < strs.length){
+//						addCar(strs[i]);
+//						i += 2;
+//					}
+//				}
+				for(String car : strs)
+					addCar(car);
 			}
 		}
 		

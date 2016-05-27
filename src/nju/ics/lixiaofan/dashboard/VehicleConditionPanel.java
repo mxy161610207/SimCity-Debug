@@ -58,31 +58,24 @@ public class VehicleConditionPanel extends JPanel{
 		public Entry(Car car) {
 			this.car = car;
 			this.icon = car.icon;
-//			text.setText("init");
 			text.setLineWrap(true);
 			text.setWrapStyleWord(true);
 			text.setEditable(false);
-//			setLayout(new BorderLayout(2, 2));
-//			add(icon,BorderLayout.CENTER);
-//			add(text, BorderLayout.EAST);
 			
 			setLayout(gbl);
+			add(icon);
+			add(text);
 			gbc.insets = new Insets(1, 5, 1, 5);
 			
-//			JLabel delivlabel = new JLabel("                 ");
-//			gbc.gridx = gbc.gridy = 0;
-//			gbl.setConstraints(delivlabel, gbc);
-//			add(delivlabel);
-			
-			gbc.gridy = 1;
+			gbc.gridx = 0;
+			gbc.gridy = 0;
 			gbl.setConstraints(icon, gbc);
-			add(icon);
 			
 			gbc.fill = GridBagConstraints.BOTH;
-			gbc.gridx = 1;
+			gbc.gridx++;
+			gbc.weightx = 1;
 			gbc.weighty = 1;
 			gbl.setConstraints(text, gbc);
-			add(text);
 		}
 		
 		public void update(){

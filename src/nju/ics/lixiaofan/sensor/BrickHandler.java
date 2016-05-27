@@ -156,8 +156,8 @@ public class BrickHandler extends Thread{
 			Section prev = car.loc;
 			//inform the traffic police of the entry event
 			car.notifyPolice(sensor.nextSection);
-			car.enter(sensor.nextSection);//set both loc and dir
-//			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
+			car.enter(sensor.nextSection);
+			car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
 			car.status = Car.MOVING;
 			//trigger context
 			if(ContextManager.hasListener())
@@ -235,18 +235,6 @@ public class BrickHandler extends Thread{
 			break;
 		case Sensor.UNDETECTED:
 			if(sensor.entryDetected(reading)){
-//				if(isFalsePositive(sensor)){
-//					System.out.println("B"+bid+"S"+(sid+1)+" !!!FALSE POSITIVE!!!"
-//							+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
-////					}
-//					//trigger context manager
-//					if(ContextManager.hasListener())
-//						ContextManager.trigger(new Context(""+bid+(sid+1), null, null));
-//					break;
-//				}
-//				System.out.println("B"+bid+"S"+(sid+1)+" ENTERING!!!"
-//					+"\tread: " + d + "\tenteringValue: " + enteringValue[bid][sid]);
-				
 				Car car = null;
 				int dir = -1, status = 0;
 				boolean isReal = false;

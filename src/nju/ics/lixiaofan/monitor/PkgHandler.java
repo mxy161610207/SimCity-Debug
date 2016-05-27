@@ -152,7 +152,7 @@ public class PkgHandler implements Runnable{
 		for(Citizen citizen : TrafficMap.citizens){
 			oos.writeObject(new AppPkg().setCitizen(citizen.name, citizen.gender.toString(), citizen.job.toString(), citizen.icon.color.getRGB()));
 			if(citizen.icon.isVisible()){
-				oos.writeObject(new AppPkg().setCitizen(citizen.name, (double) citizen.icon.getX()/TrafficMap.size, (double) citizen.icon.getY()/TrafficMap.size));
+				oos.writeObject(new AppPkg().setCitizen(citizen.name, (double) citizen.icon.getX()/TrafficMap.SIZE, (double) citizen.icon.getY()/TrafficMap.SIZE));
 				oos.writeObject(new AppPkg().setCitizen(citizen.name, true));
 			}
 		}

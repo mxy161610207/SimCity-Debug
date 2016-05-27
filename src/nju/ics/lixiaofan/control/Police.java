@@ -44,7 +44,7 @@ public class Police implements Runnable{
 			}
 //			System.out.println("Traffic Police awake!!!");
 			Request r = req.poll();
-			Section reqSec = r.loc.adjs.get(r.dir);
+			Section reqSec = r.loc.adjSects.get(r.dir);
 //			System.out.println(r.loc.name+" "+r.dir);
 			if(reqSec == null){
 				System.err.println("reqSec is null");

@@ -30,6 +30,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
+
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
@@ -117,42 +119,38 @@ public class Dashboard extends JFrame{
 		}
 	};
 	
-//	public static void main(String[] args) {
-//	}
-
 	public Dashboard() {
-		GridBagLayout gbl = new GridBagLayout();
+		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		
 		gbc.fill = GridBagConstraints.BOTH;
-		setLayout(gbl);
-		add(trafficMap);
-		add(leftPanel);
-		add(rightPanel);
+//		gbc.anchor = GridBagConstraints.CENTER;
 		
 		for(Section s : TrafficMap.sections.values())
 			s.icon.addMouseListener(new SectionIconListener(s));
 		for(Building b : TrafficMap.buildings.values())
 			b.icon.addMouseListener(new BuildingIconListener(b));
 		
-		gbc.gridx = 0;
-		gbc.weightx = 0;//1;
-		gbc.weighty = 1;
-		gbl.setConstraints(leftPanel, gbc);
+		gbc.gridx = gbc.gridy = 0;
+		gbc.weightx = gbc.weighty = 1;
+		leftPanel.setPreferredSize(new Dimension(300, 0));
+		add(leftPanel, gbc);
 		gbc.gridx = 1;
 		gbc.weightx = gbc.weighty = 0;
-		gbl.setConstraints(trafficMap, gbc);
+		add(trafficMap, gbc);
 		gbc.gridx = 2;
+		gbc.weightx = 1;
 		gbc.weighty = 1;
-		gbl.setConstraints(rightPanel, gbc);
+		rightPanel.setPreferredSize(new Dimension(300, 0));
+		add(rightPanel, gbc);
+		
+		//left panel settings
+		leftPanel.setLayout(new GridBagLayout());
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
-		gbc.weightx = 0;//1;
+		gbc.weightx = 1;
 		gbc.weighty = 0;
-		leftPanel.setLayout(gbl);
-		
-		gbl.setConstraints(resetButton, gbc);
-		leftPanel.add(resetButton);
+//		gbc.gridheight = gbc.gridwidth = 1;
+		leftPanel.add(resetButton, gbc);
 		
 		resetButton.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -166,31 +164,25 @@ public class Dashboard extends JFrame{
 			}
 		});
 		
-		JLabel delivlabel = new JLabel("Delivery Tasks                ");
 		gbc.gridy++;
-		gbl.setConstraints(delivlabel, gbc);
-		leftPanel.add(delivlabel);
+		leftPanel.add(new JLabel("Delivery Tasks"), gbc);
 		
 		gbc.gridy++;
 		gbc.weighty = 1;
-		gbl.setConstraints(delivtaScroll, gbc);
-		leftPanel.add(delivtaScroll);
+		leftPanel.add(delivtaScroll, gbc);
 		delivta.setLineWrap(true);
 		delivta.setWrapStyleWord(true);
 		delivta.setEditable(false);
 		updateDelivQ();
 		
-		JLabel remedylabel = new JLabel("Remedy Commands");
 		gbc.gridy++;
-		gbc.gridheight = 1;
+//		gbc.gridheight = 1;
 		gbc.weighty = 0;
-		gbl.setConstraints(remedylabel, gbc);
-		leftPanel.add(remedylabel);
+		leftPanel.add(new JLabel("Remedy Commands"), gbc);
 		
 		gbc.gridy++;
 		gbc.weighty = 1;
-		gbl.setConstraints(remedytaScroll, gbc);
-		leftPanel.add(remedytaScroll);
+		leftPanel.add(remedytaScroll, gbc);
 		remedyta.setLineWrap(true);
 		remedyta.setWrapStyleWord(true);
 		remedyta.setEditable(false);
@@ -199,8 +191,7 @@ public class Dashboard extends JFrame{
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.weighty = 0;
-		gbl.setConstraints(console, gbc);
-		leftPanel.add(console);
+		leftPanel.add(console, gbc);
 		//TODO console commands
 		console.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -220,6 +211,37 @@ public class Dashboard extends JFrame{
 						RCServer.addCar(Car.GREEN);	break;
 					case "s":case "silver":case "suv":case "silver suv":
 						RCServer.addCar(Car.SILVER);	break;
+					default:
+						return;
+					}
+				}
+				else if(cmd.startsWith("connect car ") || cmd.startsWith("disconnect car ")){
+					String car = cmd.substring(
+							cmd.charAt(0) == 'c' ? "connect car ".length()
+									: "disconnect car ".length()).toLowerCase();
+					String s = "";
+					switch(car){
+					case "r":case "red":case "red car":
+						s = Car.RED;	break;
+					case "b":case "black":case "black car":
+						s = Car.BLACK;	break;
+					case "w":case "white":case "white car":
+						s = Car.WHITE;	break;
+					case "o":case "orange":case "orange car":
+						s = Car.ORANGE;	break;
+					case "g":case "green":case "green car":
+						s = Car.GREEN;	break;
+					case "s":case "silver":case "suv":case "silver suv":
+						s = Car.SILVER;	break;
+					default:
+						return;
+					}
+					s += "_" + (cmd.charAt(0) == 'c' ? Command.CONNECT : Command.DISCONNECT) + "_0";
+					try {
+						RCServer.rc.out.writeUTF(s);
+						RCServer.rc.out.flush();
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
 				}
 			}
@@ -227,40 +249,36 @@ public class Dashboard extends JFrame{
 		
 		gbc.gridx = 1;
 		gbc.gridy++;
-		JLabel vcLabel = new JLabel("Vehicle Condition                     ");
-		gbl.setConstraints(vcLabel, gbc);
-		leftPanel.add(vcLabel);
+		gbc.weighty = 0;
+		leftPanel.add(new JLabel("Vehicle Condition"), gbc);
 		
 		gbc.gridy++;
-		gbc.gridheight = 1;
-		gbc.weighty = 0;
-		gbl.setConstraints(VCPanel, gbc);
-		leftPanel.add(VCPanel);
+//		gbc.gridheight = 1;
+		gbc.weighty = 1;
+		leftPanel.add(VCPanel, gbc);
 		
 		gbc.gridy += gbc.gridheight;
-		gbc.gridheight = 1;
-		JLabel rcLabel = new JLabel("Road Condition");
-		gbl.setConstraints(rcLabel, gbc);
-		leftPanel.add(rcLabel);
+//		gbc.gridheight = 1;
+		gbc.weighty = 0;
+		leftPanel.add(new JLabel("Road Condition"), gbc);
 		
 		gbc.gridy++;
 //		gbc.gridheight = 2;
 //		gbc.weighty = 0;
-		gbl.setConstraints(roadtaScroll, gbc);
-		leftPanel.add(roadtaScroll);
+		gbc.weighty = 1;
+		leftPanel.add(roadtaScroll, gbc);
 		roadta.setLineWrap(true);
 		roadta.setWrapStyleWord(true);
 		roadta.setEditable(false);
 		
 		//right panel settings
+		rightPanel.setLayout(new GridBagLayout());
 		gbc.gridx = gbc.gridy = 0;
 		gbc.gridheight = gbc.gridwidth = 1;
-		gbc.weightx = gbc.weighty = 0;
-		rightPanel.setLayout(gbl);
-		
-		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbl.setConstraints(carbox,gbc);	
-		rightPanel.add(carbox);
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+//		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		rightPanel.add(carbox, gbc);
 		carbox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg) {
 				Car selectedCar = getSelectedCar();
@@ -292,8 +310,7 @@ public class Dashboard extends JFrame{
 		
 		gbc.gridy++;
 		JPanel radioButtonsPanel = new JPanel();
-		gbl.setConstraints(radioButtonsPanel, gbc);
-		rightPanel.add(radioButtonsPanel);
+		rightPanel.add(radioButtonsPanel, gbc);
 		radioButtonsPanel.setLayout(new GridLayout(1, 4));
 		
 		for(final int[] i = {0};i[0] < 4;i[0]++){
@@ -312,22 +329,31 @@ public class Dashboard extends JFrame{
 		}
 		
 		gbc.gridy++;
-		DPad dpad = new DPad();
-		gbl.setConstraints(dpad, gbc);
-		rightPanel.add(dpad);
+		rightPanel.add(new DPad(), gbc);
 		
 		gbc.gridy++;
-		gbl.setConstraints(miscPanel, gbc);
-		rightPanel.add(miscPanel);
+		rightPanel.add(miscPanel, gbc);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
 //		miscPanel.setLayout(new GridLayout(2, 0));
-        //TODO temporarily hard coded
-		miscPanel.setPreferredSize(new Dimension(240, 90));
-		miscPanel.add(jchkSection);
-		miscPanel.add(jchkSensor);
-		miscPanel.add(jchkBalloon);
-		miscPanel.add(jchkCrash);
-		miscPanel.add(jchkError);
+//		miscPanel.setPreferredSize(new Dimension(240, 90));
+		miscPanel.setLayout(new GridBagLayout());
+		GridBagConstraints mgbc = new GridBagConstraints();
+		mgbc.fill = GridBagConstraints.BOTH;
+		mgbc.gridx = mgbc.gridy = 0;
+		mgbc.weightx = 1;
+		mgbc.gridwidth = 2;
+		miscPanel.add(jchkSection, mgbc);
+		mgbc.gridx += mgbc.gridwidth;
+		miscPanel.add(jchkSensor, mgbc);
+		mgbc.gridx += mgbc.gridwidth;
+		miscPanel.add(jchkBalloon, mgbc);
+		mgbc.gridx = 0;
+		mgbc.gridy++;
+		mgbc.weightx = 1.5;
+		mgbc.gridwidth = 3;
+		miscPanel.add(jchkCrash, mgbc);
+		mgbc.gridx += mgbc.gridwidth;
+		miscPanel.add(jchkError, mgbc);
 		
 		jchkSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionevent) {
@@ -365,8 +391,7 @@ public class Dashboard extends JFrame{
 		});
 		
 		gbc.gridy++;
-		gbl.setConstraints(CCPanel, gbc);
-		rightPanel.add(CCPanel);
+		rightPanel.add(CCPanel, gbc);
 		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
 		CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		CCPanel.add(jchkDetection);
@@ -409,48 +434,37 @@ public class Dashboard extends JFrame{
 		desttf.setEditable(false);
 		
 		gbc.gridy++;
-		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbl.setConstraints(deliveryPanel, gbc);
-		rightPanel.add(deliveryPanel);
+//		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		rightPanel.add(deliveryPanel, gbc);
 		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Delivery"));
-		deliveryPanel.add(srclabel);
-		deliveryPanel.add(srctf);
-		deliveryPanel.add(dstlabel);
-		deliveryPanel.add(desttf);
-		deliveryPanel.add(deliverButton);
-		deliveryPanel.add(startdButton);
-		deliveryPanel.add(canceldButton);
-		deliverButton.setVisible(false);
-		canceldButton.setVisible(false);
+		deliveryPanel.setLayout(new GridBagLayout());
 		
-		GridBagLayout dgbl = new GridBagLayout();
 		GridBagConstraints dgbc = new GridBagConstraints();
-		dgbc.insets = new Insets(5, 5, 5, 5);
+		dgbc.insets = new Insets(3, 5, 3, 5);
 		dgbc.fill = GridBagConstraints.BOTH;
-		deliveryPanel.setLayout(dgbl);
 		dgbc.gridx = 0;
 		dgbc.gridy = 0;
-		dgbl.setConstraints(srclabel, dgbc);
+		deliveryPanel.add(srclabel, dgbc);
 		dgbc.gridx++;
 		dgbc.weightx = 1;
 //		dgbc.gridwidth = GridBagConstraints.REMAINDER;
-		dgbl.setConstraints(srctf, dgbc);
+		deliveryPanel.add(srctf, dgbc);
 		dgbc.gridx++;
 //		dgbc.gridy++;
 		dgbc.weightx = 0;
-		dgbl.setConstraints(dstlabel, dgbc);
+		deliveryPanel.add(dstlabel, dgbc);
 		dgbc.gridx++;
 		dgbc.weightx = 1;
-		dgbl.setConstraints(desttf, dgbc);
+		deliveryPanel.add(desttf, dgbc);
 		dgbc.gridx = 0;
 		dgbc.gridy++;
 		dgbc.gridwidth = GridBagConstraints.REMAINDER;
 		dgbc.weightx = 1;
-		dgbl.setConstraints(startdButton, dgbc);
+		deliveryPanel.add(startdButton, dgbc);
 		dgbc.gridwidth = 2;
-		dgbl.setConstraints(deliverButton, dgbc);
+		deliveryPanel.add(deliverButton, dgbc);
 		dgbc.gridx = 2;
-		dgbl.setConstraints(canceldButton, dgbc);
+		deliveryPanel.add(canceldButton, dgbc);
 		startdButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				src = dest = null;
@@ -483,16 +497,16 @@ public class Dashboard extends JFrame{
 				canceldButton.setVisible(false);
 			}
 		});
+		deliverButton.setVisible(false);
+		canceldButton.setVisible(false);
 		
 		gbc.gridy++;
-		JLabel logLabel = new JLabel("Log");
-		gbl.setConstraints(logLabel, gbc);
-		rightPanel.add(logLabel);
+		JLabel logLabel = new JLabel("Logs");
+		rightPanel.add(logLabel, gbc);
 		
 		gbc.gridy++;
 		gbc.weighty = 1;
-		gbl.setConstraints(logtaScroll, gbc);
-		rightPanel.add(logtaScroll);
+		rightPanel.add(logtaScroll, gbc);
 		logta.setEditable(false);
 		logta.setLineWrap(true);
 		logta.setWrapStyleWord(true);
@@ -509,7 +523,6 @@ public class Dashboard extends JFrame{
 		jchkError.doClick();
 		
 		setTitle("Dashboard");
-//		setSize(1200,mapPanel);
 		pack();
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
