@@ -20,7 +20,7 @@ import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 
 public class PkgHandler implements Runnable{
 	private static Queue<AppPkg> queue = new LinkedList<AppPkg>();
@@ -139,7 +139,7 @@ public class PkgHandler implements Runnable{
 				oos.writeObject(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		} 
 		
-		for(DeliveryTask dtask : ResourceProvider.getDelivTasks()){
+		for(DeliveryTask dtask : Resource.getDelivTasks()){
 			if(dtask.car == null)
 				oos.writeObject(new AppPkg().setDelivery(dtask.id, null, dtask.src.name, dtask.dest.name, dtask.phase));
 			else

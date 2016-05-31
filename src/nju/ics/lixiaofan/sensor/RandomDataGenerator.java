@@ -5,7 +5,7 @@ import java.util.Random;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Reset;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 
 /**
  * generate random sensor data
@@ -18,9 +18,9 @@ public class RandomDataGenerator implements Runnable{
 		Thread curThread = Thread.currentThread();
 		Reset.addThread(curThread);
 		while(true){
-			int idx = random.nextInt(ResourceProvider.getConnectedCars().size());
+			int idx = random.nextInt(Resource.getConnectedCars().size());
 			int count = 0;
-			for(Car car : ResourceProvider.getConnectedCars()){
+			for(Car car : Resource.getConnectedCars()){
 				if(count == idx){
 					//send out random data to cause FP
 					if(car.loc != null && car.dir != TrafficMap.UNKNOWN_DIR){

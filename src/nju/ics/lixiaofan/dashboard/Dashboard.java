@@ -1,7 +1,10 @@
 package nju.ics.lixiaofan.dashboard;
 
+import java.awt.CardLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -13,10 +16,11 @@ import java.awt.event.MouseEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
-
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -30,15 +34,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
-
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
-import nju.ics.lixiaofan.car.RCServer;
+import nju.ics.lixiaofan.car.RCClient;
 import nju.ics.lixiaofan.car.Remedy;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Location;
@@ -50,7 +52,7 @@ import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public class Dashboard extends JFrame{
@@ -59,16 +61,12 @@ public class Dashboard extends JFrame{
 	private static JPanel leftPanel = new JPanel();
 	private static JPanel rightPanel = new JPanel();
 	private static JComboBox<String> carbox =  new JComboBox<String>();
-	private static JTextArea //cmdta = new JTextArea(), 
-			delivta = new JTextArea(),
+	private static JTextArea delivta = new JTextArea(),
 			remedyta = new JTextArea(),
-//			carta = new JTextArea(),
 			roadta = new JTextArea(),
 			logta = new JTextArea();
-	private static JScrollPane //cmdtaScroll = new JScrollPane(cmdta),
-			delivtaScroll = new JScrollPane(delivta),
+	private static JScrollPane delivtaScroll = new JScrollPane(delivta),
 			remedytaScroll = new JScrollPane(remedyta),
-//			cartaScroll = new JScrollPane(carta),
 			roadtaScroll = new JScrollPane(roadta),
 			logtaScroll = new JScrollPane(logta);
 	private static VehicleConditionPanel VCPanel = new VehicleConditionPanel();
@@ -119,8 +117,163 @@ public class Dashboard extends JFrame{
 		}
 	};
 	
+	private static CardLayout cards = new CardLayout();
 	public Dashboard() {
-		setLayout(new GridBagLayout());
+//		System.out.println(getContentPane());
+		setContentPane(new JPanel(cards));
+//		System.out.println(getContentPane());
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
+	
+	private Map<String, JLabel> devLabels = new HashMap<>();
+	public void setDevStateIcon(String dev, boolean connected){
+		JLabel label = devLabels.get(dev);
+		if(label == null)
+			return;
+		if(connected)
+			label.setIcon(Resource.getCheckedMarkImageIcon());
+		else
+			label.setIcon(Resource.getXMarkImageIcon());
+	}
+	
+	private static JPanel checkingPanel = null;
+	public static final int MARK_SIZE = 30;
+	public void loadCheckUI(){
+		if(checkingPanel != null){
+			cards.show(getContentPane(), "Check");
+			return;
+		}
+		checkingPanel = new JPanel(new GridBagLayout());
+		add(checkingPanel, "Check");
+//		add("Check", checkingPanel);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.gridx = gbc.gridy = 0;
+		gbc.weightx = gbc.weighty = 1;
+		//brick panel
+		gbc.gridheight = 2;
+		JPanel brickPanel = new JPanel();
+		checkingPanel.add(brickPanel, gbc);
+		brickPanel.setBorder(BorderFactory.createTitledBorder("Bricks"));
+		brickPanel.setLayout(new GridBagLayout());
+		GridBagConstraints bgbc = new GridBagConstraints();
+//		bgbc.fill = GridBagConstraints.BOTH;
+		bgbc.gridx = bgbc.gridy = 0;
+		bgbc.weightx = bgbc.weighty = 1;
+		bgbc.insets = new Insets(1, 5, 1, 5);
+		
+		for(String name : Resource.getBricks()){
+			bgbc.anchor = GridBagConstraints.WEST;
+			JLabel nameLabel = new JLabel(name);
+			nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
+			brickPanel.add(nameLabel, bgbc);
+			bgbc.gridx++;
+			bgbc.anchor = GridBagConstraints.EAST;
+			JLabel status = new JLabel();
+			brickPanel.add(status, bgbc);
+			status.setIcon(Resource.getQuestionMarkImageIcon());
+			devLabels.put(name+"C", status);
+			bgbc.gridx = 0;
+			bgbc.gridy++;
+		}
+		//RC panel
+		gbc.gridx++;
+		gbc.gridheight = 1;
+		gbc.weighty = 0;
+		JPanel RCPanel = new JPanel();
+		checkingPanel.add(RCPanel, gbc);
+		RCPanel.setBorder(BorderFactory.createTitledBorder("Remote Control"));
+		RCPanel.setLayout(new GridBagLayout());
+		GridBagConstraints rgbc = new GridBagConstraints();
+//		rgbc.fill = GridBagConstraints.BOTH;
+		rgbc.anchor = GridBagConstraints.WEST;
+		rgbc.gridx = rgbc.gridy = 0;
+		rgbc.weightx = rgbc.weighty = 1;
+		rgbc.insets = new Insets(1, 5, 1, 5);
+		JLabel RCNameLabel = new JLabel("Phone");
+		RCNameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
+		RCPanel.add(RCNameLabel, rgbc);
+		rgbc.gridx++;
+		rgbc.anchor = GridBagConstraints.EAST;
+		JLabel RCStatus = new JLabel();
+		RCPanel.add(RCStatus, rgbc);
+		RCStatus.setIcon(Resource.getQuestionMarkImageIcon());
+		devLabels.put(RCClient.NAME, RCStatus);
+		//car panel
+		gbc.gridy++;
+		gbc.weighty = 1;
+		JPanel carPanel = new JPanel();
+		checkingPanel.add(carPanel, gbc);
+		carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
+		carPanel.setLayout(new GridBagLayout());
+		GridBagConstraints cgbc = new GridBagConstraints();
+//		cgbc.fill = GridBagConstraints.BOTH;
+		cgbc.gridx = cgbc.gridy = 0;
+		cgbc.weightx = cgbc.weighty = 1;
+		cgbc.insets = new Insets(1, 5, 1, 5);
+		for(Car car : Resource.getCars()){
+			cgbc.anchor = GridBagConstraints.WEST;
+			JLabel nameLabel = new JLabel(car.name);
+			nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
+			carPanel.add(nameLabel, cgbc);
+			cgbc.gridx++;
+			cgbc.anchor = GridBagConstraints.EAST;
+			JLabel status = new JLabel();
+			carPanel.add(status, cgbc);
+			status.setIcon(Resource.getQuestionMarkImageIcon());
+			devLabels.put(car.name, status);
+			cgbc.gridx = 0;
+			cgbc.gridy++;
+		}
+		
+		setTitle("Check devices");
+		cards.show(getContentPane(), "Check");
+		pack();
+	}
+	
+	private static JPanel samplePanel = null;
+	public void loadSampleUI(){
+		if(samplePanel != null){
+			cards.show(getContentPane(), "Sample");
+			return;
+		}
+		samplePanel = new JPanel(new GridBagLayout());
+		add(samplePanel, "Sample");
+		GridBagConstraints gbc = new GridBagConstraints();
+//		gbc.fill = GridBagConstraints.BOTH;
+		gbc.gridx = gbc.gridy = 0;
+		gbc.weightx = gbc.weighty = 1;
+		gbc.insets = new Insets(1, 5, 1, 5);
+		for(String name : Resource.getBricks()){
+			gbc.anchor = GridBagConstraints.WEST;
+			JLabel nameLabel = new JLabel(name);
+			nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
+			samplePanel.add(nameLabel, gbc);
+			gbc.gridx++;
+			gbc.anchor = GridBagConstraints.EAST;
+			JLabel status = new JLabel();
+			samplePanel.add(status, gbc);
+			status.setIcon(Resource.getQuestionMarkImageIcon());
+			devLabels.put(name+"S", status);
+			gbc.gridx = 0;
+			gbc.gridy++;
+		}
+		
+		setTitle("Start sampling");
+		cards.show(getContentPane(), "Sample");
+		pack();
+	}
+
+	private static JPanel controlPanel = null;
+	public void loadCtrlUI(){
+		if(controlPanel != null){
+			cards.show(getContentPane(), "Control");
+			return;
+		}
+		controlPanel = new JPanel(new GridBagLayout());
+		add(controlPanel, "Control");
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 //		gbc.anchor = GridBagConstraints.CENTER;
@@ -133,15 +286,15 @@ public class Dashboard extends JFrame{
 		gbc.gridx = gbc.gridy = 0;
 		gbc.weightx = gbc.weighty = 1;
 		leftPanel.setPreferredSize(new Dimension(300, 0));
-		add(leftPanel, gbc);
+		controlPanel.add(leftPanel, gbc);
 		gbc.gridx = 1;
 		gbc.weightx = gbc.weighty = 0;
-		add(trafficMap, gbc);
+		controlPanel.add(trafficMap, gbc);
 		gbc.gridx = 2;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		rightPanel.setPreferredSize(new Dimension(300, 0));
-		add(rightPanel, gbc);
+		controlPanel.add(rightPanel, gbc);
 		
 		//left panel settings
 		leftPanel.setLayout(new GridBagLayout());
@@ -159,7 +312,7 @@ public class Dashboard extends JFrame{
 					resetButton.setEnabled(false);
 					Reset.isRealInc = e.getButton() == MouseEvent.BUTTON1;
 	//				System.out.println(Reset.isRealInc);
-					ResourceProvider.execute(Reset.resetTask);
+					Resource.execute(Reset.resetTask);
 				}
 			}
 		});
@@ -200,17 +353,17 @@ public class Dashboard extends JFrame{
 					String car = cmd.substring("add car ".length()).toLowerCase();
 					switch(car){
 					case "r":case "red":case "red car":
-						RCServer.addCar(Car.RED);	break;
+						RCClient.addCar(Car.RED);	break;
 					case "b":case "black":case "black car":
-						RCServer.addCar(Car.BLACK);	break;
+						RCClient.addCar(Car.BLACK);	break;
 					case "w":case "white":case "white car":
-						RCServer.addCar(Car.WHITE);	break;
+						RCClient.addCar(Car.WHITE);	break;
 					case "o":case "orange":case "orange car":
-						RCServer.addCar(Car.ORANGE);	break;
+						RCClient.addCar(Car.ORANGE);	break;
 					case "g":case "green":case "green car":
-						RCServer.addCar(Car.GREEN);	break;
+						RCClient.addCar(Car.GREEN);	break;
 					case "s":case "silver":case "suv":case "silver suv":
-						RCServer.addCar(Car.SILVER);	break;
+						RCClient.addCar(Car.SILVER);	break;
 					default:
 						return;
 					}
@@ -238,8 +391,8 @@ public class Dashboard extends JFrame{
 					}
 					s += "_" + (cmd.charAt(0) == 'c' ? Command.CONNECT : Command.DISCONNECT) + "_0";
 					try {
-						RCServer.rc.out.writeUTF(s);
-						RCServer.rc.out.flush();
+						RCClient.rc.out.writeUTF(s);
+						RCClient.rc.out.flush();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -511,10 +664,7 @@ public class Dashboard extends JFrame{
 		logta.setLineWrap(true);
 		logta.setWrapStyleWord(true);
 		
-		if(!TrafficMap.cars.isEmpty())
-			for(Car car : TrafficMap.cars.values())
-				if(car.isConnected)
-					addCar(car);
+		addCar(Resource.getConnectedCars());
 
 		new Thread(blinkThread, "Blink Thread").start();
 		jchkResolution.doClick();
@@ -523,10 +673,8 @@ public class Dashboard extends JFrame{
 		jchkError.doClick();
 		
 		setTitle("Dashboard");
+		cards.show(getContentPane(), "Control");
 		pack();
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
 	}
 	
 	public static Section getNearestSection(int x, int y){
@@ -606,7 +754,7 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static synchronized void updateVC(){
-		for(Car car : ResourceProvider.getConnectedCars())
+		for(Car car : Resource.getConnectedCars())
 			updateVC(car);
 	}
 	

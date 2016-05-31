@@ -19,7 +19,7 @@ import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 
 public class BrickHandler extends Thread{
 	private static Queue<RawData> rawData = new LinkedList<RawData>();
@@ -317,7 +317,7 @@ public class BrickHandler extends Thread{
 	}
 
 	public static void add(int bid, int sid, int reading){
-		Sensor sensor = ResourceProvider.getSensors().get(bid).get(sid);
+		Sensor sensor = Resource.getSensors().get(bid).get(sid);
 		sensor.reading = reading;
 		if(Reset.isResetting()){
 			switchStateWhenResetting(sensor, reading);

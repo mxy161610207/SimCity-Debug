@@ -9,7 +9,7 @@ import nju.ics.lixiaofan.control.Reset;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 import nju.ics.lixiaofan.sensor.BrickServer;
 
 public class Remedy implements Runnable{
@@ -23,7 +23,7 @@ public class Remedy implements Runnable{
 //			long start = System.currentTimeMillis();
 			while(true){
 				long currentTime = System.currentTimeMillis();
-				for(Car car : ResourceProvider.getConnectedCars())
+				for(Car car : Resource.getConnectedCars())
 					if (car.getRealStatus() != Car.UNCERTAIN && currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				
@@ -84,7 +84,7 @@ public class Remedy implements Runnable{
 					queue.remove(0);
 					//forward cmd
 					if(cmd.cmd == 1){
-						cmd.deadline = getDeadline(cmd.car.type, 1, ++cmd.level);
+						cmd.deadline = getDeadline(Command.FORWARD, ++cmd.level);
 						Command.send(cmd, false);
 //						insertCmd(cmd);//comment this line to remedy only once
 					}
@@ -137,7 +137,7 @@ public class Remedy implements Runnable{
 					//stop command
 					if(cmd.cmd == 0){
 						cmd.level = 1;
-						cmd.deadline = Remedy.getDeadline(cmd.car.type, 0, 1);
+						cmd.deadline = Remedy.getDeadline(Command.STOP, 1);
 						Command.send(cmd, false);
 						newCmd = cmd;
 					}
@@ -196,7 +196,7 @@ public class Remedy implements Runnable{
 		}
 	}
 	
-	public static long getDeadline(int type, int cmd, int level){
+	public static long getDeadline(int cmd, int level){
 //		if(type == 3)
 			return System.currentTimeMillis() + 1000;
 //		switch(level){

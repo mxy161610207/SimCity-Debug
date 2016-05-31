@@ -12,8 +12,8 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 public class ConfigGenerator {
-	public static String filename = "city.xml";
-	public static void main(String[] args) throws IOException {
+	public static final String configFile = "config.xml";
+	public static void main(String[] args) throws IOException{
 		Document doc = DocumentHelper.createDocument();
 		Element root = doc.addElement("config");
 		//car
@@ -72,8 +72,15 @@ public class ConfigGenerator {
 		citizen.addAttribute("gender", Citizen.Gender.Male.toString());
 		citizen.addAttribute("job", Citizen.Job.IronMan.toString());
 		
+		//Brick
+		for(int i = 0;i < 10;i++){
+			Element brick = root.addElement("brick");
+			brick.addAttribute("name", "" + i);
+			brick.addAttribute("address", "192.168.1.11" + i);
+		}
+		
 		OutputFormat format = OutputFormat.createPrettyPrint();
-		XMLWriter writer = new XMLWriter(new FileWriter(filename), format);
+		XMLWriter writer = new XMLWriter(new FileWriter(configFile), format);
 		writer.write(doc);
 		writer.close();
 	}

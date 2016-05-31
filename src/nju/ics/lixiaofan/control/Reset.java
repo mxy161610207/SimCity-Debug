@@ -12,7 +12,7 @@ import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.dashboard.Dashboard;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 
 public class Reset {
 	private static boolean resetting = false;
@@ -91,10 +91,10 @@ public class Reset {
 			interruptAll();
 			Command.stopAllCars();
 			if(isRealInc){//all cars need to be located
-				car2Locate.addAll(ResourceProvider.getConnectedCars());
+				car2Locate.addAll(Resource.getConnectedCars());
 			}
 			else{//Only moving cars and crashed cars need to be located 
-				for(Car car :ResourceProvider.getConnectedCars()){
+				for(Car car :Resource.getConnectedCars()){
 					if(car.getRealStatus() != Car.STOPPED)
 						car2Locate.add(car);
 					if(car.getRealLoc() != null){
@@ -108,7 +108,7 @@ public class Reset {
 				}
 			}
 			//store the info of cars that have no need to locate
-			for(Car car :ResourceProvider.getConnectedCars()){
+			for(Car car :Resource.getConnectedCars()){
 				if(car2Locate.contains(car))
 					continue;
 				carInfo.put(car, new CarInfo(car.getRealLoc(), car.getRealDir()));

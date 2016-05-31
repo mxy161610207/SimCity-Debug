@@ -19,7 +19,7 @@ import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 public class Car {
-	public final int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
+//	public final int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
 	public boolean isConnected = false;
 	public final String name;//only for zenwheels
 	public int status = STOPPED;//0: stopped	1: moving	-1: uncertain
@@ -39,6 +39,9 @@ public class Car {
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public int realDir, realStatus;
 	
+	public boolean tried = false;//whether tried to connect to this car
+	public final Object TRIED_LOCK = new Object();
+	
 	public static final int STOPPED = 0;
 	public static final int MOVING = 1;
 	public static final int UNCERTAIN = -1;
@@ -50,8 +53,8 @@ public class Car {
 	public static final String BLACK = "Black Car";//E
 	public static final String ORANGE = "Orange Car";//F
 	
-	public Car(int type, String name, Section loc) {
-		this.type = type;
+	public Car(String name, Section loc) {
+//		this.type = type;
 		this.name = name;
 		this.loc = loc;
 		this.icon = new CarIcon(name);

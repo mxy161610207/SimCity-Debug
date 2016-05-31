@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import nju.ics.lixiaofan.control.Reset;
-import nju.ics.lixiaofan.resource.ResourceProvider;
+import nju.ics.lixiaofan.resource.Resource;
 
 public class Command {
 	public Car car = null;
@@ -27,7 +27,7 @@ public class Command {
 	public Command(Car car, int cmd) {
 		this.car = car;
 		this.cmd = cmd;
-		deadline = Remedy.getDeadline(car.type, cmd, 1);
+		deadline = Remedy.getDeadline(cmd, 1);
 	}
 	
 	public Command(Car car, int cmd, int type) {
@@ -70,18 +70,48 @@ public class Command {
 //		car.lastInstr = car.getRealStatus();
 	}
 	
+	public static void connect(Car car){
+		if(!RCClient.isConnected()){
+			System.err.println("RC disconnected, cannot connect " + car.name);
+			return;
+		}
+		if(car != null){
+			try {
+				RCClient.rc.out.writeUTF(car.name + "_" + CONNECT + "_0");
+				RCClient.rc.out.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void disconnect(Car car){
+		if(!RCClient.isConnected()){
+			System.err.println("RC disconnected, cannot disconnect " + car.name);
+			return;
+		}
+		if(car != null){
+			try {
+				RCClient.rc.out.writeUTF(car.name + "_" + DISCONNECT + "_0");
+				RCClient.rc.out.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * Only called by Reset Thread
 	 */
 	public static void drive(Car car){
-		if(RCServer.rc == null){
-			System.err.println("Not RC connected, cannot drive " + car.name);
+		if(!RCClient.isConnected()){
+			System.err.println("RC disconnected, cannot drive " + car.name);
 			return;
 		}
 		if(car.isConnected){
 			try {
-				RCServer.rc.out.writeUTF(car.name + "_" + FORWARD + "_30");
-				RCServer.rc.out.flush();
+				RCClient.rc.out.writeUTF(car.name + "_" + FORWARD + "_30");
+				RCClient.rc.out.flush();
 				car.lastInstrTime = System.currentTimeMillis();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -93,14 +123,14 @@ public class Command {
 	 * Only called by Reset Thread
 	 */
 	public static void stop(Car car){
-		if(RCServer.rc == null){
+		if(!RCClient.isConnected()){
 			System.err.println("RC disconnected, cannot stop " + car.name);
 			return;
 		}
 		if(car.isConnected){
 			try {
-				RCServer.rc.out.writeUTF(car.name + "_" + STOP + "_30");
-				RCServer.rc.out.flush();
+				RCClient.rc.out.writeUTF(car.name + "_" + STOP + "_30");
+				RCClient.rc.out.flush();
 				Reset.lastStopInstrTime = car.lastInstrTime = System.currentTimeMillis();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -113,7 +143,7 @@ public class Command {
 	 */
 	public static void stopAllCars(){
 //		CmdSender.clear();
-		for(Car car : ResourceProvider.getConnectedCars())
+		for(Car car : Resource.getConnectedCars())
 			if(car.getRealStatus() != Car.STOPPED)
 				stop(car);
 	}
@@ -150,22 +180,22 @@ class CmdSender implements Runnable{
 			synchronized (queue) {
 				cmd = queue.poll();
 			}
-			if(RCServer.rc == null)
+			if(RCClient.rc == null)
 				continue;
 			try {
 				switch(cmd.cmd){
 				case Command.LEFT:case Command.RIGHT:
-					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3");
-					RCServer.rc.out.flush();
+					RCClient.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3");
+					RCClient.rc.out.flush();
 					break;
 				case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
-					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
-					RCServer.rc.out.flush();
+					RCClient.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
+					RCClient.rc.out.flush();
 //					rc.lastInstrTime = System.currentTimeMillis();
 					break;
 				case Command.HORN:
-					RCServer.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_1000");
-					RCServer.rc.out.flush();
+					RCClient.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_1000");
+					RCClient.rc.out.flush();
 					break;
 				default:
 					System.out.println("!!!UNKNOWN COMMAND!!!");

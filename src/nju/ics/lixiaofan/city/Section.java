@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,6 +24,7 @@ import nju.ics.lixiaofan.consistency.context.Context;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
+import nju.ics.lixiaofan.resource.Resource;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public abstract class Section extends Location{
@@ -292,19 +292,8 @@ public abstract class Section extends Location{
 		}
 		
 		public static void readBalloonImage(){
-			HashMap<String, String> files = new HashMap<String, String>();
-			files.put("red", "res/red_balloon.png");
-			files.put("green", "res/green_balloon.png");
-			for(Map.Entry<String, String> file : files.entrySet()){
-				ImageIcon imageIcon = new ImageIcon(file.getValue());
-				Image image = imageIcon.getImage();
-				if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
-					image = image.getScaledInstance(WIDTH, -1, Image.SCALE_SMOOTH);
-				else
-					image = image.getScaledInstance(-1, HEIGHT, Image.SCALE_SMOOTH);
-				imageIcon = new ImageIcon(image);
-				balloons.put(file.getKey(), imageIcon);
-			}
+			balloons.put("red", Resource.getRedBalloonImageIcon());
+			balloons.put("green", Resource.getGreenBalloonImageIcon());
 		}
 		
 		private void setIcon(boolean resolutionEnabled){
