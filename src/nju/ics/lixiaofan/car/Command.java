@@ -1,6 +1,5 @@
 package nju.ics.lixiaofan.car;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -75,14 +74,8 @@ public class Command {
 			System.err.println("RC disconnected, cannot connect " + car.name);
 			return;
 		}
-		if(car != null){
-			try {
-				RCClient.rc.out.writeUTF(car.name + "_" + CONNECT + "_0");
-				RCClient.rc.out.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		if(car != null)
+			RCClient.rc.write(car.name + "_" + CONNECT + "_0");
 	}
 	
 	public static void disconnect(Car car){
@@ -90,14 +83,8 @@ public class Command {
 			System.err.println("RC disconnected, cannot disconnect " + car.name);
 			return;
 		}
-		if(car != null){
-			try {
-				RCClient.rc.out.writeUTF(car.name + "_" + DISCONNECT + "_0");
-				RCClient.rc.out.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		if(car != null)
+			RCClient.rc.write(car.name + "_" + DISCONNECT + "_0");
 	}
 	
 	/**
@@ -109,13 +96,8 @@ public class Command {
 			return;
 		}
 		if(car.isConnected){
-			try {
-				RCClient.rc.out.writeUTF(car.name + "_" + FORWARD + "_30");
-				RCClient.rc.out.flush();
-				car.lastInstrTime = System.currentTimeMillis();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			RCClient.rc.write(car.name + "_" + FORWARD + "_30");
+			car.lastInstrTime = System.currentTimeMillis();
 		}
 	}
 	
@@ -128,13 +110,8 @@ public class Command {
 			return;
 		}
 		if(car.isConnected){
-			try {
-				RCClient.rc.out.writeUTF(car.name + "_" + STOP + "_30");
-				RCClient.rc.out.flush();
-				Reset.lastStopInstrTime = car.lastInstrTime = System.currentTimeMillis();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			RCClient.rc.write(car.name + "_" + STOP + "_30");
+			Reset.lastStopInstrTime = car.lastInstrTime = System.currentTimeMillis();
 		}
 	}
 	
@@ -182,29 +159,21 @@ class CmdSender implements Runnable{
 			}
 			if(RCClient.rc == null)
 				continue;
-			try {
-				switch(cmd.cmd){
-				case Command.LEFT:case Command.RIGHT:
-					RCClient.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_3");
-					RCClient.rc.out.flush();
-					break;
-				case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
-					RCClient.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_30");
-					RCClient.rc.out.flush();
-//					rc.lastInstrTime = System.currentTimeMillis();
-					break;
-				case Command.HORN:
-					RCClient.rc.out.writeUTF(cmd.car.name+"_"+cmd.cmd+"_1000");
-					RCClient.rc.out.flush();
-					break;
-				default:
-					System.out.println("!!!UNKNOWN COMMAND!!!");
-					break;
-				}
-				cmd.car.lastInstrTime = System.currentTimeMillis();
-			} catch (IOException e) {
-				e.printStackTrace();
+			switch(cmd.cmd){
+			case Command.LEFT:case Command.RIGHT:
+				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_3");
+				break;
+			case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
+				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_30");
+				break;
+			case Command.HORN:
+				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_1000");
+				break;
+			default:
+				System.out.println("!!!UNKNOWN COMMAND!!!");
+				break;
 			}
+			cmd.car.lastInstrTime = System.currentTimeMillis();
 		}
 	}
 

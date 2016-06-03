@@ -36,7 +36,7 @@ public class CarRC {
 	public long lastInstrTime = System.currentTimeMillis();
 	final Socket socket;
 	public final DataInputStream in;
-	public final DataOutputStream out;
+	private final DataOutputStream out;
 	
 	public CarRC(Socket socket) throws IOException {
 //		this.type = type;
@@ -46,14 +46,18 @@ public class CarRC {
 		this.out = new DataOutputStream(socket.getOutputStream());
 	}
 	
-//	public CarRC(int type, String name, String address, Socket socket, DataInputStream in, DataOutputStream out) {
-//		this.type = type;
-//		this.name = name;
-//		this.address = address;
-//		this.socket = socket;
-//		this.in = in;
-//		this.out = out;
-//	}
+	public void write(String str){
+		if(out == null || str == null)
+			return;
+		synchronized (out) {
+			try {
+				out.writeUTF(str);
+				out.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	private static List<RemoteDevice> devices = new ArrayList<>();
 	private static List<String> services = new ArrayList<>();

@@ -34,7 +34,7 @@ public class VehicleConditionPanel extends JPanel{
 			Entry e = new Entry(car);
 			entries.put(car, e);
 			add(e);
-			repaint();
+			updateVC(car);
 		}
 	}
 	

@@ -390,12 +390,7 @@ public class Dashboard extends JFrame{
 						return;
 					}
 					s += "_" + (cmd.charAt(0) == 'c' ? Command.CONNECT : Command.DISCONNECT) + "_0";
-					try {
-						RCClient.rc.out.writeUTF(s);
-						RCClient.rc.out.flush();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+					RCClient.rc.write(s);
 				}
 			}
 		});
@@ -664,7 +659,7 @@ public class Dashboard extends JFrame{
 		logta.setLineWrap(true);
 		logta.setWrapStyleWord(true);
 		
-		addCar(Resource.getConnectedCars());
+//		addCar(Resource.getConnectedCars());
 
 		new Thread(blinkThread, "Blink Thread").start();
 		jchkResolution.doClick();
@@ -763,7 +758,7 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static synchronized void addCar(Car car){
-//		System.out.println(car.name);
+//		System.out.println(Thread.currentThread());
 		carbox.addItem(car.name);
 		PkgHandler.send(new AppPkg().setCar(car.name, -1, null));
 		
