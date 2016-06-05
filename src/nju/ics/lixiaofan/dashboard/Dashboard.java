@@ -26,6 +26,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -117,37 +118,42 @@ public class Dashboard extends JFrame{
 		}
 	};
 	
-	private static CardLayout cards = new CardLayout();
+//	private static CardLayout cards = new CardLayout();
 	public Dashboard() {
-//		System.out.println(getContentPane());
-		setContentPane(new JPanel(cards));
-//		System.out.println(getContentPane());
+//		setContentPane(new JPanel(cards));
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
 	
 	private Map<String, JLabel> devLabels = new HashMap<>();
-	public void setDevStateIcon(String dev, boolean connected){
-		JLabel label = devLabels.get(dev);
+	public void setDevStateIcon(String device, boolean connected){
+		JLabel label = devLabels.get(device);
 		if(label == null)
 			return;
-		if(connected)
-			label.setIcon(Resource.getCheckedMarkImageIcon());
+		if(connected){
+			if(device.endsWith("conn"))
+				label.setIcon(Resource.getOrangeCheckImageIcon());
+			else
+				label.setIcon(Resource.getGreenCheckImageIcon());
+		}
 		else
-			label.setIcon(Resource.getXMarkImageIcon());
+			label.setIcon(Resource.getRedXImageIcon());
 	}
 	
 	private static JPanel checkingPanel = null;
 	public static final int MARK_SIZE = 30;
 	public void loadCheckUI(){
 		if(checkingPanel != null){
-			cards.show(getContentPane(), "Check");
+			setTitle("Self Checking");
+			setContentPane(checkingPanel);
+//			cards.show(getContentPane(), "Check");
+			pack();
+			setLocationRelativeTo(null);
 			return;
 		}
 		checkingPanel = new JPanel(new GridBagLayout());
-		add(checkingPanel, "Check");
-//		add("Check", checkingPanel);
+//		add(checkingPanel, "Check");
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = gbc.gridy = 0;
@@ -173,8 +179,9 @@ public class Dashboard extends JFrame{
 			bgbc.anchor = GridBagConstraints.EAST;
 			JLabel status = new JLabel();
 			brickPanel.add(status, bgbc);
-			status.setIcon(Resource.getQuestionMarkImageIcon());
-			devLabels.put(name+"C", status);
+			status.setIcon(Resource.getBlackQuestionImageIcon());
+			devLabels.put(name + " conn", status);
+			devLabels.put(name + " sample", status);
 			bgbc.gridx = 0;
 			bgbc.gridy++;
 		}
@@ -199,7 +206,7 @@ public class Dashboard extends JFrame{
 		rgbc.anchor = GridBagConstraints.EAST;
 		JLabel RCStatus = new JLabel();
 		RCPanel.add(RCStatus, rgbc);
-		RCStatus.setIcon(Resource.getQuestionMarkImageIcon());
+		RCStatus.setIcon(Resource.getBlackQuestionImageIcon());
 		devLabels.put(RCClient.NAME, RCStatus);
 		//car panel
 		gbc.gridy++;
@@ -222,58 +229,32 @@ public class Dashboard extends JFrame{
 			cgbc.anchor = GridBagConstraints.EAST;
 			JLabel status = new JLabel();
 			carPanel.add(status, cgbc);
-			status.setIcon(Resource.getQuestionMarkImageIcon());
+			status.setIcon(Resource.getBlackQuestionImageIcon());
 			devLabels.put(car.name, status);
 			cgbc.gridx = 0;
 			cgbc.gridy++;
 		}
 		
-		setTitle("Check devices");
-		cards.show(getContentPane(), "Check");
+		setTitle("Self Checking");
+//		cards.show(getContentPane(), "Check");
+		setContentPane(checkingPanel);
 		pack();
-	}
-	
-	private static JPanel samplePanel = null;
-	public void loadSampleUI(){
-		if(samplePanel != null){
-			cards.show(getContentPane(), "Sample");
-			return;
-		}
-		samplePanel = new JPanel(new GridBagLayout());
-		add(samplePanel, "Sample");
-		GridBagConstraints gbc = new GridBagConstraints();
-//		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = gbc.gridy = 0;
-		gbc.weightx = gbc.weighty = 1;
-		gbc.insets = new Insets(1, 5, 1, 5);
-		for(String name : Resource.getBricks()){
-			gbc.anchor = GridBagConstraints.WEST;
-			JLabel nameLabel = new JLabel(name);
-			nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
-			samplePanel.add(nameLabel, gbc);
-			gbc.gridx++;
-			gbc.anchor = GridBagConstraints.EAST;
-			JLabel status = new JLabel();
-			samplePanel.add(status, gbc);
-			status.setIcon(Resource.getQuestionMarkImageIcon());
-			devLabels.put(name+"S", status);
-			gbc.gridx = 0;
-			gbc.gridy++;
-		}
-		
-		setTitle("Start sampling");
-		cards.show(getContentPane(), "Sample");
-		pack();
+		setLocationRelativeTo(null);
 	}
 
 	private static JPanel controlPanel = null;
+	private static JDialog deviceDialog = null;
 	public void loadCtrlUI(){
 		if(controlPanel != null){
-			cards.show(getContentPane(), "Control");
+			setTitle("Dashboard");
+			setContentPane(controlPanel);
+//			cards.show(getContentPane(), "Control");
+			pack();
+			setLocationRelativeTo(null);
 			return;
 		}
 		controlPanel = new JPanel(new GridBagLayout());
-		add(controlPanel, "Control");
+//		add(controlPanel, "Control");
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 //		gbc.anchor = GridBagConstraints.CENTER;
@@ -344,6 +325,20 @@ public class Dashboard extends JFrame{
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.weighty = 0;
+		JButton deviceButton = new JButton("Device");
+		leftPanel.add(deviceButton, gbc);
+		deviceButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(deviceDialog == null)
+					deviceDialog = new JDialog(Dashboard.this, "Device");
+				deviceDialog.setContentPane(checkingPanel);
+				deviceDialog.pack();
+//				deviceDialog.setLocationRelativeTo(null);
+				deviceDialog.setVisible(true);
+			}
+		});
+		
+		gbc.gridx++;
 		leftPanel.add(console, gbc);
 		//TODO console commands
 		console.addActionListener(new ActionListener() {
@@ -397,6 +392,7 @@ public class Dashboard extends JFrame{
 		
 		gbc.gridx = 1;
 		gbc.gridy++;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weighty = 0;
 		leftPanel.add(new JLabel("Vehicle Condition"), gbc);
 		
@@ -668,8 +664,10 @@ public class Dashboard extends JFrame{
 		jchkError.doClick();
 		
 		setTitle("Dashboard");
-		cards.show(getContentPane(), "Control");
+		setContentPane(controlPanel);
+//		cards.show(getContentPane(), "Control");
 		pack();
+		setLocationRelativeTo(null);
 	}
 	
 	public static Section getNearestSection(int x, int y){

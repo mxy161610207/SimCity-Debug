@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import com.jcraft.jsch.JSch;
@@ -29,19 +30,20 @@ import nju.ics.lixiaofan.sensor.Sensor;
 public class Resource {
 	private static ExecutorService threadPool = Executors.newCachedThreadPool();
 	private static Map<String, String> brickAddr = new HashMap<String, String>();
-	private static ImageIcon greenBalloonIcon = null, redBalloonIcon = null;
-	private static ImageIcon questionIcon = null, checkedIcon = null, xIcon = null;
-	private static JSch jsch = new JSch();
+	private final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON;
+	private final static ImageIcon BLACK_QUESTION_ICON, GREEN_CHECK_ICON, ORANGE_CHECK_ICON, RED_X_ICON;
+	private final static JSch JSCH = new JSch();
 	private static Map<String, Session> sessions = new HashMap<>();
 	static{
-		greenBalloonIcon = loadImage("res/green_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
-		redBalloonIcon = loadImage("res/red_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
-		questionIcon = loadImage("res/question_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-		checkedIcon = loadImage("res/checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-		xIcon = loadImage("res/x_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		GREEN_BALLOON_ICON = loadImage("res/green_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
+		RED_BALLOON_ICON = loadImage("res/red_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
+		BLACK_QUESTION_ICON = loadImage("res/black_question_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		GREEN_CHECK_ICON = loadImage("res/green_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		ORANGE_CHECK_ICON = loadImage("res/orange_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		RED_X_ICON = loadImage("res/red_x_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		try {
 			//use ssh-keyscan $IP >> brick/known_hosts
-			jsch.setKnownHosts("brick/known_hosts");
+			JSCH.setKnownHosts("brick/known_hosts");
 		} catch (JSchException e) {
 			e.printStackTrace();
 		} 
@@ -52,7 +54,7 @@ public class Resource {
 	}
 	
 	public static JSch getJSch(){
-		return jsch;
+		return JSCH;
 	}
 	
 	public static Session getSession(String name){
@@ -61,7 +63,7 @@ public class Resource {
 			String addr = brickAddr.get(name);
 			if(addr != null){
 				try {
-					session = jsch.getSession("robot", addr);
+					session = JSCH.getSession("robot", addr);
 					session.setPassword("maker");
 					sessions.put(name, session);
 				} catch (JSchException e) {
@@ -119,24 +121,28 @@ public class Resource {
 		return set;
 	}
 	
-	public static ImageIcon getRedBalloonImageIcon(){
-		return redBalloonIcon;
+	public static final ImageIcon getRedBalloonImageIcon(){
+		return RED_BALLOON_ICON;
 	}
 	
-	public static ImageIcon getGreenBalloonImageIcon(){
-		return greenBalloonIcon;
+	public static final ImageIcon getGreenBalloonImageIcon(){
+		return GREEN_BALLOON_ICON;
 	}
 	
-	public static ImageIcon getQuestionMarkImageIcon(){
-		return questionIcon;
+	public static final ImageIcon getBlackQuestionImageIcon(){
+		return BLACK_QUESTION_ICON;
 	}
 	
-	public static ImageIcon getCheckedMarkImageIcon(){
-		return checkedIcon;
+	public static final ImageIcon getGreenCheckImageIcon(){
+		return GREEN_CHECK_ICON;
 	}
 	
-	public static ImageIcon getXMarkImageIcon(){
-		return xIcon;
+	public static final Icon getOrangeCheckImageIcon() {
+		return ORANGE_CHECK_ICON;
+	}
+	
+	public static final ImageIcon getRedXImageIcon(){
+		return RED_X_ICON;
 	}
 	
 	private static ImageIcon loadImage(String filename, int width, int height){

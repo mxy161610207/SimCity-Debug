@@ -38,8 +38,6 @@ public class Main {
 		Dashboard dashboard = new Dashboard();
 		dashboard.loadCheckUI();
 		checkDevices(dashboard);
-		dashboard.loadSampleUI();
-		startSampling(dashboard);
 		dashboard.loadCtrlUI();
 		
 		addModule();
@@ -125,26 +123,26 @@ public class Main {
 	}
 	
 	private static void checkDevices(final Dashboard dashboard){
-		//bricks + cars + rc
-		final int TOTAL = Resource.getBricks().size() + Resource.getCars().size() + 1;
+		//bricks(connectivity + sampling) + cars + rc
+		final int TOTAL = 2 * Resource.getBricks().size() + Resource.getCars().size() + 1;
 		if(TOTAL == 0)
 			return;
 		final int[] cnt = {0};
 //		final boolean[] allReady = {true};
 		final Object OBJ = new Object();
 		
-		class CheckingDevTask implements Runnable{
+		class SelfCheckingTask implements Runnable{
 			private String name;
 			private String type;
 			
-			public CheckingDevTask(String name, String type) {
+			public SelfCheckingTask(String name, String type) {
 				this.name = name;
 				this.type = type;
 			}
 			
 			public void run() {
 				boolean connected = false;
-				if(type.equals("brick")){
+				if(type.equals("brick conn")){
 					String addr = Resource.getBrickAddr(name);
 					if(addr != null){
 						while(!connected){
@@ -153,7 +151,68 @@ public class Main {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-							dashboard.setDevStateIcon(name+"C", connected);
+							dashboard.setDevStateIcon(name + " conn", connected);
+						}
+						Resource.execute(new SelfCheckingTask(name, "brick sample"));
+					}
+				}
+				else if(type.equals("brick sample")){
+					String addr = Resource.getBrickAddr(name);
+					if(addr != null){
+						int second = 0, timeout = 5;//seconds
+						Session session = null;
+						Channel channel = null;
+						try {
+							session = Resource.getSession(name);
+							session.connect();
+							channel = session.openChannel("exec");
+							((ChannelExec) channel).setCommand("./start.sh");
+							channel.setInputStream(null);
+							((ChannelExec) channel).setErrStream(System.err);
+							InputStream in = channel.getInputStream();
+							channel.connect();
+							byte[] buf = new byte[1024];
+							while (!connected) {
+								while (in.available() > 0) {
+									int i = in.read(buf);
+									if (i < 0)
+										break;
+									String s = new String(buf, 0, i);//followed by CR
+									System.out.print(s);
+									if(s.startsWith(name)){
+										connected = true;
+										dashboard.setDevStateIcon(name + " sample", connected);
+										channel.disconnect();
+										break;
+									}
+								}
+								if (channel.isClosed()) {
+									if (in.available() > 0)
+										continue;
+									System.out.println("exit status: " + channel.getExitStatus());
+									break;
+								}
+								if(++second % timeout == 0){
+									connected = false;
+									dashboard.setDevStateIcon(name + " sample", connected);
+	//								break;
+								}
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+						} catch (JSchException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						finally{
+							if(channel != null)
+								channel.disconnect();
+							if(session != null)
+								session.disconnect();
 						}
 					}
 				}
@@ -171,11 +230,9 @@ public class Main {
 						RCClient.tried = false;
 						connected = RCClient.isConnected();
 						dashboard.setDevStateIcon(name, connected);
-						if(connected){
-							for(Car car :Resource.getCars())
-								Resource.execute(new CheckingDevTask(car.name, "car"));
-						}
 					}
+					for(Car car :Resource.getCars())
+						Resource.execute(new SelfCheckingTask(car.name, "car"));
 				}
 				else if(type.equals("car")){
 					Car car = Car.carOf(name);
@@ -207,108 +264,9 @@ public class Main {
 			}
 		}
 		
-		Resource.execute(new CheckingDevTask(RCClient.NAME, "RC"));
+		Resource.execute(new SelfCheckingTask(RCClient.NAME, "RC"));
 		for(String name : Resource.getBricks())
-			Resource.execute(new CheckingDevTask(name, "brick"));
-		
-		synchronized (OBJ) {
-			try {
-				OBJ.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-//		return allReady[0];
-	}
-
-	private static void startSampling(final Dashboard dashboard){
-		final int TOTAL = Resource.getBricks().size();
-		if(TOTAL == 0)
-			return;
-		final int[] cnt = {0};
-//		final boolean[] allReady = {true};
-		final Object OBJ = new Object();
-		
-		class StartSamplingTask implements Runnable{
-			private String name;
-			
-			public StartSamplingTask(String name) {
-				this.name = name;
-			}
-			
-			public void run() {
-				String addr = Resource.getBrickAddr(name);
-				if(addr == null)
-					return;
-				boolean connected = false;
-				int second = 0, timeout = 5;//seconds
-				Session session = null;
-				Channel channel = null;
-				try {
-					session = Resource.getSession(name);
-					session.connect();
-					channel = session.openChannel("exec");
-					((ChannelExec) channel).setCommand("./start.sh");
-					channel.setInputStream(null);
-					((ChannelExec) channel).setErrStream(System.err);
-					InputStream in = channel.getInputStream();
-					channel.connect();
-					byte[] buf = new byte[1024];
-					while (!connected) {
-						while (in.available() > 0) {
-							int i = in.read(buf);
-							if (i < 0)
-								break;
-							String s = new String(buf, 0, i);//followed by CR
-							System.out.print(s);
-							if(s.startsWith(name)){
-								connected = true;
-								dashboard.setDevStateIcon(name + "S", connected);
-								channel.disconnect();
-								break;
-							}
-						}
-						if (channel.isClosed()) {
-							if (in.available() > 0)
-								continue;
-							System.out.println("exit status: " + channel.getExitStatus());
-							break;
-						}
-						if(++second % timeout == 0){
-							connected = false;
-							dashboard.setDevStateIcon(name + "S", connected);
-//							break;
-						}
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				} catch (JSchException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				finally{
-					if(channel != null)
-						channel.disconnect();
-					if(session != null)
-						session.disconnect();
-				}
-				
-				synchronized (cnt) {
-					cnt[0]++;
-				}
-				if(cnt[0] == TOTAL)
-					synchronized (OBJ) {
-						OBJ.notify();
-					}
-			}
-		}
-		
-		for(String name : Resource.getBricks())
-			Resource.execute(new StartSamplingTask(name));
+			Resource.execute(new SelfCheckingTask(name, "brick conn"));
 		
 		synchronized (OBJ) {
 			try {
