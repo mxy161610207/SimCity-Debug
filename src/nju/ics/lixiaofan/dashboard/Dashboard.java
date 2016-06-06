@@ -126,12 +126,12 @@ public class Dashboard extends JFrame{
 		setVisible(true);
 	}
 	
-	private Map<String, JLabel> devLabels = new HashMap<>();
-	public void setDevStateIcon(String device, boolean connected){
-		JLabel label = devLabels.get(device);
+	private Map<String, JLabel> deviceLabels = new HashMap<>();
+	public void setDeviceStatus(String device, boolean status){
+		JLabel label = deviceLabels.get(device);
 		if(label == null)
 			return;
-		if(connected){
+		if(status){
 			if(device.endsWith("conn"))
 				label.setIcon(Resource.getOrangeCheckImageIcon());
 			else
@@ -180,8 +180,8 @@ public class Dashboard extends JFrame{
 			JLabel status = new JLabel();
 			brickPanel.add(status, bgbc);
 			status.setIcon(Resource.getBlackQuestionImageIcon());
-			devLabels.put(name + " conn", status);
-			devLabels.put(name + " sample", status);
+			deviceLabels.put(name + " conn", status);
+			deviceLabels.put(name + " sample", status);
 			bgbc.gridx = 0;
 			bgbc.gridy++;
 		}
@@ -207,7 +207,7 @@ public class Dashboard extends JFrame{
 		JLabel RCStatus = new JLabel();
 		RCPanel.add(RCStatus, rgbc);
 		RCStatus.setIcon(Resource.getBlackQuestionImageIcon());
-		devLabels.put(RCClient.NAME, RCStatus);
+		deviceLabels.put(RCClient.name, RCStatus);
 		//car panel
 		gbc.gridy++;
 		gbc.weighty = 1;
@@ -230,7 +230,7 @@ public class Dashboard extends JFrame{
 			JLabel status = new JLabel();
 			carPanel.add(status, cgbc);
 			status.setIcon(Resource.getBlackQuestionImageIcon());
-			devLabels.put(car.name, status);
+			deviceLabels.put(car.name, status);
 			cgbc.gridx = 0;
 			cgbc.gridy++;
 		}
@@ -756,7 +756,9 @@ public class Dashboard extends JFrame{
 	}
 	
 	public static synchronized void addCar(Car car){
-//		System.out.println(Thread.currentThread());
+		for(int i = 0;i < carbox.getItemCount();i++)
+			if(carbox.getItemAt(i).equals(car.name))
+				return;
 		carbox.addItem(car.name);
 		PkgHandler.send(new AppPkg().setCar(car.name, -1, null));
 		

@@ -9,6 +9,25 @@ import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
+/**
+ * Rooting is not required in wireless ADB. With USB cable <B>connected</B>, port 5555 opened across
+ * all involved firewalls and debug mode enabled
+ * <p>
+ * <B>adb tcpip 5555</B>
+ * <p>
+ * then look into wireless properties of your device and the
+ * network you use, to see which IP address have been granted to device. Then
+ * <p>
+ * <B>adb connect 192.168.1.133</B> (192.168.1.133 is a sample IP address).
+ * <p>
+ * This is all. You can now use adb with USB cable <B>plugged out</B>.
+ * <p>
+ * To switch back to USB mode,
+ * <p>
+ * <B>adb usb</B>
+ * <p>
+ * The device may also revert back to USB mode after reboot.
+ */
 
 public class RCClient implements Runnable{
 //	private static ServerSocket server = null;
@@ -16,7 +35,7 @@ public class RCClient implements Runnable{
 	public static boolean tried = false;
 	public static final Object TRIED_LOCK = new Object();
 	public static CarRC rc = null;
-	public final static String NAME = "Remote Control";
+	public final static String name = "Remote Control";
 	private static final int PORT = 8888;
 	public void run() {
 		try {
