@@ -7,7 +7,6 @@ import java.util.Queue;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Citizen.Activity;
-import nju.ics.lixiaofan.city.Citizen.Job;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
@@ -24,27 +23,29 @@ public class CitizenControl implements Runnable{
 		new Thread(picker, "Citizen Action Picker").start();
 	}
 	public void run() {
-		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		Thread thread = Thread.currentThread();
+		StateSwitcher.register(thread);
 		while(true){
-			while(queue.isEmpty()){
+			while(queue.isEmpty() || !StateSwitcher.isNormal()){
 				synchronized (queue) {
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
-						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 							clear();
 					}
 				}
 			}
-			if(Reset.isResetting()){
-				if(!Reset.isThreadReset(curThread))
-					clear();
-				continue;
+//			if(StateSwitcher.isResetting()){
+//				if(!StateSwitcher.isThreadReset(thread))
+//					clear();
+//				continue;
+//			}
+			ActReq ar = null;
+			synchronized (queue) {
+				ar = queue.poll();
 			}
-			
-			ActReq ar = queue.poll();
 			synchronized (ar.citizen) {
 				ar.citizen.act = ar.act;
 				PkgHandler.send(new AppPkg().setCitizen(ar.citizen.name, ar.act != null ? ar.act.toString() : "None"));
@@ -69,7 +70,7 @@ public class CitizenControl implements Runnable{
 	}
 	
 	private static void sendActReq(ActReq ar){
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		synchronized (queue) {
 			queue.add(ar);

@@ -6,7 +6,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.event.Event.Type;
 
 public class EventManager {
@@ -38,7 +38,7 @@ public class EventManager {
 	}
 	
 	public synchronized static void trigger(Event event){
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		if(hasListener(event.type))
 			synchronized (queue) {
@@ -60,25 +60,25 @@ public class EventManager {
 	private static Queue<Event> queue = new LinkedList<Event>();
 	private static Thread worker = new Thread("EventManager Worker"){
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(queue.isEmpty()){
+				while(queue.isEmpty() || !StateSwitcher.isNormal()){
 					synchronized (queue) {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
 				}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clear();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clear();
+//					continue;
+//				}
 				
 				Event event = null;
 				synchronized (queue) {

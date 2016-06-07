@@ -3,7 +3,7 @@ package nju.ics.lixiaofan.car;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.resource.Resource;
 
 public class Command {
@@ -42,7 +42,6 @@ public class Command {
 	public static void send(Car car, int cmd, int level, boolean remedy){
 		if(car == null)
 			return;
-
 		CmdSender.send(car, cmd);
 		if(cmd == STOP || cmd == FORWARD){
 			car.trend = cmd;
@@ -62,11 +61,16 @@ public class Command {
 	}
 	
 	public static void wake(Car car){
-		if(car == null || !car.isConnected || car.getRealStatus() == Car.UNCERTAIN)
+		if(car == null || !car.isConnected)
 			return;
-		CmdSender.send(car, car.getRealStatus(), FORWARD);
-//		car.trend = car.status;
-//		car.lastInstr = car.getRealStatus();
+		if(StateSwitcher.isNormal()){
+			 if(car.getRealStatus() == Car.MOVING)
+				 drive(car);
+			 else if(car.getRealStatus() == Car.STOPPED)
+				 stop(car);
+		}
+		else if(StateSwitcher.isSuspending())
+			stop(car);//maintain its stopped status
 	}
 	
 	public static void connect(Car car){
@@ -88,7 +92,7 @@ public class Command {
 	}
 	
 	/**
-	 * Only called by Reset Thread
+	 * Only called by Wake, Reset and Suspend 
 	 */
 	public static void drive(Car car){
 		if(!RCClient.isConnected()){
@@ -102,7 +106,7 @@ public class Command {
 	}
 	
 	/**
-	 * Only called by Reset Thread
+	 * Only called by Wake, Reset and Suspend
 	 */
 	public static void stop(Car car){
 		if(!RCClient.isConnected()){
@@ -111,7 +115,9 @@ public class Command {
 		}
 		if(car.isConnected){
 			RCClient.rc.write(car.name + "_" + STOP + "_30");
-			Reset.lastStopInstrTime = car.lastInstrTime = System.currentTimeMillis();
+			car.lastInstrTime = System.currentTimeMillis();
+			if(StateSwitcher.isResetting())
+				StateSwitcher.resetTask.lastStopInstrTime = car.lastInstrTime;
 		}
 	}
 	
@@ -119,7 +125,6 @@ public class Command {
 	 * Only called by Reset Thread
 	 */
 	public static void stopAllCars(){
-//		CmdSender.clear();
 		for(Car car : Resource.getConnectedCars())
 			if(car.getRealStatus() != Car.STOPPED)
 				stop(car);
@@ -130,35 +135,31 @@ class CmdSender implements Runnable{
 	private static Queue<Command> queue = new LinkedList<Command>();
 	
 	public void run() {
-		//TODO
-		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		Thread thread = Thread.currentThread();
+		StateSwitcher.register(thread);
 		while(true){
-			while(queue.isEmpty()){
+			while(queue.isEmpty() || !StateSwitcher.isNormal()){
 				synchronized (queue) {
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
-						//TODO
-						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 							clear();
 					}
 				}
 			}
-			//TODO
-			if(Reset.isResetting()){
-				if(!Reset.isThreadReset(curThread))
-					clear();
+//			if(StateSwitcher.isResetting()){
+//				if(!StateSwitcher.isThreadReset(thread))
+//					clear();
+//				continue;
+//			}
+			if(!RCClient.isConnected())
 				continue;
-			}
-			
 			Command cmd = null;
 			synchronized (queue) {
 				cmd = queue.poll();
 			}
-			if(RCClient.rc == null)
-				continue;
 			switch(cmd.cmd){
 			case Command.LEFT:case Command.RIGHT:
 				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_3");
@@ -182,8 +183,7 @@ class CmdSender implements Runnable{
 	}
 	
 	public static void send(Car car, int cmd, int type){
-		//TODO
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		synchronized (queue) {
 			queue.add(new Command(car, cmd, type));

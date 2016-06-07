@@ -4,7 +4,7 @@ import java.util.Random;
 
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.TrafficMap;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.resource.Resource;
 
 /**
@@ -16,7 +16,7 @@ public class RandomDataGenerator implements Runnable{
 	Random random = new Random();
 	public void run() {
 		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		StateSwitcher.register(curThread);
 		while(true){
 			int idx = random.nextInt(Resource.getConnectedCars().size());
 			int count = 0;

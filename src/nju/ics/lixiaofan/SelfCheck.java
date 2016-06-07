@@ -9,16 +9,14 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.sun.org.glassfish.gmbal.Description;
-
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.RCClient;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.resource.Resource;
 
 public class SelfCheck{
-	private final Dashboard dashboard;
 	private	final Object OBJ = new Object();
 	private final Map<String, Boolean> deviceStatus = new HashMap<>();
 	
@@ -26,8 +24,7 @@ public class SelfCheck{
 	 * This method will block until all devices are ready
 	 * @param dashboard
 	 */
-	public SelfCheck(Dashboard dashboard) {
-		this.dashboard = dashboard;
+	public SelfCheck() {
 		deviceStatus.put(RCClient.name, false);
 		for(String name : Resource.getBricks())
 			deviceStatus.put(name, false);
@@ -59,9 +56,9 @@ public class SelfCheck{
 			boolean connected = false, started = false;
 			while(true){
 				while(!RCClient.tried){
-					synchronized (RCClient.TRIED_LOCK) {
+					synchronized (RCClient.TRIED_OBJ) {
 						try {
-							RCClient.TRIED_LOCK.wait();
+							RCClient.TRIED_OBJ.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -75,12 +72,11 @@ public class SelfCheck{
 						new CarChecking(car).start();
 				}
 				if(connected ^ deviceStatus.get(RCClient.name)){
-					dashboard.setDeviceStatus(RCClient.name, connected);
+					Dashboard.getInstance().setDeviceStatus(RCClient.name, connected);
 					if(allReady()){//true -> false
 						deviceStatus.put(RCClient.name, connected);
-						if(!Main.initial){//TODO suspend
-							
-						}
+						if(!Main.initial)
+							StateSwitcher.suspend();
 					}
 					else{
 						deviceStatus.put(RCClient.name, connected);
@@ -89,9 +85,8 @@ public class SelfCheck{
 								synchronized (OBJ) {
 									OBJ.notify();
 								}
-							else{//TODO resume
-								
-							}
+							else
+								StateSwitcher.resume();
 						}
 					}
 				}
@@ -110,9 +105,9 @@ public class SelfCheck{
 				if(!car.isConnected)
 					Command.connect(car);
 				while(!car.tried){
-					synchronized (car.TRIED_LOCK) {
+					synchronized (car.TRIED_OBJ) {
 						try {
-							car.TRIED_LOCK.wait();
+							car.TRIED_OBJ.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -120,12 +115,11 @@ public class SelfCheck{
 				}
 				car.tried = false;
 				if(car.isConnected ^ deviceStatus.get(car.name)){
-					dashboard.setDeviceStatus(car.name, car.isConnected);
+					Dashboard.getInstance().setDeviceStatus(car.name, car.isConnected);
 					if(allReady()){//true -> false
 						deviceStatus.put(car.name, car.isConnected);
-						if(!Main.initial){//TODO suspend
-							
-						}
+						if(!Main.initial)
+							StateSwitcher.suspend();
 					}
 					else{
 						deviceStatus.put(car.name, car.isConnected);
@@ -134,9 +128,8 @@ public class SelfCheck{
 								synchronized (OBJ) {
 									OBJ.notify();
 								}
-							else{//TODO resume
-								
-							}
+							else
+								StateSwitcher.resume();
 						}
 					}
 				}
@@ -169,7 +162,7 @@ public class SelfCheck{
 						e.printStackTrace();
 						connected = false;
 					}
-					dashboard.setDeviceStatus(name + " conn", connected);
+					Dashboard.getInstance().setDeviceStatus(name + " conn", connected);
 				}
 				
 				//second, start sample program in brick
@@ -209,12 +202,11 @@ public class SelfCheck{
 					}
 					finally{
 						if(sampling ^ deviceStatus.get(name)){
-							dashboard.setDeviceStatus(name + " sample", sampling);
+							Dashboard.getInstance().setDeviceStatus(name + " sample", sampling);
 							if(allReady()){//true -> false
 								deviceStatus.put(name, sampling);
-								if(!Main.initial){//TODO suspend
-									
-								}
+								if(!Main.initial)
+									StateSwitcher.suspend();
 							}
 							else{
 								deviceStatus.put(name, sampling);
@@ -223,9 +215,8 @@ public class SelfCheck{
 										synchronized (OBJ) {
 											OBJ.notify();
 										}
-									else{//TODO resume
-										
-									}
+									else
+										StateSwitcher.resume();
 								}
 							}
 						}

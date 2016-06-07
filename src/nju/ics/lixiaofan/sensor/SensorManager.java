@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nju.ics.lixiaofan.city.TrafficMap;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 
 public class SensorManager {
 	private static ConcurrentHashMap<Sensor, Set<SensorListerner>> listeners = new ConcurrentHashMap<Sensor, Set<SensorListerner>>();
@@ -49,7 +49,7 @@ public class SensorManager {
 	}
 	
 	public synchronized static void trigger(Sensor sensor, int value){
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		if(listeners.containsKey(sensor))
 			synchronized (queue) {
@@ -67,25 +67,25 @@ public class SensorManager {
 	private static Queue<SensorValue> queue = new LinkedList<SensorValue>();
 	private static Thread worker = new Thread("SensorManager Worker"){
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(queue.isEmpty()){
+				while(queue.isEmpty() || !StateSwitcher.isNormal()){
 					synchronized (queue) {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
 				}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clear();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clear();
+//					continue;
+//				}
 				
 				SensorValue sv = null;
 				synchronized (queue) {

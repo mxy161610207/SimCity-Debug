@@ -28,29 +28,29 @@ public class Delivery {
 	
 	private Runnable carSearcher = new Runnable(){
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(searchTasks.isEmpty() || allBusy)
+				while(searchTasks.isEmpty() || allBusy || !StateSwitcher.isNormal())
 					synchronized (searchTasks) {
 						try {
 							searchTasks.wait();
 						} catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clearSearchTasks();
 						}
 					}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clearSearchTasks();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clearSearchTasks();
+//					continue;
+//				}
 				DeliveryTask dt = null;
+				Car car = null;
+				Result res = null;
 				synchronized (searchTasks) {
 					dt = searchTasks.peek();
-					Result res = null;
-					Car car = null;
 					int minDis = Integer.MAX_VALUE;
 					if(dt.src instanceof Section)
 						res = searchCar((Section) dt.src);
@@ -69,39 +69,40 @@ public class Delivery {
 						Dashboard.appendLog("All cars are busy");
 						continue;
 					}
-					car = res.car;
-					Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
-					if(!car.isReal())
-						Dashboard.playErrorSound();
-					car.dt = dt;
-					dt.car = car;
-					dt.phase = 1;
-					car.dest = res.section;
-					if(car.dest.sameAs(car.loc)){
-						if(car.status == Car.STOPPED){
-							car.setLoading(true);
-							//trigger start loading event
-							if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
-								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
-						}
-						else{
-							car.finalState = Car.STOPPED;
-							Command.send(car, Command.STOP);
-							car.notifyPolice(Police.GONNA_STOP);
-						}
-						Dashboard.appendLog(car.name+" reached dest");
-						//trigger reach dest event
-						if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
-							EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
-					}
-					else{
-						car.finalState = Car.MOVING;
-						car.notifyPolice(Police.GONNA_MOVE);
-						Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
-					}
 					searchTasks.poll();
 				}
-				if(dt != null && !Reset.isResetting()){
+				car = res.car;
+				car.dest = res.section;
+				car.dt = dt;
+				dt.car = car;
+				dt.phase = 1;
+				Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
+				if(!car.isReal())
+					Dashboard.playErrorSound();
+				if(car.dest.sameAs(car.loc)){
+					if(car.status == Car.STOPPED){
+						car.setLoading(true);
+						//trigger start loading event
+						if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
+							EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
+					}
+					else{
+						car.finalState = Car.STOPPED;
+						Command.send(car, Command.STOP);
+						car.notifyPolice(Police.GONNA_STOP);
+					}
+					Dashboard.appendLog(car.name+" reached dest");
+					//trigger reach dest event
+					if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
+						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
+				}
+				else{
+					car.finalState = Car.MOVING;
+					car.notifyPolice(Police.GONNA_MOVE);
+					Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
+				}
+					
+				if(dt != null && !StateSwitcher.isResetting()){
 					synchronized (deliveryTasks) {
 						deliveryTasks.add(dt);
 						deliveryTasks.notify();
@@ -177,24 +178,24 @@ public class Delivery {
 	
 	private Runnable carMonitor = new Runnable(){
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(deliveryTasks.isEmpty())
+				while(deliveryTasks.isEmpty() || !StateSwitcher.isNormal())
 					synchronized (deliveryTasks) {
 						try {
 							deliveryTasks.wait();
 						} catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clearDeliveryTasks();
 						}
 					}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clearDeliveryTasks();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clearDeliveryTasks();
+//					continue;
+//				}
 				synchronized (deliveryTasks) {
 					for(Iterator<DeliveryTask> it = deliveryTasks.iterator();it.hasNext();){
 						DeliveryTask dt = it.next();
@@ -298,7 +299,7 @@ public class Delivery {
 	}
 	
 	private static void add(DeliveryTask dtask){
-		if(dtask == null || Reset.isResetting())
+		if(dtask == null || StateSwitcher.isResetting())
 			return;
 		synchronized (searchTasks) {
 			searchTasks.add(dtask);

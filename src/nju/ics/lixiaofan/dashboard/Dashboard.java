@@ -1,6 +1,6 @@
 package nju.ics.lixiaofan.dashboard;
 
-import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -50,7 +50,7 @@ import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
 import nju.ics.lixiaofan.resource.Resource;
@@ -58,6 +58,7 @@ import nju.ics.lixiaofan.sensor.Sensor;
 
 public class Dashboard extends JFrame{
 	private static final long serialVersionUID = 1L;
+	private static Dashboard instance = null;
 	private static TrafficMap trafficMap = new TrafficMap();
 	private static JPanel leftPanel = new JPanel();
 	private static JPanel rightPanel = new JPanel();
@@ -118,12 +119,20 @@ public class Dashboard extends JFrame{
 		}
 	};
 	
-//	private static CardLayout cards = new CardLayout();
-	public Dashboard() {
-//		setContentPane(new JPanel(cards));
+	private Dashboard() {
+//		setEnabled(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+	}
+	
+	public static Dashboard getInstance(){
+		if(instance == null)
+			synchronized (Dashboard.class) {
+				if(instance == null)
+					instance = new Dashboard();
+			}
+		return instance;
 	}
 	
 	private Map<String, JLabel> deviceLabels = new HashMap<>();
@@ -243,7 +252,6 @@ public class Dashboard extends JFrame{
 	}
 
 	private static JPanel controlPanel = null;
-	private static JDialog deviceDialog = null;
 	public void loadCtrlUI(){
 		if(controlPanel != null){
 			setTitle("Dashboard");
@@ -254,7 +262,6 @@ public class Dashboard extends JFrame{
 			return;
 		}
 		controlPanel = new JPanel(new GridBagLayout());
-//		add(controlPanel, "Control");
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 //		gbc.anchor = GridBagConstraints.CENTER;
@@ -288,13 +295,12 @@ public class Dashboard extends JFrame{
 		
 		resetButton.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-				//TODO
-				if(resetButton.isEnabled()){
-					resetButton.setEnabled(false);
-					Reset.isRealInc = e.getButton() == MouseEvent.BUTTON1;
-	//				System.out.println(Reset.isRealInc);
-					Resource.execute(Reset.resetTask);
-				}
+				if(!resetButton.isEnabled())
+					return;
+				enableCtrlUI(false);
+//				resetButton.setEnabled(false);
+				StateSwitcher.resetTask.isRealInconsistency = e.getButton() == MouseEvent.BUTTON1;
+				Resource.execute(StateSwitcher.resetTask);
 			}
 		});
 		
@@ -329,12 +335,7 @@ public class Dashboard extends JFrame{
 		leftPanel.add(deviceButton, gbc);
 		deviceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(deviceDialog == null)
-					deviceDialog = new JDialog(Dashboard.this, "Device");
-				deviceDialog.setContentPane(checkingPanel);
-				deviceDialog.pack();
-//				deviceDialog.setLocationRelativeTo(null);
-				deviceDialog.setVisible(true);
+				showDeviceDialog(false);
 			}
 		});
 		
@@ -670,6 +671,47 @@ public class Dashboard extends JFrame{
 		setLocationRelativeTo(null);
 	}
 	
+	private static Map<Component, Boolean> compoEnable = new HashMap<>();
+	public static void setEnabledRecurse(Component root, boolean enabled){
+		if(root == null)
+			return;
+		Queue<Component> queue = new LinkedList<>();
+		queue.add(root);
+		while(!queue.isEmpty()){
+			Component compo = queue.poll();
+			if(compo instanceof Container)
+				for(Component c : ((Container)compo).getComponents())
+					queue.add(c);
+			if(enabled){
+				Boolean b = compoEnable.get(compo);
+				if(b != null)
+					compo.setEnabled(b);
+			}
+			else{
+				compoEnable.put(compo, compo.isEnabled());
+				compo.setEnabled(false);
+			}
+		}
+	}
+	
+	public static void enableCtrlUI(boolean enabled){
+		setEnabledRecurse(controlPanel, enabled);
+	}
+	
+	private static JDialog deviceDialog = new JDialog(getInstance(), "Device");
+	public static void showDeviceDialog(boolean suspend){
+		deviceDialog.setDefaultCloseOperation(suspend ? DO_NOTHING_ON_CLOSE : HIDE_ON_CLOSE);
+		deviceDialog.setContentPane(checkingPanel);
+		deviceDialog.pack();
+//		deviceDialog.setLocationRelativeTo(null);
+		deviceDialog.setVisible(true);
+//		setEnabledRecurse(controlPanel, false);
+	}
+	
+	public static void closeDeviceDialog(){
+		deviceDialog.setVisible(false);
+	}
+	
 	public static Section getNearestSection(int x, int y){
 		if(x < 0 || x >= trafficMap.getWidth() || y < 0 || y >= trafficMap.getHeight())
 			return null;
@@ -808,10 +850,6 @@ public class Dashboard extends JFrame{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-	}
-	
-	public static void enableResetButton(boolean b){
-		resetButton.setEnabled(b);
 	}
 	
 	public static void repaintTrafficMap(){

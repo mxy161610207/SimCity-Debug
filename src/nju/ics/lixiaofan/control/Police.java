@@ -23,27 +23,30 @@ public class Police implements Runnable{
 	public static final int ALREADY_ENTERED = 3;
 	
 	public void run() {
-		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		Thread thread = Thread.currentThread();
+		StateSwitcher.register(thread);
 		while(true){
-			while(req.isEmpty()){
+			while(req.isEmpty() || !StateSwitcher.isNormal()){
 				synchronized (req) {
 					try {
 						req.wait();
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
-						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 							clear();
 					}
 				}
 			}
-			if(Reset.isResetting()){
-				if(!Reset.isThreadReset(curThread))
-					clear();
-				continue;
-			}
+//			if(StateSwitcher.isResetting()){
+//				if(!StateSwitcher.isThreadReset(thread))
+//					clear();
+//				continue;
+//			}
 //			System.out.println("Traffic Police awake!!!");
-			Request r = req.poll();
+			Request r = null;
+			synchronized (req) {
+				r = req.poll();
+			}
 			Section reqSec = r.loc.adjSects.get(r.dir);
 //			System.out.println(r.loc.name+" "+r.dir);
 			if(reqSec == null){
@@ -128,27 +131,30 @@ public class Police implements Runnable{
 		Queue<Request> req = new LinkedList<Request>();
 		
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(req.isEmpty()){
+				while(req.isEmpty() || !StateSwitcher.isNormal()){
 					synchronized (req) {
 						try {
 							req.wait();
 						} catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
 				}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clear();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clear();
+//					continue;
+//				}
 				
-				Section loc = req.poll().loc;
+				Section loc = null;
+				synchronized (req) {
+					loc = req.poll().loc;
+				}
 				if(loc.isOccupied())
 					continue;
 				synchronized (loc.waiting) {
@@ -182,7 +188,7 @@ public class Police implements Runnable{
 		}
 		
 		public void add(Section loc){
-			if(Reset.isResetting())
+			if(StateSwitcher.isResetting())
 				return;
 			synchronized (req) {
 				req.add(new Request(loc));
@@ -202,7 +208,7 @@ public class Police implements Runnable{
 	}
 	
 	public static void add(Car car, int dir, Section loc, int cmd, Section next) {
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		synchronized (req) {
 			req.add(new Request(car, dir, loc, cmd, next));

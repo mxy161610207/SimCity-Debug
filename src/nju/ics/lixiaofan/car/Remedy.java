@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nju.ics.lixiaofan.control.Police;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -14,7 +14,6 @@ import nju.ics.lixiaofan.sensor.BrickServer;
 
 public class Remedy implements Runnable{
 	private static List<Command> queue = new LinkedList<Command>();
-	//public static Object getwork = new Object();//, workdone = new Object();
 	private Runnable wakeThread = new Runnable() {
 		int missed[] = new int[10];
 		public void run() {
@@ -24,7 +23,7 @@ public class Remedy implements Runnable{
 			while(true){
 				long currentTime = System.currentTimeMillis();
 				for(Car car : Resource.getConnectedCars())
-					if (car.getRealStatus() != Car.UNCERTAIN && currentTime - car.lastInstrTime > 60000)
+					if (currentTime - car.lastInstrTime > 60000)
 						Command.wake(car);
 				
 				//check heartBeat
@@ -54,26 +53,26 @@ public class Remedy implements Runnable{
 	}
 	
 	public void run() {
-		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		Thread thread = Thread.currentThread();
+		StateSwitcher.register(thread);
 		while(true){
-			while(queue.isEmpty()){
+			while(queue.isEmpty() || !StateSwitcher.isNormal()){
 				synchronized (queue) {
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
-						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 							clear();
 					}
 				}
 			}
 			
-			if(Reset.isResetting()){
-				if(!Reset.isThreadReset(curThread))
-					clear();
-				continue;
-			}
+//			if(StateSwitcher.isResetting()){
+//				if(!StateSwitcher.isThreadReset(thread))
+//					clear();
+//				continue;
+//			}
 			
 			//remedy and update cars' states
 			synchronized (queue) {
@@ -153,7 +152,7 @@ public class Remedy implements Runnable{
 	}
 	
 	public static void insert(Command cmd){
-		if(cmd == null || Reset.isResetting())
+		if(cmd == null || StateSwitcher.isResetting())
 			return;
 		
 		synchronized (queue) {

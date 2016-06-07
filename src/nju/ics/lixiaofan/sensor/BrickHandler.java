@@ -12,7 +12,7 @@ import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.context.Context;
 import nju.ics.lixiaofan.context.ContextManager;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
@@ -26,25 +26,25 @@ public class BrickHandler extends Thread{
 	private static Queue<CheckedData> checkedData = new LinkedList<CheckedData>();
 	private Thread checkedDataHandler = new Thread("Checked Data Handler"){
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(checkedData.isEmpty()){
+				while(checkedData.isEmpty() || !StateSwitcher.isNormal()){
 					try {
 						synchronized (checkedData) {
 							checkedData.wait();
 						}
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
-						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 							clearCheckedData();
 					}
 				}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clearCheckedData();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clearCheckedData();
+//					continue;
+//				}
 				CheckedData info = null;
 				synchronized (checkedData) {
 					info = checkedData.poll();
@@ -87,25 +87,25 @@ public class BrickHandler extends Thread{
 	
 	@Override
 	public void run() {
-		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		Thread thread = Thread.currentThread();
+		StateSwitcher.register(thread);
 		while(true){
-			while(rawData.isEmpty()){
+			while(rawData.isEmpty() || !StateSwitcher.isNormal()){
 				try {
 					synchronized (rawData) {
 						rawData.wait();
 					}
 				} catch (InterruptedException e) {
 //					e.printStackTrace();
-					if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+					if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 						clearRawData();
 				}
 			}
-			if(Reset.isResetting()){
-				if(!Reset.isThreadReset(curThread))
-					clearRawData();
-				continue;
-			}
+//			if(StateSwitcher.isResetting()){
+//				if(!StateSwitcher.isThreadReset(thread))
+//					clearRawData();
+//				continue;
+//			}
 			RawData data = null;
 			synchronized (rawData) {
 				data = rawData.poll();
@@ -301,15 +301,15 @@ public class BrickHandler extends Thread{
 		case Sensor.UNDETECTED:
 			if(sensor.entryDetected(reading)){
 				sensor.state = Sensor.DETECTED;
-				Car car = Reset.locatedCar;
+				Car car = StateSwitcher.resetTask.locatedCar;
 				if(car != null && car.loc == null){//still not located, then locate it
-					Reset.locatedCar = null;
+					StateSwitcher.resetTask.locatedCar = null;
 					Command.stop(car);
 //					car.enter(sensor.nextSection);
 					car.loc = sensor.nextSection;
 					car.dir = car.loc.dir[1] == -1 ? car.loc.dir[0] : sensor.dir;
 					sensor.nextSection.cars.add(car);
-					Reset.wakeUp();
+					StateSwitcher.wakeUp();
 				}
 			}
 			break;
@@ -319,7 +319,7 @@ public class BrickHandler extends Thread{
 	public static void add(int bid, int sid, int reading){
 		Sensor sensor = Resource.getSensors().get(bid).get(sid);
 		sensor.reading = reading;
-		if(Reset.isResetting()){
+		if(StateSwitcher.isResetting()){
 			switchStateWhenResetting(sensor, reading);
 			return;
 		}
@@ -331,7 +331,7 @@ public class BrickHandler extends Thread{
 	}
 	
 	public static void add(Car car, Sensor sensor, int type){
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		CheckedData info = new CheckedData(car, sensor, type);
 		synchronized (checkedData) {

@@ -33,36 +33,10 @@ public class RCClient implements Runnable{
 //	private static ServerSocket server = null;
 	private static Socket socket = null;
 	public static boolean tried = false;
-	public static final Object TRIED_LOCK = new Object();
-	public static CarRC rc = null;
+	public static final Object TRIED_OBJ = new Object();
+	public static RemoteControl rc = null;
 	public final static String name = "Remote Control";
 	private static final int PORT = 8888;
-	public void run() {
-		try {
-//			server = new ServerSocket(PORT);
-			startRCApk();
-			socket = new Socket("localhost", PORT);
-		} catch (IOException e) {
-			e.printStackTrace();
-			socket = null;
-		}
-//		System.out.println(socket);
-		if(socket != null)
-		try {
-//			Socket socket = server.accept();
-			socket.setTcpNoDelay(true);
-			socket.setSoTimeout(0);
-			rc = new CarRC(socket);
-			new Thread(new RCListener(), "RC Listener").start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		tried = true;
-		synchronized (TRIED_LOCK) {
-			TRIED_LOCK.notify();
-		}	
-	}
 	
 	public RCClient() {
 		new Thread(this, "RC Client").start();
@@ -70,11 +44,72 @@ public class RCClient implements Runnable{
 		new Thread(new Remedy(), "Remedy Thread").start();
 	}
 	
+	public void run() {
+		while(true){
+			while(!isConnected()){
+				try {
+					startRCApp();
+					socket = new Socket("localhost", PORT);
+					socket.setTcpNoDelay(true);
+					socket.setSoTimeout(0);
+					rc = new RemoteControl(socket);
+					notifySelfCheck();
+				} catch (IOException e) {
+					e.printStackTrace();
+					try {
+						socket.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					notifySelfCheck();
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				} 
+			}
+			
+			String str;
+			while(true){
+				try {
+					str = rc.in.readUTF();
+				} catch (IOException e) {
+					e.printStackTrace();
+					try {
+						socket.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					notifySelfCheck();
+					break;
+				}
+//				System.out.println(str);
+				String strs[] = str.split("_");
+				if(strs[0].equals("ADD")){
+					for(int i = 1;i < strs.length;i++)
+						addCar(strs[i]);
+				}
+				else if(strs[0].equals("REMOVE"))
+					removeCar(strs[1]);
+			}
+		}
+	}
+	
 	public static boolean isConnected(){
 		return socket != null && !socket.isClosed() && socket.isConnected();
 	}
 	
-	private void startRCApk(){
+	public static void notifySelfCheck(){
+		if(!tried){
+			tried = true;
+			synchronized (TRIED_OBJ) {
+				TRIED_OBJ.notify();
+			}
+		}
+	}
+	
+	private static void startRCApp(){
 		boolean started = false;
 		try {
 			Runtime.getRuntime().exec("cmd.exe /c adb forward tcp:" + PORT + " tcp:" + PORT);
@@ -100,77 +135,41 @@ public class RCClient implements Runnable{
 	}
 	
 	public static void addCar(String name){
-		RCListener.addCar(name);
+//		System.out.println(name);
+		Car car = Car.carOf(name);
+		if(car == null)
+			return;
+		if(!car.isConnected){
+//			System.out.println(car.name +" "+car.loc);
+			car.isConnected = true;
+			TrafficMap.connectedCars.add(car);
+			Dashboard.addCar(car);
+			//calibrate
+			if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
+				CmdSender.send(car, Command.LEFT);
+			}
+			synchronized (Delivery.searchTasks) {
+				if(Delivery.allBusy){
+					Delivery.allBusy = false;
+					Delivery.searchTasks.notify();
+				}
+			}
+			//trigger add car event
+			if(EventManager.hasListener(Event.Type.ADD_CAR))
+				EventManager.trigger(new Event(Event.Type.ADD_CAR, car.name, car.loc.name));
+		}
+		car.notifySelfCheck();
 	}
+
 	
-	private static class RCListener implements Runnable{
-		public void run() {
-			String str;
-			while(true){
-				try {
-					str = rc.in.readUTF();
-				} catch (IOException e) {
-					e.printStackTrace();
-					break;
-				}
-//				System.out.println(str);
-				String strs[] = str.split("_");
-				if(strs[0].equals("ADD")){
-					for(int i = 1;i < strs.length;i++)
-						addCar(strs[i]);
-				}
-				else if(strs[0].equals("REMOVE"))
-					removeCar(strs[1]);
-			}
+	private static void removeCar(String name){
+		Car car = Car.carOf(name);
+		if(car == null)
+			return;
+		if(car.isConnected){
+			car.isConnected = false;
+			//TODO
 		}
-		
-		private static void addCar(String name){
-//			System.out.println(name);
-			Car car = Car.carOf(name);
-			if(car == null)
-				return;
-			if(!car.isConnected){
-//				System.out.println(car.name +" "+car.loc);
-				car.isConnected = true;
-				TrafficMap.connectedCars.add(car);
-				Dashboard.addCar(car);
-				//calibrate
-				if(car.name.equals(Car.BLACK) || car.name.equals(Car.RED)){
-					CmdSender.send(car, Command.LEFT);
-				}
-				synchronized (Delivery.searchTasks) {
-					if(Delivery.allBusy){
-						Delivery.allBusy = false;
-						Delivery.searchTasks.notify();
-					}
-				}
-				//trigger add car event
-				if(EventManager.hasListener(Event.Type.ADD_CAR))
-					EventManager.trigger(new Event(Event.Type.ADD_CAR, car.name, car.loc.name));
-			}
-			if(!car.tried){
-				car.tried = true;
-				synchronized (car.TRIED_LOCK) {
-					car.TRIED_LOCK.notify();
-				}
-			}
-		}
-	
-		
-		private static void removeCar(String name){
-			Car car = Car.carOf(name);
-			if(car == null)
-				return;
-			if(car.isConnected){
-				car.isConnected = false;
-				//TODO
-			}
-			if(!car.tried){
-				car.tried = true;
-				synchronized (car.TRIED_LOCK) {
-					car.TRIED_LOCK.notify();
-				}
-			}
-		}
+		car.notifySelfCheck();
 	}
 }

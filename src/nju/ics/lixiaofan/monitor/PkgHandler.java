@@ -18,7 +18,7 @@ import nju.ics.lixiaofan.city.Location;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.control.Delivery;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.resource.Resource;
 
@@ -36,25 +36,25 @@ public class PkgHandler implements Runnable{
 	}
 	
 	public void run() {
-		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		Thread thread = Thread.currentThread();
+		StateSwitcher.register(thread);
 		while(true){
-			while(queue.isEmpty()){
+			while(queue.isEmpty() || !StateSwitcher.isNormal()){
 				synchronized (queue) {
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
-						if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 							clear();
 					}
 				}
 			}
-			if(Reset.isResetting()){
-				if(!Reset.isThreadReset(curThread))
-					clear();
-				continue;
-			}
+//			if(StateSwitcher.isResetting()){
+//				if(!StateSwitcher.isThreadReset(thread))
+//					clear();
+//				continue;
+//			}
 			AppPkg p = null;
 			synchronized (queue) {
 				p = queue.poll();
@@ -111,7 +111,7 @@ public class PkgHandler implements Runnable{
 	}
 	
 	public static void add(AppPkg p){
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		synchronized (queue) {
 			queue.add(p);
@@ -162,8 +162,8 @@ public class PkgHandler implements Runnable{
 	private static class Sender implements Runnable {
 		private Queue<AppPkg> queue = new LinkedList<AppPkg>();
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
 				while(sockets.isEmpty()){
 					clear();
@@ -172,29 +172,27 @@ public class PkgHandler implements Runnable{
 							sockets.wait();
 						} catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
 				}
-				while(queue.isEmpty()){
+				while(queue.isEmpty() || !StateSwitcher.isNormal()){
 					synchronized (queue) {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
 				}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clear();
-					continue;
-				}
-				if(sockets.isEmpty())
-					continue;
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clear();
+//					continue;
+//				}
 				AppPkg p = null;
 				synchronized (queue) {
 					p = queue.poll();

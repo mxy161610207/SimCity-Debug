@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -40,7 +39,7 @@ public class Car {
 	public int realDir, realStatus;
 	
 	public boolean tried = false;//whether tried to connect to this car
-	public final Object TRIED_LOCK = new Object();
+	public final Object TRIED_OBJ = new Object();
 	
 	public static final int STOPPED = 0;
 	public static final int MOVING = 1;
@@ -85,6 +84,15 @@ public class Car {
 		if(loc == null)
 			return;
 		Police.add(this, dir, loc, Police.ALREADY_ENTERED, next);
+	}
+	
+	public void notifySelfCheck(){
+		if(!tried){
+			tried = true;
+			synchronized (TRIED_OBJ) {
+				TRIED_OBJ.notify();
+			}
+		}
 	}
 	
 	public void enter(Section section){

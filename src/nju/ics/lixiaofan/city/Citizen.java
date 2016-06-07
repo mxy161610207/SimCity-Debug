@@ -15,7 +15,7 @@ import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Car.CarIcon;
 import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.monitor.AppPkg;
 import nju.ics.lixiaofan.monitor.PkgHandler;
@@ -69,19 +69,19 @@ public class Citizen implements Runnable{
 	
 	public void run() {
 		Thread curThread = Thread.currentThread();
-		Reset.addThread(curThread);
+		StateSwitcher.register(curThread);
 		while(true){
 			synchronized (this) {
 				try {
 					this.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-					if(Reset.isResetting())
-						Reset.isThreadReset(curThread);
+					if(StateSwitcher.isResetting())
+						StateSwitcher.isThreadReset(curThread);
 				}
 			}
-			if(Reset.isResetting()){
-				Reset.isThreadReset(curThread);
+			if(StateSwitcher.isResetting()){
+				StateSwitcher.isThreadReset(curThread);
 				continue;
 			}
 			

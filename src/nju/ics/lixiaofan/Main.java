@@ -1,20 +1,13 @@
 package nju.ics.lixiaofan;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
 import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import nju.ics.lixiaofan.car.Car;
-import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.RCClient;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Section;
@@ -23,6 +16,7 @@ import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Police;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -37,11 +31,9 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		readConfigFile();
 		new RCClient();
-		Dashboard dashboard = new Dashboard();
-		dashboard.loadCheckUI();
-		new SelfCheck(dashboard);//blocked until all devices are ready
-//		checkDevices(dashboard);
-		dashboard.loadCtrlUI();
+		Dashboard.getInstance().loadCheckUI();
+		new SelfCheck();//blocked until all devices are ready
+		Dashboard.getInstance().loadCtrlUI();
 		
 		addModule();
 		new Middleware();
@@ -50,6 +42,19 @@ public class Main {
 		new CitizenControl();
 		new BrickServer();
 		new AppServer();
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		StateSwitcher.suspend();
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		StateSwitcher.resume();
 		
 //		new Thread() {
 //			boolean flip = true;

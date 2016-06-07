@@ -21,7 +21,7 @@ import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.city.TrafficMap;
 import nju.ics.lixiaofan.consistency.context.*;
 import nju.ics.lixiaofan.consistency.dataLoader.*;
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.sensor.BrickHandler;
 import nju.ics.lixiaofan.sensor.Sensor;
 
@@ -39,27 +39,29 @@ public class Middleware {
     private static Queue<Context> queue = new LinkedList<Context>();
     private static Thread handler = new Thread("MiddleWare Handler"){
     	public void run() {
-    		Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+    		Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
     		while(true){
-    			while(queue.isEmpty()){
+    			while(queue.isEmpty() || !StateSwitcher.isNormal()){
     				synchronized (queue) {
     					try {
 							queue.wait();
 						} catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
     			}
-    			if(Reset.isResetting()){
-    				if(!Reset.isThreadReset(curThread))
-    					clear();
-    				continue;
-    			}
-    			
-    			Context context = queue.poll();
+//    			if(StateSwitcher.isResetting()){
+//    				if(!StateSwitcher.isThreadReset(thread))
+//    					clear();
+//    				continue;
+//    			}
+    			Context context = null;
+    			synchronized (queue) {
+    				context = queue.poll();
+				}
     			if(!Middleware.isDetectionEnabled()){
 					BrickHandler.add((Car) context.getFields().get("car"),
 							(Sensor) context.getFields().get("sensor"),
@@ -142,7 +144,7 @@ public class Middleware {
     
 	public static void add(Object subject, Object direction, Object status,
 			Object category, Object predicate, Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		Context context = new Context();
 		context.addField("subject", subject);

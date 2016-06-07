@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import nju.ics.lixiaofan.control.Reset;
+import nju.ics.lixiaofan.control.StateSwitcher;
 
 public class ContextManager {
 	private static Set<ContextListener> listeners = new HashSet<ContextListener>();
@@ -21,7 +21,7 @@ public class ContextManager {
 	}
 	
 	public synchronized static void trigger(Context context){
-		if(Reset.isResetting())
+		if(StateSwitcher.isResetting())
 			return;
 		if(!listeners.isEmpty())
 			synchronized (queue) {
@@ -43,25 +43,25 @@ public class ContextManager {
 	private static Queue<Context> queue = new LinkedList<Context>();
 	private static Thread worker = new Thread("ContextManager Worker"){
 		public void run() {
-			Thread curThread = Thread.currentThread();
-			Reset.addThread(curThread);
+			Thread thread = Thread.currentThread();
+			StateSwitcher.register(thread);
 			while(true){
-				while(queue.isEmpty()){
+				while(queue.isEmpty() || !StateSwitcher.isNormal()){
 					synchronized (queue) {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-							if(Reset.isResetting() && !Reset.isThreadReset(curThread))
+							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
 								clear();
 						}
 					}
 				}
-				if(Reset.isResetting()){
-					if(!Reset.isThreadReset(curThread))
-						clear();
-					continue;
-				}
+//				if(StateSwitcher.isResetting()){
+//					if(!StateSwitcher.isThreadReset(thread))
+//						clear();
+//					continue;
+//				}
 				Context context = null;
 				synchronized (queue) {
 					context = queue.poll();
