@@ -16,7 +16,6 @@ import nju.ics.lixiaofan.consistency.middleware.Middleware;
 import nju.ics.lixiaofan.control.CitizenControl;
 import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Police;
-import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
@@ -43,18 +42,18 @@ public class Main {
 		new BrickServer();
 		new AppServer();
 		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		StateSwitcher.suspend();
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		StateSwitcher.resume();
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		StateSwitcher.suspend();
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		StateSwitcher.resume();
 		
 //		new Thread() {
 //			boolean flip = true;

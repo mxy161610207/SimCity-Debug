@@ -284,16 +284,6 @@ public class BrickHandler extends Thread{
 	 */
 	private static void switchStateWhenResetting(Sensor sensor, int reading){
 		switch(sensor.state){
-//		case Sensor.INITIAL:
-//			if(sensor.entryDetected(reading)){
-//				sensor.state = Sensor.DETECTED;
-//				switchStateWhenResetting(sensor, reading);
-//			}
-//			else if(sensor.leaveDetected(reading)){
-//				sensor.state = Sensor.UNDETECTED;
-//				switchStateWhenResetting(sensor, reading);
-//			}
-//			break;
 		case Sensor.DETECTED:
 			if(sensor.leaveDetected(reading))
 				sensor.state = Sensor.UNDETECTED;
@@ -301,14 +291,15 @@ public class BrickHandler extends Thread{
 		case Sensor.UNDETECTED:
 			if(sensor.entryDetected(reading)){
 				sensor.state = Sensor.DETECTED;
-				Car car = StateSwitcher.resetTask.locatedCar;
+				Car car = StateSwitcher.resetTask.car2Located;
 				if(car != null && car.loc == null){//still not located, then locate it
-					StateSwitcher.resetTask.locatedCar = null;
+					StateSwitcher.resetTask.car2Located = null;
 					Command.stop(car);
 //					car.enter(sensor.nextSection);
 					car.loc = sensor.nextSection;
 					car.dir = car.loc.dir[1] == -1 ? car.loc.dir[0] : sensor.dir;
 					sensor.nextSection.cars.add(car);
+					StateSwitcher.resetTask.locatedCars.add(car);
 					StateSwitcher.wakeUp();
 				}
 			}
@@ -351,39 +342,6 @@ public class BrickHandler extends Thread{
 			checkedData.clear();
 		}
 	}
-	
-//	private boolean isFalsePositive(Sensor sensor){
-//		Section section = sensor.prevSection;
-//		if(section.isOccupied()){
-//			for(Car car : section.cars)
-//				if(car.dir == sensor.dir && car.status != 0)
-//					return false;
-//				else
-//					System.out.println("Sensor dir: "+sensor.dir
-//							+"\tCar dir: " + car.dir
-//							+"\tCar state: "+car.status);
-//		}
-//		return true;
-//	}
-	
-//	private boolean isFalsePositive2(Sensor sensor){
-//		Section section = sensor.nextSection;
-//		for(Car car : section.cars)
-//			if(car.isReal() && car.status != Car.STILL)
-//				return false;
-//		for(String name : section.realCars)
-//			if(Car.carOf(name).realStatus != Car.STILL)
-//				return false;
-//		return true;
-//	}
-	
-//	public static void initValues(){
-//		for(int i = 0;i < enteringValue.length;i++)
-//			for(int j = 0;j < enteringValue[0].length;j++){
-//				enteringValue[i][j] = 10;
-//				leavingValue[i][j] = 11;
-//			}
-//	}
 	
 	private static class RawData{
 		public Sensor sensor;

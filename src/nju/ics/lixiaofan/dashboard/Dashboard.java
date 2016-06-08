@@ -297,8 +297,6 @@ public class Dashboard extends JFrame{
 			public void mousePressed(MouseEvent e) {
 				if(!resetButton.isEnabled())
 					return;
-				enableCtrlUI(false);
-//				resetButton.setEnabled(false);
 				StateSwitcher.resetTask.isRealInconsistency = e.getButton() == MouseEvent.BUTTON1;
 				Resource.execute(StateSwitcher.resetTask);
 			}
@@ -335,7 +333,7 @@ public class Dashboard extends JFrame{
 		leftPanel.add(deviceButton, gbc);
 		deviceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				showDeviceDialog(false);
+				showDeviceDialog(true);
 			}
 		});
 		
@@ -699,8 +697,8 @@ public class Dashboard extends JFrame{
 	}
 	
 	private static JDialog deviceDialog = new JDialog(getInstance(), "Device");
-	public static void showDeviceDialog(boolean suspend){
-		deviceDialog.setDefaultCloseOperation(suspend ? DO_NOTHING_ON_CLOSE : HIDE_ON_CLOSE);
+	public static void showDeviceDialog(boolean closable){
+		deviceDialog.setDefaultCloseOperation(closable ? HIDE_ON_CLOSE : DO_NOTHING_ON_CLOSE);
 		deviceDialog.setContentPane(checkingPanel);
 		deviceDialog.pack();
 //		deviceDialog.setLocationRelativeTo(null);
