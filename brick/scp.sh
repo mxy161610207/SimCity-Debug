@@ -1,5 +1,5 @@
 #!/bin/sh
-file=~/workspace/SimCity/brick/sample.py
+file=~/workspace/SimCity/brick/stop.sh
 for i in {0..9}
 do
 	echo "scp to Brick $i"

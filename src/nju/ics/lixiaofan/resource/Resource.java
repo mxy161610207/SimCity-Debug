@@ -33,7 +33,7 @@ public class Resource {
 	private final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON;
 	private final static ImageIcon BLACK_QUESTION_ICON, GREEN_CHECK_ICON, ORANGE_CHECK_ICON, RED_X_ICON;
 	private final static JSch JSCH = new JSch();
-	private static Map<String, Session> sessions = new HashMap<>();
+//	private static Map<String, Session> sessions = new HashMap<>();
 	static{
 		GREEN_BALLOON_ICON = loadImage("res/green_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
 		RED_BALLOON_ICON = loadImage("res/red_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
@@ -58,17 +58,14 @@ public class Resource {
 	}
 	
 	public static Session getSession(String name){
-		Session session = sessions.get(name);
-		if(session == null){
-			String addr = brickAddr.get(name);
-			if(addr != null){
-				try {
-					session = JSCH.getSession("robot", addr);
-					session.setPassword("maker");
-					sessions.put(name, session);
-				} catch (JSchException e) {
-					e.printStackTrace();
-				}
+		String addr = brickAddr.get(name);
+		Session session = null;
+		if(addr != null){
+			try {
+				session = JSCH.getSession("robot", addr);
+				session.setPassword("maker");
+			} catch (JSchException e) {
+				e.printStackTrace();
 			}
 		}
 		return session;

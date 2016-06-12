@@ -159,6 +159,7 @@ public class RCClient implements Runnable{
 				EventManager.trigger(new Event(Event.Type.ADD_CAR, car.name, car.loc.name));
 		}
 		car.notifySelfCheck();
+		System.out.println(car.name + " notify");
 	}
 
 	

@@ -126,6 +126,13 @@ public abstract class Section extends Location{
 //			setBorderPainted(false);
 		}
 		
+//		@Override
+//		public void setEnabled(boolean b) {
+//			// TODO Auto-generated method stub
+//			super.setEnabled(b);
+//			System.out.println(section.name);
+//		}
+		
 		protected void paintBorder(Graphics g) {
 //			super.paintBorder(g);
 			((Graphics2D )g).setStroke(new BasicStroke(2.0f));

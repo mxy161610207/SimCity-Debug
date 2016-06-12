@@ -670,7 +670,7 @@ public class Dashboard extends JFrame{
 	}
 	
 	private static Map<Component, Boolean> compoEnable = new HashMap<>();
-	public static void setEnabledRecurse(Component root, boolean enabled){
+	private static void setEnabledRecurse(Component root, boolean enabled){
 		if(root == null)
 			return;
 		Queue<Component> queue = new LinkedList<>();
@@ -861,8 +861,9 @@ public class Dashboard extends JFrame{
 			this.section = section;
 		}
 		public void mousePressed(MouseEvent e) {
-			if (section == null)
+			if (section == null || !section.icon.isEnabled())
 				return;
+			System.out.println(section.name);
 			// for delivery tasks
 			if (isDeliveryStarted) {
 				if (src == null) {
@@ -920,8 +921,9 @@ public class Dashboard extends JFrame{
 		}
 		
 		public void mousePressed(MouseEvent e) {
-			if (building == null)
+			if (building == null || !building.icon.isEnabled())
 				return;
+			System.out.println(building.name);
 			// for delivery tasks
 			if (isDeliveryStarted) {
 				if (src == null) {

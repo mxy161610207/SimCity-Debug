@@ -139,7 +139,7 @@ public class SelfCheck{
 	
 	class BrickChecking extends Thread{
 		private final String name, addr;
-		private final Session session;
+//		private final Session session;
 		byte[] buf = new byte[1024];
 		public BrickChecking(String name) {
 			this.name = name;
@@ -148,7 +148,7 @@ public class SelfCheck{
 				System.err.println("Brick " + name + " has no address");
 				System.exit(-1);
 			}
-			session = Resource.getSession(name);
+//			session = ;
 		}
 		public void run() {
 			setName("Brick Checking: " + name);
@@ -157,7 +157,9 @@ public class SelfCheck{
 				boolean connected = false;
 				while(!connected){
 					try {
+//						System.out.println(name + " connect");
 						connected = InetAddress.getByName(addr).isReachable(5000);
+//						System.out.println(name + " connected");
 					} catch (IOException e) {
 						e.printStackTrace();
 						connected = false;
@@ -166,15 +168,21 @@ public class SelfCheck{
 				}
 				
 				//second, start sample program in brick
+				Session session = null;
 				Channel channel = null;
 				try {
+//					System.out.println(name + " connect session");
+					session = Resource.getSession(name);
 					session.connect();
+//					System.out.println(name + " connected session");
 					channel = session.openChannel("exec");
 					((ChannelExec) channel).setCommand("./start.sh");
 					channel.setInputStream(null);
 					((ChannelExec) channel).setErrStream(System.err);
 					channel.connect();
+//					System.out.println(name + " reading");
 					channel.getInputStream().read();//assure sample program is started
+//					System.out.println(name + " read");
 					channel.disconnect();
 				} catch (JSchException | IOException e) {
 					e.printStackTrace();
@@ -187,6 +195,7 @@ public class SelfCheck{
 				boolean sampling = false;
 				while(true){
 					try {
+//						System.out.println(name + " exec");
 						channel = session.openChannel("exec");
 						((ChannelExec) channel).setCommand("ps -ef | grep 'python sample.py' | grep -v grep");
 						channel.setInputStream(null);
