@@ -11,7 +11,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
-import nju.ics.lixiaofan.car.RCClient;
 import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.dashboard.Dashboard;
 import nju.ics.lixiaofan.resource.Resource;
@@ -24,15 +23,16 @@ public class SelfCheck{
 	 * This method will block until all devices are ready
 	 */
 	public SelfCheck() {
-		deviceStatus.put(RCClient.name, false);
 		for(String name : Resource.getBricks())
 			deviceStatus.put(name, false);
 		for(Car car : Resource.getCars())
 			deviceStatus.put(car.name, false);
 		
-		new RCChecking().start();
+//		new RCChecking().start();
 		for(String name : Resource.getBricks())
 			new BrickChecking(name).start();
+        for(Car car :Resource.getCars())
+            new CarChecking(car).start();
 		
 		synchronized (OBJ) {
 			try {
@@ -48,51 +48,7 @@ public class SelfCheck{
 			if(!b)	return false;
 		return true;
 	}
-	
-	class RCChecking extends Thread{
-		public void run() {
-			setName("RC Checking");
-			boolean connected = false, started = false;
-			while(true){
-				while(!RCClient.tried){
-					synchronized (RCClient.TRIED_OBJ) {
-						try {
-							RCClient.TRIED_OBJ.wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				RCClient.tried = false;
-				connected = RCClient.isConnected();
-				if(connected && !started){//only start car checking threads once
-					started = true;
-					for(Car car :Resource.getCars())
-						new CarChecking(car).start();
-				}
-				if(connected ^ deviceStatus.get(RCClient.name)){
-					Dashboard.getInstance().setDeviceStatus(RCClient.name, connected);
-					if(allReady()){//true -> false
-						deviceStatus.put(RCClient.name, connected);
-						if(!Main.initial)
-							StateSwitcher.suspend();
-					}
-					else{
-						deviceStatus.put(RCClient.name, connected);
-						if(allReady()){//false -> true
-							if(Main.initial)
-								synchronized (OBJ) {
-									OBJ.notify();
-								}
-							else
-								StateSwitcher.resume();
-						}
-					}
-				}
-			}
-		}
-	}
-	
+
 	class CarChecking extends Thread{
 		private final Car car;
 		public CarChecking(Car car) {
@@ -101,7 +57,7 @@ public class SelfCheck{
 		public void run() {
 			setName("Car Checking: " + car.name);
 			while(true){
-				if(!car.isConnected)
+				if(!car.isConnected())
 					Command.connect(car);
 				while(!car.tried){
 					synchronized (car.TRIED_OBJ) {
@@ -113,15 +69,15 @@ public class SelfCheck{
 					}
 				}
 				car.tried = false;
-				if(car.isConnected ^ deviceStatus.get(car.name)){
-					Dashboard.getInstance().setDeviceStatus(car.name, car.isConnected);
+				if(car.isConnected() ^ deviceStatus.get(car.name)){
+					Dashboard.getInstance().setDeviceStatus(car.name, car.isConnected());
 					if(allReady()){//true -> false
-						deviceStatus.put(car.name, car.isConnected);
+						deviceStatus.put(car.name, car.isConnected());
 						if(!Main.initial)
 							StateSwitcher.suspend();
 					}
 					else{
-						deviceStatus.put(car.name, car.isConnected);
+						deviceStatus.put(car.name, car.isConnected());
 						if(allReady()){//false -> true
 							if(Main.initial)
 								synchronized (OBJ) {

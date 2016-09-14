@@ -2,13 +2,14 @@ package nju.ics.lixiaofan;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import nju.ics.lixiaofan.car.CmdSender;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import nju.ics.lixiaofan.car.Car;
-import nju.ics.lixiaofan.car.RCClient;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
@@ -29,12 +30,12 @@ public class Main {
 	static boolean initial = true;
 	public static void main(String[] args) throws IOException {
 		readConfigFile();
-		new RCClient();
 		Dashboard.getInstance().loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready
 		Dashboard.getInstance().loadCtrlUI();
 		
 		addModule();
+		new CmdSender();
 		new Middleware();
 		new Delivery();
 		new Police();
@@ -104,7 +105,7 @@ public class Main {
 		Element root = doc.getRootElement();
 		List<Element> list = root.elements("car");
 		for(Element elm : list){
-			Car car = new Car(elm.attributeValue("name"), Section.sectionOf(elm.attributeValue("loc")));
+			Car car = new Car(elm.attributeValue("name"), Section.sectionOf(elm.attributeValue("loc")), elm.attributeValue("url"));
 			TrafficMap.cars.put(car.name, car);
 		}
 		

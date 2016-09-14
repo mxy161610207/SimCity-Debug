@@ -21,26 +21,32 @@ public class ConfigGenerator {
 		Element car = root.addElement("car");
 		car.addAttribute("name", Car.BLACK);
 		car.addAttribute("loc", "Street 18");
+		car.addAttribute("url", "btspp://00066649A8C4:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.GREEN);
 		car.addAttribute("loc", "Crossing 6");
+        car.addAttribute("url", "btspp://000666459D35:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.ORANGE);
 		car.addAttribute("loc", "Crossing 7");
+        car.addAttribute("url", "btspp://00066649960C:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.RED);
 		car.addAttribute("loc", "Street 24");
+        car.addAttribute("url", "btspp://000666619F38:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.SILVER);
 		car.addAttribute("loc", "Street 23");
+        car.addAttribute("url", "btspp://00066661A901:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.WHITE);
 		car.addAttribute("loc", "Street 28");
+        car.addAttribute("url", "btspp://00066661AA61:1;authenticate=true;encrypt=true");
 		//building
 		Element building = root.addElement("building");
 		building.addAttribute("name", "Stark Industries");

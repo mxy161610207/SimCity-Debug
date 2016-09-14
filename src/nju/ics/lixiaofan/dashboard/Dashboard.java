@@ -41,7 +41,6 @@ import sun.audio.AudioStream;
 import nju.ics.lixiaofan.car.Car;
 import nju.ics.lixiaofan.car.Command;
 import nju.ics.lixiaofan.car.DPad;
-import nju.ics.lixiaofan.car.RCClient;
 import nju.ics.lixiaofan.car.Remedy;
 import nju.ics.lixiaofan.city.Building;
 import nju.ics.lixiaofan.city.Location;
@@ -194,32 +193,8 @@ public class Dashboard extends JFrame{
 			bgbc.gridx = 0;
 			bgbc.gridy++;
 		}
-		//RC panel
-		gbc.gridx++;
-		gbc.gridheight = 1;
-		gbc.weighty = 0;
-		JPanel RCPanel = new JPanel();
-		checkingPanel.add(RCPanel, gbc);
-		RCPanel.setBorder(BorderFactory.createTitledBorder("Remote Control"));
-		RCPanel.setLayout(new GridBagLayout());
-		GridBagConstraints rgbc = new GridBagConstraints();
-//		rgbc.fill = GridBagConstraints.BOTH;
-		rgbc.anchor = GridBagConstraints.WEST;
-		rgbc.gridx = rgbc.gridy = 0;
-		rgbc.weightx = rgbc.weighty = 1;
-		rgbc.insets = new Insets(1, 5, 1, 5);
-		JLabel RCNameLabel = new JLabel("Phone");
-		RCNameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
-		RCPanel.add(RCNameLabel, rgbc);
-		rgbc.gridx++;
-		rgbc.anchor = GridBagConstraints.EAST;
-		JLabel RCStatus = new JLabel();
-		RCPanel.add(RCStatus, rgbc);
-		RCStatus.setIcon(Resource.getBlackQuestionImageIcon());
-		deviceLabels.put(RCClient.name, RCStatus);
 		//car panel
-		gbc.gridy++;
-		gbc.weighty = 1;
+        gbc.gridx++;
 		JPanel carPanel = new JPanel();
 		checkingPanel.add(carPanel, gbc);
 		carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
@@ -347,27 +322,25 @@ public class Dashboard extends JFrame{
 					String car = cmd.substring("add car ".length()).toLowerCase();
 					switch(car){
 					case "r":case "red":case "red car":
-						RCClient.addCar(Car.RED);	break;
+					    Car.carOf(Car.RED).init(); break;
 					case "b":case "black":case "black car":
-						RCClient.addCar(Car.BLACK);	break;
+                            Car.carOf(Car.BLACK).init(); break;
 					case "w":case "white":case "white car":
-						RCClient.addCar(Car.WHITE);	break;
+                            Car.carOf(Car.WHITE).init(); break;
 					case "o":case "orange":case "orange car":
-						RCClient.addCar(Car.ORANGE);	break;
+                            Car.carOf(Car.ORANGE).init(); break;
 					case "g":case "green":case "green car":
-						RCClient.addCar(Car.GREEN);	break;
+                            Car.carOf(Car.GREEN).init(); break;
 					case "s":case "silver":case "suv":case "silver suv":
-						RCClient.addCar(Car.SILVER);	break;
-					default:
-						return;
+                            Car.carOf(Car.SILVER).init(); break;
 					}
 				}
 				else if(cmd.startsWith("connect car ") || cmd.startsWith("disconnect car ")){
-					String car = cmd.substring(
+					String name = cmd.substring(
 							cmd.charAt(0) == 'c' ? "connect car ".length()
 									: "disconnect car ".length()).toLowerCase();
 					String s = "";
-					switch(car){
+					switch(name){
 					case "r":case "red":case "red car":
 						s = Car.RED;	break;
 					case "b":case "black":case "black car":
@@ -383,8 +356,13 @@ public class Dashboard extends JFrame{
 					default:
 						return;
 					}
-					s += "_" + (cmd.charAt(0) == 'c' ? Command.CONNECT : Command.DISCONNECT) + "_0";
-					RCClient.rc.write(s);
+					Car car = Car.carOf(s);
+                    if(car != null){
+                        if(cmd.charAt(0) == 'c')
+                            car.connect();
+                        else
+                            car.disconnect();
+                    }
 				}
 			}
 		});
@@ -863,7 +841,7 @@ public class Dashboard extends JFrame{
 		public void mousePressed(MouseEvent e) {
 			if (section == null || !section.icon.isEnabled())
 				return;
-			System.out.println(section.name);
+//			System.out.println(section.name);
 			// for delivery tasks
 			if (isDeliveryStarted) {
 				if (src == null) {
@@ -923,7 +901,7 @@ public class Dashboard extends JFrame{
 		public void mousePressed(MouseEvent e) {
 			if (building == null || !building.icon.isEnabled())
 				return;
-			System.out.println(building.name);
+//			System.out.println(building.name);
 			// for delivery tasks
 			if (isDeliveryStarted) {
 				if (src == null) {

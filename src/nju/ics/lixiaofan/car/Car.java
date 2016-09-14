@@ -3,14 +3,19 @@ package nju.ics.lixiaofan.car;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
 import javax.swing.JButton;
 
 import nju.ics.lixiaofan.city.Citizen;
 import nju.ics.lixiaofan.city.Section;
 import nju.ics.lixiaofan.city.TrafficMap;
+import nju.ics.lixiaofan.control.Delivery;
 import nju.ics.lixiaofan.control.Delivery.DeliveryTask;
 import nju.ics.lixiaofan.control.Police;
 import nju.ics.lixiaofan.dashboard.Dashboard;
@@ -19,7 +24,6 @@ import nju.ics.lixiaofan.event.EventManager;
 
 public class Car {
 //	public final int type;//0: battletank	1: tankbot	2: carbot 3: zenwheels
-	public boolean isConnected = false;
 	public final String name;//only for zenwheels
 	public int status = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int trend = 0;//0: tend to stop	1: tend to move	-1: none
@@ -33,11 +37,14 @@ public class Car {
 	public long stopTime = System.currentTimeMillis();//used for delivery
 //	public int lastInstr = -1;
 	public CarIcon icon = null;
-	public Set<Citizen> passengers = new HashSet<Citizen>();
+	public Set<Citizen> passengers = new HashSet<>();
 	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public int realDir, realStatus;
-	
+
+    private final String url;
+    private StreamConnection conn = null;
+    private DataOutputStream dos = null;
 	public boolean tried = false;//whether tried to connect to this car
 	public final Object TRIED_OBJ = new Object();
 	
@@ -52,10 +59,11 @@ public class Car {
 	public static final String BLACK = "Black Car";//E
 	public static final String ORANGE = "Orange Car";//F
 	
-	public Car(String name, Section loc) {
+	public Car(String name, Section loc, String url) {
 //		this.type = type;
 		this.name = name;
 		this.loc = loc;
+        this.url = url;
 		this.icon = new CarIcon(name);
 	}
 	
@@ -94,6 +102,72 @@ public class Car {
 			}
 		}
 	}
+
+	public void init(){
+        TrafficMap.connectedCars.add(this);
+        Dashboard.addCar(this);
+        //calibrate
+        if(name.equals(Car.BLACK) || name.equals(Car.RED))
+            CmdSender.send(this, Command.LEFT);
+
+        synchronized (Delivery.searchTasks) {
+            if(Delivery.allBusy){
+                Delivery.allBusy = false;
+                Delivery.searchTasks.notify();
+            }
+        }
+
+        //trigger add car event
+        if(EventManager.hasListener(Event.Type.ADD_CAR))
+            EventManager.trigger(new Event(Event.Type.ADD_CAR, name, loc.name));
+    }
+
+	public boolean isConnected(){
+        return conn != null;
+    }
+
+	public void connect(){
+        if(isConnected())
+            return;
+        System.out.println("connecting " + name);
+        try {
+            conn = (StreamConnection) Connector.open(url);
+            dos = conn.openDataOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            conn = null;
+            dos = null;
+        }
+        if(isConnected())
+            init();
+        notifySelfCheck();
+    }
+
+    public void disconnect(){
+        if(!isConnected())
+            return;
+        System.out.println("disconnecting " + name);
+        try {
+            conn.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        conn = null;
+        dos = null;
+        notifySelfCheck();
+    }
+
+	public void write(byte[] instr){
+        if(dos != null && instr != null){
+            try {
+                dos.write(instr);
+                lastInstrTime = System.currentTimeMillis();
+            } catch (IOException e) {
+                e.printStackTrace();
+                disconnect();
+            }
+        }
+    }
 	
 	public void enter(Section section){
 		if(section == null || section.sameAs(loc))

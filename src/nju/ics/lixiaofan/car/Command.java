@@ -1,10 +1,17 @@
 package nju.ics.lixiaofan.car;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import nju.ics.lixiaofan.control.StateSwitcher;
 import nju.ics.lixiaofan.resource.Resource;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
 
 public class Command {
 	public Car car = null;
@@ -20,8 +27,23 @@ public class Command {
 	public final static int RIGHT = 4;
 	public final static int NO_STEER = 5;
 	public final static int HORN = 6;
-	public final static int CONNECT = 7;
-	public final static int DISCONNECT = 8;
+    public final static int HORN_ON = 7;
+    public final static int HORN_OFF = 8;
+	public final static int CONNECT = 9;
+	public final static int DISCONNECT = 10;
+
+    static final Map<Integer, byte[]> codes = new HashMap<>();
+
+    static {
+        codes.put(Command.STOP, ByteBuffer.allocate(4).putInt(CarCodes.NO_SPEED).array());
+        codes.put(Command.FORWARD, ByteBuffer.allocate(4).putInt(CarCodes.SPEED_FRONT[30]).array());
+        codes.put(Command.BACKWARD, ByteBuffer.allocate(4).putInt(CarCodes.SPEED_BACK[30]).array());
+        codes.put(Command.LEFT, ByteBuffer.allocate(4).putInt(CarCodes.STEER_LEFT[3]).array());
+        codes.put(Command.RIGHT, ByteBuffer.allocate(4).putInt(CarCodes.STEER_RIGHT[3]).array());
+        codes.put(Command.NO_STEER, ByteBuffer.allocate(4).putInt(CarCodes.NO_STEER).array());
+        codes.put(Command.HORN_ON, ByteBuffer.allocate(4).putInt(CarCodes.HORN_ON).array());
+        codes.put(Command.HORN_OFF, ByteBuffer.allocate(4).putInt(CarCodes.HORN_OFF).array());
+    }
 	
 	public Command(Car car, int cmd) {
 		this.car = car;
@@ -61,7 +83,7 @@ public class Command {
 	}
 	
 	public static void wake(Car car){
-		if(car == null || !car.isConnected)
+		if(car == null || !car.isConnected())
 			return;
 		if(StateSwitcher.isNormal()){
 			 if(car.getRealStatus() == Car.MOVING)
@@ -70,52 +92,28 @@ public class Command {
 				 stop(car);
 		}
 		else if(StateSwitcher.isSuspending())
-			stop(car);//maintain its stopped status
+			stop(car); // maintain its stopped status
 	}
 	
-	public static void connect(Car car){
-		if(!RCClient.isConnected()){
-			System.err.println("RC disconnected, cannot connect " + car.name);
-			return;
-		}
-		if(car != null)
-			RCClient.rc.write(car.name + "_" + CONNECT + "_0");
-	}
-	
-	public static void disconnect(Car car){
-		if(!RCClient.isConnected()){
-			System.err.println("RC disconnected, cannot disconnect " + car.name);
-			return;
-		}
-		if(car != null)
-			RCClient.rc.write(car.name + "_" + DISCONNECT + "_0");
-	}
+	public static void connect(Car car) {
+        if (car != null)
+           car.connect();
+    }
 	
 	/**
 	 * Only called by Wake, Reset and Suspend 
 	 */
 	public static void drive(Car car){
-		if(!RCClient.isConnected()){
-			System.err.println("RC disconnected, cannot drive " + car.name);
-			return;
-		}
-		if(car.isConnected){
-			RCClient.rc.write(car.name + "_" + FORWARD + "_30");
-			car.lastInstrTime = System.currentTimeMillis();
-		}
+        if(car != null && car.isConnected())
+            car.write(codes.get(FORWARD));
 	}
 	
 	/**
 	 * Only called by Wake, Reset and Suspend
 	 */
 	public static void stop(Car car){
-		if(!RCClient.isConnected()){
-			System.err.println("RC disconnected, cannot stop " + car.name);
-			return;
-		}
-		if(car.isConnected){
-			RCClient.rc.write(car.name + "_" + STOP + "_30");
-			car.lastInstrTime = System.currentTimeMillis();
+		if(car != null && car.isConnected()){
+            car.write(codes.get(STOP));
 			if(StateSwitcher.isResetting())
 				StateSwitcher.resetTask.lastStopInstrTime = car.lastInstrTime;
 		}
@@ -128,72 +126,5 @@ public class Command {
 		for(Car car : Resource.getConnectedCars())
 			if(car.getRealStatus() != Car.STOPPED)
 				stop(car);
-	}
-}
-
-class CmdSender implements Runnable{
-	private static Queue<Command> queue = new LinkedList<Command>();
-	
-	public void run() {
-		Thread thread = Thread.currentThread();
-		StateSwitcher.register(thread);
-		while(true){
-			while(queue.isEmpty() || !StateSwitcher.isNormal()){
-				synchronized (queue) {
-					try {
-						queue.wait();
-					} catch (InterruptedException e) {
-//						e.printStackTrace();
-						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
-							clear();
-					}
-				}
-			}
-//			if(StateSwitcher.isResetting()){
-//				if(!StateSwitcher.isThreadReset(thread))
-//					clear();
-//				continue;
-//			}
-			if(!RCClient.isConnected())
-				continue;
-			Command cmd = null;
-			synchronized (queue) {
-				cmd = queue.poll();
-			}
-			switch(cmd.cmd){
-			case Command.LEFT:case Command.RIGHT:
-				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_3");
-				break;
-			case Command.FORWARD:case Command.STOP:case Command.BACKWARD:
-				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_30");
-				break;
-			case Command.HORN:
-				RCClient.rc.write(cmd.car.name+"_"+cmd.cmd+"_1000");
-				break;
-			default:
-				System.out.println("!!!UNKNOWN COMMAND!!!");
-				break;
-			}
-			cmd.car.lastInstrTime = System.currentTimeMillis();
-		}
-	}
-
-	public static void send(Car car, int cmd){
-		send(car, cmd, 0);
-	}
-	
-	public static void send(Car car, int cmd, int type){
-		if(StateSwitcher.isResetting())
-			return;
-		synchronized (queue) {
-			queue.add(new Command(car, cmd, type));
-			queue.notify();
-		}
-	}
-	
-	public static void clear(){
-		synchronized (queue) {
-			queue.clear();
-		}
 	}
 }

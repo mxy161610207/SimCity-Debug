@@ -131,7 +131,7 @@ public class PkgHandler implements Runnable{
 	
 	public void sendInitialInfo(ObjectOutputStream oos) throws IOException{		
 		for(Car car : TrafficMap.cars.values()){
-			if(!car.isConnected)
+			if(!car.isConnected())
 				continue;
 			if(car.loc == null)
 				oos.writeObject(new AppPkg().setCar(car.name, -1, null));
