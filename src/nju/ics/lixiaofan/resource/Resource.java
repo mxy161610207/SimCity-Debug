@@ -29,7 +29,7 @@ import nju.ics.lixiaofan.sensor.Sensor;
 
 public class Resource {
 	private static ExecutorService threadPool = Executors.newCachedThreadPool();
-	private static Map<String, String> brickAddr = new HashMap<String, String>();
+	private static Map<String, String> brickAddr = new HashMap<>();
 	private final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON;
 	private final static ImageIcon BLACK_QUESTION_ICON, GREEN_CHECK_ICON, ORANGE_CHECK_ICON, RED_X_ICON;
 	private final static JSch JSCH = new JSch();
@@ -112,33 +112,33 @@ public class Resource {
 	}
 	
 	public static Set<DeliveryTask> getDelivTasks(){
-		Set<DeliveryTask> set = new HashSet<Delivery.DeliveryTask>();
+		Set<DeliveryTask> set = new HashSet<>();
 		set.addAll(Delivery.searchTasks);
 		set.addAll(Delivery.deliveryTasks);
 		return set;
 	}
 	
-	public static final ImageIcon getRedBalloonImageIcon(){
+	public static ImageIcon getRedBalloonImageIcon(){
 		return RED_BALLOON_ICON;
 	}
 	
-	public static final ImageIcon getGreenBalloonImageIcon(){
+	public static ImageIcon getGreenBalloonImageIcon(){
 		return GREEN_BALLOON_ICON;
 	}
 	
-	public static final ImageIcon getBlackQuestionImageIcon(){
+	public static ImageIcon getBlackQuestionImageIcon(){
 		return BLACK_QUESTION_ICON;
 	}
 	
-	public static final ImageIcon getGreenCheckImageIcon(){
+	public static ImageIcon getGreenCheckImageIcon(){
 		return GREEN_CHECK_ICON;
 	}
 	
-	public static final Icon getOrangeCheckImageIcon() {
+	public static Icon getOrangeCheckImageIcon() {
 		return ORANGE_CHECK_ICON;
 	}
 	
-	public static final ImageIcon getRedXImageIcon(){
+	public static ImageIcon getRedXImageIcon(){
 		return RED_X_ICON;
 	}
 	

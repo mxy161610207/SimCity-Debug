@@ -53,11 +53,12 @@ public class RCClient implements Runnable{
 					socket.setTcpNoDelay(true);
 					socket.setSoTimeout(0);
 					rc = new RemoteControl(socket);
-					notifySelfCheck();
+                    notifySelfCheck();
 				} catch (IOException e) {
 					e.printStackTrace();
 					try {
-						socket.close();
+                        if(socket != null)
+						    socket.close();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}

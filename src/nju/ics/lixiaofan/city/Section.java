@@ -28,18 +28,18 @@ import nju.ics.lixiaofan.resource.Resource;
 import nju.ics.lixiaofan.sensor.Sensor;
 
 public abstract class Section extends Location{
-	public Map<Integer, Section> adjSects = new HashMap<Integer, Section>(); //adjacent sections
-//	public Set<Sensor> sensors = new HashSet<Sensor>();
-	public Map<Integer, Sensor> adjSensors = new HashMap<Integer, Sensor>(); //adjacent sensors
-	public Map<Section, Section> exits = new HashMap<Section, Section>(); //entrance -> exit
-	public Map<Section, Section> entrances = new HashMap<Section, Section>(); //exit -> entrance
+	public Map<Integer, Section> adjSects = new HashMap<>(); //adjacent sections
+//	public Set<Sensor> sensors = new HashSet<>();
+	public Map<Integer, Sensor> adjSensors = new HashMap<>(); //adjacent sensors
+	public Map<Section, Section> exits = new HashMap<>(); //entrance -> exit
+	public Map<Section, Section> entrances = new HashMap<>(); //exit -> entrance
 	public int[] dir = {-1, -1};
-	public Queue<Car> cars = new LinkedList<Car>();//may contain phantoms
-	public Queue<Car> realCars = new LinkedList<Car>();
+	public Queue<Car> cars = new LinkedList<>();//may contain phantoms
+	public Queue<Car> realCars = new LinkedList<>();
 	public Car[] permitted = {null};//let its type be an array to share its value among the combined
-	public Set<Section> combined = new HashSet<Section>();
+	public Set<Section> combined = new HashSet<>();
 //	public Object mutex = new Object();//used by police thread and its notifier
-	public Queue<Car> waiting = new LinkedList<Car>();//can replace mutex
+	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public SectionIcon icon = null;
 	public BalloonIcon balloon = null;
 	
@@ -172,7 +172,7 @@ public abstract class Section extends Location{
 			
 			n = section.cars.size() + section.realCars.size();
 			if(n > 0){
-				boolean vertical = this instanceof StreetIcon ? ((StreetIcon) this).isVertical : false;
+				boolean vertical = this instanceof StreetIcon && ((StreetIcon) this).isVertical;
 				int x = vertical ? (coord.w - cubeSize) / 2 : (coord.w-n*cubeSize-(n-1)*cubeInset) / 2;
 				int y = vertical ? (coord.h-n*cubeSize-(n-1)*cubeInset) / 2 : (coord.h - cubeSize) / 2;
 				

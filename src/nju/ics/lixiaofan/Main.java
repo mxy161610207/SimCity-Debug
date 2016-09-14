@@ -26,7 +26,7 @@ import nju.ics.lixiaofan.resource.Resource;
 import nju.ics.lixiaofan.sensor.BrickServer;
 
 public class Main {
-	public static boolean initial = true;
+	static boolean initial = true;
 	public static void main(String[] args) throws IOException {
 		readConfigFile();
 		new RCClient();
@@ -94,11 +94,12 @@ public class Main {
 	@SuppressWarnings("unchecked")
 	private static void readConfigFile(){
 		SAXReader reader = new SAXReader();
-		Document doc = null;
+		Document doc;
 		try {
 			doc = reader.read(new File(ConfigGenerator.configFile));
 		} catch (DocumentException e) {
 			e.printStackTrace();
+			return;
 		}
 		Element root = doc.getRootElement();
 		List<Element> list = root.elements("car");

@@ -22,7 +22,6 @@ public class SelfCheck{
 	
 	/**
 	 * This method will block until all devices are ready
-	 * @param dashboard
 	 */
 	public SelfCheck() {
 		deviceStatus.put(RCClient.name, false);
@@ -186,7 +185,8 @@ public class SelfCheck{
 					channel.disconnect();
 				} catch (JSchException | IOException e) {
 					e.printStackTrace();
-					channel.disconnect();
+					if(channel != null)
+					    channel.disconnect();
 					session.disconnect();
 					continue;
 				}

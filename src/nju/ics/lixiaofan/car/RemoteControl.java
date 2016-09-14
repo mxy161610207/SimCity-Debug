@@ -7,11 +7,12 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import javax.bluetooth.*;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
+import javax.xml.crypto.Data;
 
 //car remote control
 public class RemoteControl {
@@ -46,11 +47,11 @@ public class RemoteControl {
 		}
 	}
 	
-//	private static List<RemoteDevice> devices = new ArrayList<>();
-//	private static List<String> services = new ArrayList<>();
+	private static List<RemoteDevice> devices = new ArrayList<>();
+	private static List<String> services = new ArrayList<>();
 	public static void main(String[] args) {
 		final Object lock = new Object();
-//		DiscoveryListener  listener = new DiscoveryListener(){
+//		DiscoveryListener listener = new DiscoveryListener(){
 //		    public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
 //		        String name;
 //		        try {
@@ -88,7 +89,7 @@ public class RemoteControl {
 //                }
 //		    }
 //		};
-//		
+//
 //		LocalDevice localDevice;
 //		DiscoveryAgent agent = null;
 //		try {
@@ -113,7 +114,7 @@ public class RemoteControl {
 //
 //		UUID[] uuidSet = new UUID[] { new UUID(0x1101) };//SPP
 //        int[] attrIDs =  new int[] {0x0100};//Service name
-//        
+//
 //        for(RemoteDevice device : devices){
 //        	if(!device.getBluetoothAddress().equals("00066661A901"))
 //        		continue;
@@ -168,20 +169,24 @@ public class RemoteControl {
 		    }
 		}
 		
-//        byte[] lightsOn = ByteBuffer.allocate(4).putInt(0x8502).array();
-//        byte[] lightsOff = ByteBuffer.allocate(4).putInt(0x8500).array();
+        byte[] lightsOn = ByteBuffer.allocate(4).putInt(0x8502).array();
+        byte[] lightsOff = ByteBuffer.allocate(4).putInt(0x8500).array();
         Map<String, String> map = new HashMap<>();
-//        map.put(Car.RED, "btspp://000666619F38:1;authenticate=false;encrypt=false;master=false");//red
-//        map.put(Car.BLACK, "btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false");//black
-//        map.put(Car.WHITE, "btspp://00066661AA61:1;authenticate=false;encrypt=false;master=false");//white
+        map.put(Car.RED, "btspp://000666619F38:1;authenticate=true;encrypt=true");//red
+        map.put(Car.BLACK, "btspp://00066649A8C4:1;authenticate=true;encrypt=true");//black
+        map.put(Car.WHITE, "btspp://00066661AA61:1;authenticate=true;encrypt=true");//white
         map.put(Car.SILVER, "btspp://00066661A901:1;authenticate=true;encrypt=true");//silver
-//        map.put(Car.GREEN, "btspp://000666459D35:1;authenticate=false;encrypt=false;master=false");//green
-//        map.put(Car.ORANGE, "btspp://00066649960C:1;authenticate=false;encrypt=false;master=false");//orange
+        map.put(Car.GREEN, "btspp://000666459D35:1;authenticate=true;encrypt=true");//green
+        map.put(Car.ORANGE, "btspp://00066649960C:1;authenticate=true;encrypt=true");//orange
+        Map<String, DataOutputStream> dosMap = new HashMap<>();
         for(Map.Entry<String, String> entry : map.entrySet()){
-        	try {
-        		System.out.println("connect to " + entry.getKey());
-        		StreamConnection streamConn = (StreamConnection) Connector.open(entry.getValue());
-				new BTListener(streamConn.openInputStream()).start();
+            boolean connected = false;
+            while(!connected){
+                try {
+                    System.out.println("connect to " + entry.getKey());
+                    StreamConnection streamConn = (StreamConnection) Connector.open(entry.getValue());
+                    dosMap.put(entry.getKey(), streamConn.openDataOutputStream());
+//				new BTListener(streamConn.openInputStream()).start();
 //        		DataOutputStream dos = streamConn.openDataOutputStream();
 //        		boolean on = true;
 //				while(true){
@@ -197,10 +202,35 @@ public class RemoteControl {
 //						e.printStackTrace();
 //					}
 //				}
-        	} catch (IOException e) {
-				e.printStackTrace();
-			}
+                    connected = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    connected = false;
+                }
+            }
         }
+
+        boolean on = true;
+        while(!dosMap.isEmpty()){
+            Set<String> rmKeys = new HashSet<>();
+            for (Map.Entry<String, DataOutputStream> entry : dosMap.entrySet()) {
+                try {
+                    entry.getValue().write(on ? lightsOn : lightsOff);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    rmKeys.add(entry.getKey());
+                }
+            }
+            for(String key : rmKeys)
+                dosMap.remove(key);
+            on = !on;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         
         synchronized (lock) {
         	try {

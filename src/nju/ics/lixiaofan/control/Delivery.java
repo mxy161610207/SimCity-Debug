@@ -16,8 +16,8 @@ import nju.ics.lixiaofan.event.Event;
 import nju.ics.lixiaofan.event.EventManager;
 
 public class Delivery {
-	public static Queue<DeliveryTask> searchTasks = new LinkedList<DeliveryTask>();
-	public static Set<DeliveryTask> deliveryTasks = new HashSet<DeliveryTask>();
+	public static final Queue<DeliveryTask> searchTasks = new LinkedList<>();
+	public static final Set<DeliveryTask> deliveryTasks = new HashSet<>();
 	public static int taskid = 0;
 	public static boolean allBusy = false;
 	
@@ -132,9 +132,8 @@ public class Delivery {
 				
 				if(prev[0] == null){
 					prev[0] = sect;
-					for(Section next : sect.entrances.values())
-						queue.add(next);
-					
+					queue.addAll(sect.entrances.values());
+
 					if(queue.size() == 2){
 						oneWay = false;
 						prev[1] = sect;
@@ -276,7 +275,7 @@ public class Delivery {
 			return null;
 		if(sects.contains(start))
 			return start;
-		Queue<Section> queue = new LinkedList<Section>();
+		Queue<Section> queue = new LinkedList<>();
 		queue.add(start.adjSects.get(dir));//may be wrong
 		Section prev = start;
 		while(!queue.isEmpty()){
