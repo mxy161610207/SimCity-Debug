@@ -1,0 +1,556 @@
+<?xml version="1.0"?>
+
+<patterns>
+	<pattern>
+		<id>pat_000</id>
+		<timestamp>any</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>any</predicate>
+		<object>any</object>
+		<site>any</site>
+	</pattern>
+  
+	<pattern>
+		<id>pat_001</id>
+		<timestamp>20000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>any</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_002</id>
+		<timestamp>20000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>any</site>
+	</pattern>
+
+
+	<pattern>
+		<id>pat_100</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_0</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_101</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_0</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_102</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_1</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_103</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_1</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_104</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_2</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_105</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_2</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_106</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_3</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_107</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_3</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_108</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_4</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_109</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_4</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_110</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_5</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_111</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_5</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_112</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_6</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_113</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_6</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_114</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_7</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_115</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_7</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_116</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_8</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_117</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_8</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_118</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_9</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_119</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_9</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_120</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_A</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_121</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_A</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_122</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_B</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_123</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_B</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_124</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_C</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_125</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_C</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_126</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_D</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_127</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_D</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_128</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_E</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_129</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_E</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_130</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_G</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_131</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_G</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_132</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_H</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_133</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_H</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_134</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_K</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_135</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_K</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_136</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_L</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_137</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_L</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_138</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_M</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_139</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_M</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_140</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_N</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_141</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_N</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_142</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_R</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_143</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_R</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_144</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_T</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_145</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_T</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_146</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_U</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_147</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_U</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_148</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_W</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_149</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_W</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_150</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_X</site>
+	</pattern>
+
+	<pattern>
+		<id>pat_151</id>
+		<timestamp>53000</timestamp>
+		<category>location</category>
+		<subject>any</subject>
+		<predicate>run_with_service</predicate>
+		<object>any</object>
+		<site>taxi_X</site>
+	</pattern>
+  <!--
+-->
+</patterns>
