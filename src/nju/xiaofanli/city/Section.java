@@ -112,7 +112,7 @@ public abstract class Section extends Location{
 	public boolean isOccupied(){
 		return !cars.isEmpty();
 	}
-	
+
 	public static abstract class SectionIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		public final static int cubeSize = CarIcon.SIZE;
@@ -155,7 +155,7 @@ public abstract class Section extends Location{
 			super.paintComponent(g);
 			int n = section.realCars.size();
 			for(Car car : section.cars)
-				if(car.isReal())
+				if(!car.hasPhantom())
 					n++;
 			switch(n){
 			case 0:

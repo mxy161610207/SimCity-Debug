@@ -146,14 +146,14 @@ public class Middleware {
         handler.start();
 	}
     
-	public static void add(Object subject, Object direction, Object status,
+	public static void add(Object subject, Object direction, Object state,
 			Object category, Object predicate, Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
 		if(StateSwitcher.isResetting())
 			return;
 		Context context = new Context();
 		context.addField("subject", subject);
 		context.addField("direction", direction);
-		context.addField("status", status);
+		context.addField("state", state);
 		context.addField("category", category);
 		context.addField("predicate", predicate);
 		context.addField("prev", prev);

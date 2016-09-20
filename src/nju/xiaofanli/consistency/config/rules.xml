@@ -6,8 +6,8 @@
 		<formula>
 			<forall var="v1" in="latest">
 			    <not>
-					<bfunc name="still_status">
-						<param pos="1" var="v1" field="status" />
+					<bfunc name="still_state">
+						<param pos="1" var="v1" field="state" />
 					</bfunc>
 				</not>
 			</forall>

@@ -93,11 +93,11 @@ public class BFunc extends Formula {
 //    	if (v1 == null || v2 == null)
 //    		return false;
     	
-    	//two contexts of one car occurring less than 300ms will be considered same time
+    	//two contexts of one car occurring less than 300ms will be considered same lastRecvTime
 		return Math.abs(v1 - v2) < 300;
 	}
 
-	private boolean funcStillStatus(HashMap<String, Context> var) {
+	private boolean funcStillState(HashMap<String, Context> var) {
 		int v1 = (int) getValue(1, var);
 //		if(v1 == null)
 //			return false;
@@ -117,8 +117,8 @@ public class BFunc extends Formula {
     @Override
     public boolean evaluateECC(Assignment node) {
         switch (type) {
-            case "still_status":
-                return funcStillStatus(node.getVar());
+            case "still_state":
+                return funcStillState(node.getVar());
             case "same_location":
                 return funcSameLocation(node.getVar());
             case "same_time":
@@ -455,7 +455,7 @@ public class BFunc extends Formula {
     		return false;
     	}
     	
-    	int hour = Integer.parseInt(v1.substring(11, 13));  // Hour in simulation time
+    	int hour = Integer.parseInt(v1.substring(11, 13));  // Hour in simulation lastRecvTime
     	boolean result = false;
     	if (hour >= 19) {  // Later than 7pm
     		result = true;
@@ -471,7 +471,7 @@ public class BFunc extends Formula {
     		return false;
     	}
     	
-    	int hour = Integer.parseInt(v1.substring(11, 13));  // Hour in simulation time
+    	int hour = Integer.parseInt(v1.substring(11, 13));  // Hour in simulation lastRecvTime
     	boolean result = false;
     	if (hour >= 8 && hour <= 17) {  // Between 8am and 5pm
     		result = true;

@@ -1,20 +1,22 @@
 package nju.xiaofanli.device;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import nju.xiaofanli.Main;
-import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.device.car.Command;
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Dashboard;
-import nju.xiaofanli.Resource;
+import nju.xiaofanli.device.car.Car;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SelfCheck{
 	private	final Object OBJ = new Object();
@@ -29,10 +31,31 @@ public class SelfCheck{
             new BrickChecking(name).start();
 		}
 
+        List<CarChecking> carCheckingList = new ArrayList<>();
 		for(Car car : Resource.getCars()){
             deviceStatus.put(car.name, false);
-            new CarChecking(car).start();
+            CarChecking thread = new CarChecking(car);
+            carCheckingList.add(thread);
+            thread.start();
         }
+
+        Runnable timer = () -> {
+            while (true){
+                long curTime = System.currentTimeMillis();
+                for(CarChecking thread : carCheckingList)
+                    if(thread.car.isConnected() && curTime - thread.lastRecvTime > 1500) {
+                        thread.lastRecvTime = Long.MAX_VALUE;
+                        thread.car.disconnect();
+                    }
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        new Thread(timer, "Car Checking Timer").start();
 
 		synchronized (OBJ) {
 			try {
@@ -50,7 +73,8 @@ public class SelfCheck{
 	}
 
 	private class CarChecking extends Thread{
-		private final Car car;
+		public final Car car;
+        public long lastRecvTime;
 		CarChecking(Car car) {
 			this.car = car;
 		}
@@ -58,8 +82,8 @@ public class SelfCheck{
 			setName("Car Checking: " + car.name);
             //noinspection InfiniteLoopStatement
             while(true){
-				if(!car.isConnected())
-					Command.connect(car);
+                lastRecvTime = Long.MAX_VALUE;
+                car.connect();
 				while(!car.tried){
 					synchronized (car.TRIED_OBJ) {
 						try {
@@ -70,25 +94,52 @@ public class SelfCheck{
 					}
 				}
 				car.tried = false;
-				if(car.isConnected() ^ deviceStatus.get(car.name)){
-					Dashboard.setDeviceStatus(car.name, car.isConnected());
-					if(allReady()){//true -> false
-						deviceStatus.put(car.name, car.isConnected());
-						if(!Main.initial)
-							StateSwitcher.suspend();
-					}
-					else{
-						deviceStatus.put(car.name, car.isConnected());
-						if(allReady()){//false -> true
-							if(Main.initial)
-								synchronized (OBJ) {
-									OBJ.notify();
-								}
-							else
-								StateSwitcher.resume();
-						}
-					}
-				}
+                DataInputStream dis = car.getDIS();
+                // keep checking car's connection
+                while(true){
+                    try {
+                        if(dis == null)
+                            throw new IOException();
+                        else{
+                            //noinspection ResultOfMethodCallIgnored
+                            dis.read();
+                            lastRecvTime = System.currentTimeMillis();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        lastRecvTime = Long.MAX_VALUE;
+                        car.disconnect();
+                    }
+                    finally {
+                        if(car.isConnected() ^ deviceStatus.get(car.name)){
+                            Dashboard.setDeviceStatus(car.name, car.isConnected());
+                            if(allReady()){//true -> false
+                                deviceStatus.put(car.name, car.isConnected());
+                                if(!Main.initial)
+                                    StateSwitcher.suspend();
+                            }
+                            else{
+                                deviceStatus.put(car.name, car.isConnected());
+                                if(allReady()){//false -> true
+                                    if(Main.initial)
+                                        synchronized (OBJ) {
+                                            OBJ.notify();
+                                        }
+                                    else
+                                        StateSwitcher.resume();
+                                }
+                            }
+                        }
+                    }
+                    if(!car.isConnected()){
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }
 			}
 		}
 	}

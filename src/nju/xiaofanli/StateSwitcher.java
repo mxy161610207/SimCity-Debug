@@ -124,7 +124,8 @@ public class StateSwitcher {
         private long lastStopInstrTime;
 		private Set<Car> locatedCars = new HashSet<>();
 
-		private ResetTask() {}
+		private ResetTask() {
+		}
 		
 		public void run() {
 			checkIfSuspended();
@@ -138,11 +139,12 @@ public class StateSwitcher {
 			}
 			else{//Only moving cars and crashed cars need to be located 
 				for(Car car :Resource.getConnectedCars()){
-					if(car.getRealStatus() != Car.STOPPED)
+					if(car.getRealState() != Car.STOPPED)
 						cars2Locate.add(car);
 					if(car.getRealLoc() != null){
 						Set<Car> crashedCars = new HashSet<>(car.getRealLoc().realCars);
-                        crashedCars.addAll(car.getRealLoc().cars.stream().filter(Car::isReal).collect(Collectors.toList()));
+                        crashedCars.addAll(car.getRealLoc().cars.stream().filter(x -> !x.hasPhantom()).collect(Collectors.toList()));
+
 						if(crashedCars.size() > 1)
 							cars2Locate.addAll(crashedCars);
 					}
@@ -272,8 +274,8 @@ public class StateSwitcher {
 			Command.stop(car);
 			if(prevState != State.NORMAL)
 				continue;
-			if (car.getRealStatus() == Car.MOVING
-					|| car.getRealStatus() == Car.UNCERTAIN
+			if (car.getRealState() == Car.MOVING
+					|| car.getRealState() == Car.UNCERTAIN
 					&& car.trend == Car.MOVING)
 				movingCars.add(car);
 		}

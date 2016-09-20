@@ -450,7 +450,7 @@ public class TrafficMap extends JPanel{
 		sensor.sid = sid;
 		sensor.state = Sensor.UNDETECTED;
 		sensor.name = "B" + bid + "S" + (sid+1);
-		sensor.dir = TrafficMap.DIRECTION ? dir : getOppositeDir(dir);
+		sensor.dir = TrafficMap.DIRECTION ? dir : oppositeDirOf(dir);
 		sensor.crossing = crossings[c];
 		sensor.street = streets[s];
 //		crossings[c].sensors.add(sensor);
@@ -477,9 +477,9 @@ public class TrafficMap extends JPanel{
 		
 		sensor.prevSection.adjSensors.put(sensor.dir, sensor);
 		if(sensor.nextSection.isCombined() && sensor.nextSection instanceof Street)
-			sensor.nextSection.adjSensors.put(getOppositeDir(sensor.nextSection.dir[0]), sensor);
+			sensor.nextSection.adjSensors.put(oppositeDirOf(sensor.nextSection.dir[0]), sensor);
 		else
-			sensor.nextSection.adjSensors.put(getOppositeDir(sensor.dir), sensor);
+			sensor.nextSection.adjSensors.put(oppositeDirOf(sensor.dir), sensor);
 		
 		if(sensor.crossing.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
 			sensor.showPos = 0;
@@ -667,7 +667,7 @@ public class TrafficMap extends JPanel{
 		Section.combine(sections);
 	}
 	
-	public static int getOppositeDir(int dir){
+	public static int oppositeDirOf(int dir){
 		switch (dir) {
 		case NORTH:
 			return SOUTH;
@@ -679,6 +679,21 @@ public class TrafficMap extends JPanel{
 			return WEST;
 		default:
 			return UNKNOWN_DIR;
+		}
+	}
+
+	public static String dirOf(int dir){
+		switch(dir){
+			case NORTH:
+				return "North";
+			case SOUTH:
+				return "South";
+			case WEST:
+				return "West";
+			case EAST:
+				return "East";
+            default:
+                return "Unknown";
 		}
 	}
 	
@@ -706,7 +721,7 @@ public class TrafficMap extends JPanel{
 		}
 		return null;
 	}
-	
+
 	public static class Coord{
 		public int x, y, w, h;
 		public int arcw ,arch;

@@ -60,11 +60,12 @@ public class Command {
 			return;
 		CmdSender.send(car, cmd);
 		if(cmd == STOP || cmd == FORWARD){
-			car.trend = cmd;
-			if(cmd != car.status)
-				car.status = Car.UNCERTAIN;
-			if(!car.isReal() && cmd != car.realStatus)
-				car.realStatus = Car.UNCERTAIN;
+            car.trend = cmd == STOP ? Car.STOPPED : Car.MOVING;
+
+			if(cmd == STOP && car.getState() != Car.STOPPED || cmd == FORWARD && car.getState() != Car.MOVING)
+				car.setState(Car.UNCERTAIN);
+			if(car.hasPhantom() && (cmd == STOP && car.getRealState() != Car.STOPPED || cmd == FORWARD && car.getRealState() != Car.MOVING))
+				car.setRealState(Car.UNCERTAIN);
 			
 			if(remedy)
 				Remedy.addRemedyCommand(car, cmd);
@@ -79,19 +80,14 @@ public class Command {
 		if(car == null || !car.isConnected())
 			return;
 		if(StateSwitcher.isNormal()){
-			 if(car.getRealStatus() == Car.MOVING)
+			 if(car.getRealState() == Car.MOVING)
 				 drive(car);
-			 else if(car.getRealStatus() == Car.STOPPED)
+			 else if(car.getRealState() == Car.STOPPED)
 				 stop(car);
 		}
 		else if(StateSwitcher.isSuspending())
-			stop(car); // maintain its stopped status
+			stop(car); // maintain its stopped state
 	}
-	
-	public static void connect(Car car) {
-        if (car != null)
-           car.connect();
-    }
 	
 	/**
 	 * Only called by Wake, Reset and Suspend 
@@ -116,6 +112,6 @@ public class Command {
 	 * Only called by Reset Thread
 	 */
 	public static void stopAllCars(){
-		Resource.getConnectedCars().stream().filter(car -> car.getRealStatus() != Car.STOPPED).forEach(Command::stop);
+		Resource.getConnectedCars().stream().filter(car -> car.getRealState() != Car.STOPPED).forEach(Command::stop);
 	}
 }

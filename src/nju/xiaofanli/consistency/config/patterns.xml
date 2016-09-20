@@ -7,7 +7,7 @@
 		<category>movement</category>
 		<subject>any</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -19,7 +19,7 @@
 		<category>movement</category>
 		<subject>any</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -31,7 +31,7 @@
 		<category>movement</category>
 		<subject>Orange Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -43,7 +43,7 @@
 		<category>movement</category>
 		<subject>Orange Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -55,7 +55,7 @@
 		<category>movement</category>
 		<subject>Orange Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -67,7 +67,7 @@
 		<category>movement</category>
 		<subject>Orange Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -79,7 +79,7 @@
 		<category>movement</category>
 		<subject>Orange Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -91,7 +91,7 @@
 		<category>movement</category>
 		<subject>Green Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -103,7 +103,7 @@
 		<category>movement</category>
 		<subject>Green Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -115,7 +115,7 @@
 		<category>movement</category>
 		<subject>Green Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -127,7 +127,7 @@
 		<category>movement</category>
 		<subject>Green Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -139,7 +139,7 @@
 		<category>movement</category>
 		<subject>Green Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -151,7 +151,7 @@
 		<category>movement</category>
 		<subject>Black Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -163,7 +163,7 @@
 		<category>movement</category>
 		<subject>Black Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -175,7 +175,7 @@
 		<category>movement</category>
 		<subject>Black Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -187,7 +187,7 @@
 		<category>movement</category>
 		<subject>Black Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -199,7 +199,7 @@
 		<category>movement</category>
 		<subject>Black Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -211,7 +211,7 @@
 		<category>movement</category>
 		<subject>White Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -223,7 +223,7 @@
 		<category>movement</category>
 		<subject>White Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -235,7 +235,7 @@
 		<category>movement</category>
 		<subject>White Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -247,7 +247,7 @@
 		<category>movement</category>
 		<subject>White Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -259,7 +259,7 @@
 		<category>movement</category>
 		<subject>White Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -271,7 +271,7 @@
 		<category>movement</category>
 		<subject>Red Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -283,7 +283,7 @@
 		<category>movement</category>
 		<subject>Red Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -295,7 +295,7 @@
 		<category>movement</category>
 		<subject>Red Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -307,7 +307,7 @@
 		<category>movement</category>
 		<subject>Red Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -319,7 +319,7 @@
 		<category>movement</category>
 		<subject>Red Car</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -331,7 +331,7 @@
 		<category>movement</category>
 		<subject>Silver SUV</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -343,7 +343,7 @@
 		<category>movement</category>
 		<subject>Silver SUV</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -355,7 +355,7 @@
 		<category>movement</category>
 		<subject>Silver SUV</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -367,7 +367,7 @@
 		<category>movement</category>
 		<subject>Silver SUV</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>
@@ -379,7 +379,7 @@
 		<category>movement</category>
 		<subject>Silver SUV</subject>
 		<direction>any</direction>
-		<status>any</status>
+		<state>any</state>
 		<predicate>any</predicate>
 		<object>any</object>
 		<prev>any</prev>

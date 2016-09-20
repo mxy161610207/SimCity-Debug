@@ -653,7 +653,7 @@ public class Dashboard extends JFrame{
 		if(!s.cars.isEmpty()){
 			str += "Cars:\n";
 			for(Car car : s.cars){
-				str += car.name + " (" + car.getStatusStr() + ") "+car.getDirStr();
+				str += car.name + " (" + car.getStateStr() + ") "+car.getDirStr();
 				if(car.dest != null)
 					str += " Dest:" + car.dest.name;
 				str += "\n";
@@ -662,12 +662,12 @@ public class Dashboard extends JFrame{
 		if(!s.waiting.isEmpty()){
 			str += "Waiting Cars:\n";
 			for(Car car : s.waiting)
-				str += car.name + " (" + car.getStatusStr() + ") "+car.getDirStr()+"\n";
+				str += car.name + " (" + car.getStateStr() + ") "+car.getDirStr()+"\n";
 		}
 		if(!s.realCars.isEmpty()){
 			str += "Real Cars:\n";
 			for(Car car : s.realCars){
-				str += car.name + " (" + car.getRealStatusStr() + ") "+car.getRealDirStr()+"\n";
+				str += car.name + " (" + car.getRealStateStr() + ") "+car.getRealDirStr()+"\n";
 			}
 		}
 		roadta.setText(str);

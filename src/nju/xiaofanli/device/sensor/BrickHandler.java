@@ -70,23 +70,14 @@ public class BrickHandler extends Thread{
                         sensor.prevSensor.car = null;
                     }
 
-                    if(!car.isReal()){
-                        Section fakeLoc = car.loc;
-                        car.loc = car.realLoc;
-                        car.realLoc.realCars.remove(car);
-                        car.realLoc = null;
-                        car.dir = car.realDir;
-                        car.status = car.realStatus;
-                        car.leave(fakeLoc);
+                    if(car.hasPhantom()){
+                        car.loadRealInfo();
                         PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));//TODO bug here
                     }
                 }
-                else if(car.isReal()){
-                    car.loc.realCars.add(car);
-                    car.realLoc = car.loc;
-                    car.realDir = car.dir;
-                    car.realStatus = car.status;
-                    PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.realLoc.name));
+                else if(!car.hasPhantom()){
+                    car.saveRealInfo();
+                    PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.getRealLoc().name));
                 }
 //    			else if(car.loc.sameAs(sensor.nextSection)){
 //    				//the phantom already in this section
@@ -100,7 +91,7 @@ public class BrickHandler extends Thread{
                 car.notifyPolice(sensor.nextSection);
                 car.enter(sensor.nextSection);
                 car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
-                car.status = Car.MOVING;
+                car.state = Car.MOVING;
                 //trigger context
                 if(ContextManager.hasListener())
                     ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
@@ -154,15 +145,15 @@ public class BrickHandler extends Thread{
 //                break;
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
-                    if(sensor.car != null && sensor.car.isReal()
+                    if(sensor.car != null && !sensor.car.hasPhantom()
                             && sensor.car.loc.sameAs(sensor.nextSection)
-                            && sensor.car.status == Car.STOPPED){ // just a simple condition to judge FP
+                            && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
                         System.out.println(sensor.name + " !!!FALSE POSITIVE!!!" +"\treading: " + reading);
                         break;
                     }
                     sensor.state = Sensor.UNDETECTED;
                     sensor.car = null;
-                    System.out.println(sensor.name + " LEAVING!!!" + "\treading: " + reading);
+//                    System.out.println(sensor.name + " LEAVING!!!" + "\treading: " + reading);
                 }
                 break;
             case Sensor.UNDETECTED:
@@ -174,7 +165,7 @@ public class BrickHandler extends Thread{
                         if(realCar.realDir == sensor.dir){
                             car = realCar;
                             dir = realCar.realDir;
-                            status = realCar.realStatus;
+                            status = realCar.realState;
                             break;
                         }
                     }
@@ -183,7 +174,7 @@ public class BrickHandler extends Thread{
                             if(tmp.dir == sensor.dir){
                                 car = tmp;
                                 dir = car.dir;
-                                status = car.status;
+                                status = car.state;
                                 break;
                             }
                         }
@@ -193,7 +184,7 @@ public class BrickHandler extends Thread{
                         sensor.state = Sensor.UNDETECTED;
                         break;
                     }
-                    System.out.println(sensor.name + " ENTERING!!!" + "\treading: " + reading);
+//                    System.out.println(sensor.name + " ENTERING!!!" + "\treading: " + reading);
 
                     Middleware.add(car.name, dir, status, "movement", "enter",
                             sensor.prevSection.name, sensor.nextSection.name, time, car, sensor);

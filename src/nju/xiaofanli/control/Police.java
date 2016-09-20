@@ -75,7 +75,7 @@ public class Police implements Runnable{
 						if(reqSec.isOccupied()){
 							boolean real = false;
 							for(Car car : reqSec.cars)
-								if(car.isReal()){
+								if(!car.hasPhantom()){
 									real = true;
 									break;
 								}

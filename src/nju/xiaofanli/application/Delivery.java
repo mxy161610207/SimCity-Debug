@@ -77,10 +77,10 @@ public class Delivery {
 				dt.car = car;
 				dt.phase = 1;
 				Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
-				if(!car.isReal())
+				if(car.hasPhantom())
 					Dashboard.playErrorSound();
 				if(car.dest.sameAs(car.loc)){
-					if(car.status == Car.STOPPED){
+					if(car.state == Car.STOPPED){
 						car.setLoading(true);
 						//trigger start loading event
 						if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
@@ -200,7 +200,7 @@ public class Delivery {
                     DeliveryTask dt = it.next();
                     Car car = dt.car;
                     long recent = Math.max(car.stopTime, dt.startTime);
-                    if (car.loc.sameAs(car.dest) && car.status == Car.STOPPED
+                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED
                         && System.currentTimeMillis() - recent > 3000) {
                         //head for the src
                         if(dt.phase == 1){

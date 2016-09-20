@@ -68,7 +68,7 @@ public class Remedy implements Runnable{
 					}
 					//stop cmd
 					else if (cmd.cmd == 0) {
-						cmd.car.status = Car.STOPPED;
+						cmd.car.state = Car.STOPPED;
 						cmd.car.stopTime = System.currentTimeMillis();
 						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
 							cmd.car.setLoading(true);

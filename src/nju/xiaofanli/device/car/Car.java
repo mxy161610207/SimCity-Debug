@@ -3,6 +3,7 @@ package nju.xiaofanli.device.car;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
@@ -23,10 +24,10 @@ import nju.xiaofanli.event.EventManager;
 
 public class Car {
 	public final String name;
-	public int status = STOPPED;//0: stopped	1: moving	-1: uncertain
-	public int trend = 0;//0: tend to stop	1: tend to move	-1: none
-	public int finalState = 0;
-	public int dir = -1;//0: N	1: S	2: W	3: E
+	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
+	public int trend = STOPPED;//0: tend to stop	1: tend to move	-1: none
+	public int finalState = STOPPED;
+	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
 	public Section loc = null;
 	public Delivery.DeliveryTask dt = null;
 	public Section dest = null;
@@ -38,10 +39,11 @@ public class Car {
 	public Set<Citizen> passengers = new HashSet<>();
 	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
-	public int realDir, realStatus;
+	public int realDir, realState;
 
     private final String url;
     private StreamConnection conn = null;
+    private DataInputStream dis = null;
     private DataOutputStream dos = null;
 	public boolean tried = false;//whether tried to connect to this car
 	public final Object TRIED_OBJ = new Object();
@@ -66,18 +68,18 @@ public class Car {
 	}
 	
 	public void reset(){
-		status = STOPPED;
-		trend = 0;
-		finalState = 0;
-		dir = -1;
+		state = STOPPED;
+		trend = STOPPED;
+		finalState = STOPPED;
+		dir = TrafficMap.UNKNOWN_DIR;
 		loc = null;
 		dt = null;
 		dest = null;
 		isLoading = false;
 		passengers.clear();
 		realLoc = null;
-		realDir = -1;
-		realStatus = 0;
+		realDir = TrafficMap.UNKNOWN_DIR;
+		realState = STOPPED;
 	}
 	
 	public void notifyPolice(int cmd) {
@@ -105,8 +107,8 @@ public class Car {
         TrafficMap.connectedCars.add(this);
         Dashboard.addCar(this);
         //calibrate
-        if(name.equals(Car.BLACK) || name.equals(Car.RED))
-            CmdSender.send(this, Command.LEFT);
+//        if(name.equals(Car.BLACK) || name.equals(Car.RED))
+//            CmdSender.send(this, Command.LEFT);
 
         synchronized (Delivery.searchTasks) {
             if(Delivery.allBusy){
@@ -124,6 +126,10 @@ public class Car {
         return conn != null;
     }
 
+    public DataInputStream getDIS(){
+        return dis;
+    }
+
 	public void connect(){
         if(isConnected())
             return;
@@ -131,10 +137,10 @@ public class Car {
         try {
             conn = (StreamConnection) Connector.open(url);
             dos = conn.openDataOutputStream();
+            dis = conn.openDataInputStream();
         } catch (IOException e) {
             e.printStackTrace();
-            conn = null;
-            dos = null;
+            disconnect();
         }
         if(isConnected())
             init();
@@ -152,7 +158,8 @@ public class Car {
         }
         conn = null;
         dos = null;
-        notifySelfCheck();
+        dis = null;
+//        notifySelfCheck();
     }
 
 	void write(byte[] instr){
@@ -162,7 +169,6 @@ public class Car {
                 lastInstrTime = System.currentTimeMillis();
             } catch (IOException e) {
                 e.printStackTrace();
-                disconnect();
             }
         }
     }
@@ -177,7 +183,7 @@ public class Car {
 		
 		int real = section.realCars.size();
 		for(Car c : section.cars)
-			if(c.isReal())
+			if(!c.hasPhantom())
 				real++;
 		
 		if(real > 1){
@@ -220,51 +226,64 @@ public class Car {
 		for(Section s : loc.combined)
 			s.icon.repaint();
 	}
-	
+
+	public void saveRealInfo(){
+        loc.realCars.add(this);
+        realLoc = loc;
+        realDir = dir;
+        realState = state;
+    }
+
+    public void loadRealInfo(){
+        Section fakeLoc = loc;
+        loc = realLoc;
+        leave(fakeLoc);
+        realLoc.realCars.remove(this);
+        dir = realDir;
+        state = realState;
+        realLoc = null;
+        realDir = TrafficMap.UNKNOWN_DIR;
+        realState = STOPPED;
+    }
+
 	public String getDirStr(){
-		return getDirStr(dir);
+		return TrafficMap.dirOf(dir);
 	}
 	
 	public String getRealDirStr(){
-		return getDirStr(getRealDir());
+		return TrafficMap.dirOf(getRealDir());
 	}
 	
 	public int getRealDir(){
-		return isReal() ? dir : realDir;
+		return !hasPhantom() ? dir : realDir;
 	}
-	
-	private String getDirStr(int dir){
-		switch(dir){
-		case 0:
-			return "N";
-		case 1:
-			return "S";
-		case 2:
-			return "W";
-		case 3:
-			return "E";
-		}
-		return null;
-	}
-	
-	public boolean isReal(){
-		return realLoc == null;
+
+    public boolean hasPhantom(){
+		return realLoc != null;
 	}
 	
 	public static Car carOf(String name){
 		return TrafficMap.cars.get(name);
 	}
-	
-	public String getStatusStr(){
-		return getStatusStr(status);
+
+	public int getState(){
+        return state;
+    }
+
+    public void setState(int state){
+        this.state = state;
+    }
+
+	public String getStateStr(){
+		return stateOf(state);
 	}
 	
-	public String getRealStatusStr(){
-		return getStatusStr(getRealStatus());
+	public String getRealStateStr(){
+		return stateOf(getRealState());
 	}
 	
-	private String getStatusStr(int status){
-		switch(status){
+	private String stateOf(int state){
+		switch(state){
 		case 0:
 			return "Stopped";
 		case 1:
@@ -276,12 +295,16 @@ public class Car {
 		}
 	}
 	
-	public int getRealStatus(){
-		return isReal() ? status : realStatus;
+	public int getRealState(){
+		return !hasPhantom() ? state : realState;
 	}
-	
+
+    public void setRealState(int realState){
+        this.realState = realState;
+    }
+
 	public Section getRealLoc(){
-		return isReal() ? loc : realLoc;
+		return !hasPhantom() ? loc : realLoc;
 	}
 	
 	public static class CarIcon extends JButton{
