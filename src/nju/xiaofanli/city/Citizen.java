@@ -14,10 +14,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class Citizen implements Runnable{
-    public String name;
-    public Gender gender = null;
-    public Job job = null;
-    public Activity act = null, nextAct = null;
+    public final String name;
+    public final Gender gender;
+    public final Job job;
+    private Activity act = null, nextAct = null;
+    public Activity state = null;
+    private long delay = 0;
     public Location loc = null, dest = null;
     public Car car = null;
     public CitizenIcon icon = new CitizenIcon(this);
@@ -56,8 +58,10 @@ public class Citizen implements Runnable{
     }
 
     public void reset() {
-        act = nextAct = null;
+        act = nextAct = state = null;
         loc = dest = null;
+        car = null;
+        icon.setVisible(false);
     }
 
     public void setActivity(Activity act){
@@ -70,6 +74,10 @@ public class Citizen implements Runnable{
     public void run() {
         Thread thread = Thread.currentThread();
         StateSwitcher.register(thread);
+
+        int[] count = new int[Activity.values().length];
+        for(int i = 0;i < count.length;i++)
+            count[i] = 0;
         //noinspection InfiniteLoopStatement
         while(true){
             while(act == null || !StateSwitcher.isNormal())
@@ -77,67 +85,90 @@ public class Citizen implements Runnable{
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        if(StateSwitcher.isResetting())
-                            StateSwitcher.isThreadReset(thread);
+//                        e.printStackTrace();
+                        if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
+                            act = null;
                     }
                 }
             if(act == null)
                 continue;
+
+            if(delay > 0) {
+                long start = System.currentTimeMillis();
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+                    if (StateSwitcher.isResetting()) {
+                        thread.interrupt();
+                        continue;
+                    }
+                    else if (StateSwitcher.isSuspending()) {
+                        long leftTime = delay - (System.currentTimeMillis() - start);
+                        if(leftTime > 0)
+                            try {
+                                Thread.sleep(leftTime);
+                            } catch (InterruptedException e1) {
+                                e1.printStackTrace();
+                            }
+                    }
+                }
+            }
+            state = act;
             switch (act) {
-                case Wander:{
-                    int xmax = icon.getParent().getWidth()-CitizenIcon.SIZE;
-                    int ymax = icon.getParent().getHeight()-CitizenIcon.SIZE;
-                    if(!icon.isVisible()){
-                        int x = (int) (Math.random() * xmax);
-                        int y = (int) (Math.random() * ymax);
+                case Wander: {
+                    int xmax = icon.getParent().getWidth() - CitizenIcon.SIZE;
+                    int ymax = icon.getParent().getHeight() - CitizenIcon.SIZE;
+                    if (count[act.ordinal()] == 0) {
+                        count[act.ordinal()] = 3;
+                        delay = 1000;
+                        if (!icon.isVisible()) {
+                            int x = (int) (Math.random() * xmax);
+                            int y = (int) (Math.random() * ymax);
 //						x = TrafficMap.streets[23].icon.coord.x;
 //						y = TrafficMap.streets[23].icon.coord.y;
-                        icon.setLocation(x, y);
-                        icon.setVisible(true);
-                        loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
+                            icon.setLocation(x, y);
+                            icon.setVisible(true);
+                            loc = Dashboard.getNearestSection(icon.getX() + CitizenIcon.SIZE / 2, icon.getY() + CitizenIcon.SIZE / 2);
 
-                        PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
-                        PkgHandler.send(new AppPkg().setCitizen(name, true));
+                            PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
+                            PkgHandler.send(new AppPkg().setCitizen(name, true));
+                        }
+                    } else {
+                        count[act.ordinal()]--;
+                        int x = (int) (icon.getX() + 50 * Math.random() - 25);
+                        if (x < 0)
+                            x = 0;
+                        else if (x > xmax)
+                            x = xmax;
+                        int y = (int) (icon.getY() + 50 * Math.random() - 25);
+                        if (y < 0)
+                            y = 0;
+                        else if (y > ymax)
+                            y = ymax;
+                        icon.setLocation(x, y);
+                        loc = Dashboard.getNearestSection(icon.getX() + CitizenIcon.SIZE / 2, icon.getY() + CitizenIcon.SIZE / 2);
+
+                        PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
+
+                        if (count[act.ordinal()] == 0) {
+                            state = act = null;
+                            delay = 0;
+                            PkgHandler.send(new AppPkg().setCitizen(name, "None"));
+                        }
                     }
-//				int x, y;
-//				for(int count = 0;count < 3;count++){
-//					try {
-//						Thread.sleep(1000);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
-//					x = (int) (icon.getX() + 50 * Math.random() - 25);
-//					if(x < 0)
-//						x = 0;
-//					else if(x > xmax)
-//						x = xmax;
-//					y = (int) (icon.getY() + 50 * Math.random() - 25);
-//					if(y < 0)
-//						y = 0;
-//					else if(y > ymax)
-//						y = ymax;
-//					icon.setLocation(x, y);
-//					loc = Dashboard.getNearestSection(icon.getX()+CitizenIcon.SIZE/2, icon.getY()+CitizenIcon.SIZE/2);
-//					
-//					PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.size, (double) y/TrafficMap.size));
-//				}
-//
-                    act = null;
-                    PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                     break;
                 }
                 case HailATaxi:
-                    if(loc == null || dest == null)
-                        break;
+                    assert loc != null && dest != null;
+                    act = null;
                     Delivery.add(loc, dest, this);
-//				Delivery.add(TrafficMap.crossings[5], TrafficMap.buildings.get(Building.Type.Restaurant), this);
                     break;
-                case TakeATaxi:{
+                case TakeATaxi:
+                    act = null;
                     icon.setVisible(false);// get on the taxi
                     PkgHandler.send(new AppPkg().setCitizen(name, false));
                     break;
-                }
                 case GetOff:
                     if(loc != null){
                         int x, y;
@@ -157,14 +188,12 @@ public class Citizen implements Runnable{
                     }
                     if(nextAct == null){
                         dest = null;
-                        act = null;
+                        state = act = null;
                         PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                     }
                     else{
-                        if (nextAct != Activity.AtWork
-                                && nextAct != Activity.InClass
-                                && nextAct != Activity.UnderTreatment
-                                && nextAct != Activity.HavingMeals)
+                        if (nextAct != Activity.AtWork && nextAct != Activity.InClass
+                                && nextAct != Activity.UnderTreatment && nextAct != Activity.HavingMeals)
                             dest = null;
                         act = nextAct;
                         nextAct = null;
@@ -172,22 +201,25 @@ public class Citizen implements Runnable{
                     }
                     break;
                 case GetSick:case GetHungry:
-                    for(int count = 0;count < 15;count++){
+                    if(count[act.ordinal()] == 0){
+                        count[act.ordinal()] = 15;
+                        delay = 300;
+                    }
+                    else{
+                        count[act.ordinal()]--;
                         icon.blink = !icon.blink;
                         icon.repaint();
-                        try {
-                            Thread.sleep(300);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        if(count[act.ordinal()] == 0){
+                            delay = 0;
+                            icon.blink = false;
+                            icon.repaint();
+                            if(act == Activity.GetSick)
+                                act = Activity.GoToHospital;
+                            else if(act == Activity.GetHungry)
+                                act = Activity.GoToEat;
+                            PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
                         }
                     }
-                    icon.blink = false;
-                    icon.repaint();
-                    if(act == Activity.GetSick)
-                        act = Activity.GoToHospital;
-                    else if(act == Activity.GetHungry)
-                        act = Activity.GoToEat;
-                    PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
                     break;
                 case GoToSchool:case GoToWork:case GoToHospital:case GoToEat:
                     if(act == Activity.GoToHospital){
@@ -235,46 +267,51 @@ public class Citizen implements Runnable{
                         act = Activity.HailATaxi;
                     PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
                     break;
-                case AtWork:case InClass:case UnderTreatment:case HavingMeals:{
-                    assert dest != null;
-                    loc = dest;
-//				System.out.println(dest instanceof Building);
-                    int xmax = ((Building) dest).icon.getWidth() - CitizenIcon.SIZE;
-                    int ymax = ((Building) dest).icon.getHeight() - CitizenIcon.SIZE;
-                    int x = (int) (Math.random() * xmax) + ((Building) dest).icon.coord.x;
-                    int y = (int) (Math.random() * ymax) + ((Building) dest).icon.coord.y;
-                    icon.setLocation(x, y);
+                case AtWork:case InClass:case UnderTreatment:case HavingMeals:
+                    if(count[act.ordinal()] == 0){
+                        count[act.ordinal()] = 50;
+                        delay = 500;
+                        assert dest != null;
+                        loc = dest;
+//                        System.out.println(dest instanceof Building);
+                        int xmax = ((Building) dest).icon.getWidth() - CitizenIcon.SIZE;
+                        int ymax = ((Building) dest).icon.getHeight() - CitizenIcon.SIZE;
+                        int x = (int) (Math.random() * xmax) + ((Building) dest).icon.coord.x;
+                        int y = (int) (Math.random() * ymax) + ((Building) dest).icon.coord.y;
+                        icon.setLocation(x, y);
 
-                    PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
-                    for(int count = 0;count < 50;count++){
+                        PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
+                    }
+                    else{
+                        count[act.ordinal()]--;
                         icon.blink = !icon.blink;
                         icon.repaint();
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        if(count[act.ordinal()] == 0){
+                            delay = 0;
+                            state = act = null;
+                            icon.blink = false;
+                            icon.repaint();
+                            PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                         }
                     }
-                    icon.blink = false;
-                    icon.repaint();
-                    act = null;
-                    PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                     break;
-                }
                 case RescueTheWorld:
-                    for(int count = 0;count < 5;count++){
+                    if(count[act.ordinal()] == 0){
+                        count[act.ordinal()] = 5;
+                        delay = 500;
+                    }
+                    else{
+                        count[act.ordinal()]--;
                         icon.blink = !icon.blink;
                         icon.repaint();
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        if(count[act.ordinal()] == 0){
+                            delay = 0;
+                            state = act = null;
+                            icon.blink = false;
+                            icon.repaint();
+                            PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                         }
                     }
-                    icon.blink = false;
-                    icon.repaint();
-                    act = null;
-                    PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                     break;
             }
         }
@@ -285,7 +322,7 @@ public class Citizen implements Runnable{
         private Citizen citizen = null;
         public Color color = null;
         private boolean showName = false;
-        private boolean showAct = false;
+        private boolean showState = false;
         public boolean blink = false;
         public static final int SIZE = (int) (0.8*CarIcon.SIZE);
         public CitizenIcon(Citizen citizen) {
@@ -303,7 +340,7 @@ public class Citizen implements Runnable{
 
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    showAct = !showAct;
+                    showState = !showState;
                 }
 
                 @Override
@@ -318,7 +355,7 @@ public class Citizen implements Runnable{
                 @Override
                 public void mouseExited(MouseEvent e) {
                     showName = false;
-                    showAct = false;
+                    showState = false;
                 }
             });
         }
@@ -349,17 +386,16 @@ public class Citizen implements Runnable{
                 g.setColor(Color.BLACK);
                 g.drawOval(1, 1, SIZE-2, SIZE-2);
             }
-            if(showAct){
+            if(showState){
                 g.setColor(Color.BLACK);
-                String str = citizen.act == null ? "None" : citizen.act.toString();
+                String str = citizen.state == null ? "None" : citizen.act.toString();
                 FontMetrics fm = g.getFontMetrics();
                 g.drawString(str, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
             }
             else if(showName){
                 g.setColor(Color.BLACK);
-                String str = citizen.name;
                 FontMetrics fm = g.getFontMetrics();
-                g.drawString(str, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
+                g.drawString(citizen.name, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
             }
         }
     }

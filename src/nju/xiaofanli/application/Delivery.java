@@ -107,7 +107,7 @@ public class Delivery {
 						deliveryTasks.notify();
 					}
 				}
-				Dashboard.updateDelivQ();
+				Dashboard.updateDeliveryTaskPanel();
 			}
 		}
 
@@ -253,7 +253,7 @@ public class Delivery {
                                     e.printStackTrace();
                                 }
                         }
-                        Dashboard.updateDelivQ();
+                        Dashboard.updateDeliveryTaskPanel();
                     }
                 }
             }
@@ -264,7 +264,9 @@ public class Delivery {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+				if(StateSwitcher.isResetting())
+				    thread.interrupt();
             }
         }
     };
@@ -304,7 +306,7 @@ public class Delivery {
 			searchTasks.add(dtask);
 			searchTasks.notify();
 		}
-		Dashboard.updateDelivQ();
+		Dashboard.updateDeliveryTaskPanel();
 		//trigger release event
 		if(EventManager.hasListener(Event.Type.DELIVERY_RELEASED))
 			try {

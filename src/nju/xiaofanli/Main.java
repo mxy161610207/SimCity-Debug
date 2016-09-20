@@ -108,13 +108,13 @@ public class Main {
 			TrafficMap.buildings.put(b.type, b);
 		}
 		
-//		list = root.elements("citizen");
-//		for(Element elm : list){
-//			Citizen citizen = new Citizen(elm.attributeValue("name"),
-//					Citizen.genderOf(elm.attributeValue("gender")),
-//					Citizen.jobOf(elm.attributeValue("job")));
-//			TrafficMap.citizens.add(citizen);
-//		}
+		list = root.elements("citizen");
+		for(Element elm : list){
+			Citizen citizen = new Citizen(elm.attributeValue("name"),
+					Citizen.genderOf(elm.attributeValue("gender")),
+					Citizen.jobOf(elm.attributeValue("job")));
+			TrafficMap.citizens.add(citizen);
+		}
 		
 		list = root.elements("brick");
 		for(Element e : list){

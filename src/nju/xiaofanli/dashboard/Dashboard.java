@@ -84,8 +84,6 @@ public class Dashboard extends JFrame{
 					else if(s.balloon.isVisible())
 						s.balloon.setVisible(false);
 
-//					if(s.cars.isEmpty())
-//						continue;
 					if (!s.cars.isEmpty() && s.cars.peek().isLoading)
 						s.icon.repaint();
 				}
@@ -258,7 +256,7 @@ public class Dashboard extends JFrame{
 		});
 
 		gbc.gridy++;
-		leftPanel.add(new JLabel("Delivery Tasks"), gbc);
+		leftPanel.add(new JLabel("Delivery Task"), gbc);
 
 		gbc.gridy++;
 		gbc.weighty = 1;
@@ -266,12 +264,12 @@ public class Dashboard extends JFrame{
 		delivta.setLineWrap(true);
 		delivta.setWrapStyleWord(true);
 		delivta.setEditable(false);
-		updateDelivQ();
+		updateDeliveryTaskPanel();
 
 		gbc.gridy++;
 //		gbc.gridheight = 1;
 		gbc.weighty = 0;
-		leftPanel.add(new JLabel("Remedy Commands"), gbc);
+		leftPanel.add(new JLabel("Remedy Command"), gbc);
 
 		gbc.gridy++;
 		gbc.weighty = 1;
@@ -279,7 +277,7 @@ public class Dashboard extends JFrame{
 		remedyta.setLineWrap(true);
 		remedyta.setWrapStyleWord(true);
 		remedyta.setEditable(false);
-		updateRemedyQ();
+		updateRemedyCommandPanel();
 
 		gbc.gridx = 1;
 		gbc.gridy = 0;
@@ -540,8 +538,8 @@ public class Dashboard extends JFrame{
 		deliveryPanel.add(canceldButton, dgbc);
 		startdButton.addActionListener(e -> {
             src = dest = null;
-            updateDeliverySrc();
-            updateDeliveryDst();
+            updateDeliverySrcPanel();
+            updateDeliveryDstPanel();
             isDeliveryStarted = true;
             startdButton.setVisible(false);
             deliverButton.setVisible(true);
@@ -568,7 +566,7 @@ public class Dashboard extends JFrame{
 		canceldButton.setVisible(false);
 
 		gbc.gridy++;
-		JLabel logLabel = new JLabel("Logs");
+		JLabel logLabel = new JLabel("Log");
 		rightPanel.add(logLabel, gbc);
 
 		gbc.gridy++;
@@ -648,7 +646,11 @@ public class Dashboard extends JFrame{
 		return section;
 	}
 
-	private static void updateRoadCondition(Section s){
+	private static void updateRoadConditionPane(Section s){
+        if(s == null) {
+            roadta.setText("");
+            return;
+        }
 		String str = s.name+"\n";
 		if(!s.cars.isEmpty()){
 			str += "Cars:\n";
@@ -673,21 +675,21 @@ public class Dashboard extends JFrame{
 		roadta.setText(str);
 	}
 
-	private static void updateDeliverySrc(){
+	private static void updateDeliverySrcPanel(){
 		if(src != null)
 			srctf.setText(src.name);
 		else
 			srctf.setText("");
 	}
 
-	private static void updateDeliveryDst(){
+	private static void updateDeliveryDstPanel(){
 		if(dest != null)
 			desttf.setText(dest.name);
 		else
 			desttf.setText("");
 	}
 
-	public static synchronized void updateDelivQ(){
+	public static synchronized void updateDeliveryTaskPanel(){
 		Queue<Delivery.DeliveryTask> queue = new LinkedList<>();
 		queue.addAll(Delivery.searchTasks);
 		queue.addAll(Delivery.deliveryTasks);
@@ -696,19 +698,19 @@ public class Dashboard extends JFrame{
 			delivta.append("\nPhase: "+dt.phase+" Src: "+dt.src.name+" Dst: "+dt.dest.name);
 	}
 
-	public static synchronized void updateRemedyQ(){
+	public static synchronized void updateRemedyCommandPanel(){
 		remedyta.setText("Nums: "+ Remedy.getQueue().size());
 		for(Command cmd : Remedy.getQueue()){
 			remedyta.append("\n"+cmd.car.name+" "+((cmd.cmd==0)?"S":"F")+" "+cmd.level+" "+cmd.deadline);
 		}
 	}
 
-	public static synchronized void updateVC(Car car){
+	public static synchronized void updateVehicleConditionPanel(Car car){
 		VCPanel.updateVC(car);
 	}
 
-	public static synchronized void updateVC(){
-		Resource.getConnectedCars().forEach(Dashboard::updateVC);
+	public static synchronized void updateVehicleConditionPanel(){
+		Resource.getConnectedCars().forEach(Dashboard::updateVehicleConditionPanel);
 	}
 
 	public static synchronized void appendLog(String str){
@@ -765,6 +767,17 @@ public class Dashboard extends JFrame{
 			}
 	}
 
+	public static void updateAll(){
+        trafficMap.repaint();
+        updateDeliverySrcPanel();
+        updateDeliveryDstPanel();
+        updateDeliveryTaskPanel();
+        updateRemedyCommandPanel();
+        updateVehicleConditionPanel();
+        roadta.setText("");
+        logta.setText("");
+    }
+
 	public static void repaintTrafficMap(){
 		trafficMap.repaint();
 	}
@@ -783,13 +796,13 @@ public class Dashboard extends JFrame{
 			if (isDeliveryStarted) {
 				if (src == null) {
 					src = section;
-					updateDeliverySrc();
+					updateDeliverySrcPanel();
 				}
 				else if (dest == null) {
 					if (src instanceof Section && section.sameAs((Section) src))
 						return;
 					dest = section;
-					updateDeliveryDst();
+					updateDeliveryDstPanel();
 					deliverButton.setEnabled(true);
 				}
 			}
@@ -823,7 +836,7 @@ public class Dashboard extends JFrame{
 			}
 			else if (e.getButton() == MouseEvent.BUTTON3) {
 				// right click
-				updateRoadCondition(section);
+				updateRoadConditionPane(section);
 			}
 		}
 	}
@@ -843,12 +856,12 @@ public class Dashboard extends JFrame{
 			if (isDeliveryStarted) {
 				if (src == null) {
 					src = building;
-					updateDeliverySrc();
+					updateDeliverySrcPanel();
 				} else if (dest == null) {
 					if (building == src)
 						return;
 					dest = building;
-					updateDeliveryDst();
+					updateDeliveryDstPanel();
 					deliverButton.setEnabled(true);
 				}
 			}

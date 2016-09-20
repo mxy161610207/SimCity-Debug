@@ -1,26 +1,29 @@
 package nju.xiaofanli.application;
 
 import nju.xiaofanli.Resource;
+import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.city.Citizen;
 
 public class CitizenActivityGenerator implements Runnable{
     public CitizenActivityGenerator(){
-        new Thread(this).start();
+        Resource.getCitizens().forEach(x -> new Thread(x, x.name).start());
+        new Thread(this, "Citizen Activity Generator").start();
     }
 
     @Override
     public void run() {
         //noinspection InfiniteLoopStatement
         while(true){
-            for(Citizen citizen : Resource.getCitizens()){
+            if(StateSwitcher.isNormal()){
+                for(Citizen citizen : Resource.getCitizens()){
 //					System.out.println(citizen.name);
-                if(citizen.act != null)
-                    continue;
-                if(!citizen.icon.isVisible()){
-                    citizen.setActivity(Citizen.Activity.Wander);
-                    continue;
-                }
-                citizen.setActivity(Citizen.Activity.GetHungry);
+                    if(citizen.state != null)
+                        continue;
+                    if(!citizen.icon.isVisible()){
+                        citizen.setActivity(Citizen.Activity.Wander);
+                        continue;
+                    }
+                    citizen.setActivity(Citizen.Activity.GetHungry);
 //                double d = Math.random();
 //                if(d < 0.01)
 //                    citizen.setActivity(Activity.Wander);
@@ -36,6 +39,7 @@ public class CitizenActivityGenerator implements Runnable{
 //                    else
 //                        citizen.setActivity(Activity.GoToWork);
 //                }
+                }
             }
             try {
                 Thread.sleep(1000);

@@ -40,6 +40,7 @@ public class SelfCheck{
         }
 
         Runnable timer = () -> {
+            //noinspection InfiniteLoopStatement
             while (true){
                 long curTime = System.currentTimeMillis();
                 for(CarChecking thread : carCheckingList)
@@ -55,15 +56,17 @@ public class SelfCheck{
             }
         };
 
-        new Thread(timer, "Car Checking Timer").start();
+//        new Thread(timer, "Car Checking Timer").start();
 
-		synchronized (OBJ) {
-			try {
-				OBJ.wait();//wait until all devices are ready
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+        while(!allReady()){
+            synchronized (OBJ) {
+                try {
+                    OBJ.wait();//wait until all devices are ready
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 	}
 	
 	private boolean allReady(){
@@ -74,7 +77,7 @@ public class SelfCheck{
 
 	private class CarChecking extends Thread{
 		public final Car car;
-        public long lastRecvTime;
+        long lastRecvTime;
 		CarChecking(Car car) {
 			this.car = car;
 		}

@@ -11,7 +11,7 @@ public class CarMonitor implements EventListener{
         switch (event.type) {
             case CAR_START_LOADING:{
                 Car car = Car.carOf(event.car);
-                if(car.dt != null && car.dt.citizen != null){
+                if(car.dt != null && car.dt.citizen != null && car.dt.citizen.state == Citizen.Activity.HailATaxi){
                     Citizen citizen = car.dt.citizen;
                     car.passengers.add(citizen);
                     citizen.car = car;
@@ -22,7 +22,7 @@ public class CarMonitor implements EventListener{
             }
             case CAR_START_UNLOADING:{
                 Car car = Car.carOf(event.car);
-                if(car.dt != null && car.dt.citizen != null){
+                if(car.dt != null && car.dt.citizen != null && car.dt.citizen.state == Citizen.Activity.TakeATaxi){
                     Citizen citizen = car.dt.citizen;
                     car.passengers.remove(citizen);
                     citizen.car = null;

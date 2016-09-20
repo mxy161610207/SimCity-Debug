@@ -185,6 +185,7 @@ public class StateSwitcher {
 			checkIfSuspended();
 			TrafficMap.reset();
 			Middleware.reset();
+
 			//third step: resolve the inconsistency
 			checkIfSuspended();
 			//for false inconsistency, just restore its loc and dir
@@ -226,8 +227,8 @@ public class StateSwitcher {
 			cars2Locate.clear();
 			locatedCars.clear();
 			carInfo.clear();
-			Dashboard.repaintTrafficMap();
-			Dashboard.updateVC();
+
+			Dashboard.updateAll();
 //			Dashboard.enableResetButton(true);
 			Dashboard.enableCtrlUI(true);
 			setState(State.NORMAL);
@@ -274,9 +275,7 @@ public class StateSwitcher {
 			Command.stop(car);
 			if(prevState != State.NORMAL)
 				continue;
-			if (car.getRealState() == Car.MOVING
-					|| car.getRealState() == Car.UNCERTAIN
-					&& car.trend == Car.MOVING)
+			if (car.getRealState() == Car.MOVING || car.getRealState() == Car.UNCERTAIN && car.trend == Car.MOVING)
 				movingCars.add(car);
 		}
 		if(prevState == State.NORMAL)

@@ -90,13 +90,15 @@ public class Remedy implements Runnable{
 				}
 				if(donesth){
 					printQueue();
-					Dashboard.updateRemedyQ();
+					Dashboard.updateRemedyCommandPanel();
 				}
 			}
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
+				if(StateSwitcher.isResetting())
+					thread.interrupt();
 			}
 		}
 	}
@@ -124,7 +126,7 @@ public class Remedy implements Runnable{
 			}
 			Remedy.insert(newCmd);
 			if(donesth){
-				Dashboard.updateRemedyQ();
+				Dashboard.updateRemedyCommandPanel();
 				printQueue();
 			}
 		}
@@ -163,7 +165,7 @@ public class Remedy implements Runnable{
 			}
 			if(addition)
 				insert(new Command(car, cmd));
-			Dashboard.updateRemedyQ();
+			Dashboard.updateRemedyCommandPanel();
 			printQueue();
 		}
 	}
