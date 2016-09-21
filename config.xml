@@ -12,7 +12,7 @@
   <building name="School" type="School" loc="5"/>
   <building name="Police Station" type="PoliceStation" loc="10"/>
   <building name="Restaurant" type="Restaurant" loc="12"/>
-  <citizen name="Tony Stark" gender="Male" job="IronMan"/>
+  <!--<citizen name="Tony Stark" gender="Male" job="IronMan"/>-->
   <!--<brick name="0" address="192.168.1.110"/>-->
   <!--<brick name="1" address="192.168.1.111"/>-->
   <!--<brick name="2" address="192.168.1.112"/>-->

@@ -56,7 +56,7 @@ public class SelfCheck{
             }
         };
 
-//        new Thread(timer, "Car Checking Timer").start();
+        new Thread(timer, "Car Checking Timer").start();
 
         while(!allReady()){
             synchronized (OBJ) {
@@ -109,7 +109,7 @@ public class SelfCheck{
                             lastRecvTime = System.currentTimeMillis();
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+//                        e.printStackTrace();
                         lastRecvTime = Long.MAX_VALUE;
                         car.disconnect();
                     }

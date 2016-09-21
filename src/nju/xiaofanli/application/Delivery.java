@@ -8,6 +8,7 @@ import nju.xiaofanli.city.Section;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
@@ -82,6 +83,7 @@ public class Delivery {
 				if(car.dest.sameAs(car.loc)){
 					if(car.state == Car.STOPPED){
 						car.setLoading(true);
+						Command.send(car, Command.WHISTLE2);
 						//trigger start loading event
 						if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
 							EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
@@ -115,65 +117,56 @@ public class Delivery {
 		private Result searchCar(Section start){
 			if(start == null)
 				return null;
-			Queue<Section> queue = new LinkedList<>();
-			queue.add(start);
-			Section[] prev = {null, null};
-			int dis[] = {-1, 0}, i = 0;
-			boolean oneWay = true;
+			for(Car car : start.cars)
+			    if(car.dest == null)
+			        return new Result(car, 0, start);
+
+			Queue<Section> queue = new LinkedList<>(start.entrances.values());
+			Section[] prev = {start, start};
+			int dis[] = {0, 0}, i = 0;
+			boolean oneWay = start.entrances.size() == 1;
 			while(!queue.isEmpty()){
 				Section sect = queue.poll();
 				dis[i]++;
 //				System.out.println(sect.name+"\t"+dis[i]);
-				if(!sect.cars.isEmpty())
-					for(Car car:sect.cars)
-						if(car.dest == null)
-							return new Result(car, dis[i], start);
-				
-				if(prev[0] == null){
-					prev[0] = sect;
-					queue.addAll(sect.entrances.values());
+                for(Car car : sect.cars)
+                    if(car.dest == null && sect.adjSects.get(car.dir).sameAs(prev[i])) // the car is empty and its dir is right
+                        return new Result(car, dis[i], start);
 
-					if(queue.size() == 2){
-						oneWay = false;
-						prev[1] = sect;
-					}
-				}
-				else{
-					Section next = sect.entrances.get(prev[i]);
-					if(next == null)
-						for(Section s : prev[i].combined){
-							next = sect.entrances.get(s);
-							if(next != null)
-								break;
-						}
-					assert next != null;
-					if(!next.sameAs(start)){
-						queue.add(next);
-						prev[i] = sect;
-						if(!oneWay)
-							i = 1-i;
-					}
-					else if(!oneWay){
-						oneWay = true;
-						i = 1-i;
-					}
-				}
+                Section next = sect.entrances.get(prev[i]);
+                if(next == null)
+                    for(Section s : prev[i].combined){
+                        next = sect.entrances.get(s);
+                        if(next != null)
+                            break;
+                    }
+                assert next != null;
+                if(!next.sameAs(start)){
+                    queue.add(next);
+                    prev[i] = sect;
+                    if(!oneWay)
+                        i = 1 - i;
+                }
+                else if(!oneWay){
+                    oneWay = true;
+                    i = 1 - i;
+                }
 			}
 			allBusy = true;
 			return null;
 		}
-	};
-	
-	private class Result{
-		public Car car;
-		public int dis;
-		public Section section;
-		public Result(Car car, int dis, Section section) {
-			this.car = car;
-			this.dis = dis;
-			this.section = section;
+
+		class Result{
+			public Car car;
+			public int dis;
+			public Section section;
+			public Result(Car car, int dis, Section section) {
+				this.car = car;
+				this.dis = dis;
+				this.section = section;
+			}
 		}
-	}
+	};
 	
 	private Runnable carMonitor = () -> {
         Thread thread = Thread.currentThread();
@@ -216,6 +209,7 @@ public class Delivery {
                                 car.setLoading(true);
                                 dt.startTime = System.currentTimeMillis();
 //									car.loc.icon.repaint();
+								Command.send(car, Command.WHISTLE3);
                                 //trigger start unloading event
                                 if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
                                     EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));

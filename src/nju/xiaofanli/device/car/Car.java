@@ -25,16 +25,16 @@ import nju.xiaofanli.event.EventManager;
 public class Car {
 	public final String name;
 	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
-	public int trend = STOPPED;//0: tend to stop	1: tend to move	-1: none
+	public int lastCmd = Command.STOP;
+    public int trend = STOPPED; // Only used by suspend!
 	public int finalState = STOPPED;
+    public Section loc = null;
 	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
-	public Section loc = null;
 	public Delivery.DeliveryTask dt = null;
 	public Section dest = null;
 	public boolean isLoading = false;//loading or unloading
-	long lastInstrTime = System.currentTimeMillis();//used for waking cars
+	public long lastCmdTime = System.currentTimeMillis();//used for waking cars
 	public long stopTime = System.currentTimeMillis();//used for delivery
-//	public int lastInstr = -1;
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<>();
 	
@@ -69,10 +69,11 @@ public class Car {
 	
 	public void reset(){
 		state = STOPPED;
-		trend = STOPPED;
+		lastCmd = Command.STOP;
+        trend = STOPPED;
 		finalState = STOPPED;
+        loc = null;
 		dir = TrafficMap.UNKNOWN_DIR;
-		loc = null;
 		dt = null;
 		dest = null;
 		isLoading = false;
@@ -108,7 +109,7 @@ public class Car {
         Dashboard.addCar(this);
         //calibrate
 //        if(name.equals(Car.BLACK) || name.equals(Car.RED))
-//            CmdSender.send(this, Command.LEFT);
+//            write(Command.codes.get(Command.LEFT));
 
         synchronized (Delivery.searchTasks) {
             if(Delivery.allBusy){
@@ -119,7 +120,7 @@ public class Car {
 
         //trigger add car event
         if(EventManager.hasListener(Event.Type.ADD_CAR))
-            EventManager.trigger(new Event(Event.Type.ADD_CAR, name, loc.name));
+            EventManager.trigger(new Event(Event.Type.ADD_CAR, name, loc != null ? loc.name : null));
     }
 
 	public boolean isConnected(){
@@ -162,11 +163,15 @@ public class Car {
 //        notifySelfCheck();
     }
 
-	void write(byte[] instr){
-        if(isConnected() && instr != null){
+	void write(byte[] code){
+        if(isConnected() && code != null){
 			try {
-                dos.write(instr);
-                lastInstrTime = System.currentTimeMillis();
+                dos.write(code);
+                lastCmdTime = System.currentTimeMillis();
+                if(code == Command.codes.get(Command.FORWARD))
+                    trend = Car.MOVING;
+                else if(code == Command.codes.get(Command.STOP))
+                    trend = Car.STOPPED;
             } catch (IOException e) {
                 e.printStackTrace();
             }

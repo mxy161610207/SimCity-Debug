@@ -6,7 +6,7 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventListener;
 
-public class CarMonitor implements EventListener{
+public class CarLoadingMonitor implements EventListener{
     public void eventTriggered(Event event) {
         switch (event.type) {
             case CAR_START_LOADING:{

@@ -53,21 +53,17 @@ public class Middleware {
 						}
 					}
     			}
-//    			if(StateSwitcher.isResetting()){
-//    				if(!StateSwitcher.isThreadReset(thread))
-//    					clear();
-//    				continue;
-//    			}
+
     			Context context;
     			synchronized (queue) {
     				context = queue.poll();
 				}
                 Car car = (Car) context.getFields().get("car");
                 Sensor sensor = (Sensor) context.getFields().get("sensor");
-    			if(!detectionFlag){
-                    BrickHandler.switchState(car, sensor, true);
-    				continue;
-    			}
+//    			if(!dEnabled){
+//                    BrickHandler.switchState(car, sensor, true);
+//    				continue;
+//    			}
 
     			Map<String, ArrayList<ContextChange>> sequence = new HashMap<>();
     			// generate the sequence derived by the context
@@ -94,20 +90,18 @@ public class Middleware {
                         BrickHandler.switchState(car, sensor, true);
                         break;
                     case Context.FP:{
-                        if (detectionFlag)
-                            sensor.nextSection.displayBalloon(Context.FP,
-                                    sensor.name, car.name, resolutionFlag);
-                        if (!resolutionFlag)
+                        if (dEnabled)
+                            sensor.nextSection.displayBalloon(Context.FP, sensor.name, car.name, rEnabled);
+                        if (!rEnabled && dEnabled) //if (!rEnabled)
                             BrickHandler.switchState(car, sensor, false);
                     }
                     break;
                     case Context.FN:
-                        if (detectionFlag) {
-                            sensor.nextSection.displayBalloon(Context.FN,
-                                    sensor.name, car.name, resolutionFlag);
-                            if (resolutionFlag)
-                                BrickHandler.switchState(car, sensor, true);
-                        }
+                        if (dEnabled)
+                            sensor.nextSection.displayBalloon(Context.FN, sensor.name, car.name, rEnabled);
+                        if (rEnabled || !dEnabled && !rEnabled) //if (rEnabled)
+                            BrickHandler.switchState(car, sensor, true);
+
                         break;
                 }
             }
@@ -228,13 +222,12 @@ public class Middleware {
         }
     }
     
-    private static boolean detectionFlag = false, resolutionFlag = false;
-
-    public static void setDetectionFlag(boolean detectionFlag) {
-		Middleware.detectionFlag = detectionFlag;
+    private static boolean dEnabled = false, rEnabled = false;
+    public static void setDetectionEnabled(boolean detectionEnabled) {
+		dEnabled = detectionEnabled;
 	}
 
-    public static void setResolutionFlag(boolean resolutionFlag) {
-		Middleware.resolutionFlag = resolutionFlag;
+    public static void setResolutionEnabled(boolean resolutionEnabled) {
+		rEnabled = resolutionEnabled;
 	}
 }

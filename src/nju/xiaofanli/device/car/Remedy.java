@@ -18,7 +18,7 @@ public class Remedy implements Runnable{
         Runnable wakeThread = () -> {
             //noinspection InfiniteLoopStatement
             while (true) {
-                Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastInstrTime > 60000).forEach(Command::wake);
+                Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
 
                 try {
                     Thread.sleep(1000);
@@ -73,11 +73,17 @@ public class Remedy implements Runnable{
 						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
 							cmd.car.setLoading(true);
 							//trigger start loading event
-							if(cmd.car.dt.phase == 1 && EventManager.hasListener(Event.Type.CAR_START_LOADING))
-								EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
+							if(cmd.car.dt.phase == 1) {
+                                Command.send(cmd.car, Command.WHISTLE2);
+								if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
+									EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
+							}
 							//trigger start unloading event
-							else if(cmd.car.dt.phase == 2 && EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
-								EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
+							else if(cmd.car.dt.phase == 2) {
+                                Command.send(cmd.car, Command.WHISTLE3);
+								if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
+									EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
+							}
 						}
 						cmd.car.notifyPolice(Police.ALREADY_STOPPED);
 						//trigger stop event
@@ -181,10 +187,10 @@ public class Remedy implements Runnable{
 	}
 	
 	private static void printQueue(){
-        for (Command cmd : queue) {
-            System.out.println(cmd.car.name + "\t" + ((cmd.cmd == 0) ? "S" : "F") + "\t" + cmd.level + "\t" + cmd.deadline);
-        }
-		System.out.println("-----------------------");
+        StringBuilder sb = new StringBuilder();
+        queue.forEach(x -> sb.append(x.car.name + "\t" + ((x.cmd == Command.STOP) ? "S" : "F") + "\t" + x.level + "\t" + x.deadline));
+//		System.out.println("-----------------------");
+        System.out.println(sb.toString());
 	}
 	
 	public static List<Command> getQueue(){

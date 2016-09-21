@@ -11,6 +11,7 @@ import nju.xiaofanli.context.ContextManager;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
@@ -124,10 +125,10 @@ public class BrickHandler extends Thread{
                         Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
                     }
                     else
-                        car.notifyPolice(car.trend == Car.MOVING ? Police.GONNA_MOVE : Police.GONNA_STOP);
+                        car.notifyPolice(car.lastCmd == Command.FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
                 }
                 else
-                    car.notifyPolice(car.trend == Car.MOVING ? Police.GONNA_MOVE : Police.GONNA_STOP);
+                    car.notifyPolice(car.lastCmd == Command.FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
 
                 Police.sendNotice(prev);
             }

@@ -28,34 +28,34 @@ public class StateSwitcher {
 	private static volatile State state = State.NORMAL;
 	private static final Object RESET_OBJ = new Object();
 	private static ConcurrentHashMap<Thread, Boolean> threadStatus = new ConcurrentHashMap<>();//reset or not
-	
+
 	private enum State {NORMAL, RESET, SUSPEND}
-	
+
 	private StateSwitcher(){}
-	
+
 	public static boolean isNormal(){
 		return state == State.NORMAL;
 	}
-	
+
 	public static boolean isResetting(){
 		return state == State.RESET;
 	}
-	
+
 	public static boolean isSuspending(){
 		return state == State.SUSPEND;
 	}
-	
+
 	private static void setState(State s){
         //noinspection SynchronizeOnNonFinalField
         synchronized (state) {
 			state = s;
 		}
 	}
-	
+
 	public static void register(Thread thread){
 		threadStatus.put(thread, false);
 	}
-	
+
 	public static boolean isThreadReset(Thread thread){
 		if(threadStatus.get(thread))
 			return true;
@@ -64,7 +64,7 @@ public class StateSwitcher {
 			wakeUp();
 		return false;
 	}
-	
+
 	private static boolean allReset(){
 		for(Boolean b : threadStatus.values()){
 			if(!b)
@@ -72,12 +72,12 @@ public class StateSwitcher {
 		}
 		return true;
 	}
-	
+
 	private static void resetThreadStatus(){
 		for(Thread t : threadStatus.keySet())
 			threadStatus.put(t, false);
 	}
-	
+
 	private static void interruptAll(){
 		threadStatus.keySet().forEach(Thread::interrupt);
 	}
@@ -96,14 +96,14 @@ public class StateSwitcher {
         resetTask.isRealInconsistency = isReal;
     }
 
-    public static void setLastStopInstrTime(long time){
-        resetTask.lastStopInstrTime = time;
+    public static void setLastStopCmdTime(long time){
+        resetTask.lastStopCmdTime = time;
     }
 
     public static void detectedBy(Sensor sensor){
-        Car car = resetTask.car2Locate;
+        Car car = resetTask.car2locate;
         if(car != null && car.loc == null){//still not located, then locate it
-            resetTask.car2Locate = null;
+            resetTask.car2locate = null;
             Command.stop(car);
 //			car.enter(sensor.nextSection);
             car.loc = sensor.nextSection;
@@ -117,16 +117,16 @@ public class StateSwitcher {
 	private static ResetTask resetTask = new ResetTask();
 	private static class ResetTask implements Runnable {
 		private final long maxWaitingTime = 1500;
-		private Set<Car> cars2Locate = new HashSet<>();
+		private Set<Car> cars2locate = new HashSet<>();
 		private Map<Car, CarInfo> carInfo = new HashMap<>();
 		boolean isRealInconsistency;//real inconsistency
-        private Car car2Locate = null;
-        private long lastStopInstrTime;
+        private Car car2locate = null;
+        private long lastStopCmdTime;
 		private Set<Car> locatedCars = new HashSet<>();
 
 		private ResetTask() {
 		}
-		
+
 		public void run() {
 			checkIfSuspended();
 			setState(State.RESET);
@@ -135,28 +135,28 @@ public class StateSwitcher {
 			interruptAll();
 			Command.stopAllCars();
 			if(isRealInconsistency){//all cars need to be located
-				cars2Locate.addAll(Resource.getConnectedCars());
+				cars2locate.addAll(Resource.getConnectedCars());
 			}
-			else{//Only moving cars and crashed cars need to be located 
+			else{//Only moving cars and crashed cars need to be located
 				for(Car car :Resource.getConnectedCars()){
 					if(car.getRealState() != Car.STOPPED)
-						cars2Locate.add(car);
+						cars2locate.add(car);
 					if(car.getRealLoc() != null){
 						Set<Car> crashedCars = new HashSet<>(car.getRealLoc().realCars);
                         crashedCars.addAll(car.getRealLoc().cars.stream().filter(x -> !x.hasPhantom()).collect(Collectors.toList()));
 
 						if(crashedCars.size() > 1)
-							cars2Locate.addAll(crashedCars);
+							cars2locate.addAll(crashedCars);
 					}
 				}
 			}
 			//store the info of cars that have no need to locate
 			for(Car car :Resource.getConnectedCars()){
-				if(cars2Locate.contains(car))
+				if(cars2locate.contains(car))
 					continue;
 				carInfo.put(car, new CarInfo(car.getRealLoc(), car.getRealDir()));
 			}
-			
+
 			while(!allReset()){
 				try {
 					synchronized (RESET_OBJ) {
@@ -167,8 +167,8 @@ public class StateSwitcher {
 					checkIfSuspended();
 				}
 			}
-			
-			long duration = maxWaitingTime - (System.currentTimeMillis() - lastStopInstrTime);
+
+			long duration = maxWaitingTime - (System.currentTimeMillis() - lastStopCmdTime);
 			while(duration > 0){
 				long startTime = System.currentTimeMillis();
 				try {
@@ -192,8 +192,8 @@ public class StateSwitcher {
 			for(Map.Entry<Car, CarInfo> e : carInfo.entrySet())
 				e.getValue().restore(e.getKey());
 			//for real inconsistency, locate cars one by one
-			for(Car car : cars2Locate){
-				car2Locate = car;
+			for(Car car : cars2locate){
+				car2locate = car;
 				Command.drive(car);
 				while(!locatedCars.contains(car)){
 					try {
@@ -205,8 +205,8 @@ public class StateSwitcher {
 						checkIfSuspended();
 					}
 				}
-				
-				duration = maxWaitingTime - (System.currentTimeMillis() - lastStopInstrTime);
+
+				duration = maxWaitingTime - (System.currentTimeMillis() - lastStopCmdTime);
 				while(duration > 0){
 					long startTime = System.currentTimeMillis();
 					try {
@@ -223,8 +223,8 @@ public class StateSwitcher {
 			//fourth step: recover the world
 			checkIfSuspended();
 			resetThreadStatus();
-			car2Locate = null;
-			cars2Locate.clear();
+			car2locate = null;
+			cars2locate.clear();
 			locatedCars.clear();
 			carInfo.clear();
 
@@ -233,9 +233,9 @@ public class StateSwitcher {
 			Dashboard.enableCtrlUI(true);
 			setState(State.NORMAL);
 		}
-		
+
 		private void checkIfSuspended(){
-			while(state == State.SUSPEND)
+			while(isSuspending())
 				try {
 					synchronized (SUSPEND_OBJ) {
 						SUSPEND_OBJ.wait();
@@ -244,7 +244,7 @@ public class StateSwitcher {
 					e.printStackTrace();
 				}
 		}
-		
+
 		private class CarInfo{
 			private Section loc;
 			private int dir;
@@ -252,7 +252,7 @@ public class StateSwitcher {
 				this.loc = loc;
 				this.dir = dir;
 			}
-			
+
 			private void restore(Car car){
 				car.loc = loc;
 				car.dir = dir;
@@ -260,7 +260,7 @@ public class StateSwitcher {
 			}
 		}
 	}
-	
+
 	private static State prevState = null;
 	private static final Lock SUSPEND_LOCK = new ReentrantLock();
 	private static final Object SUSPEND_OBJ = new Object();
@@ -272,38 +272,39 @@ public class StateSwitcher {
 		prevState = state;
 		setState(State.SUSPEND);
 		for(Car car : Resource.getConnectedCars()){
+            if(car.trend == Car.MOVING)
+                movingCars.add(car);
 			Command.stop(car);
-			if(prevState != State.NORMAL)
-				continue;
-			if (car.getRealState() == Car.MOVING || car.getRealState() == Car.UNCERTAIN && car.trend == Car.MOVING)
-				movingCars.add(car);
+//			if(prevState != State.NORMAL)
+//				continue;
+//			if (car.getRealState() == Car.MOVING || car.getRealState() == Car.UNCERTAIN && car.lastCmd == Car.MOVING)
+//				movingCars.add(car);
 		}
 		if(prevState == State.NORMAL)
 			Dashboard.enableCtrlUI(false);
 		Dashboard.showDeviceDialog(false);
 		SUSPEND_LOCK.unlock();
 	}
-	
+
 	public static void resume(){
 		if(prevState == null)//suspend() not called in advance
 			return;
 		SUSPEND_LOCK.lock();
 		Dashboard.closeDeviceDialog();
-		if(prevState == State.NORMAL){
-            movingCars.forEach(Command::drive);
+        movingCars.forEach(Command::drive);
+
+        if(prevState == State.NORMAL)
 			Dashboard.enableCtrlUI(true);
-		}
-		movingCars.clear();
+
 		setState(prevState);
 		//must invoked after state changed back
-		if(prevState == State.NORMAL){
-			interruptAll();//drive all threads away from safe points
-		}
-		else if(prevState == State.RESET){
+        interruptAll();//drive all threads away from safe points
+		if(prevState == State.RESET){
 			synchronized (SUSPEND_OBJ) {
 				SUSPEND_OBJ.notify();
 			}
 		}
+        movingCars.clear();
 		prevState = null;
 		SUSPEND_LOCK.unlock();
 	}

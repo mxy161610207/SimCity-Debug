@@ -15,21 +15,35 @@ public class CmdSender implements Runnable{
     }
 
     public void run() {
-        class HornTask implements Runnable{
+        class WhistleTask implements Runnable{
             private Car car;
-            private int time;
+            private int duration, interval, count;
 
-            private HornTask(Car car, int time) {
+            private WhistleTask(Car car, int duration, int interval, int count) {
                 this.car = car;
-                this.time = time;
+                this.duration = duration;
+                this.interval = interval;
+                this.count = count;
             }
 
             public void run() {
                 if(car == null)
                     return;
+                whistle();
+                for(int i = count - 1;i > 0;i--){
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    whistle();
+                }
+            }
+
+            private void whistle(){
                 car.write(Command.codes.get(Command.HORN_ON));
                 try {
-                    Thread.sleep(time);
+                    Thread.sleep(duration);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -65,9 +79,17 @@ public class CmdSender implements Runnable{
             if(cmd.car == null)
                 continue;
             switch(cmd.cmd){
-                case Command.HORN:
-                    Resource.execute(new HornTask(cmd.car, 1000));
+                case Command.URGE:
+                    Resource.execute(new WhistleTask(cmd.car, 500, 0, 1));
                     break;
+                case Command.WHISTLE:
+                    Resource.execute(new WhistleTask(cmd.car, 200, 0, 1));
+                    break;
+                case Command.WHISTLE2:
+                    Resource.execute(new WhistleTask(cmd.car, 200, 200, 2));
+                    break;
+                case Command.WHISTLE3:
+                    Resource.execute(new WhistleTask(cmd.car, 200, 200, 3));
                 default:
                     cmd.car.write(Command.codes.get(cmd.cmd));
                     break;

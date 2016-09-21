@@ -20,11 +20,16 @@ public class Command {
 	public final static int LEFT = 3;
 	public final static int RIGHT = 4;
 	public final static int NO_STEER = 5;
-	public final static int HORN = 6;
-    public final static int HORN_ON = 7;
-    public final static int HORN_OFF = 8;
-	public final static int CONNECT = 9;
-	public final static int DISCONNECT = 10;
+    public final static int HORN_ON = 6;
+    public final static int HORN_OFF = 7;
+
+	public final static int URGE = 8;
+    public final static int WHISTLE = 9;
+    public final static int WHISTLE2 = 10;
+    public final static int WHISTLE3 = 11;
+
+//	public final static int CONNECT = 9;
+//	public final static int DISCONNECT = 10;
 
     static final Map<Integer, byte[]> codes = new HashMap<>();
 
@@ -60,8 +65,7 @@ public class Command {
 			return;
 		CmdSender.send(car, cmd);
 		if(cmd == STOP || cmd == FORWARD){
-            car.trend = cmd == STOP ? Car.STOPPED : Car.MOVING;
-
+            car.lastCmd = cmd;
 			if(cmd == STOP && car.getState() != Car.STOPPED || cmd == FORWARD && car.getState() != Car.MOVING)
 				car.setState(Car.UNCERTAIN);
 			if(car.hasPhantom() && (cmd == STOP && car.getRealState() != Car.STOPPED || cmd == FORWARD && car.getRealState() != Car.MOVING))
@@ -104,7 +108,7 @@ public class Command {
 		if(car != null && car.isConnected()){
             car.write(codes.get(STOP));
 			if(StateSwitcher.isResetting())
-				StateSwitcher.setLastStopInstrTime(car.lastInstrTime);
+				StateSwitcher.setLastStopCmdTime(car.lastCmdTime);
 		}
 	}
 	
@@ -112,6 +116,6 @@ public class Command {
 	 * Only called by Reset Thread
 	 */
 	public static void stopAllCars(){
-		Resource.getConnectedCars().stream().filter(car -> car.getRealState() != Car.STOPPED).forEach(Command::stop);
+		Resource.getConnectedCars().forEach(Command::stop);
 	}
 }

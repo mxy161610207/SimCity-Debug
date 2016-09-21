@@ -337,6 +337,14 @@ public class Dashboard extends JFrame{
 						car.disconnect();
 				}
 			}
+			else if(cmd.equals("urge"))
+			    Command.send(getSelectedCar(), Command.URGE);
+			else if(cmd.equals("whistle"))
+                Command.send(getSelectedCar(), Command.WHISTLE);
+            else if(cmd.equals("whistle2"))
+                Command.send(getSelectedCar(), Command.WHISTLE2);
+            else if(cmd.equals("whistle3"))
+                Command.send(getSelectedCar(), Command.WHISTLE3);
 		});
 
 		gbc.gridx = 1;
@@ -473,7 +481,7 @@ public class Dashboard extends JFrame{
 		CCPanel.add(jchkResolution);
 
 		jchkDetection.addActionListener(arg0 -> {
-            Middleware.setDetectionFlag(jchkDetection.isSelected());
+            Middleware.setDetectionEnabled(jchkDetection.isSelected());
             if(!jchkDetection.isSelected()){
                 if(jchkResolution.isSelected())
                     jchkResolution.doClick();
@@ -494,15 +502,10 @@ public class Dashboard extends JFrame{
 		jchkError.setEnabled(jchkDetection.isSelected());
 
 		jchkResolution.addActionListener(arg0 -> {
-            Middleware.setResolutionFlag(jchkResolution.isSelected());
+            Middleware.setResolutionEnabled(jchkResolution.isSelected());
             if(!jchkDetection.isSelected() && jchkResolution.isSelected())
                 jchkDetection.doClick();
         });
-
-		JLabel srclabel = new JLabel("Src");
-		srctf.setEditable(false);
-		JLabel dstlabel = new JLabel("Dst");
-		desttf.setEditable(false);
 
 		gbc.gridy++;
 //		gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -515,18 +518,20 @@ public class Dashboard extends JFrame{
 		dgbc.fill = GridBagConstraints.BOTH;
 		dgbc.gridx = 0;
 		dgbc.gridy = 0;
-		deliveryPanel.add(srclabel, dgbc);
+		deliveryPanel.add(new JLabel("Src"), dgbc);
 		dgbc.gridx++;
 		dgbc.weightx = 1;
 //		dgbc.gridwidth = GridBagConstraints.REMAINDER;
 		deliveryPanel.add(srctf, dgbc);
+        srctf.setEditable(false);
 		dgbc.gridx++;
 //		dgbc.gridy++;
 		dgbc.weightx = 0;
-		deliveryPanel.add(dstlabel, dgbc);
+		deliveryPanel.add(new JLabel("Dst"), dgbc);
 		dgbc.gridx++;
 		dgbc.weightx = 1;
 		deliveryPanel.add(desttf, dgbc);
+        desttf.setEditable(false);
 		dgbc.gridx = 0;
 		dgbc.gridy++;
 		dgbc.gridwidth = GridBagConstraints.REMAINDER;
