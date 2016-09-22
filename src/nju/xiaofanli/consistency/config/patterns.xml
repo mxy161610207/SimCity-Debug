@@ -1,0 +1,387 @@
+<?xml version="1.0"?>
+
+<patterns>
+	<pattern>
+		<id>latest</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>any</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+<!--  
+	<pattern>
+		<id>car</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>any</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+-->
+	<pattern>
+		<id>orange_car1</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Orange Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>orange_car2</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Orange Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>orange_car3</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Orange Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>orange_car4</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Orange Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>orange_car5</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Orange Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>green_car1</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Green Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>green_car2</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Green Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>green_car3</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Green Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>green_car4</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Green Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>green_car5</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Green Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>black_car1</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Black Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>black_car2</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Black Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>black_car3</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Black Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>black_car4</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Black Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>black_car5</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Black Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>white_car1</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>White Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>white_car2</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>White Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>white_car3</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>White Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>white_car4</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>White Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>white_car5</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>White Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>red_car1</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Red Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>red_car2</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Red Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>red_car3</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Red Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>red_car4</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Red Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>red_car5</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Red Car</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>silver_suv1</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Silver SUV</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>silver_suv2</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Silver SUV</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>silver_suv3</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Silver SUV</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>silver_suv4</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Silver SUV</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+
+	<pattern>
+		<id>silver_suv5</id>
+		<timestamp>any</timestamp>
+		<category>movement</category>
+		<subject>Silver SUV</subject>
+		<direction>any</direction>
+		<state>any</state>
+		<predicate>any</predicate>
+		<object>any</object>
+		<prev>any</prev>
+	</pattern>
+</patterns>

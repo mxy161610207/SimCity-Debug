@@ -5,7 +5,7 @@ from ev3dev.auto import *
 import socket
 import time
 
-IP = '192.168.1.121'#120
+IP = '192.168.1.122'
 PORT = 9999
 ADDR = (IP, PORT)
 
@@ -32,7 +32,7 @@ while True:
 	for i in range(SENSORS):
 		v = min(99, sensor[i].value())
 		cur = time.time()
-		if(pre[i] != v or cur - sent[i] >= 3):
+		if pre[i] != v or cur - sent[i] >= 3:
 			try:
 				s.sendto('%s%d%02d' % (BID, i, v), ADDR)
 				pre[i] = v
