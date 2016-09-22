@@ -62,8 +62,8 @@ public class Remedy implements Runnable{
 					queue.remove(0);
 					//forward cmd
 					if(cmd.cmd == 1){
-						cmd.deadline = getDeadline(Command.FORWARD, ++cmd.level);
-						Command.send(cmd, false);
+//						cmd.deadline = getDeadline(Command.MOVE_FORWARD, ++cmd.level);
+//						Command.send(cmd, false);
 //						insertCmd(cmd);//comment this line to remedy only once
 					}
 					//stop cmd
@@ -121,12 +121,12 @@ public class Remedy implements Runnable{
 					donesth = true;
 					it.remove();
 					//stop command
-					if(cmd.cmd == 0){
-						cmd.level = 1;
-						cmd.deadline = Remedy.getDeadline(Command.STOP, 1);
-						Command.send(cmd, false);
-						newCmd = cmd;
-					}
+//					if(cmd.cmd == 0){
+//						cmd.level = 1;
+//						cmd.deadline = Remedy.getDeadline(Command.STOP, 1);
+//						Command.send(cmd, false);
+//						newCmd = cmd;
+//					}
 					break;
 				}
 			}

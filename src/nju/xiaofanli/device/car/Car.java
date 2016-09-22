@@ -50,14 +50,14 @@ public class Car {
 	
 	public static final int STOPPED = 0;
 	public static final int MOVING = 1;
-	public static final int UNCERTAIN = -1;
+//	public static final int UNCERTAIN = -1;
 	
-	public static final String SILVER = "Silver SUV";//A
-	public static final String GREEN = "Green Car";//B
-	public static final String RED = "Red Car";//C
-	public static final String WHITE = "White Car";//D
-	public static final String BLACK = "Black Car";//E
-	public static final String ORANGE = "Orange Car";//F
+	public static final String SILVER = "Silver SUV";
+	public static final String GREEN = "Green Car";
+	public static final String RED = "Red Car";
+	public static final String WHITE = "White Car";
+	public static final String BLACK = "Black Car";
+	public static final String ORANGE = "Orange Car";
 	
 	public Car(String name, Section loc, String url) {
 //		this.type = type;
@@ -140,7 +140,7 @@ public class Car {
             dos = conn.openDataOutputStream();
             dis = conn.openDataInputStream();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             disconnect();
         }
         if(isConnected())
@@ -168,7 +168,7 @@ public class Car {
 			try {
                 dos.write(code);
                 lastCmdTime = System.currentTimeMillis();
-                if(code == Command.codes.get(Command.FORWARD))
+                if(code == Command.codes.get(Command.MOVE_FORWARD))
                     trend = Car.MOVING;
                 else if(code == Command.codes.get(Command.STOP))
                     trend = Car.STOPPED;

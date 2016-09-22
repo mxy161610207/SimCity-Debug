@@ -1,6 +1,7 @@
 package nju.xiaofanli;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import nju.xiaofanli.application.*;
 import nju.xiaofanli.city.Citizen;
 import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.CmdSender;
+import nju.xiaofanli.device.sensor.RandomDataGenerator;
 import nju.xiaofanli.util.ConfigGenerator;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -33,7 +35,7 @@ public class Main {
 		Dashboard.getInstance().loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready
 		Dashboard.getInstance().loadCtrlUI();
-		
+
 		addModule();
         new BrickServer();
 		new CmdSender();
@@ -42,36 +44,7 @@ public class Main {
 		new Delivery();
 		new CitizenActivityGenerator();
         new AppServer();
-		
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		StateSwitcher.suspend();
-//		try {
-//			Thread.sleep(10000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		StateSwitcher.resume();
-		
-//		new Thread() {
-//			boolean flip = true;
-//			public void run() {
-//				while(true){
-//					for(Car car : Resource.getConnectedCars())
-//						Command.send(car, flip ? Command.FORWARD : Command.STOP);
-//				
-//					flip = !flip;
-//					try {
-//						Thread.sleep(500);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}.start();
+//        new RandomDataGenerator();
 		initial = false;
 	}
 	

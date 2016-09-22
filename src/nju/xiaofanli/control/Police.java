@@ -103,10 +103,10 @@ public class Police implements Runnable{
 							//tell the car to enter
 							System.out.println(r.car.name+" can ENTER!!!");
 							reqSec.setPermitted(r.car);
-							Command.send(r.car, Command.FORWARD);
+							Command.send(r.car, Command.MOVE_FORWARD);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
-								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.FORWARD));
+								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.MOVE_FORWARD));
 						}
 						break;
 					case ALREADY_STOPPED:
@@ -170,21 +170,21 @@ public class Police implements Runnable{
 						Car car = loc.waiting.peek();
 						if(car.loc.cars.size() == 1){
 							loc.setPermitted(car);
-							Command.send(car, Command.FORWARD);
+							Command.send(car, Command.MOVE_FORWARD);
 							System.out.println(loc.name + " notify " + car.name + " to enter");
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
-								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, car.name, car.loc.name, Command.FORWARD));
+								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, car.name, car.loc.name, Command.MOVE_FORWARD));
 						}
 						else{
 							for(Car wcar : loc.waiting)
 								if(wcar.loc.cars.peek() == wcar){
 									loc.setPermitted(wcar);
-									Command.send(wcar, Command.FORWARD);
+									Command.send(wcar, Command.MOVE_FORWARD);
 									System.out.println(loc.name + " notify " + wcar.name + " to enter");
 									//trigger recv response event
 									if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
-										EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, wcar.name, wcar.loc.name, Command.FORWARD));
+										EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, wcar.name, wcar.loc.name, Command.MOVE_FORWARD));
 									break;
 								}
 						}

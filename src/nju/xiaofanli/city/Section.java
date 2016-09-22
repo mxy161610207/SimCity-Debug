@@ -136,7 +136,7 @@ public abstract class Section extends Location{
 		
 		protected void paintBorder(Graphics g) {
 //			super.paintBorder(g);
-			((Graphics2D )g).setStroke(new BasicStroke(2.0f));
+			((Graphics2D) g).setStroke(new BasicStroke(2.0f));
 			if(getModel().isPressed())
 				g.setColor(Color.black);
 			else if(getModel().isRollover())
@@ -202,9 +202,13 @@ public abstract class Section extends Location{
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, cubeSize, cubeSize);
-					if(car.realLoc != null)
-						g.drawString("FAKE", x, y+10);
-					
+					if(car.realLoc != null) {
+                        if(car.name.equals(Car.BLACK))
+                            g.setColor(Color.WHITE);
+                        g.drawString("FAKE", x, y + 10);
+                        if(car.name.equals(car.BLACK))
+                            g.setColor(Color.BLACK);
+                    }
 					if(vertical)
 						y += cubeSize + cubeInset;
 					else
@@ -229,7 +233,11 @@ public abstract class Section extends Location{
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, cubeSize, cubeSize);
-					g.drawString("REAL", x, y+10);
+                    if(car.name.equals(Car.BLACK))
+                        g.setColor(Color.WHITE);
+                    g.drawString("REAL", x, y + 10);
+                    if(car.name.equals(Car.BLACK))
+                        g.setColor(Color.BLACK);
 					if(vertical)
 						y += cubeSize + cubeInset;
 					else

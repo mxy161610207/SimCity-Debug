@@ -74,7 +74,7 @@ public class PkgHandler implements Runnable{
 			case 2:{
 				Car car = Car.carOf(p.car);
 				if(car != null){
-					if(p.cmd == Command.FORWARD){
+					if(p.cmd == Command.MOVE_FORWARD){
 						car.finalState = Car.MOVING;
 						car.notifyPolice(Police.GONNA_MOVE);
 					}

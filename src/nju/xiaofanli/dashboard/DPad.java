@@ -51,7 +51,7 @@ class DPad extends JPanel{
 //		add(jbb);
 //		add(startB);
 		setLayout(new GridLayout(1, 2, 5, 5));
-		JButton jbf = new JButton("Forward");
+		JButton jbf = new JButton("Drive");
 		add(jbf);
         JButton jbs = new JButton("Stop");
         add(jbs);

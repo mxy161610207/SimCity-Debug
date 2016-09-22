@@ -92,7 +92,7 @@ public class Delivery {
 						car.finalState = Car.STOPPED;
 						car.notifyPolice(Police.GONNA_STOP);
 					}
-					Dashboard.appendLog(car.name+" reached dest");
+					Dashboard.appendLog(car.name + " reached dest");
 					//trigger reach dest event
 					if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));

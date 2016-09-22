@@ -112,6 +112,7 @@ public class SelfCheck{
 //                        e.printStackTrace();
                         lastRecvTime = Long.MAX_VALUE;
                         car.disconnect();
+                        Dashboard.setDeviceStatus(car.name, false);
                     }
                     finally {
                         if(car.isConnected() ^ deviceStatus.get(car.name)){
@@ -165,18 +166,18 @@ public class SelfCheck{
             //noinspection InfiniteLoopStatement
             while(true){
 				//first, check if brick is reachable
-				boolean connected = false;
-				while(!connected){
-					try {
-//						System.out.println(name + " connect");
-						connected = InetAddress.getByName(addr).isReachable(5000);
-//						System.out.println(name + " connected");
-					} catch (IOException e) {
-						e.printStackTrace();
-						connected = false;
-					}
-					Dashboard.setDeviceStatus(name + " conn", connected);
-				}
+//				boolean connected = false;
+//				while(!connected){
+//					try {
+////						System.out.println(name + " connect");
+//						connected = InetAddress.getByName(addr).isReachable(5000);
+////						System.out.println(name + " connected");
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//						connected = false;
+//					}
+//					Dashboard.setDeviceStatus(name + " conn", connected);
+//				}
 				
 				//second, start sample program in brick
 				Session session = null;
@@ -196,11 +197,13 @@ public class SelfCheck{
                     channel.getInputStream().read();//assure sample program is started
 //					System.out.println(name + " read");
 					channel.disconnect();
+                    Dashboard.setDeviceStatus(name + " conn", true);
 				} catch (JSchException | IOException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 					if(channel != null)
 					    channel.disconnect();
 					session.disconnect();
+					Dashboard.setDeviceStatus(name + " conn", false);
 					continue;
 				}
 				
@@ -221,6 +224,7 @@ public class SelfCheck{
 						channel.disconnect();
 						session.disconnect();
 						sampling = false;
+                        Dashboard.setDeviceStatus(name + " sample", false);
 					}
 					finally{
 						if(sampling ^ deviceStatus.get(name)){

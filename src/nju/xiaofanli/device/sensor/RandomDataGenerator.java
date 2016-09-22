@@ -1,11 +1,12 @@
 package nju.xiaofanli.device.sensor;
 
-import java.util.Random;
-
-import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.TrafficMap;
-import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.Resource;
+import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.consistency.middleware.Middleware;
+import nju.xiaofanli.device.car.Car;
+
+import java.util.Random;
 
 /**
  * generate random sensor data
@@ -14,10 +15,13 @@ import nju.xiaofanli.Resource;
  */
 public class RandomDataGenerator implements Runnable{
 	private Random random = new Random();
+	public RandomDataGenerator(){
+        new Thread(this, "Random Data Generator").start();
+    }
 	public void run() {
 		//noinspection InfiniteLoopStatement
 		while(true){
-			if(StateSwitcher.isNormal()) {
+			if(StateSwitcher.isNormal() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled())) {
 				int idx = random.nextInt(Resource.getConnectedCars().size());
 				int count = 0;
 				for (Car car : Resource.getConnectedCars()) {

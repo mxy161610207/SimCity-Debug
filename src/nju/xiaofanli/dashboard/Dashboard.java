@@ -1,5 +1,9 @@
 package nju.xiaofanli.dashboard;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
@@ -11,6 +15,7 @@ import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.car.CmdSender;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.device.sensor.Sensor;
@@ -145,7 +150,7 @@ public class Dashboard extends JFrame{
 		gbc.gridx = gbc.gridy = 0;
 		gbc.weightx = gbc.weighty = 1;
 		//brick panel
-		gbc.gridheight = 2;
+//		gbc.gridheight = 2;
 		JPanel brickPanel = new JPanel();
 		checkingPanel.add(brickPanel, gbc);
 		brickPanel.setBorder(BorderFactory.createTitledBorder("Bricks"));
@@ -172,7 +177,7 @@ public class Dashboard extends JFrame{
 			bgbc.gridy++;
 		}
 		//car panel
-		gbc.gridx++;
+		gbc.gridx += gbc.gridwidth;
 		JPanel carPanel = new JPanel();
 		checkingPanel.add(carPanel, gbc);
 		carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
@@ -196,6 +201,51 @@ public class Dashboard extends JFrame{
 			cgbc.gridx = 0;
 			cgbc.gridy++;
 		}
+
+		//disconnect button
+        gbc.gridx = 0;
+        gbc.gridy += gbc.gridheight;
+        gbc.weightx = gbc.weighty = 0;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        JButton shutDownBtn = new JButton("Shutdown");
+        checkingPanel.add(shutDownBtn, gbc);
+        shutDownBtn.addActionListener(e -> {
+            shutDownBtn.setEnabled(false);
+            int[] count = {Resource.getBricks().size()};
+            for(String name : Resource.getBricks())
+                Resource.execute(()->{
+                    Session session = Resource.getRootSession(name);
+                    if(session != null) {
+                        Channel channel = null;
+                        try {
+                            session.connect();
+                            channel = session.openChannel("exec");
+                            ((ChannelExec) channel).setCommand("poweroff");
+                            channel.setInputStream(null);
+                            ((ChannelExec) channel).setErrStream(System.err);
+                            channel.connect();
+                        } catch (JSchException e1) {
+                            e1.printStackTrace();
+                            if (channel != null)
+                                channel.disconnect();
+                            session.disconnect();
+                        }
+                    }
+                    synchronized (count){
+                        if(--count[0] == 0)
+                            count.notify();
+                    }
+                });
+            while(count[0] > 0)
+                synchronized (count){
+                    try {
+                        count.wait();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            shutDownBtn.setEnabled(true);
+        });
 
 		setTitle("Self Checking");
 //		cards.show(getContentPane(), "Check");
@@ -338,13 +388,17 @@ public class Dashboard extends JFrame{
 				}
 			}
 			else if(cmd.equals("urge"))
-			    Command.send(getSelectedCar(), Command.URGE);
+			    CmdSender.send(getSelectedCar(), Command.URGE);
 			else if(cmd.equals("whistle"))
-                Command.send(getSelectedCar(), Command.WHISTLE);
+                CmdSender.send(getSelectedCar(), Command.WHISTLE);
             else if(cmd.equals("whistle2"))
-                Command.send(getSelectedCar(), Command.WHISTLE2);
+                CmdSender.send(getSelectedCar(), Command.WHISTLE2);
             else if(cmd.equals("whistle3"))
-                Command.send(getSelectedCar(), Command.WHISTLE3);
+                CmdSender.send(getSelectedCar(), Command.WHISTLE3);
+            else if(cmd.equals("left"))
+                CmdSender.send(getSelectedCar(), Command.LEFT);
+            else if(cmd.equals("right"))
+                CmdSender.send(getSelectedCar(), Command.RIGHT);
 		});
 
 		gbc.gridx = 1;

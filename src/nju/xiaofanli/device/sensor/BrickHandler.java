@@ -92,7 +92,7 @@ public class BrickHandler extends Thread{
                 car.notifyPolice(sensor.nextSection);
                 car.enter(sensor.nextSection);
                 car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
-                car.state = Car.MOVING;
+//                car.state = Car.MOVING;
                 //trigger context
                 if(ContextManager.hasListener())
                     ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
@@ -125,10 +125,10 @@ public class BrickHandler extends Thread{
                         Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
                     }
                     else
-                        car.notifyPolice(car.lastCmd == Command.FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
+                        car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
                 }
                 else
-                    car.notifyPolice(car.lastCmd == Command.FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
+                    car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
 
                 Police.sendNotice(prev);
             }

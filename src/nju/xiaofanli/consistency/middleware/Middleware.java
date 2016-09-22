@@ -227,7 +227,15 @@ public class Middleware {
 		dEnabled = detectionEnabled;
 	}
 
+	public static boolean isDetectionEnabled(){
+        return dEnabled;
+    }
+
     public static void setResolutionEnabled(boolean resolutionEnabled) {
 		rEnabled = resolutionEnabled;
 	}
+
+    public static boolean isResolutionEnabled(){
+        return rEnabled;
+    }
 }

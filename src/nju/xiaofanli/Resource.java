@@ -42,6 +42,7 @@ public class Resource {
 		try {
 			//use ssh-keyscan $IP >> brick/known_hosts
 			JSCH.setKnownHosts("brick/known_hosts");
+            JSCH.addIdentity("brick/id_rsa");
 		} catch (JSchException e) {
 			e.printStackTrace();
 		} 
@@ -61,9 +62,22 @@ public class Resource {
 		if(addr != null){
 			try {
 				session = JSCH.getSession("robot", addr);
-				session.setPassword("maker");
 			} catch (JSchException e) {
 				e.printStackTrace();
+			}
+		}
+		return session;
+	}
+
+	public static Session getRootSession(String name){
+		String addr = brickAddr.get(name);
+		Session session = null;
+		if(addr != null){
+			try {
+				session = JSCH.getSession("root", addr);
+			} catch (JSchException e) {
+				e.printStackTrace();
+                session = null;
 			}
 		}
 		return session;
