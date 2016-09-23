@@ -134,6 +134,7 @@ public class StateSwitcher {
 			//first step: stop the world
 			interruptAll();
 			Command.stopAllCars();
+			Command.silenceAllCars();
 			if(isRealInconsistency){//all cars need to be located
 				cars2locate.addAll(Resource.getConnectedCars());
 			}
@@ -264,7 +265,7 @@ public class StateSwitcher {
 	private static State prevState = null;
 	private static final Lock SUSPEND_LOCK = new ReentrantLock();
 	private static final Object SUSPEND_OBJ = new Object();
-	private static Set<Car> movingCars = new HashSet<>();
+	private static Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
 	public static void suspend(){
 		if(prevState != null)//already called this method before
 			return;
@@ -275,6 +276,9 @@ public class StateSwitcher {
             if(car.trend == Car.MOVING)
                 movingCars.add(car);
 			Command.stop(car);
+			if(car.isHornOn)
+				whistlingCars.add(car);
+			Command.silence(car);
 //			if(prevState != State.NORMAL)
 //				continue;
 //			if (car.getRealState() == Car.MOVING || car.getRealState() == Car.UNCERTAIN && car.lastCmd == Car.MOVING)
@@ -292,6 +296,7 @@ public class StateSwitcher {
 		SUSPEND_LOCK.lock();
 		Dashboard.closeDeviceDialog();
         movingCars.forEach(Command::drive);
+		whistlingCars.forEach(Command::whistle);
 
         if(prevState == State.NORMAL)
 			Dashboard.enableCtrlUI(true);
@@ -305,6 +310,7 @@ public class StateSwitcher {
 			}
 		}
         movingCars.clear();
+		whistlingCars.clear();
 		prevState = null;
 		SUSPEND_LOCK.unlock();
 	}

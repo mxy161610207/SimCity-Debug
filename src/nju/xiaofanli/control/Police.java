@@ -82,7 +82,7 @@ public class Police implements Runnable{
 							if(!real)
 								Dashboard.playErrorSound();
 							//tell the car to stop
-							System.out.println(r.car.name+" need to STOP!!!");
+							System.out.println(r.car.name + " need to STOP!!!");
 							reqSec.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
 							Command.send(r.car, Command.URGE);
@@ -92,7 +92,7 @@ public class Police implements Runnable{
 						}
 						else if(reqSec.getPermitted() != null && r.car != reqSec.getPermitted()){
 							//tell the car to stop
-							System.out.println(r.car.name+" need to STOP!!!2");
+							System.out.println(r.car.name + " need to STOP!!!2");
 							reqSec.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
 							//trigger recv response event
@@ -101,7 +101,7 @@ public class Police implements Runnable{
 						}
 						else{
 							//tell the car to enter
-							System.out.println(r.car.name+" can ENTER!!!");
+							System.out.println(r.car.name + " can ENTER!!!");
 							reqSec.setPermitted(r.car);
 							Command.send(r.car, Command.MOVE_FORWARD);
 							//trigger recv response event

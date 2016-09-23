@@ -9,10 +9,10 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.sensor.BrickHandler;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +26,19 @@ public class SelfCheck{
 	 * This method will block until all devices are ready
 	 */
 	public SelfCheck() {
+		List<BrickChecking> brickCheckingThreads = new ArrayList<>();
 		for(String name : Resource.getBricks()){
             deviceStatus.put(name, false);
-            new BrickChecking(name).start();
+			BrickChecking thread = new BrickChecking(name);
+			brickCheckingThreads.add(thread);
+			thread.start();
 		}
 
-        List<CarChecking> carCheckingList = new ArrayList<>();
+        List<CarChecking> carCheckingThreads = new ArrayList<>();
 		for(Car car : Resource.getCars()){
             deviceStatus.put(car.name, false);
             CarChecking thread = new CarChecking(car);
-            carCheckingList.add(thread);
+            carCheckingThreads.add(thread);
             thread.start();
         }
 
@@ -43,11 +46,18 @@ public class SelfCheck{
             //noinspection InfiniteLoopStatement
             while (true){
                 long curTime = System.currentTimeMillis();
-                for(CarChecking thread : carCheckingList)
+                for(CarChecking thread : carCheckingThreads)
                     if(thread.car.isConnected() && curTime - thread.lastRecvTime > 1500) {
                         thread.lastRecvTime = Long.MAX_VALUE;
                         thread.car.disconnect();
                     }
+
+                for(BrickChecking thread : brickCheckingThreads){
+					if(thread.startTime > thread.endTime && curTime - thread.startTime > 8000){
+						if(thread.channel != null)
+							thread.channel.disconnect();
+					}
+				}
                 try {
                     Thread.sleep(300);
                 } catch (InterruptedException e) {
@@ -56,7 +66,7 @@ public class SelfCheck{
             }
         };
 
-        new Thread(timer, "Car Checking Timer").start();
+        new Thread(timer, "Checking Timer").start();
 
         while(!allReady()){
             synchronized (OBJ) {
@@ -77,7 +87,7 @@ public class SelfCheck{
 
 	private class CarChecking extends Thread{
 		public final Car car;
-        long lastRecvTime;
+        private long lastRecvTime;
 		CarChecking(Car car) {
 			this.car = car;
 		}
@@ -150,8 +160,9 @@ public class SelfCheck{
 	
 	private class BrickChecking extends Thread{
 		private final String name, addr;
-//		private final Session session;
-//		byte[] buf = new byte[1024];
+		private long startTime, endTime;
+		private Session session;
+		private Channel channel;
         BrickChecking(String name) {
 			this.name = name;
 			addr = Resource.getBrickAddr(name);
@@ -159,44 +170,34 @@ public class SelfCheck{
 				System.err.println("Brick " + name + " has no address");
 				System.exit(-1);
 			}
-//			session = ;
 		}
 		public void run() {
 			setName("Brick Checking: " + name);
             //noinspection InfiniteLoopStatement
             while(true){
-				//first, check if brick is reachable
-//				boolean connected = false;
-//				while(!connected){
-//					try {
-////						System.out.println(name + " connect");
-//						connected = InetAddress.getByName(addr).isReachable(5000);
-////						System.out.println(name + " connected");
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//						connected = false;
-//					}
-//					Dashboard.setDeviceStatus(name + " conn", connected);
-//				}
-				
-				//second, start sample program in brick
-				Session session = null;
-				Channel channel = null;
+				startTime = endTime = 0;
+				//start sample program in brick
 				try {
-//					System.out.println(name + " connect session");
+//					System.out.println(name + " get session");
 					session = Resource.getSession(name);
+//					System.out.println(name + " connect session");
+//					startTime = System.currentTimeMillis();
 					session.connect();
-//					System.out.println(name + " connected session");
+//					endTime = System.currentTimeMillis();
+//					System.out.println(name + " session connected");
 					channel = session.openChannel("exec");
+//					System.out.println(name + " set command");
 					((ChannelExec) channel).setCommand("./start.sh");
-					channel.setInputStream(null);
-					((ChannelExec) channel).setErrStream(System.err);
+//					System.out.println(name + " connect channel");
 					channel.connect();
 //					System.out.println(name + " reading");
+					startTime = System.currentTimeMillis();
                     //noinspection ResultOfMethodCallIgnored
-                    channel.getInputStream().read();//assure sample program is started
+                    channel.getInputStream().read();//assure sample program is started, may get blocked FOREVER!
+					endTime = System.currentTimeMillis();
 //					System.out.println(name + " read");
 					channel.disconnect();
+//					System.out.println(name + " channel disconnected");
                     Dashboard.setDeviceStatus(name + " conn", true);
 				} catch (JSchException | IOException e) {
 //					e.printStackTrace();
@@ -204,27 +205,34 @@ public class SelfCheck{
 					    channel.disconnect();
 					session.disconnect();
 					Dashboard.setDeviceStatus(name + " conn", false);
+					startTime = endTime = 0;
 					continue;
 				}
 				
-				//third, check if sample program is running
+				//check if sample program is running
 				boolean sampling = false;
 				while(true){
 					try {
 //						System.out.println(name + " exec");
 						channel = session.openChannel("exec");
+//						System.out.println(name + " exec2");
 						((ChannelExec) channel).setCommand("ps -ef | grep 'python sample.py' | grep -v grep");
-						channel.setInputStream(null);
-						((ChannelExec) channel).setErrStream(System.err);
+//						System.out.println(name + " exec3");
 						channel.connect();
-						sampling = channel.getInputStream().read() > 0;
+//						System.out.println(name + " exec4");
+						startTime = System.currentTimeMillis();
+						sampling = channel.getInputStream().read() > 0; //may get blocked FOREVER!
+						endTime = System.currentTimeMillis();
+//						System.out.println(name + " exec5");
 						channel.disconnect();
+//						System.out.println(name + " exec6");
 					} catch (JSchException | IOException e) {
 						e.printStackTrace();
 						channel.disconnect();
 						session.disconnect();
 						sampling = false;
                         Dashboard.setDeviceStatus(name + " sample", false);
+						startTime = endTime = 0;
 					}
 					finally{
 						if(sampling ^ deviceStatus.get(name)){
@@ -248,7 +256,7 @@ public class SelfCheck{
 						}
 					}
                     if(!sampling)
-                        break;
+						break;
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {

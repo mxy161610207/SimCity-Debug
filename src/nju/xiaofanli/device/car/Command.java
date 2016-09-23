@@ -10,10 +10,8 @@ import nju.xiaofanli.Resource;
 public class Command {
 	public Car car = null;
 	public int cmd = -1;
-	public int level = 1;
 	public long deadline = 1000;
-	public int type = 0;//0: normal 1: wake car 2: reset
-	
+
 	public final static int STOP = Car.STOPPED;
 	public final static int MOVE_FORWARD = Car.MOVING;
 	public final static int MOVE_BACKWARD = 2;
@@ -47,20 +45,15 @@ public class Command {
 	public Command(Car car, int cmd) {
 		this.car = car;
 		this.cmd = cmd;
-		deadline = Remedy.getDeadline(cmd, 1);
-	}
-	
-	public Command(Car car, int cmd, int type) {
-		this(car, cmd);
-		this.type = type;
+		deadline = Remedy.getDeadline();
 	}
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
 	public static void send(Car car, int cmd){
-		send(car, cmd, 1, true);
+		send(car, cmd, true);
 	}	
 	
-	public static void send(Car car, int cmd, int level, boolean remedy){
+	public static void send(Car car, int cmd, boolean remedy){
 		if(car == null)
 			return;
 		CmdSender.send(car, cmd);
@@ -80,10 +73,12 @@ public class Command {
 			if(remedy)
 				Remedy.addRemedyCommand(car, cmd);
 		}
+		else if(cmd == HORN_ON || cmd == HORN_OFF)
+		    car.isHornOn = cmd == HORN_ON;
 	}
 	
 	public static void send(Command cmd, boolean remedy) {
-		send(cmd.car, cmd.cmd, cmd.level, remedy);
+		send(cmd.car, cmd.cmd, remedy);
 	}
 	
 	static void wake(Car car){
@@ -119,9 +114,31 @@ public class Command {
 	}
 	
 	/**
-	 * Only called by Reset Thread
+	 * Only called by Reset and Suspend
 	 */
 	public static void stopAllCars(){
-		Resource.getConnectedCars().forEach(Command::stop);
+        Resource.getConnectedCars().forEach(Command::stop);
 	}
+    /**
+     * Only called by Reset and Suspend
+     */
+	public static void silenceAllCars(){
+        Resource.getConnectedCars().forEach(Command::silence);
+    }
+
+    /**
+     * Only called by Reset and Suspend
+     */
+    public static void silence(Car car){
+        if(car != null && car.isConnected())
+            car.write(codes.get(HORN_OFF));
+    }
+
+    /**
+     * Only called by Reset and Suspend
+     */
+    public static void whistle(Car car){
+        if(car != null && car.isConnected())
+            car.write(codes.get(HORN_ON));
+    }
 }

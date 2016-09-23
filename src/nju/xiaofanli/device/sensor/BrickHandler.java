@@ -87,7 +87,7 @@ public class BrickHandler extends Thread{
 
                 System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects car: "+car.name);
 
-                Section prev = car.loc;
+//                Section prev = car.loc;
                 //inform the traffic police of the entry event
                 car.notifyPolice(sensor.nextSection);
                 car.enter(sensor.nextSection);
@@ -106,7 +106,7 @@ public class BrickHandler extends Thread{
                         EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, car.loc.name));
                 }
 
-                Remedy.updateWhenDetected(car);
+                Remedy.updateRemedyQWhenDetect(car);
 
                 //do triggered stuff
 //			    System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
@@ -130,7 +130,7 @@ public class BrickHandler extends Thread{
                 else
                     car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
 
-                Police.sendNotice(prev);
+//                Police.sendNotice(prev);
             }
             break;
         }

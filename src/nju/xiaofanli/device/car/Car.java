@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ public class Car {
 	public long stopTime = System.currentTimeMillis();//used for delivery
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<>();
+    public boolean isHornOn = false; //only for crash
 	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public int realDir, realState;
@@ -81,6 +83,7 @@ public class Car {
 		realLoc = null;
 		realDir = TrafficMap.UNKNOWN_DIR;
 		realState = STOPPED;
+        isHornOn = false;
 	}
 	
 	public void notifyPolice(int cmd) {
@@ -163,7 +166,7 @@ public class Car {
 //        notifySelfCheck();
     }
 
-	void write(byte[] code){
+	void write(byte[] code) {
         if(isConnected() && code != null){
 			try {
                 dos.write(code);
@@ -185,26 +188,33 @@ public class Car {
 		loc = section;
 		leave(prev);
 		section.cars.add(this);
-		
-		int real = section.realCars.size();
-		for(Car c : section.cars)
-			if(!c.hasPhantom())
-				real++;
-		
-		if(real > 1){
-//			System.out.println("REAL CRASH");
-			Dashboard.playCrashSound();
-		}
-		
 		section.icon.repaint();
 		if(section.isCombined()){
 //			dir = section.dir[0];//only combined sections can change a car's direction
 			for(Section s : section.combined)
 				s.icon.repaint();
 		}
-		//trigger move event
-		if(EventManager.hasListener(Event.Type.CAR_MOVE))
-			EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
+
+        if(section.cars.size() + section.realCars.size() > 1){
+            section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+            section.realCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+
+            int real = section.realCars.size();
+            for(Car c : section.cars)
+                if(!c.hasPhantom())
+                    real++;
+
+            if(real > 1)
+                Dashboard.playCrashSound();
+        }
+        else{
+            section.cars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
+            section.realCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
+        }
+
+        //trigger move event
+        if(EventManager.hasListener(Event.Type.CAR_MOVE))
+            EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
 	}
 	
 	public void leave(Section section){
@@ -218,6 +228,17 @@ public class Car {
 			for(Section s : section.combined)
 				s.icon.repaint();
 		}
+		Police.sendNotice(section);
+
+        if(section.cars.size() + section.realCars.size() > 1){
+            section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+            section.realCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+        }
+        else{
+            section.cars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
+            section.realCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
+        }
+
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
 			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, name, section.name));

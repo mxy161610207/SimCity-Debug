@@ -47,7 +47,8 @@ public class CmdSender implements Runnable{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                car.write(Command.codes.get(Command.HORN_OFF));
+                if(!car.isHornOn) //if the car crashed and keeps whisting, do not silence it
+                    car.write(Command.codes.get(Command.HORN_OFF));
             }
         }
 
@@ -98,14 +99,10 @@ public class CmdSender implements Runnable{
     }
 
     public static void send(Car car, int cmd){
-        send(car, cmd, 0);
-    }
-
-    public static void send(Car car, int cmd, int type){
         if(StateSwitcher.isResetting())
             return;
         synchronized (queue) {
-            queue.add(new Command(car, cmd, type));
+            queue.add(new Command(car, cmd));
             queue.notify();
         }
     }

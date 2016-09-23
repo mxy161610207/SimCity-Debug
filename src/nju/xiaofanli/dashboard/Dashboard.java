@@ -21,6 +21,7 @@ import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.device.sensor.Sensor;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
+import sun.awt.image.BufferedImageGraphicsConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,10 +50,7 @@ public class Dashboard extends JFrame{
 	private static final JScrollPane logtaScroll = new JScrollPane(logta);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
 	private static final ButtonGroup radioButtonGroup = new ButtonGroup();
-	private static final JRadioButton[] dirButtons = { new JRadioButton("North"),
-			new JRadioButton("South"), new JRadioButton("West"),
-			new JRadioButton("East") };
-	private static final JButton resetButton = new JButton("Reset");
+    private static final JButton resetButton = new JButton("Reset");
 	private static final JButton deliverButton = new JButton("Deliver");
 	private static final JButton startdButton = new JButton("Start");
 	private static final JButton canceldButton = new JButton("Cancel");
@@ -150,102 +148,100 @@ public class Dashboard extends JFrame{
 		gbc.gridx = gbc.gridy = 0;
 		gbc.weightx = gbc.weighty = 1;
 		//brick panel
-//		gbc.gridheight = 2;
-		JPanel brickPanel = new JPanel();
-		checkingPanel.add(brickPanel, gbc);
-		brickPanel.setBorder(BorderFactory.createTitledBorder("Bricks"));
-		brickPanel.setLayout(new GridBagLayout());
-		GridBagConstraints bgbc = new GridBagConstraints();
+        if(Resource.getBricks().size() > 0) {
+            JPanel brickPanel = new JPanel();
+            checkingPanel.add(brickPanel, gbc);
+            brickPanel.setBorder(BorderFactory.createTitledBorder("Bricks"));
+            brickPanel.setLayout(new GridBagLayout());
+            GridBagConstraints bgbc = new GridBagConstraints();
 //		bgbc.fill = GridBagConstraints.BOTH;
-		bgbc.gridx = bgbc.gridy = 0;
-		bgbc.weightx = bgbc.weighty = 1;
-		bgbc.insets = new Insets(1, 5, 1, 5);
-
-		for(String name : Resource.getBricks()){
-			bgbc.anchor = GridBagConstraints.WEST;
-			JLabel nameLabel = new JLabel(name);
-			nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
-			brickPanel.add(nameLabel, bgbc);
-			bgbc.gridx++;
-			bgbc.anchor = GridBagConstraints.EAST;
-			JLabel status = new JLabel();
-			brickPanel.add(status, bgbc);
-			status.setIcon(Resource.getBlackQuestionImageIcon());
-			deviceLabels.put(name + " conn", status);
-			deviceLabels.put(name + " sample", status);
-			bgbc.gridx = 0;
-			bgbc.gridy++;
-		}
-		//car panel
-		gbc.gridx += gbc.gridwidth;
-		JPanel carPanel = new JPanel();
-		checkingPanel.add(carPanel, gbc);
-		carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
-		carPanel.setLayout(new GridBagLayout());
-		GridBagConstraints cgbc = new GridBagConstraints();
-//		cgbc.fill = GridBagConstraints.BOTH;
-		cgbc.gridx = cgbc.gridy = 0;
-		cgbc.weightx = cgbc.weighty = 1;
-		cgbc.insets = new Insets(1, 5, 1, 5);
-		for(Car car : Resource.getCars()){
-			cgbc.anchor = GridBagConstraints.WEST;
-			JLabel nameLabel = new JLabel(car.name);
-			nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
-			carPanel.add(nameLabel, cgbc);
-			cgbc.gridx++;
-			cgbc.anchor = GridBagConstraints.EAST;
-			JLabel status = new JLabel();
-			carPanel.add(status, cgbc);
-			status.setIcon(Resource.getBlackQuestionImageIcon());
-			deviceLabels.put(car.name, status);
-			cgbc.gridx = 0;
-			cgbc.gridy++;
-		}
-
-		//disconnect button
-        gbc.gridx = 0;
-        gbc.gridy += gbc.gridheight;
-        gbc.weightx = gbc.weighty = 0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        JButton shutDownBtn = new JButton("Shutdown");
-        checkingPanel.add(shutDownBtn, gbc);
-        shutDownBtn.addActionListener(e -> {
-            shutDownBtn.setEnabled(false);
-            int[] count = {Resource.getBricks().size()};
-            for(String name : Resource.getBricks())
-                Resource.execute(()->{
-                    Session session = Resource.getRootSession(name);
-                    if(session != null) {
-                        Channel channel = null;
-                        try {
-                            session.connect();
-                            channel = session.openChannel("exec");
-                            ((ChannelExec) channel).setCommand("poweroff");
-                            channel.setInputStream(null);
-                            ((ChannelExec) channel).setErrStream(System.err);
-                            channel.connect();
-                        } catch (JSchException e1) {
-                            e1.printStackTrace();
-                            if (channel != null)
-                                channel.disconnect();
-                            session.disconnect();
+            bgbc.gridx = bgbc.gridy = 0;
+            bgbc.weightx = bgbc.weighty = 1;
+            bgbc.insets = new Insets(1, 5, 1, 5);
+            for (String name : Resource.getBricks()) {
+                bgbc.anchor = GridBagConstraints.WEST;
+                JLabel nameLabel = new JLabel(name);
+                nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
+                brickPanel.add(nameLabel, bgbc);
+                bgbc.gridx += bgbc.gridwidth;
+                bgbc.anchor = GridBagConstraints.EAST;
+                JLabel status = new JLabel();
+                brickPanel.add(status, bgbc);
+                status.setIcon(Resource.getBlackQuestionImageIcon());
+                deviceLabels.put(name + " conn", status);
+                deviceLabels.put(name + " sample", status);
+                bgbc.gridx = 0;
+                bgbc.gridy += bgbc.gridheight;
+            }
+            //disconnect button
+            gbc.gridx = 0;
+            gbc.gridy += gbc.gridheight;
+            gbc.weightx = gbc.weighty = 0;
+            JButton shutDownBtn = new JButton("Shutdown");
+            checkingPanel.add(shutDownBtn, gbc);
+            shutDownBtn.addActionListener(e -> {
+                shutDownBtn.setEnabled(false);
+                int[] count = {Resource.getBricks().size()};
+                for(String name : Resource.getBricks())
+                    Resource.execute(()->{
+                        Session session = Resource.getRootSession(name);
+                        if(session != null) {
+                            Channel channel = null;
+                            try {
+                                session.connect();
+                                channel = session.openChannel("exec");
+                                ((ChannelExec) channel).setCommand("poweroff");
+                                channel.setInputStream(null);
+                                ((ChannelExec) channel).setErrStream(System.err);
+                                channel.connect();
+                            } catch (JSchException e1) {
+                                e1.printStackTrace();
+                            }
+                            finally {
+                                if (channel != null)
+                                    channel.disconnect();
+                                session.disconnect();
+                            }
                         }
-                    }
-                    synchronized (count){
-                        if(--count[0] == 0)
-                            count.notify();
-                    }
-                });
-            while(count[0] > 0)
-                synchronized (count){
-                    try {
-                        count.wait();
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            shutDownBtn.setEnabled(true);
-        });
+                        synchronized (count){
+                            if(--count[0] == 0)
+                                shutDownBtn.setEnabled(true);
+                        }
+                    });
+            });
+        }
+		//car panel
+        if(Resource.getCars().size() > 0) {
+            gbc.gridx += gbc.gridwidth;
+            gbc.gridy = 0;
+            gbc.gridheight = 2;
+            gbc.weightx = gbc.weighty = 1;
+            JPanel carPanel = new JPanel();
+            checkingPanel.add(carPanel, gbc);
+            carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
+            carPanel.setLayout(new GridBagLayout());
+            GridBagConstraints cgbc = new GridBagConstraints();
+//		cgbc.fill = GridBagConstraints.BOTH;
+            cgbc.gridx = cgbc.gridy = 0;
+            cgbc.weightx = cgbc.weighty = 1;
+            cgbc.insets = new Insets(1, 5, 1, 5);
+            for (Car car : Resource.getCars()) {
+                cgbc.anchor = GridBagConstraints.WEST;
+                JLabel nameLabel = new JLabel(car.name);
+                nameLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, MARK_SIZE));
+                carPanel.add(nameLabel, cgbc);
+                cgbc.gridx += cgbc.gridwidth;
+                cgbc.anchor = GridBagConstraints.EAST;
+                JLabel status = new JLabel();
+                carPanel.add(status, cgbc);
+                status.setIcon(Resource.getBlackQuestionImageIcon());
+                deviceLabels.put(car.name, status);
+                cgbc.gridx = 0;
+                cgbc.gridy += cgbc.gridheight;
+            }
+
+        }
+
 
 		setTitle("Self Checking");
 //		cards.show(getContentPane(), "Check");
@@ -305,10 +301,10 @@ public class Dashboard extends JFrame{
 			}
 		});
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		leftPanel.add(new JLabel("Delivery Task"), gbc);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
 		leftPanel.add(delivtaScroll, gbc);
 		delivta.setLineWrap(true);
@@ -316,12 +312,12 @@ public class Dashboard extends JFrame{
 		delivta.setEditable(false);
 		updateDeliveryTaskPanel();
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 //		gbc.gridheight = 1;
 		gbc.weighty = 0;
 		leftPanel.add(new JLabel("Remedy Command"), gbc);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
 		leftPanel.add(remedytaScroll, gbc);
 		remedyta.setLineWrap(true);
@@ -336,7 +332,7 @@ public class Dashboard extends JFrame{
 		leftPanel.add(deviceButton, gbc);
 		deviceButton.addActionListener(e -> showDeviceDialog(true));
 
-		gbc.gridx++;
+		gbc.gridx += gbc.gridwidth;
 		leftPanel.add(console, gbc);
 		//TODO console commands
 		console.addActionListener(e -> {
@@ -402,12 +398,12 @@ public class Dashboard extends JFrame{
 		});
 
 		gbc.gridx = 1;
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weighty = 0;
 		leftPanel.add(new JLabel("Vehicle Condition"), gbc);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 //		gbc.gridheight = 1;
 		gbc.weighty = 1;
 		leftPanel.add(VCPanel, gbc);
@@ -417,7 +413,7 @@ public class Dashboard extends JFrame{
 		gbc.weighty = 0;
 		leftPanel.add(new JLabel("Road Condition"), gbc);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 //		gbc.gridheight = 2;
 //		gbc.weighty = 0;
 		gbc.weighty = 1;
@@ -434,55 +430,11 @@ public class Dashboard extends JFrame{
 		gbc.weighty = 0;
 //		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		rightPanel.add(carbox, gbc);
-		carbox.addActionListener(arg -> {
-            Car selectedCar = getSelectedCar();
-            if(selectedCar != null){
-                for(int i = 0;i < 4;i++){
-                    dirButtons[i].setEnabled(false);
-//						dirButtons[i].setSelected(false);
-                }
-                radioButtonGroup.clearSelection();
 
-                Section sect = selectedCar.loc;
-                if(sect != null){
-                    dirButtons[sect.dir[0]].setEnabled(true);
-                    if(sect.dir[1] > 0)
-                        dirButtons[sect.dir[1]].setEnabled(true);
-                    if(selectedCar.dir >= 0 && dirButtons[selectedCar.dir].isEnabled()){
-                        dirButtons[selectedCar.dir].setSelected(true);
-                    }
-                    else{
-                        dirButtons[sect.dir[0]].setSelected(true);
-                        selectedCar.dir = sect.dir[0];
-                    }
-                }
-                else
-                    selectedCar.dir = -1;
-            }
-        });
-
-		gbc.gridy++;
-		JPanel radioButtonsPanel = new JPanel();
-		rightPanel.add(radioButtonsPanel, gbc);
-		radioButtonsPanel.setLayout(new GridLayout(1, 4));
-
-		for(final int[] i = {0};i[0] < 4;i[0]++){
-			dirButtons[i[0]].setEnabled(false);
-			radioButtonsPanel.add(dirButtons[i[0]]);
-			radioButtonGroup.add(dirButtons[i[0]]);
-			dirButtons[i[0]].addActionListener(arg -> {
-                Car car = getSelectedCar();
-                if(car != null){
-                    car.dir = i[0];
-                    PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
-                }
-            });
-		}
-
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		rightPanel.add(new DPad(), gbc);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		rightPanel.add(miscPanel, gbc);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
 //		miscPanel.setLayout(new GridLayout(2, 0));
@@ -499,42 +451,42 @@ public class Dashboard extends JFrame{
 		mgbc.gridx += mgbc.gridwidth;
 		miscPanel.add(jchkBalloon, mgbc);
 		mgbc.gridx = 0;
-		mgbc.gridy++;
+		mgbc.gridy += mgbc.gridheight;
 		mgbc.weightx = 1.5;
 		mgbc.gridwidth = 3;
 		miscPanel.add(jchkCrash, mgbc);
 		mgbc.gridx += mgbc.gridwidth;
 		miscPanel.add(jchkError, mgbc);
 
-		jchkSection.addActionListener(actionevent -> {
+		jchkSection.addActionListener(e -> {
             showSection = jchkSection.isSelected();
             trafficMap.repaint();
         });
 
-		jchkSensor.addActionListener(arg0 -> {
+		jchkSensor.addActionListener(e -> {
             showSensor = jchkSensor.isSelected();
             for(List<Sensor> list : TrafficMap.sensors)
                 for(Sensor s : list)
                     s.icon.setVisible(showSensor);
         });
 
-		jchkBalloon.addActionListener(arg0 -> {
+		jchkBalloon.addActionListener(e -> {
             showBalloon = jchkBalloon.isSelected();
             trafficMap.repaint();
         });
 
-		jchkCrash.addActionListener(arg0 -> playCrashSound = jchkCrash.isSelected());
+		jchkCrash.addActionListener(e -> playCrashSound = jchkCrash.isSelected());
 
-		jchkError.addActionListener(arg0 -> playErrorSound = jchkError.isSelected());
+		jchkError.addActionListener(e -> playErrorSound = jchkError.isSelected());
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		rightPanel.add(CCPanel, gbc);
 		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
 		CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		CCPanel.add(jchkDetection);
 		CCPanel.add(jchkResolution);
 
-		jchkDetection.addActionListener(arg0 -> {
+		jchkDetection.addActionListener(e -> {
             Middleware.setDetectionEnabled(jchkDetection.isSelected());
             if(!jchkDetection.isSelected()){
                 if(jchkResolution.isSelected())
@@ -555,13 +507,13 @@ public class Dashboard extends JFrame{
 		jchkCrash.setEnabled(jchkDetection.isSelected());
 		jchkError.setEnabled(jchkDetection.isSelected());
 
-		jchkResolution.addActionListener(arg0 -> {
+		jchkResolution.addActionListener(e -> {
             Middleware.setResolutionEnabled(jchkResolution.isSelected());
             if(!jchkDetection.isSelected() && jchkResolution.isSelected())
                 jchkDetection.doClick();
         });
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 //		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		rightPanel.add(deliveryPanel, gbc);
 		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Delivery"));
@@ -573,27 +525,27 @@ public class Dashboard extends JFrame{
 		dgbc.gridx = 0;
 		dgbc.gridy = 0;
 		deliveryPanel.add(new JLabel("Src"), dgbc);
-		dgbc.gridx++;
+		dgbc.gridx += dgbc.gridwidth;
 		dgbc.weightx = 1;
 //		dgbc.gridwidth = GridBagConstraints.REMAINDER;
 		deliveryPanel.add(srctf, dgbc);
         srctf.setEditable(false);
-		dgbc.gridx++;
-//		dgbc.gridy++;
+		dgbc.gridx += dgbc.gridwidth;
+//		dgbc.gridy += dgbc.gridheight;
 		dgbc.weightx = 0;
 		deliveryPanel.add(new JLabel("Dst"), dgbc);
-		dgbc.gridx++;
+		dgbc.gridx += dgbc.gridwidth;
 		dgbc.weightx = 1;
 		deliveryPanel.add(desttf, dgbc);
         desttf.setEditable(false);
 		dgbc.gridx = 0;
-		dgbc.gridy++;
+		dgbc.gridy += dgbc.gridheight;
 		dgbc.gridwidth = GridBagConstraints.REMAINDER;
 		dgbc.weightx = 1;
 		deliveryPanel.add(startdButton, dgbc);
 		dgbc.gridwidth = 2;
 		deliveryPanel.add(deliverButton, dgbc);
-		dgbc.gridx = 2;
+		dgbc.gridx += dgbc.gridwidth;
 		deliveryPanel.add(canceldButton, dgbc);
 		startdButton.addActionListener(e -> {
             src = dest = null;
@@ -605,7 +557,7 @@ public class Dashboard extends JFrame{
             deliverButton.setEnabled(false);
             canceldButton.setVisible(true);
         });
-		deliverButton.addActionListener(arg0 -> {
+		deliverButton.addActionListener(e -> {
             isDeliveryStarted = false;
             deliverButton.setVisible(false);
             startdButton.setVisible(true);
@@ -624,11 +576,11 @@ public class Dashboard extends JFrame{
 		deliverButton.setVisible(false);
 		canceldButton.setVisible(false);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		JLabel logLabel = new JLabel("Log");
 		rightPanel.add(logLabel, gbc);
 
-		gbc.gridy++;
+		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
 		rightPanel.add(logtaScroll, gbc);
 		logta.setEditable(false);
@@ -643,7 +595,6 @@ public class Dashboard extends JFrame{
 
 		setTitle("Dashboard");
 		setContentPane(controlPanel);
-//		cards.show(getContentPane(), "Control");
 		pack();
 		setLocationRelativeTo(null);
 	}
@@ -735,17 +686,11 @@ public class Dashboard extends JFrame{
 	}
 
 	private static void updateDeliverySrcPanel(){
-		if(src != null)
-			srctf.setText(src.name);
-		else
-			srctf.setText("");
+        srctf.setText(src != null ? src.name : "");
 	}
 
 	private static void updateDeliveryDstPanel(){
-		if(dest != null)
-			desttf.setText(dest.name);
-		else
-			desttf.setText("");
+        desttf.setText(dest != null ? dest.name : "");
 	}
 
 	public static synchronized void updateDeliveryTaskPanel(){
@@ -760,7 +705,7 @@ public class Dashboard extends JFrame{
 	public static synchronized void updateRemedyCommandPanel(){
 		remedyta.setText("Nums: "+ Remedy.getQueue().size());
 		for(Command cmd : Remedy.getQueue()){
-			remedyta.append("\n"+cmd.car.name+" "+((cmd.cmd==0)?"S":"F")+" "+cmd.level+" "+cmd.deadline);
+			remedyta.append("\n"+cmd.car.name+" "+((cmd.cmd==0)?"S":"F")+" "+cmd.deadline);
 		}
 	}
 
@@ -837,11 +782,7 @@ public class Dashboard extends JFrame{
         logta.setText("");
     }
 
-	public static void repaintTrafficMap(){
-		trafficMap.repaint();
-	}
-
-	private class SectionIconListener extends MouseAdapter{
+    private class SectionIconListener extends MouseAdapter{
 		Section section = null;
 
 		public SectionIconListener(Section section) {
@@ -865,34 +806,34 @@ public class Dashboard extends JFrame{
 					deliverButton.setEnabled(true);
 				}
 			}
-			else if (e.getButton() == MouseEvent.BUTTON1) {
-				// left click
-				Car car = getSelectedCar();
-				if (car != null) {
-					radioButtonGroup.clearSelection();
-					for (int i = 0; i < 4; i++)
-						dirButtons[i].setEnabled(false);
-					if (section.cars.contains(car)) {
-						car.dir = -1;
-						car.leave(section);
-					} else {
-						dirButtons[section.dir[0]].setEnabled(true);
-						if (section.dir[1] >= 0)
-							dirButtons[section.dir[1]].setEnabled(true);
-
-						if (car.dir >= 0 && dirButtons[car.dir].isEnabled()) {
-							dirButtons[car.dir].setSelected(true);
-							// dirButtons[selectedCar.dir].doClick();
-						} else {
-							dirButtons[section.dir[0]].setSelected(true);
-							car.dir = section.dir[0];
-							// dirButtons[section.dir[0]].doClick();
-						}
-						car.enter(section);
-					}
-					PkgHandler.send(new AppPkg().setCar(car.name, car.dir, section.name));
-				}
-			}
+//			else if (e.getButton() == MouseEvent.BUTTON1) {
+//				// left click
+//				Car car = getSelectedCar();
+//				if (car != null) {
+//					radioButtonGroup.clearSelection();
+//					for (int i = 0; i < 4; i++)
+//						dirButtons[i].setEnabled(false);
+//					if (section.cars.contains(car)) {
+//						car.dir = -1;
+//						car.leave(section);
+//					} else {
+//						dirButtons[section.dir[0]].setEnabled(true);
+//						if (section.dir[1] >= 0)
+//							dirButtons[section.dir[1]].setEnabled(true);
+//
+//						if (car.dir >= 0 && dirButtons[car.dir].isEnabled()) {
+//							dirButtons[car.dir].setSelected(true);
+//							// dirButtons[selectedCar.dir].doClick();
+//						} else {
+//							dirButtons[section.dir[0]].setSelected(true);
+//							car.dir = section.dir[0];
+//							// dirButtons[section.dir[0]].doClick();
+//						}
+//						car.enter(section);
+//					}
+//					PkgHandler.send(new AppPkg().setCar(car.name, car.dir, section.name));
+//				}
+//			}
 			else if (e.getButton() == MouseEvent.BUTTON3) {
 				// right click
 				updateRoadConditionPane(section);

@@ -7,12 +7,10 @@ import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Remedy implements Runnable{
-	private static final List<Command> queue = new LinkedList<>();
+	private static final List<Command> queue = new ArrayList<>();
 
     Remedy() {
         Runnable wakeThread = () -> {
@@ -60,14 +58,7 @@ public class Remedy implements Runnable{
 				while(cmd.deadline < System.currentTimeMillis()){
 					donesth = true;
 					queue.remove(0);
-					//forward cmd
-					if(cmd.cmd == 1){
-//						cmd.deadline = getDeadline(Command.MOVE_FORWARD, ++cmd.level);
-//						Command.send(cmd, false);
-//						insertCmd(cmd);//comment this line to remedy only once
-					}
-					//stop cmd
-					else if (cmd.cmd == 0) {
+					if (cmd.cmd == Command.STOP) {
 						cmd.car.state = Car.STOPPED;
 						cmd.car.stopTime = System.currentTimeMillis();
 						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
@@ -109,7 +100,7 @@ public class Remedy implements Runnable{
 		}
 	}
 	
-	public static void updateWhenDetected(Car car){
+	public static void updateRemedyQWhenDetect(Car car){
 		if(queue.isEmpty())
 			return;
 		synchronized (queue) {
@@ -120,38 +111,40 @@ public class Remedy implements Runnable{
 				if(cmd.car == car){
 					donesth = true;
 					it.remove();
-					//stop command
-//					if(cmd.cmd == 0){
-//						cmd.level = 1;
-//						cmd.deadline = Remedy.getDeadline(Command.STOP, 1);
+					if(cmd.cmd == Command.STOP){
+						cmd.deadline = Remedy.getDeadline();
 //						Command.send(cmd, false);
-//						newCmd = cmd;
-//					}
+						newCmd = cmd;
+					}
 					break;
 				}
 			}
-			Remedy.insert(newCmd);
+			insert(newCmd);
 			if(donesth){
 				Dashboard.updateRemedyCommandPanel();
 				printQueue();
 			}
 		}
 	}
-	
+
+	private static Comparator<Command> comparator = (o1, o2) -> (int) (o1.deadline - o2.deadline);
 	private static void insert(Command cmd){
 		if(cmd == null || StateSwitcher.isResetting())
 			return;
-		
+
 		synchronized (queue) {
-			int i;
-			for(i = 0;i < queue.size();i++)
-				if(queue.get(i).deadline > cmd.deadline){
-					queue.add(i, cmd);
-					break;
-				}
-			if(i == queue.size())
-				queue.add(cmd);
-			
+//			int i;
+//			for(i = 0;i < queue.size();i++)
+//				if(queue.get(i).deadline > cmd.deadline){
+//					queue.add(i, cmd);
+//					break;
+//				}
+//			if(i == queue.size())
+//				queue.add(cmd);
+			int pos = Collections.binarySearch(queue, cmd, comparator);
+			if(pos < 0)
+				pos = -pos - 1;
+			queue.add(pos, cmd);
 			queue.notify();
 		}
 	}
@@ -182,13 +175,13 @@ public class Remedy implements Runnable{
 		}
 	}
 	
-	static long getDeadline(int cmd, int level){
+	static long getDeadline(){
 		return System.currentTimeMillis() + 1000;
 	}
 	
 	private static void printQueue(){
         StringBuilder sb = new StringBuilder();
-        queue.forEach(x -> sb.append(x.car.name + "\t" + ((x.cmd == Command.STOP) ? "S" : "F") + "\t" + x.level + "\t" + x.deadline));
+        queue.forEach(x -> sb.append(x.car.name).append("\t").append((x.cmd == Command.STOP) ? "S" : "F").append("\t").append(x.deadline));
 //		System.out.println("-----------------------");
         System.out.println(sb.toString());
 	}
