@@ -53,7 +53,6 @@ class VehicleConditionPanel extends JPanel{
 		private Car car = null;
 		private CarIcon icon = null;
 		private JTextArea text = new JTextArea();
-		GridBagLayout gbl = new GridBagLayout();
 		GridBagConstraints gbc = new GridBagConstraints();
 		Entry(Car car) {
 			this.car = car;
@@ -62,20 +61,18 @@ class VehicleConditionPanel extends JPanel{
 			text.setWrapStyleWord(true);
 			text.setEditable(false);
 			
-			setLayout(gbl);
-			add(icon);
-			add(text);
+			setLayout(new GridBagLayout());
 			gbc.insets = new Insets(1, 5, 1, 5);
 			
 			gbc.gridx = 0;
 			gbc.gridy = 0;
-			gbl.setConstraints(icon, gbc);
+			add(icon, gbc);
 			
 			gbc.fill = GridBagConstraints.BOTH;
-			gbc.gridx++;
+			gbc.gridx += gbc.gridwidth;
 			gbc.weightx = 1;
 			gbc.weighty = 1;
-			gbl.setConstraints(text, gbc);
+			add(text, gbc);
 		}
 		
 		void update(){

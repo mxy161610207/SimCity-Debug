@@ -76,11 +76,11 @@ public class PkgHandler implements Runnable{
 				if(car != null){
 					if(p.cmd == Command.MOVE_FORWARD){
 						car.finalState = Car.MOVING;
-						car.notifyPolice(Police.GONNA_MOVE);
+						car.notifyPolice(Police.REQUEST2ENTER);
 					}
 					else if(p.cmd == Command.STOP){
 						car.finalState = Car.STOPPED;
-						car.notifyPolice(Police.GONNA_STOP);
+						car.notifyPolice(Police.REQUEST2STOP);
 					}
 				}
 				break;

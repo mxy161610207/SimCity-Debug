@@ -15,14 +15,19 @@ public class Police implements Runnable{
 	private static final Queue<Request> req = new LinkedList<>();
 	private static Notifier notifier = new Notifier();
 	public Police() {
-		new Thread(notifier, "Traffice Notifier").start();
+		new Thread(notifier, "Traffic Notifier").start();
 		new Thread(this, "Police").start();
 	}
 
-	public static final int GONNA_STOP = Car.STOPPED;
-	public static final int GONNA_MOVE = Car.MOVING;
-	public static final int ALREADY_STOPPED = 2;
-	public static final int ALREADY_ENTERED = 3;
+	public static final int REQUEST2STOP = Car.STOPPED;
+	public static final int REQUEST2ENTER = Car.MOVING;
+//	public static final int ALREADY_STOPPED = 2;
+	public static final int BEFORE_ENTRY = 3;
+	public static final int AFTER_ENTRY = 4;
+	public static final int BEFORE_LEAVE = 5;
+	public static final int AFTER_LEAVE = 6;
+	public static final int BEFORE_VANISH = 7;
+	public static final int AFTER_VANISH = 8;
 
 	public void run() {
 		Thread thread = Thread.currentThread();
@@ -50,31 +55,27 @@ public class Police implements Runnable{
 			synchronized (req) {
 				r = req.poll();
 			}
-			if(r == null)
+			if(r == null || r.requested == null)
 				continue;
-			Section reqSec = r.loc.adjSects.get(r.dir);
-			if(reqSec == null){
-				System.err.println("requested section is null");
-				continue;
-			}
 
-			synchronized (reqSec.waiting) {
+			//noinspection SynchronizeOnNonFinalField
+			synchronized (r.requested.waiting) {
 				switch (r.cmd) {
-					case GONNA_STOP:
+					case REQUEST2STOP:
 						Command.send(r.car, Command.STOP);
 						if(r.car.finalState == Car.STOPPED)
-							reqSec.removeWaitingCar(r.car);
+							r.requested.removeWaitingCar(r.car);
 						else
-							reqSec.addWaitingCar(r.car);
-						if(r.car == reqSec.getPermitted()){
-							reqSec.setPermitted(null);
-							sendNotice(reqSec);
+							r.requested.addWaitingCar(r.car);
+						if(r.car == r.requested.getPermitted()){
+							r.requested.setPermitted(null);
+							sendNotice(r.requested);
 						}
 						break;
-					case GONNA_MOVE:
-						if(reqSec.isOccupied()){
+					case REQUEST2ENTER:
+						if(r.requested.isOccupied()){
 							boolean real = false;
-							for(Car car : reqSec.cars)
+							for(Car car : r.requested.cars)
 								if(!car.hasPhantom()){
 									real = true;
 									break;
@@ -83,17 +84,17 @@ public class Police implements Runnable{
 								Dashboard.playErrorSound();
 							//tell the car to stop
 							System.out.println(r.car.name + " need to STOP!!!");
-							reqSec.addWaitingCar(r.car);
+							r.requested.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
 							Command.send(r.car, Command.URGE);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.STOP));
 						}
-						else if(reqSec.getPermitted() != null && r.car != reqSec.getPermitted()){
+						else if(r.requested.getPermitted() != null && r.car != r.requested.getPermitted()){
 							//tell the car to stop
 							System.out.println(r.car.name + " need to STOP!!!2");
-							reqSec.addWaitingCar(r.car);
+							r.requested.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
@@ -102,30 +103,41 @@ public class Police implements Runnable{
 						else{
 							//tell the car to enter
 							System.out.println(r.car.name + " can ENTER!!!");
-							reqSec.setPermitted(r.car);
+							r.requested.setPermitted(r.car);
 							Command.send(r.car, Command.MOVE_FORWARD);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.MOVE_FORWARD));
 						}
 						break;
-					case ALREADY_STOPPED:
-						//the car is already stopped
-						if(r.car.finalState == Car.MOVING){
-							reqSec.addWaitingCar(r.car);
-							System.out.println(r.car.name+" waits for "+reqSec.name);
+//					case ALREADY_STOPPED:
+//						//the car is already stopped
+//						if(r.car.finalState == Car.MOVING){
+//							reqSec.addWaitingCar(r.car);
+//							System.out.println(r.car.name+" waits for "+reqSec.name);
+//						}
+//						break;
+					case BEFORE_ENTRY:
+						r.requested.removeWaitingCar(r.car);
+						break;
+					case AFTER_ENTRY:
+						r.requested.removeWaitingCar(r.car);
+						break;
+					case BEFORE_LEAVE:
+						r.requested.removeWaitingCar(r.car);
+						break;
+					case AFTER_LEAVE:
+						sendNotice(r.requested);
+						break;
+					case BEFORE_VANISH:
+						r.requested.removeWaitingCar(r.car);
+						if(r.requested.getPermitted() == r.car){
+							r.requested.setPermitted(null);
+							sendNotice(r.requested);
 						}
 						break;
-					case ALREADY_ENTERED:
-						//inform the traffic police of the entry event
-						r.next.removeWaitingCar(r.car);
-						if(!reqSec.sameAs(r.next)){
-							reqSec.removeWaitingCar(r.car);
-							if(r.car == reqSec.getPermitted()){
-								reqSec.setPermitted(null);
-								sendNotice(reqSec);
-							}
-						}
+					case AFTER_VANISH:
+						sendNotice(r.requested);
 						break;
 				}
 			}
@@ -163,6 +175,7 @@ public class Police implements Runnable{
 				}
 				if(loc == null || loc.isOccupied())
 					continue;
+				//noinspection SynchronizeOnNonFinalField
 				synchronized (loc.waiting) {
 					if(loc.waiting.isEmpty())
 						loc.setPermitted(null);
@@ -209,15 +222,11 @@ public class Police implements Runnable{
 		}
 	}
 
-	public static void add(Car car, int dir, Section loc, int cmd){
-		add(car, dir, loc, cmd, null);
-	}
-
-	public static void add(Car car, int dir, Section loc, int cmd, Section next) {
+	public static void add(Car car, int dir, Section loc, int cmd, Section requested) {
 		if(StateSwitcher.isResetting())
 			return;
 		synchronized (req) {
-			req.add(new Request(car, dir, loc, cmd, next));
+			req.add(new Request(car, dir, loc, cmd, requested));
 			req.notify();
 		}
 		System.out.println(car.name+" send Request "+cmd+" to Police");
@@ -226,7 +235,7 @@ public class Police implements Runnable{
 			EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, car.name, loc.name, cmd));
 	}
 
-	public static void sendNotice(Section loc){
+	private static void sendNotice(Section loc){
 		notifier.add(loc);
 	}
 
@@ -239,16 +248,22 @@ public class Police implements Runnable{
 	private static class Request{
 		Car car;
 		int dir;
-		Section loc, next;
+		Section loc, requested;
 		int cmd;
-		Request(Car car, int dir, Section loc, int cmd, Section next) {
+		/**
+		 * for requests that police handles
+		 */
+		Request(Car car, int dir, Section loc, int cmd, Section requested) {
 			this.car = car;
 			this.dir = dir;
 			this.loc = loc;
 			this.cmd = cmd;
-			this.next = next;
+			this.requested = requested;
 		}
 
+		/**
+		 * for requests that notifier handles
+		 */
 		Request(Section loc) {
 			this.loc = loc;
 		}

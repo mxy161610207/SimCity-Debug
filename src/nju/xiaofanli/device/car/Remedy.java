@@ -2,7 +2,6 @@ package nju.xiaofanli.device.car;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
@@ -76,7 +75,7 @@ public class Remedy implements Runnable{
 									EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
 							}
 						}
-						cmd.car.notifyPolice(Police.ALREADY_STOPPED);
+//						cmd.car.notifyPolice(Police.ALREADY_STOPPED);
 						//trigger stop event
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));
@@ -114,7 +113,7 @@ public class Remedy implements Runnable{
 					if(cmd.cmd == Command.STOP){
 						cmd.deadline = Remedy.getDeadline();
 //						Command.send(cmd, false);
-						newCmd = cmd;
+                        newCmd = cmd;
 					}
 					break;
 				}

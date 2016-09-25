@@ -4,7 +4,6 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
-import nju.xiaofanli.city.Section;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.context.Context;
 import nju.xiaofanli.context.ContextManager;
@@ -87,9 +86,6 @@ public class BrickHandler extends Thread{
 
                 System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects car: "+car.name);
 
-//                Section prev = car.loc;
-                //inform the traffic police of the entry event
-                car.notifyPolice(sensor.nextSection);
                 car.enter(sensor.nextSection);
                 car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
 //                car.state = Car.MOVING;
@@ -113,7 +109,7 @@ public class BrickHandler extends Thread{
                 if(car.dest != null){
                     if(car.dest.sameAs(car.loc)){
                         car.finalState = Car.STOPPED;
-                        car.notifyPolice(Police.GONNA_STOP);
+                        car.notifyPolice(Police.REQUEST2STOP);
                         Dashboard.appendLog(car.name+" reached destination");
                         //trigger reach dest event
                         if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
@@ -121,16 +117,14 @@ public class BrickHandler extends Thread{
                     }
                     else if(car.finalState == Car.STOPPED){
                         car.finalState = Car.MOVING;
-                        car.notifyPolice(Police.GONNA_MOVE);
+                        car.notifyPolice(Police.REQUEST2ENTER);
                         Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
                     }
                     else
-                        car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
+                        car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
                 }
                 else
-                    car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.GONNA_MOVE : Police.GONNA_STOP);
-
-//                Police.sendNotice(prev);
+                    car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
             }
             break;
         }

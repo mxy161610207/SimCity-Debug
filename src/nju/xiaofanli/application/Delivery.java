@@ -90,7 +90,7 @@ public class Delivery {
 					}
 					else{
 						car.finalState = Car.STOPPED;
-						car.notifyPolice(Police.GONNA_STOP);
+						car.notifyPolice(Police.REQUEST2STOP);
 					}
 					Dashboard.appendLog(car.name + " reached dest");
 					//trigger reach dest event
@@ -99,7 +99,7 @@ public class Delivery {
 				}
 				else{
 					car.finalState = Car.MOVING;
-					car.notifyPolice(Police.GONNA_MOVE);
+					car.notifyPolice(Police.REQUEST2ENTER);
 					Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
 				}
 					
@@ -121,10 +121,10 @@ public class Delivery {
 			    if(car.dest == null)
 			        return new Result(car, 0, start);
 
-			Queue<Section> queue = new LinkedList<>(start.entrances.values());
+			Queue<Section> queue = new LinkedList<>(start.exit2entrance.values());
 			Section[] prev = {start, start};
 			int dis[] = {0, 0}, i = 0;
-			boolean oneWay = start.entrances.size() == 1;
+			boolean oneWay = start.exit2entrance.size() == 1;
 			while(!queue.isEmpty()){
 				Section sect = queue.poll();
 				dis[i]++;
@@ -133,10 +133,10 @@ public class Delivery {
                     if(car.dest == null && sect.adjSects.get(car.dir).sameAs(prev[i])) // the car is empty and its dir is right
                         return new Result(car, dis[i], start);
 
-                Section next = sect.entrances.get(prev[i]);
+                Section next = sect.exit2entrance.get(prev[i]);
                 if(next == null)
                     for(Section s : prev[i].combined){
-                        next = sect.entrances.get(s);
+                        next = sect.exit2entrance.get(s);
                         if(next != null)
                             break;
                     }
@@ -220,7 +220,7 @@ public class Delivery {
                             }
                             else{
                                 car.finalState = Car.MOVING;
-                                car.notifyPolice(Police.GONNA_MOVE);
+                                car.notifyPolice(Police.REQUEST2ENTER);
                                 Dashboard.appendLog(car.name+" heads for dest "+car.dest.name);
                             }
                         }
@@ -233,7 +233,7 @@ public class Delivery {
                             car.finalState = Car.MOVING;
                             car.setLoading(false);
                             car.loc.icon.repaint();
-                            car.notifyPolice(Police.GONNA_MOVE);
+                            car.notifyPolice(Police.REQUEST2ENTER);
                             allBusy = false;
                             Dashboard.appendLog(car.name+" finished unloading");
                             //trigger end unloading event
@@ -278,10 +278,10 @@ public class Delivery {
 			if(sects.contains(sect))
 				return sect;
 			
-			Section next = sect.exits.get(prev);
+			Section next = sect.entrance2exit.get(prev);
 			if(next == null)
 				for(Section s : prev.combined){
-					next = sect.exits.get(s);
+					next = sect.entrance2exit.get(s);
 					if(next != null)
 						break;
 				}

@@ -21,7 +21,6 @@ import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.device.sensor.Sensor;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
-import sun.awt.image.BufferedImageGraphicsConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,7 +48,6 @@ public class Dashboard extends JFrame{
 	private static final JScrollPane roadtaScroll = new JScrollPane(roadta);
 	private static final JScrollPane logtaScroll = new JScrollPane(logta);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
-	private static final ButtonGroup radioButtonGroup = new ButtonGroup();
     private static final JButton resetButton = new JButton("Reset");
 	private static final JButton deliverButton = new JButton("Deliver");
 	private static final JButton startdButton = new JButton("Start");
@@ -661,29 +659,38 @@ public class Dashboard extends JFrame{
             roadta.setText("");
             return;
         }
-		String str = s.name+"\n";
+        StringBuilder sb = new StringBuilder();
+		sb.append(s.name).append("\n");
 		if(!s.cars.isEmpty()){
-			str += "Cars:\n";
+            sb.append("Cars:\n");
 			for(Car car : s.cars){
-				str += car.name + " (" + car.getStateStr() + ") "+car.getDirStr();
+				sb.append(car.name).append(" (").append(car.getStateStr()).append(") ").append(car.getDirStr());
 				if(car.dest != null)
-					str += " Dest:" + car.dest.name;
-				str += "\n";
+					sb.append(" Dest:").append(car.dest.name);
+                sb.append("\n");
 			}
 		}
 		if(!s.waiting.isEmpty()){
-			str += "Waiting Cars:\n";
+            sb.append("Waiting Cars:\n");
 			for(Car car : s.waiting)
-				str += car.name + " (" + car.getStateStr() + ") "+car.getDirStr()+"\n";
+                sb.append(car.name).append(" (").append(car.getStateStr()).append(") ").append(car.getDirStr()).append("\n");
 		}
 		if(!s.realCars.isEmpty()){
-			str += "Real Cars:\n";
+			sb.append("Real Cars:\n");
 			for(Car car : s.realCars){
-				str += car.name + " (" + car.getRealStateStr() + ") "+car.getRealDirStr()+"\n";
+				sb.append(car.name).append(" (").append(car.getRealStateStr()).append(") ").append(car.getRealDirStr()).append("\n");
 			}
 		}
-		roadta.setText(str);
+		roadta.setText(sb.toString());
 	}
+
+    private static void updateRoadConditionPane(Building b){
+        if(b == null) {
+            roadta.setText("");
+            return;
+        }
+        roadta.setText(b.name);
+    }
 
 	private static void updateDeliverySrcPanel(){
         srctf.setText(src != null ? src.name : "");
@@ -746,6 +753,10 @@ public class Dashboard extends JFrame{
 		VCPanel.removeCar(car);
 	}
 
+	public static void setSelectedCar(Car car){
+        carbox.setSelectedItem(car.name);
+    }
+
 	static Car getSelectedCar(){
 		if(carbox.getItemCount() == 0)
 			return null;
@@ -785,7 +796,7 @@ public class Dashboard extends JFrame{
     private class SectionIconListener extends MouseAdapter{
 		Section section = null;
 
-		public SectionIconListener(Section section) {
+		SectionIconListener(Section section) {
 			this.section = section;
 		}
 		public void mousePressed(MouseEvent e) {
@@ -834,8 +845,9 @@ public class Dashboard extends JFrame{
 //					PkgHandler.send(new AppPkg().setCar(car.name, car.dir, section.name));
 //				}
 //			}
-			else if (e.getButton() == MouseEvent.BUTTON3) {
-				// right click
+//			else if (e.getButton() == MouseEvent.BUTTON3) {
+                // right click
+            else {
 				updateRoadConditionPane(section);
 			}
 		}
@@ -844,7 +856,7 @@ public class Dashboard extends JFrame{
 	private class BuildingIconListener extends MouseAdapter{
 		Building building = null;
 
-		public BuildingIconListener(Building building) {
+		BuildingIconListener(Building building) {
 			this.building = building;
 		}
 
@@ -865,6 +877,9 @@ public class Dashboard extends JFrame{
 					deliverButton.setEnabled(true);
 				}
 			}
+			else {
+                updateRoadConditionPane(building);
+            }
 		}
 	}
 }

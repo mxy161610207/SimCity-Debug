@@ -1,27 +1,23 @@
 package nju.xiaofanli.device.car;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.microedition.io.Connector;
-import javax.microedition.io.StreamConnection;
-import javax.swing.JButton;
-
+import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.city.Citizen;
 import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.TrafficMap;
-import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
+import javax.swing.*;
+import java.awt.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Car {
 	public final String name;
@@ -62,11 +58,11 @@ public class Car {
 	public static final String ORANGE = "Orange Car";
 	
 	public Car(String name, Section loc, String url) {
-//		this.type = type;
 		this.name = name;
 		this.loc = loc;
         this.url = url;
 		this.icon = new CarIcon(name);
+        this.icon.addActionListener(e -> Dashboard.setSelectedCar(this));
 	}
 	
 	public void reset(){
@@ -85,19 +81,17 @@ public class Car {
 		realState = STOPPED;
         isHornOn = false;
 	}
-	
+
 	public void notifyPolice(int cmd) {
-		if(loc == null)
-			return;
-		Police.add(this, dir, loc, cmd);
+		Police.add(this, dir, loc, cmd, loc.adjSects.get(dir));
 	}
-	
-	public void notifyPolice(Section next) {
-		if(loc == null)
+
+	public void notifyPolice(int cmd, Section requested) {
+		if(requested == null)
 			return;
-		Police.add(this, dir, loc, Police.ALREADY_ENTERED, next);
+		Police.add(this, dir, loc, cmd, requested);
 	}
-	
+
 	private void notifySelfCheck(){
 		if(!tried){
 			tried = true;
@@ -184,10 +178,12 @@ public class Car {
 	public void enter(Section section){
 		if(section == null || section.sameAs(loc))
 			return;
+		notifyPolice(Police.BEFORE_ENTRY, section);
 		Section prev = loc;
 		loc = section;
 		leave(prev);
 		section.cars.add(this);
+		notifyPolice(Police.AFTER_ENTRY, section);
 		section.icon.repaint();
 		if(section.isCombined()){
 //			dir = section.dir[0];//only combined sections can change a car's direction
@@ -216,19 +212,24 @@ public class Car {
         if(EventManager.hasListener(Event.Type.CAR_MOVE))
             EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
 	}
-	
+
 	public void leave(Section section){
+		leave(section, true);
+	}
+
+	public void leave(Section section, boolean withEntry){
 		if(section == null)
 			return;
+		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, section.adjSects.get(dir));
 		section.cars.remove(this);
 		if(loc == section)
 			loc = null;
+		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, section);
 		section.icon.repaint();
 		if(section.isCombined()){
 			for(Section s : section.combined)
 				s.icon.repaint();
 		}
-		Police.sendNotice(section);
 
         if(section.cars.size() + section.realCars.size() > 1){
             section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
@@ -263,7 +264,7 @@ public class Car {
     public void loadRealInfo(){
         Section fakeLoc = loc;
         loc = realLoc;
-        leave(fakeLoc);
+        leave(fakeLoc, false);
         realLoc.realCars.remove(this);
         dir = realDir;
         state = realState;

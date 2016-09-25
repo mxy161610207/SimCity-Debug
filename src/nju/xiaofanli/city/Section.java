@@ -28,10 +28,9 @@ import nju.xiaofanli.device.sensor.Sensor;
 
 public abstract class Section extends Location{
 	public Map<Integer, Section> adjSects = new HashMap<>(); //adjacent sections
-//	public Set<Sensor> sensors = new HashSet<>();
 	public Map<Integer, Sensor> adjSensors = new HashMap<>(); //adjacent sensors
-	public Map<Section, Section> exits = new HashMap<>(); //entrance -> exit
-	public Map<Section, Section> entrances = new HashMap<>(); //exit -> entrance
+	public Map<Section, Section> entrance2exit = new HashMap<>(); //entrance -> exit
+	public Map<Section, Section> exit2entrance = new HashMap<>(); //exit -> entrance
 	public int[] dir = {-1, -1};
 	public Queue<Car> cars = new LinkedList<>();//may contain phantoms
 	public Queue<Car> realCars = new LinkedList<>();
@@ -78,8 +77,8 @@ public abstract class Section extends Location{
 					other.waiting = s.waiting;
 					other.adjSects = s.adjSects;
 					other.adjSensors = s.adjSensors;
-					other.exits = s.exits;
-					other.entrances = s.entrances;
+					other.entrance2exit = s.entrance2exit;
+					other.exit2entrance = s.exit2entrance;
 					other.dir = s.dir;
 				}
 		}
@@ -94,6 +93,7 @@ public abstract class Section extends Location{
 	}
 	
 	public void addWaitingCar(Car car){
+		//noinspection SynchronizeOnNonFinalField
 		synchronized (waiting) {
 			if(!waiting.contains(car)){
 				waiting.add(car);
@@ -102,6 +102,7 @@ public abstract class Section extends Location{
 	}
 	
 	public void removeWaitingCar(Car car){
+		//noinspection SynchronizeOnNonFinalField
 		synchronized (waiting) {
 			if(waiting.contains(car)){
 				waiting.remove(car);
@@ -149,7 +150,9 @@ public abstract class Section extends Location{
 			else if(this instanceof StreetIcon)
 				g.drawRoundRect(1, 1, coord.w-2, coord.h-2, coord.arcw, coord.arch);
 		}
-		
+
+		private static Color LIGHT_GREEN = new Color(0, 255, 127);
+		private static Color BROWN = new Color(165, 42, 42);
 		protected void paintComponent(Graphics g) {
 //			System.out.println(section.name);
 			super.paintComponent(g);
@@ -159,11 +162,11 @@ public abstract class Section extends Location{
 					n++;
 			switch(n){
 			case 0:
-				g.setColor(Color.GREEN); break;
+				g.setColor(LIGHT_GREEN); break;
 			case 1:
 				g.setColor(Color.YELLOW); break;
 			default:
-				g.setColor(Color.RED); break;
+				g.setColor(BROWN); break;
 			}
 			
 			if(this instanceof CrossingIcon)
@@ -206,7 +209,7 @@ public abstract class Section extends Location{
                         if(car.name.equals(Car.BLACK))
                             g.setColor(Color.WHITE);
                         g.drawString("FAKE", x, y + 10);
-                        if(car.name.equals(car.BLACK))
+                        if(car.name.equals(Car.BLACK))
                             g.setColor(Color.BLACK);
                     }
 					if(vertical)

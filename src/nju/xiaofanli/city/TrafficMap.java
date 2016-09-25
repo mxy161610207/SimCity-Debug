@@ -616,12 +616,12 @@ public class TrafficMap extends JPanel{
 		}
 			
 		if(TrafficMap.DIRECTION){
-			s.exits.put(in, out);
-			s.entrances.put(out, in);
+			s.entrance2exit.put(in, out);
+			s.exit2entrance.put(out, in);
 		}
 		else{
-			s.exits.put(out, in);
-			s.entrances.put(in, out);
+			s.entrance2exit.put(out, in);
+			s.exit2entrance.put(in, out);
 		}
 	}
 	
