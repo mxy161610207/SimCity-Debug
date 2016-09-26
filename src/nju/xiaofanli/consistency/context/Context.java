@@ -100,9 +100,9 @@ public class Context {
     }
     
     public void print(){
-    	System.out.println(name);
+        StringBuilder sb = new StringBuilder("    " + name);
     	for(Map.Entry<String, Object> e : fields.entrySet())
-    		System.out.println(e.getKey() + " " + e.getValue());
-    	System.out.println("------------");
+    		sb.append("\t[" + e.getKey() + "] " + e.getValue());
+        System.out.println(sb);
     }
 }

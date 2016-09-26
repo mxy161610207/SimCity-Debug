@@ -6,7 +6,7 @@
   <!--<car name="Orange Car" loc="Crossing 7" url="btspp://00066649960C:1;authenticate=true;encrypt=true"/>-->
   <!--<car name="Red Car" loc="Street 24" url="btspp://000666619F38:1;authenticate=true;encrypt=true"/>-->
   <!--<car name="Silver SUV" loc="Street 23" url="btspp://00066661A901:1;authenticate=true;encrypt=true"/>-->
-  <car name="White Car" loc="Street 28" url="btspp://00066661AA61:1;authenticate=true;encrypt=true"/>
+  <!--<car name="White Car" loc="Street 28" url="btspp://00066661AA61:1;authenticate=true;encrypt=true"/>-->
   <building name="Stark Industries" type="StarkIndustries" loc="9"/>
   <building name="Hospital" type="Hospital" loc="6"/>
   <building name="School" type="School" loc="5"/>

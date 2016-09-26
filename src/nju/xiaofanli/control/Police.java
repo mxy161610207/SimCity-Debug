@@ -229,7 +229,7 @@ public class Police implements Runnable{
 			req.add(new Request(car, dir, loc, cmd, requested));
 			req.notify();
 		}
-		System.out.println(car.name+" send Request "+cmd+" to Police");
+		System.out.println(car.name + " send Request " + cmd + " to Police");
 		//trigger send request event
 		if(EventManager.hasListener(Event.Type.CAR_SEND_REQUEST))
 			EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, car.name, loc.name, cmd));

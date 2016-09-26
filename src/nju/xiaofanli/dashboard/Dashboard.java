@@ -661,6 +661,10 @@ public class Dashboard extends JFrame{
         }
         StringBuilder sb = new StringBuilder();
 		sb.append(s.name).append("\n");
+		if(s.getPermitted() != null){
+            sb.append("Permitted Car:\n");
+            sb.append(s.getPermitted().name).append("\n");
+        }
 		if(!s.cars.isEmpty()){
             sb.append("Cars:\n");
 			for(Car car : s.cars){

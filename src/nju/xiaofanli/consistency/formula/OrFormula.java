@@ -43,7 +43,9 @@ public class OrFormula extends Formula {
     
     @Override
     public boolean evaluateECC(Assignment node) {
-        value = first.evaluateECC(node) || second.evaluateECC(node);
+        first.evaluateECC(node);
+        second.evaluateECC(node);
+        value = first.value || second.value;
         return value;
     }
 
@@ -66,15 +68,11 @@ public class OrFormula extends Formula {
 
     @Override
     public boolean evaluatePCC(Assignment node,ContextChange change) {
-    	if(first.affect(change)){
-    		if(second.affect(change))
-    			value = first.evaluatePCC(node,change) || second.evaluatePCC(node,change);
-    		else
-    			value = first.evaluatePCC(node,change) || second.value;
-    	}
-    	else if(second.affect(change))
-    		value = first.value || second.evaluatePCC(node,change);
-    	
+    	if(first.affect(change))
+            first.evaluatePCC(node, change);
+    	if(second.affect(change))
+    		second.evaluatePCC(node, change);
+        value = first.value || second.value;
         return value;
     }
 

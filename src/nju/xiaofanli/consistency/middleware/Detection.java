@@ -21,12 +21,12 @@ public class Detection {
     //ECC/PCC���
     public static void check(Rule rule, ContextChange change) {
         Assignment node = new Assignment();
-        if(Configuration.getConfigStr("checkingStragegy").equals("PCC")) {
+        if(Configuration.getConfigStr("checkingStrategy").equals("PCC")) {
             rule.setFormula(createTreePCC(rule.getFormula(), change));
             rule.getFormula().evaluatePCC(node, change);
             rule.getFormula().generatePCC(change);
         }
-        else if(Configuration.getConfigStr("checkingStragegy").equals("ECC")) {
+        else if(Configuration.getConfigStr("checkingStrategy").equals("ECC")) {
 			rule.setFormula(createTreeECC(rule.getFormula()));
 			rule.getFormula().evaluateECC(node);
         	rule.getFormula().generateECC();
@@ -55,6 +55,7 @@ public class Detection {
 			Operation.change(change);
 			check(rule, change);
 		}
+//		System.out.println(rule.getName() + ":" + rule.getValue());
 		return rule.getValue() ? null : rule.getLinks();//diff(rule.getLinks(), prevLinks);
 	}
    
@@ -68,23 +69,25 @@ public class Detection {
                 result.setSubNodes(new LinkedList<>(((ForallFormula) formula).getSubNodes()));
                 result.setValue(formula.getValue());
                 result.setLinks(formula.getLinks());
-                if (result.getSubFormula().affect(change)) {
-                    for (SubNode subNode : result.getSubNodes())
-                        subNode.setFormula(createTreePCC(((ForallFormula) formula).getSubFormula(), change));
-                } else if (change.getType() == ContextChange.ADDITION) {
-                    SubNode subNode = new SubNode(change.getContext());
-                    subNode.setFormula(createTreeECC(((ForallFormula) formula).getSubFormula()));
-                    result.addSubNode(subNode);
-                } else if (change.getType() == ContextChange.DELETION) {
-                    for (int i = 0; i < result.getSubNodes().size(); i++) {
-                        if (result.getSubNodes().get(i).getContext().equals(change.getContext())) {
-                            result.getSubNodes().remove(i);
-                            break;
+                if(result.affect(change)) {
+                    if (result.getSubFormula().affect(change)) {
+                        for (SubNode subNode : result.getSubNodes())
+                            subNode.setFormula(createTreePCC(subNode.getFormula(), change));
+                    }
+                    else if (change.getType() == ContextChange.ADDITION) {
+                        SubNode subNode = new SubNode(change.getContext());
+                        subNode.setFormula(createTreeECC(((ForallFormula) formula).getSubFormula()));
+                        result.addSubNode(subNode);
+                    }
+                    else if (change.getType() == ContextChange.DELETION) {
+                        for (int i = 0; i < result.getSubNodes().size(); i++) {
+                            if (result.getSubNodes().get(i).getContext().equals(change.getContext())) {
+                                result.getSubNodes().remove(i);
+                                break;
+                            }
                         }
                     }
                 }
-//            else if(change.getType() == ContextChange.UPDATE) {
-//            }
                 return result;
             }
             case "exists": {
@@ -94,23 +97,25 @@ public class Detection {
                 result.setSubNodes(new LinkedList<>(((ExistsFormula) formula).getSubNodes()));
                 result.setValue(formula.getValue());
                 result.setLinks(formula.getLinks());
-                if (result.getSubFormula().affect(change)) {
-                    for (SubNode subNode : result.getSubNodes())
-                        subNode.setFormula(createTreePCC(((ExistsFormula) formula).getSubFormula(), change));
-                } else if (change.getType() == ContextChange.ADDITION) {
-                    SubNode subNode = new SubNode(change.getContext());
-                    subNode.setFormula(createTreeECC(((ExistsFormula) formula).getSubFormula()));
-                    result.addSubNode(subNode);
-                } else if (change.getType() == ContextChange.DELETION) {
-                    for (int i = 0; i < result.getSubNodes().size(); i++) {
-                        if (result.getSubNodes().get(i).getContext() == change.getContext()) {
-                            result.getSubNodes().remove(i);
-                            break;
+                if(result.affect(change)) {
+                    if (result.getSubFormula().affect(change)) {
+                        for (SubNode subNode : result.getSubNodes())
+                            subNode.setFormula(createTreePCC(subNode.getFormula(), change));
+                    }
+                    else if (change.getType() == ContextChange.ADDITION) {
+                        SubNode subNode = new SubNode(change.getContext());
+                        subNode.setFormula(createTreeECC(((ExistsFormula) formula).getSubFormula()));
+                        result.addSubNode(subNode);
+                    }
+                    else if (change.getType() == ContextChange.DELETION) {
+                        for (int i = 0; i < result.getSubNodes().size(); i++) {
+                            if (result.getSubNodes().get(i).getContext() == change.getContext()) {
+                                result.getSubNodes().remove(i);
+                                break;
+                            }
                         }
                     }
                 }
-//            else if(change.getType() == ContextChange.UPDATE) {
-//            }
                 return result;
             }
             case "and": {

@@ -73,8 +73,8 @@ public class ExistsFormula extends Formula{
         for(SubNode subNode : subNodes) {
 //            Context ctx = pat.getContexts().get(subNode.getContext());
             node.setVar(variable, subNode.getContext());
-            subNode.evaluateEcc(node);
-            value = subNode.value || value;
+            subNode.evaluateECC(node);
+            value = value || subNode.value;
             node.deleteVar(variable);
         }
         return value;
@@ -92,7 +92,7 @@ public class ExistsFormula extends Formula{
         for(SubNode subNode : subNodes) {
 //            Context ctx = pat.getContexts().get(subNode.getContext());
             if(subNode.value)
-                links = Link.union(links, Link.linkCartesian(new Link(false, variable, subNode.getContext()), subNode.generateEcc()));
+                links = Link.union(links, Link.linkCartesian(new Link(false, variable, subNode.getContext()), subNode.generateECC()));
         }
         return links;
     }
@@ -112,8 +112,8 @@ public class ExistsFormula extends Formula{
             for(SubNode subNode : subNodes) {
 //                Context ctx = pat.getContexts().get(subNode.getContext());
                 node.setVar(variable, subNode.getContext());
-                subNode.evaluatePcc(node,change);
-                value =  subNode.value || value;
+                subNode.evaluatePCC(node,change);
+                value = value || subNode.value;
                 node.deleteVar(variable);
             }
         }
@@ -123,8 +123,8 @@ public class ExistsFormula extends Formula{
 //            Context ctx = pat.getContexts().get(subNode.getContext());
             node.setVar(variable, subNode.getContext());
             
-            subNode.evaluateEcc(node);
-            value = subNode.value || value;
+            subNode.evaluateECC(node);
+            value = value || subNode.value;
             node.deleteVar(variable);
         }
         else if(change.getType() == ContextChange.DELETION) {
@@ -167,14 +167,14 @@ public class ExistsFormula extends Formula{
             for (SubNode subNode : subNodes) {
 //                Context ctx = pat.getContexts().get(subNode.getContext());
                 if (subNode.value)
-                    links = Link.union(links, Link.linkCartesian(new Link(false, variable, subNode.getContext()), subNode.generatePcc(change)));
+                    links = Link.union(links, Link.linkCartesian(new Link(false, variable, subNode.getContext()), subNode.generatePCC(change)));
             }
         } else if (change.getType() == ContextChange.ADDITION) {
             SubNode subNode = subNodes.getLast();
 //            Pattern pat = MiddleWare.getPatterns().get(pattern);
 //            Context ctx = pat.getContexts().get(subNode.getContext());
             if (subNode.value)
-                links = Link.union(links, Link.linkCartesian(new Link(false, variable, subNode.getContext()), subNode.generateEcc()));
+                links = Link.union(links, Link.linkCartesian(new Link(false, variable, subNode.getContext()), subNode.generateECC()));
         } else if (change.getType() == ContextChange.DELETION) {
             links = new HashSet<>();
 //            Pattern pat = MiddleWare.getPatterns().get(pattern);

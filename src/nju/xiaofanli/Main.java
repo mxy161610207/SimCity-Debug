@@ -1,32 +1,29 @@
 package nju.xiaofanli;
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.List;
-
 import nju.xiaofanli.application.*;
+import nju.xiaofanli.application.monitor.AppServer;
+import nju.xiaofanli.city.Building;
 import nju.xiaofanli.city.Citizen;
+import nju.xiaofanli.city.Section;
+import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.consistency.middleware.Middleware;
+import nju.xiaofanli.control.Police;
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.SelfCheck;
+import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.CmdSender;
-import nju.xiaofanli.device.sensor.RandomDataGenerator;
+import nju.xiaofanli.device.sensor.BrickServer;
+import nju.xiaofanli.event.Event;
+import nju.xiaofanli.event.EventManager;
 import nju.xiaofanli.util.ConfigGenerator;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.Building;
-import nju.xiaofanli.city.Section;
-import nju.xiaofanli.city.TrafficMap;
-import nju.xiaofanli.consistency.middleware.Middleware;
-import nju.xiaofanli.control.Police;
-import nju.xiaofanli.dashboard.Dashboard;
-import nju.xiaofanli.event.Event;
-import nju.xiaofanli.event.EventManager;
-import nju.xiaofanli.application.monitor.AppServer;
-import nju.xiaofanli.device.sensor.BrickServer;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 	public static boolean initial = true;

@@ -30,9 +30,9 @@ public class BFunc extends Formula {
 	//bfunc�Ĳ����洢
     private HashMap<Integer, Param> params = new HashMap<>();
 	//bfunc�Ĳ�����ʾ
-    public static class Param {
-        public String var = null, field = null;
-        public Param(String _var, String _field) {
+    private static class Param {
+        String var = null, field = null;
+        Param(String _var, String _field) {
             var = _var;
             field = _field;
         }

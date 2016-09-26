@@ -42,22 +42,22 @@ public class SubNode{
     	return context;
     }
     
-    public boolean evaluateEcc(Assignment node) {
+    public boolean evaluateECC(Assignment node) {
     	value = formula.evaluateECC(node);
         return value;
     }
 
-    public boolean evaluatePcc(Assignment node, ContextChange change) {
+    public boolean evaluatePCC(Assignment node, ContextChange change) {
     	value = formula.evaluatePCC(node,change);
         return value;
     }
 
-    public Set<Link> generateEcc() {
+    public Set<Link> generateECC() {
     	links = formula.generateECC();
         return links;
     }
 
-    public Set<Link> generatePcc(ContextChange change) {
+    public Set<Link> generatePCC(ContextChange change) {
     	links = formula.generatePCC(change);
         return links;
     }

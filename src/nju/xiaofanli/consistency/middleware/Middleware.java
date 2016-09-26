@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.context.Pattern;
@@ -101,9 +103,9 @@ public class Middleware {
                             sensor.nextSection.displayBalloon(Context.FN, sensor.name, car.name, rEnabled);
                         if (rEnabled || !dEnabled && !rEnabled) //if (rEnabled)
                             BrickHandler.switchState(car, sensor, true);
-
                         break;
                 }
+//                display();
             }
     	}
     };
@@ -140,8 +142,8 @@ public class Middleware {
         handler.start();
 	}
     
-	public static void add(Object subject, Object direction, Object state,
-			Object category, Object predicate, Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
+	public static void add(Object subject, Object direction, Object state, Object category, Object predicate,
+                           Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
 		if(StateSwitcher.isResetting())
 			return;
 		Context context = new Context();
@@ -186,7 +188,7 @@ public class Middleware {
     	new TrafficMap();
 		new Middleware();
         File file = new File("test case.txt");
-        
+
         Queue<String> list = new LinkedList<>();
         if (file.exists() && file.isFile()) {
             try{
@@ -195,30 +197,27 @@ public class Middleware {
                 while((text = input.readLine()) != null)
                     list.add(text);
                 input.close();
-            }  
+            }
             catch(IOException ioException){
                 System.err.println("File Error!");
             }
         }
-		
+
         while(!list.isEmpty()){
         	String testCase = list.poll();
         	String[] s = testCase.split(", ");
-        	
-        	add(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], null, null);
+        	add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], Long.parseLong(s[7]), null, null);
         }
-        
 	}
 
     public static void display() {
         for (Map.Entry<String, Pattern> entry : patterns.entrySet()) {
             String name = entry.getKey();
-            Pattern context = entry.getValue();
-            System.out.println(name + ":");
-            for (Context ctx : context.getContexts()) {
-                System.out.print(" " + ctx.getName());
-            }
-            System.out.println("");
+            Pattern pat = entry.getValue();
+            if(pat.getContexts().isEmpty())
+                continue;
+            System.out.println(name);
+            pat.getContexts().forEach(Context::print);
         }
     }
     
