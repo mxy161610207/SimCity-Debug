@@ -65,13 +65,12 @@ public class Delivery {
 							}
 						}
 					}
-					if(allBusy){
+					if(allBusy || res == null){
 						Dashboard.appendLog("All cars are busy");
 						continue;
 					}
 					searchTasks.poll();
 				}
-				assert res != null;
 				car = res.car;
 				car.dest = res.section;
 				car.dt = dt;
@@ -134,13 +133,15 @@ public class Delivery {
                         return new Result(car, dis[i], start);
 
                 Section next = sect.exit2entrance.get(prev[i]);
-                if(next == null)
-                    for(Section s : prev[i].combined){
+                if(next == null) {
+                    for (Section s : prev[i].combined) {
                         next = sect.exit2entrance.get(s);
-                        if(next != null)
+                        if (next != null)
                             break;
                     }
-                assert next != null;
+                }
+                if(next == null)
+                    throw new NullPointerException();
                 if(!next.sameAs(start)){
                     queue.add(next);
                     prev[i] = sect;
@@ -279,13 +280,15 @@ public class Delivery {
 				return sect;
 			
 			Section next = sect.entrance2exit.get(prev);
-			if(next == null)
-				for(Section s : prev.combined){
-					next = sect.entrance2exit.get(s);
-					if(next != null)
-						break;
-				}
-			assert next != null;
+			if(next == null) {
+                for (Section s : prev.combined) {
+                    next = sect.entrance2exit.get(s);
+                    if (next != null)
+                        break;
+                }
+            }
+            if(next == null)
+                throw new NullPointerException();
 			if(!next.sameAs(start))
 				queue.add(next);
 			prev = sect;
@@ -311,7 +314,8 @@ public class Delivery {
 	}
 	
 	public static void add(Location src, Location dst, Citizen citizen){
-		add(new DeliveryTask(src, dst, citizen));
+        if(src != null && dst != null && citizen != null)
+		    add(new DeliveryTask(src, dst, citizen));
 	}
 	
 	public static void add(Location src, Location dst){

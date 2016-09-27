@@ -91,8 +91,8 @@ public class PkgHandler implements Runnable{
 					Car car = Car.carOf(p.car);
 					if(car != null){
 						if(sect.cars.contains(car)){
-							car.dir = -1;
-							car.leave(sect);
+							car.dir = TrafficMap.UNKNOWN_DIR;
+							car.leave(sect, false);
 						}
 						else{
 							car.dir = p.dir;
@@ -168,6 +168,7 @@ public class PkgHandler implements Runnable{
 			while(true){
 				while(sockets.isEmpty()){
 					clear();
+					//noinspection SynchronizeOnNonFinalField
 					synchronized (sockets) {
 						try {
 							sockets.wait();
@@ -243,6 +244,7 @@ public class PkgHandler implements Runnable{
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+					//noinspection SynchronizeOnNonFinalField
 					synchronized (sockets) {
 						sockets.remove(socket);
 						in.remove(socket);

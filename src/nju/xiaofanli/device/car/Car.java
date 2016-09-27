@@ -1,11 +1,15 @@
 package nju.xiaofanli.device.car;
 
 import nju.xiaofanli.application.Delivery;
+import nju.xiaofanli.application.monitor.AppPkg;
+import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.city.Citizen;
 import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
@@ -80,6 +84,7 @@ public class Car {
 		realDir = TrafficMap.UNKNOWN_DIR;
 		realState = STOPPED;
         isHornOn = false;
+        firstEntry = true;
 	}
 
 	public void notifyPolice(int cmd) {
@@ -101,7 +106,35 @@ public class Car {
 		}
 	}
 
-	public void init(){
+	private boolean firstEntry = true;
+    public void initLocAndDir(Sensor sensor) {
+        if(sensor == null || !firstEntry)
+            return;
+        firstEntry = false;
+        loc = sensor.nextSection;
+        if(dir == TrafficMap.UNKNOWN_DIR) {
+            dir = loc.dir[1] == TrafficMap.UNKNOWN_DIR ? loc.dir[0] : sensor.dir;
+            PkgHandler.send(new AppPkg().setDir(name, dir));
+        }
+        sensor.nextSection.cars.add(this);
+        PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
+        Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter", sensor.prevSection.name, sensor.nextSection.name,
+                System.currentTimeMillis(), null, null);
+    }
+
+	public void init() {
+		if(loc != null && firstEntry){
+            Sensor sensor = null;
+            for(Sensor s : loc.adjSensors.values())
+                if(s.nextSection.sameAs(loc)) {
+                    sensor = s;
+                    break;
+                }
+            if(sensor == null)
+                throw new NullPointerException();
+            initLocAndDir(sensor);
+		}
+
         TrafficMap.connectedCars.add(this);
         Dashboard.addCar(this);
         //calibrate
@@ -181,7 +214,7 @@ public class Car {
 		notifyPolice(Police.BEFORE_ENTRY, section);
 		Section prev = loc;
 		loc = section;
-		leave(prev);
+		leave(prev, true);
 		section.cars.add(this);
 		notifyPolice(Police.AFTER_ENTRY, section);
 		section.icon.repaint();
@@ -213,9 +246,9 @@ public class Car {
             EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
 	}
 
-	public void leave(Section section){
-		leave(section, true);
-	}
+//	public void leave(Section section){
+//		leave(section, true);
+//	}
 
 	public void leave(Section section, boolean withEntry){
 		if(section == null)

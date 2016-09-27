@@ -8,6 +8,7 @@ package nju.xiaofanli.consistency.middleware;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import nju.xiaofanli.consistency.context.Context;
@@ -52,9 +53,9 @@ public class Resolution {
 		}
     }
     
-	public static void resolve(Rule rule, ArrayList<ContextChange> changes, Set<Link> links, String strategy) {
+	public static void resolve(Rule rule, List<ContextChange> changes, Set<Link> links, String strategy) {
 		if(strategy.equals("Drop-latest")){
-			ArrayList<ContextChange> newChanges = new ArrayList<>();
+			List<ContextChange> newChanges = new ArrayList<>();
 //			System.out.println("Resolution");
 			for(int i = changes.size()-1;i >= 0;i--){
 				ContextChange newChange = flip(changes.get(i));

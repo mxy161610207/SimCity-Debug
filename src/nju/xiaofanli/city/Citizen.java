@@ -160,7 +160,6 @@ public class Citizen implements Runnable{
                     break;
                 }
                 case HailATaxi:
-                    assert loc != null && dest != null;
                     act = null;
                     Delivery.add(loc, dest, this);
                     break;
@@ -271,9 +270,9 @@ public class Citizen implements Runnable{
                     if(count[act.ordinal()] == 0){
                         count[act.ordinal()] = 50;
                         delay = 500;
-                        assert dest != null;
+                        if(dest == null)
+                            throw new NullPointerException();
                         loc = dest;
-//                        System.out.println(dest instanceof Building);
                         int xmax = ((Building) dest).icon.getWidth() - CitizenIcon.SIZE;
                         int ymax = ((Building) dest).icon.getHeight() - CitizenIcon.SIZE;
                         int x = (int) (Math.random() * xmax) + ((Building) dest).icon.coord.x;

@@ -127,7 +127,6 @@ public class PatternLoader {
         } catch (FileNotFoundException | ParserConfigurationException e) {
             System.out.println(e.getMessage()); 
         } catch (SAXException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return patterns;

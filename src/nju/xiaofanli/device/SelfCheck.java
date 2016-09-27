@@ -65,7 +65,6 @@ public class SelfCheck{
                 }
             }
         };
-
         new Thread(timer, "Checking Timer").start();
 
         while(!allReady()){

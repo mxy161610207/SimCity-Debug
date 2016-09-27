@@ -105,10 +105,11 @@ public class StateSwitcher {
         if(car != null && car.loc == null){//still not located, then locate it
             resetTask.car2locate = null;
             Command.stop(car);
-//			car.enter(sensor.nextSection);
-            car.loc = sensor.nextSection;
-            car.dir = car.loc.dir[1] == -1 ? car.loc.dir[0] : sensor.dir;
-            sensor.nextSection.cars.add(car);
+//            car.loc = sensor.nextSection;
+//			if(car.dir == TrafficMap.UNKNOWN_DIR)
+//            	car.dir = car.loc.dir[1] == TrafficMap.UNKNOWN_DIR ? car.loc.dir[0] : sensor.dir;
+//            sensor.nextSection.cars.add(car);
+            car.initLocAndDir(sensor);
             resetTask.locatedCars.add(car);
             wakeUp();
         }

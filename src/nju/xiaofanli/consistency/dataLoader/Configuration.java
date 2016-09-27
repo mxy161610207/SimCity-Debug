@@ -26,7 +26,7 @@ public class Configuration {
         logger = LogFactory.getLog(Configuration.class.getName());     
         systemProperties = new Properties();
     }
-    public void init(String filename) {
+    public static void init(String filename) {
         InputStream propertyInputStream = Configuration.class.getResourceAsStream(filename);
         if (propertyInputStream == null) {
             logger.error("System.property inputstream is null");

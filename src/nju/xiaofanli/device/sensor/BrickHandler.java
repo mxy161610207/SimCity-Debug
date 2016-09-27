@@ -4,6 +4,7 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
+import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.context.Context;
 import nju.xiaofanli.context.ContextManager;
@@ -61,7 +62,6 @@ public class BrickHandler extends Thread{
     public static void switchState(Car car, Sensor sensor, boolean isCtxTrue){
         switch(sensor.state){
             case Sensor.UNDETECTED:{
-                //TODO need supplements about handling phantoms
                 if(isCtxTrue){
                     sensor.state = Sensor.DETECTED;
                     sensor.car = car;
@@ -87,7 +87,7 @@ public class BrickHandler extends Thread{
                 System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects car: "+car.name);
 
                 car.enter(sensor.nextSection);
-                car.dir = sensor.nextSection.dir[1] == -1 ? sensor.nextSection.dir[0] : sensor.dir;
+                car.dir = sensor.nextSection.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextSection.dir[0] : sensor.dir;
 //                car.state = Car.MOVING;
                 //trigger context
                 if(ContextManager.hasListener())
@@ -154,13 +154,13 @@ public class BrickHandler extends Thread{
             case Sensor.UNDETECTED:
                 if(sensor.entryDetected(reading)){
                     Car car = null;
-                    int dir = -1, status = 0;
+                    int dir = TrafficMap.UNKNOWN_DIR, state = Car.STOPPED;
                     //check real cars first
                     for(Car realCar : sensor.prevSection.realCars){
                         if(realCar.realDir == sensor.dir){
                             car = realCar;
                             dir = realCar.realDir;
-                            status = realCar.realState;
+                            state = realCar.realState;
                             break;
                         }
                     }
@@ -169,7 +169,7 @@ public class BrickHandler extends Thread{
                             if(tmp.dir == sensor.dir){
                                 car = tmp;
                                 dir = car.dir;
-                                status = car.state;
+                                state = car.state;
                                 break;
                             }
                         }
@@ -181,7 +181,7 @@ public class BrickHandler extends Thread{
                     }
 //                    System.out.println(sensor.name + " ENTERING!!!" + "\treading: " + reading);
 
-                    Middleware.add(car.name, dir, status, "movement", "enter",
+                    Middleware.add(car.name, dir, state, "movement", "enter",
                             sensor.prevSection.name, sensor.nextSection.name, time, car, sensor);
                 }
                 break;

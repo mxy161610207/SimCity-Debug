@@ -49,7 +49,7 @@ public class Detection {
     }
 	
     //�Զ���change�ļ��
-	public static Set<Link> detect(Rule rule, ArrayList<ContextChange> changes) {
+	public static Set<Link> detect(Rule rule, List<ContextChange> changes) {
 //		Set<Link> prevLinks = rule.getLinks();
 		for(ContextChange change : changes){
 			Operation.change(change);

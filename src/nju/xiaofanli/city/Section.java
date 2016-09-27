@@ -31,7 +31,7 @@ public abstract class Section extends Location{
 	public Map<Integer, Sensor> adjSensors = new HashMap<>(); //adjacent sensors
 	public Map<Section, Section> entrance2exit = new HashMap<>(); //entrance -> exit
 	public Map<Section, Section> exit2entrance = new HashMap<>(); //exit -> entrance
-	public int[] dir = {-1, -1};
+	public int[] dir = {TrafficMap.UNKNOWN_DIR, TrafficMap.UNKNOWN_DIR};
 	public Queue<Car> cars = new LinkedList<>();//may contain phantoms
 	public Queue<Car> realCars = new LinkedList<>();
 	public Car[] permitted = {null};//let its type be an array to share its value among the combined
@@ -130,7 +130,6 @@ public abstract class Section extends Location{
 		
 //		@Override
 //		public void setEnabled(boolean b) {
-//			// TODO Auto-generated method stub
 //			super.setEnabled(b);
 //			System.out.println(section.name);
 //		}

@@ -199,7 +199,8 @@ public class RuleLoader {
                     if (nodeType == Node.ELEMENT_NODE) {
                         //��Ԫ�أ������ݹ�
                         String[] param = (String[]) parseElement((Element) node, ruleName);
-                        assert param != null;
+                        if(param == null)
+                            throw new NullPointerException();
                         formula.addParam(Integer.parseInt(param[0]), param[1], param[2]);
                     }
                 }
@@ -246,7 +247,6 @@ public class RuleLoader {
         } catch (FileNotFoundException | ParserConfigurationException e) {
             System.out.println(e.getMessage()); 
         } catch (SAXException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         return rules;

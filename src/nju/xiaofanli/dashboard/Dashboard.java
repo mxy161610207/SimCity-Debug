@@ -332,7 +332,6 @@ public class Dashboard extends JFrame{
 
 		gbc.gridx += gbc.gridwidth;
 		leftPanel.add(console, gbc);
-		//TODO console commands
 		console.addActionListener(e -> {
 			String cmd = console.getText();
 			if(cmd.startsWith("add car ")){
@@ -737,19 +736,8 @@ public class Dashboard extends JFrame{
 			if(carbox.getItemAt(i).equals(car.name))
 				return;
 		carbox.addItem(car.name);
+        VCPanel.addCar(car);
 		PkgHandler.send(new AppPkg().setCar(car.name, -1, null));
-
-		if(car.loc != null){
-			if(car.dir < 0){
-				car.dir = car.loc.dir[0];
-				PkgHandler.send(new AppPkg().setDir(car.name, car.dir));
-			}
-			Section loc = car.loc;
-			car.loc = null;
-			car.enter(loc);
-			PkgHandler.send(new AppPkg().setCar(car.name, car.dir, car.loc.name));
-		}
-		VCPanel.addCar(car);
 	}
 
 	public static synchronized void removeCar(Car car){

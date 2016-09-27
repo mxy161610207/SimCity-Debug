@@ -51,7 +51,7 @@ class Operation {
 	}
 	
 	//�Զ���change�Ĵ���(Drop-latest/Drop-all/Drop-random)
-	private static boolean operate(Rule rule, ArrayList<ContextChange> changes, String strategy) {
+	private static boolean operate(Rule rule, List<ContextChange> changes, String strategy) {
 		if(strategy.equals("Drop-latest") || strategy.equals("Drop-all") || strategy.equals("Drop-random")) {
 //			System.out.println(rule.getName());
 //			for(ContextChange change : changes)
@@ -77,15 +77,15 @@ class Operation {
 		return true;
 	}
 	
-	static AbstractMap.SimpleImmutableEntry<Integer, List<Context>> operate(Map<String, ArrayList<ContextChange>> sequence, String strategy) {
-		if(sequence.isEmpty())
+	static AbstractMap.SimpleImmutableEntry<Integer, List<Context>> operate(Map<String, List<ContextChange>> changes, String strategy) {
+		if(changes.isEmpty())
 			return null;
 		if(strategy.equals("Drop-latest")){
-			ArrayList<Entry<String, ArrayList<ContextChange>>> entries = new ArrayList<>(sequence.entrySet());
+			List<Entry<String, List<ContextChange>>> entries = new ArrayList<>(changes.entrySet());
 			for(int i = 0;i < entries.size();i++){
 				if(!operate(rules.get(entries.get(i).getKey()), entries.get(i).getValue(), strategy)){
 					//drop the context where no inconsistency detected before
-					for(int j = 0;j < i;j++)
+					for(int j = i - 1;j >= 0;j--)
 						Resolution.resolve(rules.get(entries.get(j).getKey()), entries.get(j).getValue(), null, strategy);
 					//if an inconsistency is detected, then no need to check the rest (already violated)
 					return new AbstractMap.SimpleImmutableEntry<>(Context.FP, null); //TODO currently only support FP detection
