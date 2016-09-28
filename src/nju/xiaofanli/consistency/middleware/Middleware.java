@@ -117,7 +117,7 @@ public class Middleware {
                         BrickHandler.switchState(car, sensor, true);
                     break;
             }
-            display();
+//            display();
         }
     };
     

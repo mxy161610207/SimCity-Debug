@@ -6,6 +6,8 @@ import java.util.Map;
 
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.Resource;
+import nju.xiaofanli.event.Event;
+import nju.xiaofanli.event.EventManager;
 
 public class Command {
 	public Car car = null;
@@ -64,6 +66,9 @@ public class Command {
                 car.setState(Car.MOVING);
                 if(car.hasPhantom())
                     car.setRealState(Car.MOVING);
+				//trigger move event
+				if(EventManager.hasListener(Event.Type.CAR_MOVE))
+					EventManager.trigger(new Event(Event.Type.CAR_MOVE, car.name, car.loc.name));
             }
 //			if(cmd == STOP && car.getState() != Car.STOPPED || cmd == MOVE_FORWARD && car.getState() != Car.MOVING)
 //				car.setState(Car.UNCERTAIN);

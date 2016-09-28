@@ -2,15 +2,9 @@ package nju.xiaofanli.city;
 
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -25,21 +19,18 @@ import nju.xiaofanli.device.sensor.Sensor;
 
 public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
-	public final static boolean DIRECTION = true;
-	public static ConcurrentHashMap<String, Car> cars = new ConcurrentHashMap<>();
-	public static Set<Car> connectedCars = new HashSet<>();
-	public static Crossing[] crossings = new Crossing[9];
-	public static Street[] streets = new Street[32];
-	static{
-		for(int i = 0;i < crossings.length;i++)
-			crossings[i] = new Crossing();
-		for(int i = 0;i < streets.length;i++)
-			streets[i] = new Street();
-	}
-	public static Map<String, Section> sections = new HashMap<>();
-	public static List<List<Sensor>> sensors = new ArrayList<>();
-	public static List<Citizen> citizens = new ArrayList<>();
-	public static ConcurrentHashMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
+	public static final boolean DIRECTION = true;
+	public static final ConcurrentMap<String, Car> cars = new ConcurrentHashMap<>();
+	public static final Set<Car> connectedCars = new HashSet<>();
+	public static final Crossing[] crossings = new Crossing[9];
+	public static final Street[] streets = new Street[32];
+	public static final Map<String, Section> sections = new HashMap<>();
+    public static final Map<String, Location> locations = new HashMap<>();
+    public static final List<Location> locationList = new ArrayList<>();
+	public static final List<List<Sensor>> sensors = new ArrayList<>();
+	public static final List<Citizen> citizens = new ArrayList<>();
+    public static final List<Citizen> freeCitizens = new ArrayList<>();
+	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
 	
 	public static final int SH = 37;//street height
 	private static final int SW = SH * 2;//street width
@@ -57,6 +48,15 @@ public class TrafficMap extends JPanel{
 	public static final int WEST = 2;
 	public static final int EAST = 3;
 
+    static{
+        for(int i = 0;i < crossings.length;i++) {
+            crossings[i] = new Crossing();
+        }
+        for(int i = 0;i < streets.length;i++) {
+            streets[i] = new Street();
+        }
+    }
+
 	public TrafficMap() {
 		setLayout(null);
 		setSize(new Dimension(SIZE, SIZE));
@@ -66,40 +66,46 @@ public class TrafficMap extends JPanel{
 		initSections();
 		initSensors();
 		initBuildings();
-		
-		for(List<Sensor> list : sensors)
-			for(Sensor s : list)
-				add(s.icon);
-		for(Citizen c : citizens){
-			add(c.icon);
-			new Thread(c, c.name).start();
-		}
-		for(Section s : sections.values()){
-			add(s.balloon);
-		}
-		for(Building b : buildings.values()){
-			add(b.icon);
-		}
-		for(Section s : sections.values()){
-			add(s.icon);
-		}
+
+        sensors.forEach(list -> list.forEach(sensor -> add(sensor.icon)));
+        citizens.forEach(citizen -> add(citizen.icon));
+        sections.values().forEach(section -> {
+            add(section.balloon);
+            locations.put(section.name, section);
+        });
+		buildings.values().forEach(building -> {
+            add(building.icon);
+            locations.put(building.name, building);
+		});
+        sections.values().forEach(section -> add(section.icon));
+
+        locationList.addAll(locations.values());
 	}
 	
 	public static void reset(){
-		for(Car car : cars.values())
-			car.reset();
-		
-		for(Section s : sections.values())
-			s.reset();
-		
-		for(List<Sensor> list : sensors)
-			for(Sensor sensor : list)
-				sensor.reset();
-		
-		for(Citizen c : citizens)
-			c.reset();
+        cars.values().forEach(Car::reset);
+        sections.values().forEach(Section::reset);
+        sensors.forEach(list -> list.forEach(Sensor::reset));
+        citizens.forEach(Citizen::reset);
+        freeCitizens.clear();
+        freeCitizens.addAll(citizens);
 	}
-	
+
+	private static Random random = new Random();
+	public static Location getALocation(){
+        return locationList.get(random.nextInt(locationList.size()));
+    }
+
+    public static Location getALocationExcept(Location location){
+        if(location instanceof Building)
+            return getALocation();
+
+        Location res = getALocation();
+        while(res instanceof Section && ((Section) location).sameAs((Section) res))
+            res = getALocation();
+        return res;
+    }
+
 	private static void initBuildings(){
 		for(Building building : buildings.values()){
 			if(building.block < 0 || building.block > 15)
@@ -210,8 +216,6 @@ public class TrafficMap extends JPanel{
 				building.addrs.add(streets[29]);
 				building.addrs.add(crossings[8]);
 				break;
-			default:
-				break;
 			}
 			Set<Section> newS = new HashSet<>();
 			for(Section s : building.addrs)
@@ -222,10 +226,9 @@ public class TrafficMap extends JPanel{
 	
 	private static void initSections() {
 		for(int i = 0;i < crossings.length;i++){
-//			crossings[i] = new Crossing();
 			crossings[i].id = i;
 			crossings[i].name = "Crossing " + i;
-			sections.put(crossings[i].name, crossings[i]);
+            sections.put(crossings[i].name, crossings[i]);
 			crossings[i].icon = new CrossingIcon();
 			crossings[i].icon.id = i;
 			crossings[i].icon.section = crossings[i];
@@ -241,10 +244,9 @@ public class TrafficMap extends JPanel{
 					crossings[i].icon.coord.w, crossings[i].icon.coord.h);
 		}
 		for(int i = 0;i < streets.length;i++){
-//			streets[i] = new Street();
 			streets[i].id = i;
-			streets[i].name = "Street "+i;
-			sections.put(streets[i].name, streets[i]);
+			streets[i].name = "Street " + i;
+            sections.put(streets[i].name, streets[i]);
 			streets[i].icon = new StreetIcon();
 			streets[i].icon.id = i;
 			streets[i].icon.section = streets[i];

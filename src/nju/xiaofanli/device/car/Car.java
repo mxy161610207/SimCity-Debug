@@ -22,6 +22,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Car {
 	public final String name;
@@ -241,9 +242,15 @@ public class Car {
             section.realCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
         }
 
-        //trigger move event
-        if(EventManager.hasListener(Event.Type.CAR_MOVE))
-            EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
+        //trigger entering event
+        if(EventManager.hasListener(Event.Type.CAR_ENTER))
+            EventManager.trigger(new Event(Event.Type.CAR_ENTER, name, loc.name));
+        if(loc.cars.size() > 1){
+            Set<String> crashedCars = loc.cars.stream().map(crashedCar -> crashedCar.name).collect(Collectors.toSet());
+            //trigger crash event
+            if(EventManager.hasListener(Event.Type.CAR_CRASH))
+                EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, loc.name));
+        }
 	}
 
 //	public void leave(Section section){

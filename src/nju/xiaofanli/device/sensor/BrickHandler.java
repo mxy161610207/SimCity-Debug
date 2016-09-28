@@ -89,18 +89,6 @@ public class BrickHandler extends Thread{
                 car.enter(sensor.nextSection);
                 car.dir = sensor.nextSection.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextSection.dir[0] : sensor.dir;
 //                car.state = Car.MOVING;
-                //trigger context
-                if(ContextManager.hasListener())
-                    ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
-                //trigger entering event
-                if(EventManager.hasListener(Event.Type.CAR_ENTER))
-                    EventManager.trigger(new Event(Event.Type.CAR_ENTER, car.name, car.loc.name));
-                if(car.loc.cars.size() > 1){
-                    Set<String> crashedCars = car.loc.cars.stream().map(crashedCar -> crashedCar.name).collect(Collectors.toSet());
-                    //trigger crash event
-                    if(EventManager.hasListener(Event.Type.CAR_CRASH))
-                        EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, car.loc.name));
-                }
 
                 Remedy.updateRemedyQWhenDetect(car);
 
@@ -125,6 +113,10 @@ public class BrickHandler extends Thread{
                 }
                 else
                     car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
+
+                //trigger context
+                if(ContextManager.hasListener())
+                    ContextManager.trigger(new Context(""+sensor.bid +(sensor.sid+1), car.name, car.getDirStr()));
             }
             break;
         }

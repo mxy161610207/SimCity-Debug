@@ -49,8 +49,8 @@ public class Dashboard extends JFrame{
 	private static final JScrollPane logtaScroll = new JScrollPane(logta);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
+    private static final JButton startdButton = new JButton("Start");
 	private static final JButton deliverButton = new JButton("Deliver");
-	private static final JButton startdButton = new JButton("Start");
 	private static final JButton canceldButton = new JButton("Cancel");
 	private static final JCheckBox jchkSensor = new JCheckBox("Sensor");
 	private static final JCheckBox jchkSection = new JCheckBox("Section");
@@ -68,7 +68,7 @@ public class Dashboard extends JFrame{
 	private static final JPanel deliveryPanel = new JPanel();
 	private static final JPanel CCPanel = new JPanel();
 	private static final JPanel miscPanel = new JPanel();
-	private static boolean isDeliveryStarted = false;
+	private static boolean delivSelModeOn = false, isSysDelivStarted = false;
 	public static boolean blink = false;
 	private static final Runnable blinkThread = new Runnable() {
 		private final int duration = 500;
@@ -544,28 +544,35 @@ public class Dashboard extends JFrame{
 		deliveryPanel.add(deliverButton, dgbc);
 		dgbc.gridx += dgbc.gridwidth;
 		deliveryPanel.add(canceldButton, dgbc);
+
 		startdButton.addActionListener(e -> {
-            src = dest = null;
-            updateDeliverySrcPanel();
-            updateDeliveryDstPanel();
-            isDeliveryStarted = true;
-            startdButton.setVisible(false);
-            deliverButton.setVisible(true);
-            deliverButton.setEnabled(false);
-            canceldButton.setVisible(true);
+            if(!isSysDelivStarted) {
+                isSysDelivStarted = true;
+                Delivery.startSysDelivery();
+            }
+            else {
+                src = dest = null;
+                updateDeliverySrcPanel();
+                updateDeliveryDstPanel();
+                delivSelModeOn = true;
+                startdButton.setVisible(false);
+                deliverButton.setVisible(true);
+                deliverButton.setEnabled(false);
+                canceldButton.setVisible(true);
+            }
         });
 		deliverButton.addActionListener(e -> {
-            isDeliveryStarted = false;
+            delivSelModeOn = false;
             deliverButton.setVisible(false);
-            startdButton.setVisible(true);
             canceldButton.setVisible(false);
+            startdButton.setVisible(true);
 
             if(src != null && dest != null)
-                Delivery.add(src, dest);
+                Delivery.add(src, dest, true);
         });
 
 		canceldButton.addActionListener(e -> {
-            isDeliveryStarted = false;
+            delivSelModeOn = false;
             deliverButton.setVisible(false);
             startdButton.setVisible(true);
             canceldButton.setVisible(false);
@@ -667,21 +674,18 @@ public class Dashboard extends JFrame{
 		if(!s.cars.isEmpty()){
             sb.append("Cars:\n");
 			for(Car car : s.cars){
-				sb.append(car.name).append(" (").append(car.getStateStr()).append(") ").append(car.getDirStr());
-				if(car.dest != null)
-					sb.append(" Dest:").append(car.dest.name);
-                sb.append("\n");
+				sb.append(car.name).append("\n");
 			}
 		}
 		if(!s.waiting.isEmpty()){
             sb.append("Waiting Cars:\n");
 			for(Car car : s.waiting)
-                sb.append(car.name).append(" (").append(car.getStateStr()).append(") ").append(car.getDirStr()).append("\n");
+                sb.append(car.name).append("\n");
 		}
 		if(!s.realCars.isEmpty()){
 			sb.append("Real Cars:\n");
 			for(Car car : s.realCars){
-				sb.append(car.name).append(" (").append(car.getRealStateStr()).append(") ").append(car.getRealDirStr()).append("\n");
+				sb.append(car.name).append("\n");
 			}
 		}
 		roadta.setText(sb.toString());
@@ -708,8 +712,11 @@ public class Dashboard extends JFrame{
 		queue.addAll(Delivery.searchTasks);
 		queue.addAll(Delivery.deliveryTasks);
 		delivta.setText("Nums: " + queue.size());
-		for(Delivery.DeliveryTask dt : queue)
-			delivta.append("\nPhase: "+dt.phase+" Src: "+dt.src.name+" Dst: "+dt.dest.name);
+		for(Delivery.DeliveryTask dt : queue) {
+            delivta.append("\nPhase: " + dt.phase + " Src: " + dt.src.name + " Dst: " + dt.dest.name);
+            if(dt.releasedByUser)
+                delivta.append(" *User Release*");
+        }
 	}
 
 	public static synchronized void updateRemedyCommandPanel(){
@@ -774,7 +781,12 @@ public class Dashboard extends JFrame{
 			}
 	}
 
-	public static void updateAll(){
+	public static void reset(){
+        src = dest = null;
+        delivSelModeOn = isSysDelivStarted = false;
+        deliverButton.setVisible(false);
+        startdButton.setVisible(true);
+        canceldButton.setVisible(false);
         trafficMap.repaint();
         updateDeliverySrcPanel();
         updateDeliveryDstPanel();
@@ -783,6 +795,10 @@ public class Dashboard extends JFrame{
         updateVehicleConditionPanel();
         roadta.setText("");
         logta.setText("");
+    }
+
+    public static void enableDeliveryButton(boolean b){
+        startdButton.setEnabled(b);
     }
 
     private class SectionIconListener extends MouseAdapter{
@@ -796,7 +812,7 @@ public class Dashboard extends JFrame{
 				return;
 //			System.out.println(section.name);
 			// for delivery tasks
-			if (isDeliveryStarted) {
+			if (delivSelModeOn) {
 				if (src == null) {
 					src = section;
 					updateDeliverySrcPanel();
@@ -857,7 +873,7 @@ public class Dashboard extends JFrame{
 				return;
 //			System.out.println(building.name);
 			// for delivery tasks
-			if (isDeliveryStarted) {
+			if (delivSelModeOn) {
 				if (src == null) {
 					src = building;
 					updateDeliverySrcPanel();

@@ -39,8 +39,8 @@ public class Main {
 		new Middleware();
 		new Police();
 		new Delivery();
-		new CitizenActivityGenerator();
-        new AppServer();
+		new AppServer();
+//		new CitizenActivityGenerator();
 //        new RandomDataGenerator();
 		initial = false;
 	}
@@ -84,8 +84,9 @@ public class Main {
 					Citizen.genderOf(elm.attributeValue("gender")),
 					Citizen.jobOf(elm.attributeValue("job")));
 			TrafficMap.citizens.add(citizen);
+            TrafficMap.freeCitizens.add(citizen);
 		}
-		
+
 		list = root.elements("brick");
 		for(Element e : list){
 			Resource.setBrickAddr(e.attributeValue("name"),

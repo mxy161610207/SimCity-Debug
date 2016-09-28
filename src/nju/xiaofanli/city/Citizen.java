@@ -23,6 +23,7 @@ public class Citizen implements Runnable{
     public Location loc = null, dest = null;
     public Car car = null;
     public CitizenIcon icon = new CitizenIcon(this);
+    public boolean releasedByUser = false; //used in taking taxis
 
     public enum Gender {
         Male, Female
@@ -34,7 +35,7 @@ public class Citizen implements Runnable{
 
     public enum Activity {
         Wander, GoToWork, AtWork, GoToSchool, InClass, RescueTheWorld, HailATaxi, TakeATaxi, GetOff,
-        GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals
+        GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals, Disappear
     }
 
     public Citizen(String name, Gender gender, Job job) {
@@ -61,6 +62,8 @@ public class Citizen implements Runnable{
         act = nextAct = state = null;
         loc = dest = null;
         car = null;
+        delay = 0;
+        releasedByUser = false;
         icon.setVisible(false);
     }
 
@@ -86,8 +89,11 @@ public class Citizen implements Runnable{
                         this.wait();
                     } catch (InterruptedException e) {
 //                        e.printStackTrace();
-                        if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
+                        if(StateSwitcher.isResetting()) {
                             act = null;
+                            StateSwitcher.unregister(thread);
+                            return;
+                        }
                     }
                 }
             if(act == null)
@@ -161,7 +167,20 @@ public class Citizen implements Runnable{
                 }
                 case HailATaxi:
                     act = null;
-                    Delivery.add(loc, dest, this);
+                    if(!icon.isVisible()){
+                        int x, y;
+                        if(loc instanceof Section){
+                            x = ((Section) loc).icon.coord.centerX;
+                            y = ((Section) loc).icon.coord.centerY;
+                        }
+                        else{
+                            x = ((Building) loc).icon.coord.centerX;
+                            y = ((Building) loc).icon.coord.centerY;
+                        }
+                        icon.setLocation(x, y);
+                        icon.setVisible(true);
+                    }
+                    Delivery.add(loc, dest, this, releasedByUser);
                     break;
                 case TakeATaxi:
                     act = null;
@@ -186,14 +205,17 @@ public class Citizen implements Runnable{
                         PkgHandler.send(new AppPkg().setCitizen(name, true));
                     }
                     if(nextAct == null){
-                        dest = null;
-                        state = act = null;
-                        PkgHandler.send(new AppPkg().setCitizen(name, "None"));
+//                        dest = null;
+//                        state = act = null;
+//                        PkgHandler.send(new AppPkg().setCitizen(name, "None"));
+                        delay = 3000;
+                        act = Activity.Disappear;
                     }
                     else{
                         if (nextAct != Activity.AtWork && nextAct != Activity.InClass
-                                && nextAct != Activity.UnderTreatment && nextAct != Activity.HavingMeals)
+                                && nextAct != Activity.UnderTreatment && nextAct != Activity.HavingMeals) {
                             dest = null;
+                        }
                         act = nextAct;
                         nextAct = null;
                         PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
@@ -312,6 +334,14 @@ public class Citizen implements Runnable{
                         }
                     }
                     break;
+                case Disappear:
+                    StateSwitcher.unregister(thread);
+                    reset();
+                    synchronized (TrafficMap.freeCitizens) {
+                        if (!TrafficMap.freeCitizens.contains(this))
+                            TrafficMap.freeCitizens.add(this);
+                    }
+                    return;
             }
         }
     }
@@ -375,19 +405,24 @@ public class Citizen implements Runnable{
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if(!blink){
-                if(citizen.act != null && citizen.act == Activity.GetSick)
-                    g.setColor(Color.RED);
-                else if(citizen.act != null && citizen.act == Activity.GetHungry)
-                    g.setColor(Color.YELLOW);
-                else
-                    g.setColor(color);
+                switch (citizen.state) {
+                    case GetSick:
+                        g.setColor(Color.RED);
+                        break;
+                    case GetHungry:
+                        g.setColor(Color.YELLOW);
+                        break;
+                    default:
+                        g.setColor(color);
+                        break;
+                }
                 g.fillOval(0, 0, SIZE, SIZE);
                 g.setColor(Color.BLACK);
                 g.drawOval(1, 1, SIZE-2, SIZE-2);
             }
             if(showState){
                 g.setColor(Color.BLACK);
-                String str = citizen.state == null ? "None" : citizen.act.toString();
+                String str = citizen.state == null ? "None" : citizen.state.toString();
                 FontMetrics fm = g.getFontMetrics();
                 g.drawString(str, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
             }

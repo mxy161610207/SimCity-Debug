@@ -115,6 +115,10 @@ public class Resource {
         return TrafficMap.citizens;
     }
 
+	public static List<Citizen> getFreeCitizens(){
+		return TrafficMap.freeCitizens;
+	}
+
 	public static String getBrickAddr(String name){
 		return brickAddr.get(name);
 	}

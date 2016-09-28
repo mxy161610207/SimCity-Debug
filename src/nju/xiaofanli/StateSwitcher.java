@@ -1,5 +1,6 @@
 package nju.xiaofanli;
 
+import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
@@ -56,11 +57,17 @@ public class StateSwitcher {
 		threadStatus.put(thread, false);
 	}
 
+    public static void unregister(Thread thread){
+        threadStatus.remove(thread);
+        if(isResetting() && allReset())
+            wakeUp();
+    }
+
 	public static boolean isThreadReset(Thread thread){
 		if(threadStatus.get(thread))
 			return true;
 		threadStatus.put(thread, true);
-		if(allReset())
+		if(isResetting() && allReset())
 			wakeUp();
 		return false;
 	}
@@ -183,10 +190,12 @@ public class StateSwitcher {
 					duration -= System.currentTimeMillis() - startTime;
 				}
 			}
-			//second step: clear all commands and statuses
+			//second step: clear all statuses
 			checkIfSuspended();
 			TrafficMap.reset();
 			Middleware.reset();
+            Delivery.reset();
+            Dashboard.reset();
 
 			//third step: resolve the inconsistency
 			checkIfSuspended();
@@ -230,9 +239,9 @@ public class StateSwitcher {
 			locatedCars.clear();
 			carInfo.clear();
 
-			Dashboard.updateAll();
 //			Dashboard.enableResetButton(true);
 			Dashboard.enableCtrlUI(true);
+            Dashboard.enableDeliveryButton(true);
 			setState(State.NORMAL);
 		}
 

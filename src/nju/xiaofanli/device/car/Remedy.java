@@ -2,6 +2,7 @@ package nju.xiaofanli.device.car;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
@@ -63,13 +64,13 @@ public class Remedy implements Runnable{
 						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
 							cmd.car.setLoading(true);
 							//trigger start loading event
-							if(cmd.car.dt.phase == 1) {
+							if(cmd.car.dt.phase == Delivery.DeliveryTask.HEAD4SRC) {
                                 Command.send(cmd.car, Command.WHISTLE2);
 								if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
 									EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
 							}
 							//trigger start unloading event
-							else if(cmd.car.dt.phase == 2) {
+							else if(cmd.car.dt.phase == Delivery.DeliveryTask.HEAD4DEST) {
                                 Command.send(cmd.car, Command.WHISTLE3);
 								if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
 									EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));

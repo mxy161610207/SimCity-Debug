@@ -104,7 +104,7 @@ public class PkgHandler implements Runnable{
 			}
 			case 8:
 				System.out.println(p.src+" "+p.dest);
-				Delivery.add(Location.LocOf(p.src), Location.LocOf(p.dest));
+				Delivery.add(Location.LocOf(p.src), Location.LocOf(p.dest), true);
 				break;
 			}
 		}

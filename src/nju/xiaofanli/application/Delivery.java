@@ -1,10 +1,8 @@
 package nju.xiaofanli.application;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.city.Building;
-import nju.xiaofanli.city.Citizen;
-import nju.xiaofanli.city.Location;
-import nju.xiaofanli.city.Section;
+import nju.xiaofanli.city.*;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
@@ -17,10 +15,15 @@ import java.util.*;
 public class Delivery {
 	public static final Queue<DeliveryTask> searchTasks = new LinkedList<>();
 	public static final Set<DeliveryTask> deliveryTasks = new HashSet<>();
-	public static int taskid = 0;
+	private static int taskid = 0;
 	public static boolean allBusy = false;
-	
-	public Delivery() {
+    private static int MAX_USER_DELIV_NUM, MAX_SYS_DELIV_NUM;
+    private static int userDelivNum = 0, sysDelivNum = 0;
+
+    public Delivery() {
+        MAX_USER_DELIV_NUM = Resource.getCars().size() > 1 ? 1 : 0;
+        MAX_SYS_DELIV_NUM = Resource.getCars().size() - MAX_USER_DELIV_NUM;
+
 		new Thread(carSearcher, "Car Searcher").start();
 		new Thread(carMonitor, "Car Monitor").start();
 	}
@@ -41,11 +44,6 @@ public class Delivery {
 								clearSearchTasks();
 						}
 					}
-//				if(StateSwitcher.isResetting()){
-//					if(!StateSwitcher.isThreadReset(thread))
-//						clearSearchTasks();
-//					continue;
-//				}
 				DeliveryTask dt;
 				Car car;
 				Result res = null;
@@ -75,7 +73,7 @@ public class Delivery {
 				car.dest = res.section;
 				car.dt = dt;
 				dt.car = car;
-				dt.phase = 1;
+				dt.phase = DeliveryTask.HEAD4SRC;
 				Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
 				if(car.hasPhantom())
 					Dashboard.playErrorSound();
@@ -184,21 +182,16 @@ public class Delivery {
                             clearDeliveryTasks();
                     }
                 }
-//				if(StateSwitcher.isResetting()){
-//					if(!StateSwitcher.isThreadReset(thread))
-//						clearDeliveryTasks();
-//					continue;
-//				}
+
             synchronized (deliveryTasks) {
-                for(Iterator<DeliveryTask> it = deliveryTasks.iterator();it.hasNext();){
-                    DeliveryTask dt = it.next();
+                for(Iterator<DeliveryTask> iter = deliveryTasks.iterator();iter.hasNext();){
+                    DeliveryTask dt = iter.next();
                     Car car = dt.car;
                     long recent = Math.max(car.stopTime, dt.startTime);
-                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED
-                        && System.currentTimeMillis() - recent > 3000) {
+                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED && System.currentTimeMillis() - recent > 3000) {
                         //head for the src
-                        if(dt.phase == 1){
-                            dt.phase = 2;
+                        if(dt.phase == DeliveryTask.HEAD4SRC){
+                            dt.phase = DeliveryTask.HEAD4DEST;
                             car.dest = dt.dest instanceof Section ? (Section)dt.dest : selectNearestSection(car.loc, car.dir, ((Building)dt.dest).addrs);
                             car.setLoading(false);
                             Dashboard.appendLog(car.name+" finished loading");
@@ -226,15 +219,17 @@ public class Delivery {
                             }
                         }
                         //head for the dest
-                        else{
-                            it.remove();
-                            dt.phase = 3;
+                        else if(dt.phase == DeliveryTask.HEAD4DEST){
+                            iter.remove();
+                            dt.phase = DeliveryTask.COMPLETED;
+
                             car.dt = null;
                             car.dest = null;
                             car.finalState = Car.MOVING;
                             car.setLoading(false);
                             car.loc.icon.repaint();
                             car.notifyPolice(Police.REQUEST2ENTER);
+
                             allBusy = false;
                             Dashboard.appendLog(car.name+" finished unloading");
                             //trigger end unloading event
@@ -247,6 +242,17 @@ public class Delivery {
                                 } catch (CloneNotSupportedException e) {
                                     e.printStackTrace();
                                 }
+
+                            if(dt.releasedByUser) {
+                                userDelivNum--;
+                                Dashboard.enableDeliveryButton(true);
+                            }
+                            else {
+                                sysDelivNum--;
+                                Location src = TrafficMap.getALocation();
+                                Location dest = TrafficMap.getALocationExcept(src);
+                                add(src, dest, false);
+                            }
                         }
                         Dashboard.updateDeliveryTaskPanel();
                     }
@@ -312,14 +318,55 @@ public class Delivery {
 				e.printStackTrace();
 			}
 	}
-	
-	public static void add(Location src, Location dst, Citizen citizen){
-        if(src != null && dst != null && citizen != null)
-		    add(new DeliveryTask(src, dst, citizen));
+
+	public static void startSysDelivery() {
+        for (int i = 0;i < MAX_SYS_DELIV_NUM;i++) {
+            Location src = TrafficMap.getALocation();
+            Location dest = TrafficMap.getALocationExcept(src);
+            add(src, dest, false);
+        }
+        if(MAX_USER_DELIV_NUM == 0)
+            Dashboard.enableDeliveryButton(false);
+    }
+
+	public static void add(Location src, Location dest, Citizen citizen, boolean releasedByUser){
+        if(src != null && dest != null && citizen != null)
+		    add(new DeliveryTask(src, dest, citizen, releasedByUser));
 	}
-	
-	public static void add(Location src, Location dst){
-		add(src, dst, null);
+
+	private static Random random = new Random();
+	public static void add(Location src, Location dest, boolean releasedByUser){
+        if(releasedByUser){
+            if(userDelivNum == MAX_USER_DELIV_NUM)
+                return;
+        }
+        else{
+            if(sysDelivNum == MAX_SYS_DELIV_NUM)
+                return;
+        }
+        //randomly pick a free citizen
+        Citizen citizen;
+        synchronized (TrafficMap.freeCitizens){
+            if(TrafficMap.freeCitizens.isEmpty()){
+                System.out.println("Run out of free citizens!");
+                return;
+            }
+            citizen = TrafficMap.freeCitizens.remove(random.nextInt(TrafficMap.freeCitizens.size()));
+        }
+
+        if(releasedByUser){
+            if(++userDelivNum == MAX_USER_DELIV_NUM)
+                Dashboard.enableDeliveryButton(false);
+        }
+        else
+            sysDelivNum++;
+
+        citizen.loc = src;
+        citizen.dest = dest;
+        citizen.setActivity(Citizen.Activity.HailATaxi);
+        citizen.releasedByUser = releasedByUser;
+        Resource.execute(citizen);
+//		add(src, dest, citizen, releasedByUser);
 	}
 	
 	private static void clearSearchTasks(){
@@ -333,6 +380,11 @@ public class Delivery {
 			deliveryTasks.clear();
 		}
 	}
+
+	public static void reset() {
+        allBusy = false;
+        userDelivNum = sysDelivNum = 0;
+    }
 	
 	public static class DeliveryTask implements Cloneable{
 		public int id;
@@ -341,14 +393,21 @@ public class Delivery {
 		public int phase;//0: search car; 1: to src 2: to dest
 		public long startTime = 0;
 		public Citizen citizen = null;
+        public boolean releasedByUser = false;
+
+        public static int SEARCH_CAR = 0;
+        public static int HEAD4SRC = 1;
+        public static int HEAD4DEST = 2;
+        public static int COMPLETED = 3;
 		
-		public DeliveryTask(Location src, Location dest, Citizen citizen) {
+		public DeliveryTask(Location src, Location dest, Citizen citizen, boolean releasedByUser) {
 			this.id = Delivery.taskid++;
 			this.src = src;
 			this.dest = dest;
-			this.phase = 0;
+			this.phase = SEARCH_CAR;
 			this.startTime = System.currentTimeMillis();
 			this.citizen = citizen;
+            this.releasedByUser = releasedByUser;
 		}
 		
 		protected DeliveryTask clone() throws CloneNotSupportedException {
