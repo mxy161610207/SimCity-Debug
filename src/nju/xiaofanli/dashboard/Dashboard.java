@@ -23,6 +23,9 @@ import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
 import javax.swing.*;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -45,6 +48,11 @@ public class Dashboard extends JFrame{
 	private static final JTextArea logta = new JTextArea();
 	private static final JScrollPane delivtaScroll = new JScrollPane(delivta);
 	private static final JScrollPane remedytaScroll = new JScrollPane(remedyta);
+    private static final DefaultTreeModel delivTaskTreeModel;
+    private static final JTree delivTaskTree;
+    private static final JScrollPane dtTreeScroll;
+    private static final DefaultMutableTreeNode sysRelNode;
+    private static final DefaultMutableTreeNode userRelNode;
 	private static final JScrollPane roadtaScroll = new JScrollPane(roadta);
 	private static final JScrollPane logtaScroll = new JScrollPane(logta);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
@@ -61,6 +69,7 @@ public class Dashboard extends JFrame{
 	private static final JCheckBox jchkResolution = new JCheckBox("Resolution");
 	public static boolean showSensor = false, showSection = false, showBalloon = false,
 			playCrashSound = false,	playErrorSound = false;
+
 	private static final JTextField srctf = new JTextField();
 	private static final JTextField desttf = new JTextField();
 	private static final JTextField console  = new JTextField("Console");
@@ -96,6 +105,77 @@ public class Dashboard extends JFrame{
 			}
 		}
 	};
+
+	static {
+        class NodeObj {
+            private DefaultMutableTreeNode node = null;
+            private boolean isUserNode;
+
+            @Override
+            public String toString() {
+                String s;
+                if(isUserNode) {
+                    s = "<html><font color=green>User Release";
+                    if (node != null)
+                        s += ": " + node.getChildCount();
+                    s += "</font><html>";
+                }
+                else {
+                    s = "System Release";
+                    if (node != null)
+                        s += ": " + node.getChildCount();
+                }
+                return s;
+            }
+        }
+
+        NodeObj nodeObj = new NodeObj();
+        nodeObj.isUserNode = false;
+        sysRelNode = new DefaultMutableTreeNode(nodeObj);
+        nodeObj.node = sysRelNode;
+        nodeObj = new NodeObj();
+        nodeObj.isUserNode = true;
+        userRelNode = new DefaultMutableTreeNode(nodeObj);
+        nodeObj.node = userRelNode;
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+        root.add(sysRelNode);
+        root.add(userRelNode);
+        delivTaskTreeModel = new DefaultTreeModel(root);
+        delivTaskTreeModel.addTreeModelListener(new TreeModelListener() {
+            @Override
+            public void treeNodesChanged(TreeModelEvent e) {
+
+            }
+
+            @Override
+            public void treeNodesInserted(TreeModelEvent e) {
+                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
+            }
+
+            @Override
+            public void treeNodesRemoved(TreeModelEvent e) {
+                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
+            }
+
+            @Override
+            public void treeStructureChanged(TreeModelEvent e) {
+
+            }
+        });
+        delivTaskTree = new JTree(delivTaskTreeModel);
+        delivTaskTree.setToggleClickCount(1);
+        delivTaskTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) delivTaskTree.getCellRenderer();
+        renderer.setLeafIcon(Resource.loadImage("res/blue_check_toggle_rec.png",
+                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
+        renderer.setOpenIcon(Resource.loadImage("res/blue_collapse_toggle.png",
+                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
+        renderer.setClosedIcon(Resource.loadImage("res/blue_expand_toggle.png",
+                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
+        delivTaskTree.setRootVisible(false);
+        dtTreeScroll = new JScrollPane(delivTaskTree);
+    }
 
 	private Dashboard() {
 //		setEnabled(false);
@@ -300,7 +380,7 @@ public class Dashboard extends JFrame{
 		});
 
 		gbc.gridy += gbc.gridheight;
-		leftPanel.add(new JLabel("Delivery Task"), gbc);
+		leftPanel.add(new JLabel("Ongoing Delivery Task"), gbc);
 
 		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
@@ -313,15 +393,16 @@ public class Dashboard extends JFrame{
 		gbc.gridy += gbc.gridheight;
 //		gbc.gridheight = 1;
 		gbc.weighty = 0;
-		leftPanel.add(new JLabel("Remedy Command"), gbc);
+		leftPanel.add(new JLabel("Completed Delivery Task"), gbc);
 
 		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
-		leftPanel.add(remedytaScroll, gbc);
-		remedyta.setLineWrap(true);
-		remedyta.setWrapStyleWord(true);
-		remedyta.setEditable(false);
-		updateRemedyCommandPanel();
+//		leftPanel.add(remedytaScroll, gbc);
+//		remedyta.setLineWrap(true);
+//		remedyta.setWrapStyleWord(true);
+//		remedyta.setEditable(false);
+//		updateRemedyCommandPanel();
+        leftPanel.add(dtTreeScroll, gbc);
 
 		gbc.gridx = 1;
 		gbc.gridy = 0;
@@ -392,6 +473,12 @@ public class Dashboard extends JFrame{
                 CmdSender.send(getSelectedCar(), Command.LEFT);
             else if(cmd.equals("right"))
                 CmdSender.send(getSelectedCar(), Command.RIGHT);
+            else if(cmd.startsWith("add dt ")){
+                String s = cmd.substring("add dt ".length()).toLowerCase();
+                Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
+                        TrafficMap.getACitizen(), s.equals("u"));
+                addCompletedDeliveryTask(dt, s.equals("u"));
+            }
 		});
 
 		gbc.gridx = 1;
@@ -713,9 +800,10 @@ public class Dashboard extends JFrame{
 		queue.addAll(Delivery.deliveryTasks);
 		delivta.setText("Nums: " + queue.size());
 		for(Delivery.DeliveryTask dt : queue) {
-            delivta.append("\nPhase: " + dt.phase + " Src: " + dt.src.name + " Dst: " + dt.dest.name);
-            if(dt.releasedByUser)
-                delivta.append(" *User Release*");
+//            delivta.append("\nPhase: " + dt.phase + " Src: " + dt.src.name + " Dst: " + dt.dest.name);
+//            if(dt.releasedByUser)
+//                delivta.append(" *User Release*");
+            delivta.append(dt.toString());
         }
 	}
 
@@ -795,6 +883,19 @@ public class Dashboard extends JFrame{
         updateVehicleConditionPanel();
         roadta.setText("");
         logta.setText("");
+        for(int i = 0;i < delivTaskTree.getRowCount();i++)
+            delivTaskTree.collapseRow(i);
+        sysRelNode.removeAllChildren();
+        userRelNode.removeAllChildren();
+    }
+
+    public static void addCompletedDeliveryTask(Delivery.DeliveryTask dt, boolean releasedByUser){
+        if(dt == null)
+            return;
+        DefaultMutableTreeNode node = releasedByUser ? userRelNode : sysRelNode;
+        synchronized (delivTaskTreeModel) {
+            delivTaskTreeModel.insertNodeInto(new DefaultMutableTreeNode(dt), node, node.getChildCount());
+        }
     }
 
     public static void enableDeliveryButton(boolean b){

@@ -162,7 +162,7 @@ public class Resource {
 		return RED_X_ICON;
 	}
 	
-	private static ImageIcon loadImage(String filename, int width, int height){
+	public static ImageIcon loadImage(String filename, int width, int height){
 		ImageIcon imageIcon = new ImageIcon(filename);
 		Image image = imageIcon.getImage();
 		if(imageIcon.getIconWidth() > imageIcon.getIconHeight())

@@ -106,6 +106,20 @@ public class TrafficMap extends JPanel{
         return res;
     }
 
+    public static Citizen removeAFreeCitizen(){
+        synchronized (freeCitizens){
+            if(freeCitizens.isEmpty()){
+                System.out.println("Run out of free citizens!");
+                return null;
+            }
+            return freeCitizens.remove(random.nextInt(freeCitizens.size()));
+        }
+    }
+
+    public static Citizen getACitizen(){
+        return citizens.get(random.nextInt(citizens.size()));
+    }
+
 	private static void initBuildings(){
 		for(Building building : buildings.values()){
 			if(building.block < 0 || building.block > 15)

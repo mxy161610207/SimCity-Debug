@@ -334,8 +334,7 @@ public class Delivery {
 		    add(new DeliveryTask(src, dest, citizen, releasedByUser));
 	}
 
-	private static Random random = new Random();
-	public static void add(Location src, Location dest, boolean releasedByUser){
+    public static void add(Location src, Location dest, boolean releasedByUser){
         if(releasedByUser){
             if(userDelivNum == MAX_USER_DELIV_NUM)
                 return;
@@ -345,14 +344,9 @@ public class Delivery {
                 return;
         }
         //randomly pick a free citizen
-        Citizen citizen;
-        synchronized (TrafficMap.freeCitizens){
-            if(TrafficMap.freeCitizens.isEmpty()){
-                System.out.println("Run out of free citizens!");
-                return;
-            }
-            citizen = TrafficMap.freeCitizens.remove(random.nextInt(TrafficMap.freeCitizens.size()));
-        }
+        Citizen citizen = TrafficMap.removeAFreeCitizen();
+        if(citizen == null)
+            return;
 
         if(releasedByUser){
             if(++userDelivNum == MAX_USER_DELIV_NUM)
@@ -395,10 +389,10 @@ public class Delivery {
 		public Citizen citizen = null;
         public boolean releasedByUser = false;
 
-        public static int SEARCH_CAR = 0;
-        public static int HEAD4SRC = 1;
-        public static int HEAD4DEST = 2;
-        public static int COMPLETED = 3;
+        public static final int SEARCH_CAR = 0;
+        public static final int HEAD4SRC = 1;
+        public static final int HEAD4DEST = 2;
+        public static final int COMPLETED = 3;
 		
 		public DeliveryTask(Location src, Location dest, Citizen citizen, boolean releasedByUser) {
 			this.id = Delivery.taskid++;
@@ -413,5 +407,42 @@ public class Delivery {
 		protected DeliveryTask clone() throws CloneNotSupportedException {
 			return (DeliveryTask) super.clone();
 		}
-	}
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html>");
+            sb.append("<table border=\"1\">");
+            sb.append("<tr><td><b>").append(changeFontColor("Src", releasedByUser)).append("</b></td>");
+            sb.append("<td>").append(changeFontColor(src.name, releasedByUser)).append("</td></tr>");
+            sb.append("<tr><td><b>").append(changeFontColor("Dest", releasedByUser)).append("</b></td>");
+            sb.append("<td>").append(changeFontColor(dest.name, releasedByUser)).append("</td></tr>");
+            if(citizen != null) {
+                sb.append("<tr><td><b>").append(changeFontColor("Pax", releasedByUser)).append("</b></td>");
+                sb.append("<td>").append(changeFontColor(citizen.name, releasedByUser)).append("</td></tr>");
+            }
+            sb.append("<tr><td><b>").append(changeFontColor("Stat", releasedByUser)).append("</b></td>");
+            String phaseStr;
+            switch (phase){
+                case SEARCH_CAR:
+                    phaseStr = "Search Car"; break;
+                case HEAD4SRC:
+                    phaseStr = "Head for Src"; break;
+                case HEAD4DEST:
+                    phaseStr = "Head for Dest"; break;
+                case COMPLETED:
+                    phaseStr = "Completed"; break;
+                default:
+                    phaseStr = "Unknown"; break;
+            }
+            sb.append("<td>").append(changeFontColor(phaseStr, releasedByUser)).append("</td></tr>");
+            sb.append("</table>");
+            sb.append("</html>");
+            return sb.toString();
+        }
+
+        private static String changeFontColor(String s, boolean releasedByUser){
+            return releasedByUser ? "<font color=green>" + s + "</font>" : s;
+        }
+    }
 }
