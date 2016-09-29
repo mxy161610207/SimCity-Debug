@@ -21,6 +21,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,7 @@ public class Car {
 	public static final String WHITE = "White Car";
 	public static final String BLACK = "Black Car";
 	public static final String ORANGE = "Orange Car";
+    public static final String[] allCarNames = { SILVER, GREEN, RED, WHITE, BLACK, ORANGE };
 	
 	public Car(String name, Section loc, String url) {
 		this.name = name;
@@ -373,7 +375,12 @@ public class Car {
 	public Section getRealLoc(){
 		return !hasPhantom() ? loc : realLoc;
 	}
-	
+
+	private static Random random = new Random();
+	public static String getACarName(){
+        return allCarNames[random.nextInt(allCarNames.length)];
+    }
+
 	public static class CarIcon extends JButton{
 		private static final long serialVersionUID = 1L;
 		private final String name;

@@ -25,6 +25,7 @@ import sun.audio.AudioStream;
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.text.*;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -45,7 +46,7 @@ public class Dashboard extends JFrame{
 	private static final JTextArea delivta = new JTextArea();
 	private static final JTextArea remedyta = new JTextArea();
 	private static final JTextArea roadta = new JTextArea();
-	private static final JTextArea logta = new JTextArea();
+	private static final JTextPane logPane = new JTextPane();
 	private static final JScrollPane delivtaScroll = new JScrollPane(delivta);
 	private static final JScrollPane remedytaScroll = new JScrollPane(remedyta);
     private static final DefaultTreeModel delivTaskTreeModel;
@@ -54,7 +55,7 @@ public class Dashboard extends JFrame{
     private static final DefaultMutableTreeNode sysRelNode;
     private static final DefaultMutableTreeNode userRelNode;
 	private static final JScrollPane roadtaScroll = new JScrollPane(roadta);
-	private static final JScrollPane logtaScroll = new JScrollPane(logta);
+	private static final JScrollPane logPaneScroll = new JScrollPane(logPane);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton startdButton = new JButton("Start");
@@ -107,6 +108,12 @@ public class Dashboard extends JFrame{
 	};
 
 	static {
+        delivtaScroll.setBorder(BorderFactory.createEmptyBorder());
+        remedytaScroll.setBorder(BorderFactory.createEmptyBorder());
+        roadtaScroll.setBorder(BorderFactory.createEmptyBorder());
+        logPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+        logPane.setFont(new Font(Font.DIALOG, Font.BOLD, 15));
+
         class NodeObj {
             private DefaultMutableTreeNode node = null;
             private boolean isUserNode;
@@ -175,6 +182,7 @@ public class Dashboard extends JFrame{
                 renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
         delivTaskTree.setRootVisible(false);
         dtTreeScroll = new JScrollPane(delivTaskTree);
+        dtTreeScroll.setBorder(BorderFactory.createEmptyBorder());
     }
 
 	private Dashboard() {
@@ -479,6 +487,17 @@ public class Dashboard extends JFrame{
                         TrafficMap.getACitizen(), s.equals("u"));
                 addCompletedDeliveryTask(dt, s.equals("u"));
             }
+            else if(cmd.equals("all busy")){
+                Dashboard.log("All cars are busy!\n", Color.RED);
+            }
+            else if(cmd.equals("pick")) {
+                Dashboard.log(Arrays.asList(Car.getACarName(), " picks up ", TrafficMap.getACitizen().name, "\n"),
+                        Arrays.asList(Color.BLUE, Color.BLACK, Color.GRAY));
+            }
+            else if(cmd.equals("drop")) {
+                Dashboard.log(Arrays.asList(Car.getACarName(), " drops off ", TrafficMap.getACitizen().name, "\n"),
+                        Arrays.asList(Color.BLUE, Color.BLACK, Color.GRAY));
+            }
 		});
 
 		gbc.gridx = 1;
@@ -673,10 +692,9 @@ public class Dashboard extends JFrame{
 
 		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
-		rightPanel.add(logtaScroll, gbc);
-		logta.setEditable(false);
-		logta.setLineWrap(true);
-		logta.setWrapStyleWord(true);
+//		rightPanel.add(logPaneScroll, gbc);
+        rightPanel.add(logPane, gbc);
+		logPane.setEditable(false);
 
 		new Thread(blinkThread, "Blink Thread").start();
 		jchkResolution.doClick();
@@ -822,9 +840,31 @@ public class Dashboard extends JFrame{
 		Resource.getConnectedCars().forEach(Dashboard::updateVehicleConditionPanel);
 	}
 
-	public static synchronized void appendLog(String str){
-		logta.append(str+"\n");
-	}
+    public static void log(List<String> strings, List<Color> colors) {
+        if(strings == null || strings.isEmpty())
+            return;
+        synchronized (logPane) {
+            for(int i = 0;i < strings.size();i++)
+                log(strings.get(i), colors != null && i < colors.size() ? colors.get(i) : Color.BLACK);
+        }
+    }
+
+	public static void log(String str, Color color){
+        synchronized (logPane) {
+            StyleContext sc = StyleContext.getDefaultStyleContext();
+            Style style = sc.getStyle(color.toString());
+            if (style == null) {
+                style = sc.addStyle(color.toString(), null);
+                StyleConstants.setForeground(style, color);
+            }
+            StyledDocument doc = logPane.getStyledDocument();
+            try {
+                doc.insertString(doc.getLength(), str, style);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 	public static synchronized void addCar(Car car){
 		for(int i = 0;i < carbox.getItemCount();i++)
@@ -882,7 +922,7 @@ public class Dashboard extends JFrame{
         updateRemedyCommandPanel();
         updateVehicleConditionPanel();
         roadta.setText("");
-        logta.setText("");
+        logPane.setText("");
         for(int i = 0;i < delivTaskTree.getRowCount();i++)
             delivTaskTree.collapseRow(i);
         sysRelNode.removeAllChildren();

@@ -21,6 +21,7 @@ public class TrafficMap extends JPanel{
 	private static final long serialVersionUID = 1L;
 	public static final boolean DIRECTION = true;
 	public static final ConcurrentMap<String, Car> cars = new ConcurrentHashMap<>();
+    public static final List<Car> carList = new ArrayList<>();
 	public static final Set<Car> connectedCars = new HashSet<>();
 	public static final Crossing[] crossings = new Crossing[9];
 	public static final Street[] streets = new Street[32];
@@ -118,6 +119,10 @@ public class TrafficMap extends JPanel{
 
     public static Citizen getACitizen(){
         return citizens.get(random.nextInt(citizens.size()));
+    }
+
+    public static Car getACar(){
+        return carList.get(random.nextInt(carList.size()));
     }
 
 	private static void initBuildings(){

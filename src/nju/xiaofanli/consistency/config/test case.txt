@@ -1,0 +1,4 @@
+Black Car, 0, 1, movement, enter, Street 18, Crossing 3, 1000
+Black Car, 0, 1, movement, enter, Crossing 3, Street 11, 3000
+Black Car, 0, 0, movement, enter, Street 11, Crossing 0, 5000
+Black Car, 0, 1, movement, enter, Street 11, Crossing 0, 7000

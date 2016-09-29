@@ -217,7 +217,7 @@ public class Middleware {
     public static void main(String[] args) {
     	new TrafficMap();
 		new Middleware();
-        File file = new File("test case.txt");
+        File file = new File("src/nju/xiaofanli/consistency/config/test case.txt");
 
         Queue<String> list = new LinkedList<>();
         if (file.exists() && file.isFile()) {

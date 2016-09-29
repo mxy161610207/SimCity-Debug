@@ -98,7 +98,7 @@ public class BrickHandler extends Thread{
                     if(car.dest.sameAs(car.loc)){
                         car.finalState = Car.STOPPED;
                         car.notifyPolice(Police.REQUEST2STOP);
-                        Dashboard.appendLog(car.name+" reached destination");
+//                        Dashboard.log(car.name+" reached destination");
                         //trigger reach dest event
                         if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
                             EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
@@ -106,7 +106,7 @@ public class BrickHandler extends Thread{
                     else if(car.finalState == Car.STOPPED){
                         car.finalState = Car.MOVING;
                         car.notifyPolice(Police.REQUEST2ENTER);
-                        Dashboard.appendLog(car.name+" failed to stop at dest, keep going");
+//                        Dashboard.log(car.name+" failed to stop at dest, keep going");
                     }
                     else
                         car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);

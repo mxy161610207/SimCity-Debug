@@ -10,6 +10,7 @@ import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
+import java.awt.*;
 import java.util.*;
 
 public class Delivery {
@@ -64,7 +65,7 @@ public class Delivery {
 						}
 					}
 					if(allBusy || res == null){
-						Dashboard.appendLog("All cars are busy");
+						Dashboard.log("All cars are busy!\n", Color.RED);
 						continue;
 					}
 					searchTasks.poll();
@@ -74,7 +75,7 @@ public class Delivery {
 				car.dt = dt;
 				dt.car = car;
 				dt.phase = DeliveryTask.HEAD4SRC;
-				Dashboard.appendLog("find "+car.name+" at "+car.loc.name);
+//				Dashboard.log("find "+car.name+" at "+car.loc.name);
 				if(car.hasPhantom())
 					Dashboard.playErrorSound();
 				if(car.dest.sameAs(car.loc)){
@@ -89,7 +90,7 @@ public class Delivery {
 						car.finalState = Car.STOPPED;
 						car.notifyPolice(Police.REQUEST2STOP);
 					}
-					Dashboard.appendLog(car.name + " reached dest");
+//					Dashboard.log(car.name + " reached dest");
 					//trigger reach dest event
 					if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
@@ -97,7 +98,7 @@ public class Delivery {
 				else{
 					car.finalState = Car.MOVING;
 					car.notifyPolice(Police.REQUEST2ENTER);
-					Dashboard.appendLog(car.name+" heads for src "+car.dest.name);
+//					Dashboard.log(car.name+" heads for src "+car.dest.name);
 				}
 					
 				if(!StateSwitcher.isResetting()){
@@ -194,7 +195,7 @@ public class Delivery {
                             dt.phase = DeliveryTask.HEAD4DEST;
                             car.dest = dt.dest instanceof Section ? (Section)dt.dest : selectNearestSection(car.loc, car.dir, ((Building)dt.dest).addrs);
                             car.setLoading(false);
-                            Dashboard.appendLog(car.name+" finished loading");
+//                            Dashboard.log(car.name+" finished loading");
                             //trigger end loading event
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
                                 EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
@@ -207,7 +208,7 @@ public class Delivery {
                                 //trigger start unloading event
                                 if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
                                     EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
-                                Dashboard.appendLog(car.name+" reached destination");
+//                                Dashboard.log(car.name+" reached destination");
                                 //trigger reach dest event
                                 if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
                                     EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
@@ -215,7 +216,7 @@ public class Delivery {
                             else{
                                 car.finalState = Car.MOVING;
                                 car.notifyPolice(Police.REQUEST2ENTER);
-                                Dashboard.appendLog(car.name+" heads for dest "+car.dest.name);
+//                                Dashboard.log(car.name+" heads for dest "+car.dest.name);
                             }
                         }
                         //head for the dest
@@ -231,7 +232,7 @@ public class Delivery {
                             car.notifyPolice(Police.REQUEST2ENTER);
 
                             allBusy = false;
-                            Dashboard.appendLog(car.name+" finished unloading");
+//                            Dashboard.log(car.name+" finished unloading");
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
                                 EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name));

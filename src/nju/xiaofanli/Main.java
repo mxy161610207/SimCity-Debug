@@ -68,6 +68,7 @@ public class Main {
 		for(Element elm : list){
 			Car car = new Car(elm.attributeValue("name"), Section.sectionOf(elm.attributeValue("loc")), elm.attributeValue("url"));
 			TrafficMap.cars.put(car.name, car);
+            TrafficMap.carList.add(car);
 		}
 		
 		list = root.elements("building");

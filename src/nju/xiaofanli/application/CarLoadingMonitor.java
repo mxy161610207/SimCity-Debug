@@ -6,6 +6,9 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventListener;
 
+import java.awt.*;
+import java.util.Arrays;
+
 public class CarLoadingMonitor implements EventListener{
     public void eventTriggered(Event event) {
         switch (event.type) {
@@ -16,7 +19,7 @@ public class CarLoadingMonitor implements EventListener{
                     car.passengers.add(citizen);
                     citizen.car = car;
                     citizen.setActivity(Citizen.Activity.TakeATaxi);
-                    Dashboard.appendLog(car.name + " picks up passenger "+ citizen.name);
+                    Dashboard.log(Arrays.asList(car.name, " picks up ", citizen.name, "\n"), Arrays.asList(Color.GREEN, Color.BLACK, Color.ORANGE));
                 }
                 break;
             }
@@ -28,7 +31,7 @@ public class CarLoadingMonitor implements EventListener{
                     citizen.car = null;
                     citizen.loc = car.loc;
                     citizen.setActivity(Citizen.Activity.GetOff);
-                    Dashboard.appendLog(car.name + " drops off passenger "+ citizen.name);
+                    Dashboard.log(Arrays.asList(car.name, " drops off ", citizen.name, "\n"), Arrays.asList(Color.GREEN, Color.BLACK, Color.ORANGE));
                 }
                 break;
             }
