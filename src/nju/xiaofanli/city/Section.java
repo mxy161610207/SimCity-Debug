@@ -187,28 +187,15 @@ public abstract class Section extends Location{
 							x += cubeSize + cubeInset;
 						continue;
 					}
-					switch(car.name){
-					case Car.ORANGE:
-						g.setColor(Color.ORANGE); break;
-					case Car.BLACK:
-						g.setColor(Color.BLACK); break;
-					case Car.WHITE:
-						g.setColor(Color.WHITE); break;
-					case Car.RED:
-						g.setColor(Color.RED); break;
-					case Car.GREEN:
-						g.setColor(Color.GREEN); break;
-					case Car.SILVER:
-						g.setColor(CarIcon.SILVER); break;
-					}
+					g.setColor(car.icon.color);
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, cubeSize, cubeSize);
 					if(car.realLoc != null) {
-                        if(car.name.equals(Car.BLACK))
+                        if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.WHITE);
                         g.drawString("FAKE", x, y + 10);
-                        if(car.name.equals(Car.BLACK))
+                        if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.BLACK);
                     }
 					if(vertical)
@@ -218,27 +205,14 @@ public abstract class Section extends Location{
 				}
 				
 				for(Car car : section.realCars){
-					switch(car.name){
-					case Car.ORANGE:
-						g.setColor(Color.ORANGE); break;
-					case Car.BLACK:
-						g.setColor(Color.BLACK); break;
-					case Car.WHITE:
-						g.setColor(Color.WHITE); break;
-					case Car.RED:
-						g.setColor(Color.RED); break;
-					case Car.GREEN:
-						g.setColor(Color.GREEN); break;
-					case Car.SILVER:
-						g.setColor(CarIcon.SILVER); break;
-					}
+					g.setColor(car.icon.color);
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, cubeSize, cubeSize);
-                    if(car.name.equals(Car.BLACK))
+                    if(car.icon.color.equals(Color.BLACK))
                         g.setColor(Color.WHITE);
                     g.drawString("REAL", x, y + 10);
-                    if(car.name.equals(Car.BLACK))
+                    if(car.icon.color.equals(Color.BLACK))
                         g.setColor(Color.BLACK);
 					if(vertical)
 						y += cubeSize + cubeInset;

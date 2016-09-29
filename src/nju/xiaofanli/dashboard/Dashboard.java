@@ -75,9 +75,9 @@ public class Dashboard extends JFrame{
 	private static final JTextField desttf = new JTextField();
 	private static final JTextField console  = new JTextField("Console");
 	private static Location src = null, dest = null;
-	private static final JPanel deliveryPanel = new JPanel();
-	private static final JPanel CCPanel = new JPanel();
-	private static final JPanel miscPanel = new JPanel();
+//	private static final JPanel deliveryPanel = new JPanel();
+//	private static final JPanel CCPanel = new JPanel();
+//	private static final JPanel miscPanel = new JPanel();
 	private static boolean delivSelModeOn = false, isSysDelivStarted = false;
 	public static boolean blink = false;
 	private static final Runnable blinkThread = new Runnable() {
@@ -112,7 +112,12 @@ public class Dashboard extends JFrame{
         remedytaScroll.setBorder(BorderFactory.createEmptyBorder());
         roadtaScroll.setBorder(BorderFactory.createEmptyBorder());
         logPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+        logPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        logPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         logPane.setFont(new Font(Font.DIALOG, Font.BOLD, 15));
+        logPane.setEditable(false);
+        logPane.setBackground(null);
+        ((DefaultCaret) logPane.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         class NodeObj {
             private DefaultMutableTreeNode node = null;
@@ -490,13 +495,10 @@ public class Dashboard extends JFrame{
             else if(cmd.equals("all busy")){
                 Dashboard.log("All cars are busy!\n", Color.RED);
             }
-            else if(cmd.equals("pick")) {
-                Dashboard.log(Arrays.asList(Car.getACarName(), " picks up ", TrafficMap.getACitizen().name, "\n"),
-                        Arrays.asList(Color.BLUE, Color.BLACK, Color.GRAY));
-            }
-            else if(cmd.equals("drop")) {
-                Dashboard.log(Arrays.asList(Car.getACarName(), " drops off ", TrafficMap.getACitizen().name, "\n"),
-                        Arrays.asList(Color.BLUE, Color.BLACK, Color.GRAY));
+            else if(cmd.equals("pick") || cmd.equals("drop")) {
+                String name = Car.getACarName();
+                Dashboard.log(Arrays.asList(name, cmd.equals("pick") ? " picks up " : " drops off ", TrafficMap.getACitizen().name, "\n"),
+                        Arrays.asList(Car.colorOf(name), Color.BLACK, Color.GRAY));
             }
 		});
 
@@ -538,6 +540,7 @@ public class Dashboard extends JFrame{
 		rightPanel.add(new DPad(), gbc);
 
 		gbc.gridy += gbc.gridheight;
+        JPanel miscPanel = new JPanel();
 		rightPanel.add(miscPanel, gbc);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
 //		miscPanel.setLayout(new GridLayout(2, 0));
@@ -583,6 +586,7 @@ public class Dashboard extends JFrame{
 		jchkError.addActionListener(e -> playErrorSound = jchkError.isSelected());
 
 		gbc.gridy += gbc.gridheight;
+        JPanel CCPanel = new JPanel();
 		rightPanel.add(CCPanel, gbc);
 		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
 		CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -618,6 +622,7 @@ public class Dashboard extends JFrame{
 
 		gbc.gridy += gbc.gridheight;
 //		gbc.gridwidth = GridBagConstraints.REMAINDER;
+        JPanel deliveryPanel = new JPanel();
 		rightPanel.add(deliveryPanel, gbc);
 		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Delivery"));
 		deliveryPanel.setLayout(new GridBagLayout());
@@ -687,14 +692,11 @@ public class Dashboard extends JFrame{
 		canceldButton.setVisible(false);
 
 		gbc.gridy += gbc.gridheight;
-		JLabel logLabel = new JLabel("Log");
-		rightPanel.add(logLabel, gbc);
-
-		gbc.gridy += gbc.gridheight;
-		gbc.weighty = 1;
-//		rightPanel.add(logPaneScroll, gbc);
-        rightPanel.add(logPane, gbc);
-		logPane.setEditable(false);
+        gbc.weighty = 1;
+        JPanel logPanel = new JPanel(new BorderLayout());
+        logPanel.setBorder(BorderFactory.createTitledBorder("Log"));
+		rightPanel.add(logPanel, gbc);
+        logPanel.add(logPaneScroll, BorderLayout.CENTER);
 
 		new Thread(blinkThread, "Blink Thread").start();
 		jchkResolution.doClick();
@@ -860,6 +862,7 @@ public class Dashboard extends JFrame{
             StyledDocument doc = logPane.getStyledDocument();
             try {
                 doc.insertString(doc.getLength(), str, style);
+                logPane.setCaretPosition(doc.getLength());
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }

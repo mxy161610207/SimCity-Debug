@@ -19,7 +19,7 @@ public class CarLoadingMonitor implements EventListener{
                     car.passengers.add(citizen);
                     citizen.car = car;
                     citizen.setActivity(Citizen.Activity.TakeATaxi);
-                    Dashboard.log(Arrays.asList(car.name, " picks up ", citizen.name, "\n"), Arrays.asList(Color.GREEN, Color.BLACK, Color.ORANGE));
+                    Dashboard.log(Arrays.asList(car.name, " picks up ", citizen.name, "\n"), Arrays.asList(car.icon.color, Color.BLACK, Color.GRAY));
                 }
                 break;
             }
@@ -31,7 +31,7 @@ public class CarLoadingMonitor implements EventListener{
                     citizen.car = null;
                     citizen.loc = car.loc;
                     citizen.setActivity(Citizen.Activity.GetOff);
-                    Dashboard.log(Arrays.asList(car.name, " drops off ", citizen.name, "\n"), Arrays.asList(Color.GREEN, Color.BLACK, Color.ORANGE));
+                    Dashboard.log(Arrays.asList(car.name, " drops off ", citizen.name, "\n"), Arrays.asList(car.icon.color, Color.BLACK, Color.GRAY));
                 }
                 break;
             }

@@ -351,18 +351,35 @@ public class Car {
 		return stateOf(getRealState());
 	}
 	
-	private String stateOf(int state){
+	private static String stateOf(int state){
 		switch(state){
-		case 0:
+		case STOPPED:
 			return "Stopped";
-		case 1:
+		case MOVING:
 			return "Moving";
-		case -1:
-			return "Uncertain";
 		default:
 			return null;	
 		}
 	}
+
+	public static Color colorOf(String name) {
+        switch(name){
+            case Car.ORANGE:
+                return Color.ORANGE;
+            case Car.BLACK:
+                return Color.BLACK;
+            case Car.WHITE:
+                return Color.WHITE;
+            case Car.RED:
+                return Color.RED;
+            case Car.GREEN:
+                return Color.GREEN;
+            case Car.SILVER:
+                return CarIcon.SILVER;
+            default:
+                return null;
+        }
+    }
 	
 	public int getRealState(){
 		return !hasPhantom() ? state : realState;
@@ -387,34 +404,21 @@ public class Car {
 		public static final int SIZE = (int) (0.8*TrafficMap.SH);
 		public static final int INSET = (int) (0.2*TrafficMap.SH);
 		public static final Color SILVER = new Color(192, 192, 192);
+        public final Color color;
 		CarIcon(String name) {
 			setOpaque(false);
 			setContentAreaFilled(false);
 			setPreferredSize(new Dimension(SIZE, SIZE));
 //			setBorderPainted(false);
 			this.name = name;
+            color = colorOf(name);
 //			setSize(size, size);
 //			setMinimumSize(new Dimension(size, size));
 		}
 		
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			switch(name){
-			case Car.ORANGE:
-				g.setColor(Color.ORANGE); break;
-			case Car.BLACK:
-				g.setColor(Color.BLACK); break;
-			case Car.WHITE:
-				g.setColor(Color.WHITE); break;
-			case Car.RED:
-				g.setColor(Color.RED); break;
-			case Car.GREEN:
-				g.setColor(Color.GREEN); break;
-			case Car.SILVER:
-				g.setColor(SILVER); break;
-			default:
-				return;
-			}
+			g.setColor(color);
 			g.fillRect(0, 0, SIZE, SIZE);
 			g.setColor(Color.BLACK);
 			g.drawRect(0, 0, SIZE, SIZE);
