@@ -20,6 +20,7 @@ public class Delivery {
 	public static boolean allBusy = false;
     private static int MAX_USER_DELIV_NUM, MAX_SYS_DELIV_NUM;
     private static int userDelivNum = 0, sysDelivNum = 0;
+    public static int completedUserDelivNum = 0, completedSysDelivNum = 0;
 
     public Delivery() {
         MAX_USER_DELIV_NUM = Resource.getCars().size() > 1 ? 1 : 0;
@@ -223,15 +224,27 @@ public class Delivery {
                         else if(dt.phase == DeliveryTask.HEAD4DEST){
                             iter.remove();
                             dt.phase = DeliveryTask.COMPLETED;
-
                             car.dt = null;
                             car.dest = null;
                             car.finalState = Car.MOVING;
                             car.setLoading(false);
                             car.loc.icon.repaint();
                             car.notifyPolice(Police.REQUEST2ENTER);
-
                             allBusy = false;
+
+                            if(dt.releasedByUser) {
+                                userDelivNum--;
+                                completedUserDelivNum++;
+                                Dashboard.enableDeliveryButton(true);
+                            }
+                            else {
+                                sysDelivNum--;
+                                completedSysDelivNum++;
+                                Location src = TrafficMap.getALocation();
+                                Location dest = TrafficMap.getALocationExcept(src);
+                                add(src, dest, false);
+                            }
+                            Dashboard.addCompletedDeliveryTask(dt);
 //                            Dashboard.log(car.name+" finished unloading");
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
@@ -243,17 +256,6 @@ public class Delivery {
                                 } catch (CloneNotSupportedException e) {
                                     e.printStackTrace();
                                 }
-
-                            if(dt.releasedByUser) {
-                                userDelivNum--;
-                                Dashboard.enableDeliveryButton(true);
-                            }
-                            else {
-                                sysDelivNum--;
-                                Location src = TrafficMap.getALocation();
-                                Location dest = TrafficMap.getALocationExcept(src);
-                                add(src, dest, false);
-                            }
                         }
                         Dashboard.updateDeliveryTaskPanel();
                     }
@@ -379,6 +381,7 @@ public class Delivery {
 	public static void reset() {
         allBusy = false;
         userDelivNum = sysDelivNum = 0;
+        completedSysDelivNum = completedUserDelivNum = 0;
     }
 	
 	public static class DeliveryTask implements Cloneable{
@@ -409,20 +412,69 @@ public class Delivery {
 			return (DeliveryTask) super.clone();
 		}
 
+		public static final String css = "<style type=\"text/css\">\n" +
+                "table.user\n" +
+                "  {\n" +
+                "  font-family:\"Trebuchet MS\", Arial, Helvetica, sans-serif;\n" +
+                "  border-collapse:collapse;\n" +
+                "  font-size: 10px;\n" +
+                "  margin: 0px 0px 4px 0px;\n" +
+                "  white-space: nowrap;\n" +
+                "  }\n" +
+                "\n" +
+                "table.user td, table.user th \n" +
+                "  {\n" +
+                "  border:1px solid #98bf21;\n" +
+                "  border-collapse:collapse;\n" +
+                "  text-align:left;\n" +
+                "  margin: 0;\n" +
+                "  padding: 0;\n" +
+                "  }\n" +
+                "\n" +
+                "table.user th \n" +
+                "  {\n" +
+                "  background-color:#A7C942;\n" +
+                "  color:#ffffff;\n" +
+                "  }\n" +
+                "\n" +
+                "table.sys\n" +
+                "  {\n" +
+                "  font-family:\"Trebuchet MS\", Arial, Helvetica, sans-serif;\n" +
+                "  border-collapse:collapse;\n" +
+                "  font-size: 10px;\n" +
+                "  margin: 0px 0px 4px 0px;\n" +
+                "  white-space: nowrap;\n" +
+                "  }\n" +
+                "\n" +
+                "table.sys td, table.sys th \n" +
+                "  {\n" +
+                "  border:1px solid #000000;\n" +
+                "  text-align:left;\n" +
+                "  margin: 0;\n" +
+                "  padding: 0;\n" +
+                "  }\n" +
+                "\n" +
+                "table.sys th \n" +
+                "  {\n" +
+                "  background-color:#404040;\n" +
+                "  color:#ffffff;\n" +
+                "  }\n" +
+                "</style>";
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("<html>");
-            sb.append("<table border=\"1\">");
-            sb.append("<tr><td><b>").append(changeFontColor("Src", releasedByUser)).append("</b></td>");
-            sb.append("<td>").append(changeFontColor(src.name, releasedByUser)).append("</td></tr>");
-            sb.append("<tr><td><b>").append(changeFontColor("Dest", releasedByUser)).append("</b></td>");
-            sb.append("<td>").append(changeFontColor(dest.name, releasedByUser)).append("</td></tr>");
+//            sb.append("<html>");
+            sb.append("<table class="+ (releasedByUser ? "user" : "sys") + ">");
+            sb.append("<tr><th>").append("Src").append("</th>");
+            sb.append("<td>").append(src.name).append("</td></tr>");
+            sb.append("<tr><th>").append("Dest").append("</th>");
+            sb.append("<td>").append(dest.name).append("</td></tr>");
             if(citizen != null) {
-                sb.append("<tr><td><b>").append(changeFontColor("Pax", releasedByUser)).append("</b></td>");
-                sb.append("<td>").append(changeFontColor(citizen.name, releasedByUser)).append("</td></tr>");
+                sb.append("<tr><th>").append("Pax").append("</th>");
+                sb.append("<td>").append(citizen.name).append("</td></tr>");
             }
-            sb.append("<tr><td><b>").append(changeFontColor("Stat", releasedByUser)).append("</b></td>");
+            sb.append("<tr><th>").append("Stat").append("</th>");
             String phaseStr;
             switch (phase){
                 case SEARCH_CAR:
@@ -436,9 +488,9 @@ public class Delivery {
                 default:
                     phaseStr = "Unknown"; break;
             }
-            sb.append("<td>").append(changeFontColor(phaseStr, releasedByUser)).append("</td></tr>");
+            sb.append("<td>").append(phaseStr).append("</td></tr>");
             sb.append("</table>");
-            sb.append("</html>");
+//            sb.append("</html>");
             return sb.toString();
         }
 

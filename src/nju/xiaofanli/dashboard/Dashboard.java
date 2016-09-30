@@ -23,10 +23,9 @@ import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
 import javax.swing.*;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.text.*;
-import javax.swing.tree.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -43,19 +42,26 @@ public class Dashboard extends JFrame{
 	private static final JPanel leftPanel = new JPanel();
 	private static final JPanel rightPanel = new JPanel();
 	private static final JComboBox<String> carbox = new JComboBox<>();
-	private static final JTextArea delivta = new JTextArea();
+    private static final JLabel deliveryCountLabel = new JLabel();
+	private static final JTextPane deliveryPane = new JTextPane();
+    private static final JScrollPane deliveryPaneScroll = new JScrollPane(deliveryPane);
 	private static final JTextArea remedyta = new JTextArea();
+    private static final JScrollPane remedytaScroll = new JScrollPane(remedyta);
 	private static final JTextArea roadta = new JTextArea();
+    private static final JScrollPane roadtaScroll = new JScrollPane(roadta);
 	private static final JTextPane logPane = new JTextPane();
-	private static final JScrollPane delivtaScroll = new JScrollPane(delivta);
-	private static final JScrollPane remedytaScroll = new JScrollPane(remedyta);
-    private static final DefaultTreeModel delivTaskTreeModel;
-    private static final JTree delivTaskTree;
-    private static final JScrollPane dtTreeScroll;
-    private static final DefaultMutableTreeNode sysRelNode;
-    private static final DefaultMutableTreeNode userRelNode;
-	private static final JScrollPane roadtaScroll = new JScrollPane(roadta);
-	private static final JScrollPane logPaneScroll = new JScrollPane(logPane);
+    private static final JScrollPane logPaneScroll = new JScrollPane(logPane);
+//    private static final DefaultTreeModel delivTaskTreeModel;
+//    private static final JTree delivTaskTree;
+//    private static final JScrollPane dtTreeScroll;
+//    private static final DefaultMutableTreeNode sysRelNode;
+//    private static final DefaultMutableTreeNode userRelNode;
+    private static final JLabel completedUserDeliveryCountLabel = new JLabel();
+    private static final JTextPane completedUserDeliveryPane = new JTextPane();
+    private static final JScrollPane completedUserDeliveryPaneScroll = new JScrollPane(completedUserDeliveryPane);
+    private static final JLabel completedSysDeliveryCountLabel = new JLabel();
+    private static final JTextPane completedSysDeliveryPane = new JTextPane();
+    private static final JScrollPane completedSysDeliveryPaneScroll = new JScrollPane(completedSysDeliveryPane);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton startdButton = new JButton("Start");
@@ -108,7 +114,32 @@ public class Dashboard extends JFrame{
 	};
 
 	static {
-        delivtaScroll.setBorder(BorderFactory.createEmptyBorder());
+        deliveryCountLabel.setBackground(null);
+        deliveryPane.setEditable(false);
+        deliveryPane.setBackground(null);
+        deliveryPane.setContentType("text/html");
+        deliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+//        deliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        deliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        completedSysDeliveryCountLabel.setBackground(null);
+        completedSysDeliveryPane.setEditable(false);
+        completedSysDeliveryPane.setBackground(null);
+        completedSysDeliveryPane.setContentType("text/html");
+        completedSysDeliveryPane.setText(Delivery.DeliveryTask.css);
+        completedSysDeliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+        completedSysDeliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        completedSysDeliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        completedUserDeliveryCountLabel.setBackground(null);
+        completedUserDeliveryPane.setEditable(false);
+        completedUserDeliveryPane.setBackground(null);
+        completedUserDeliveryPane.setContentType("text/html");
+        completedUserDeliveryPane.setText(Delivery.DeliveryTask.css);
+        completedUserDeliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+        completedUserDeliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        completedUserDeliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
         remedytaScroll.setBorder(BorderFactory.createEmptyBorder());
         roadtaScroll.setBorder(BorderFactory.createEmptyBorder());
         logPaneScroll.setBorder(BorderFactory.createEmptyBorder());
@@ -118,76 +149,78 @@ public class Dashboard extends JFrame{
         logPane.setEditable(false);
         logPane.setBackground(null);
         ((DefaultCaret) logPane.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        roadta.setBackground(null);
 
-        class NodeObj {
-            private DefaultMutableTreeNode node = null;
-            private boolean isUserNode;
-
-            @Override
-            public String toString() {
-                String s;
-                if(isUserNode) {
-                    s = "<html><font color=green>User Release";
-                    if (node != null)
-                        s += ": " + node.getChildCount();
-                    s += "</font><html>";
-                }
-                else {
-                    s = "System Release";
-                    if (node != null)
-                        s += ": " + node.getChildCount();
-                }
-                return s;
-            }
-        }
-
-        NodeObj nodeObj = new NodeObj();
-        nodeObj.isUserNode = false;
-        sysRelNode = new DefaultMutableTreeNode(nodeObj);
-        nodeObj.node = sysRelNode;
-        nodeObj = new NodeObj();
-        nodeObj.isUserNode = true;
-        userRelNode = new DefaultMutableTreeNode(nodeObj);
-        nodeObj.node = userRelNode;
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-        root.add(sysRelNode);
-        root.add(userRelNode);
-        delivTaskTreeModel = new DefaultTreeModel(root);
-        delivTaskTreeModel.addTreeModelListener(new TreeModelListener() {
-            @Override
-            public void treeNodesChanged(TreeModelEvent e) {
-
-            }
-
-            @Override
-            public void treeNodesInserted(TreeModelEvent e) {
-                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
-            }
-
-            @Override
-            public void treeNodesRemoved(TreeModelEvent e) {
-                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
-            }
-
-            @Override
-            public void treeStructureChanged(TreeModelEvent e) {
-
-            }
-        });
-        delivTaskTree = new JTree(delivTaskTreeModel);
-        delivTaskTree.setToggleClickCount(1);
-        delivTaskTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) delivTaskTree.getCellRenderer();
-        renderer.setLeafIcon(Resource.loadImage("res/blue_check_toggle_rec.png",
-                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
-        renderer.setOpenIcon(Resource.loadImage("res/blue_collapse_toggle.png",
-                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
-        renderer.setClosedIcon(Resource.loadImage("res/blue_expand_toggle.png",
-                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
-        delivTaskTree.setRootVisible(false);
-        dtTreeScroll = new JScrollPane(delivTaskTree);
-        dtTreeScroll.setBorder(BorderFactory.createEmptyBorder());
+//        class NodeObj {
+//            private DefaultMutableTreeNode node = null;
+//            private boolean isUserNode;
+//
+//            @Override
+//            public String toString() {
+//                String s;
+//                if(isUserNode) {
+//                    s = "<html><font color=green>User Release";
+//                    if (node != null)
+//                        s += ": " + node.getChildCount();
+//                    s += "</font><html>";
+//                }
+//                else {
+//                    s = "System Release";
+//                    if (node != null)
+//                        s += ": " + node.getChildCount();
+//                }
+//                return s;
+//            }
+//        }
+//
+//        NodeObj nodeObj = new NodeObj();
+//        nodeObj.isUserNode = false;
+//        sysRelNode = new DefaultMutableTreeNode(nodeObj);
+//        nodeObj.node = sysRelNode;
+//        nodeObj = new NodeObj();
+//        nodeObj.isUserNode = true;
+//        userRelNode = new DefaultMutableTreeNode(nodeObj);
+//        nodeObj.node = userRelNode;
+//
+//        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+//        root.add(sysRelNode);
+//        root.add(userRelNode);
+//        delivTaskTreeModel = new DefaultTreeModel(root);
+//        delivTaskTreeModel.addTreeModelListener(new TreeModelListener() {
+//            @Override
+//            public void treeNodesChanged(TreeModelEvent e) {
+//
+//            }
+//
+//            @Override
+//            public void treeNodesInserted(TreeModelEvent e) {
+//                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
+//            }
+//
+//            @Override
+//            public void treeNodesRemoved(TreeModelEvent e) {
+//                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
+//            }
+//
+//            @Override
+//            public void treeStructureChanged(TreeModelEvent e) {
+//
+//            }
+//        });
+//        delivTaskTree = new JTree(delivTaskTreeModel);
+//        delivTaskTree.setBackground(null);
+//        delivTaskTree.setToggleClickCount(1);
+//        delivTaskTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+//        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) delivTaskTree.getCellRenderer();
+//        renderer.setLeafIcon(Resource.loadImage("res/blue_check_toggle_rec.png",
+//                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
+//        renderer.setOpenIcon(Resource.loadImage("res/blue_collapse_toggle.png",
+//                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
+//        renderer.setClosedIcon(Resource.loadImage("res/blue_expand_toggle.png",
+//                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
+//        delivTaskTree.setRootVisible(false);
+//        dtTreeScroll = new JScrollPane(delivTaskTree);
+//        dtTreeScroll.setBorder(BorderFactory.createEmptyBorder());
     }
 
 	private Dashboard() {
@@ -363,7 +396,7 @@ public class Dashboard extends JFrame{
 
 		gbc.gridx = gbc.gridy = 0;
 		gbc.weightx = gbc.weighty = 1;
-		leftPanel.setPreferredSize(new Dimension(300, 0));
+		leftPanel.setPreferredSize(new Dimension(400, 0));
 		controlPanel.add(leftPanel, gbc);
 		gbc.gridx = 1;
 		gbc.weightx = gbc.weighty = 0;
@@ -378,7 +411,7 @@ public class Dashboard extends JFrame{
 		leftPanel.setLayout(new GridBagLayout());
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
-		gbc.weightx = 1;
+		gbc.weightx = 2;
 		gbc.weighty = 0;
 //		gbc.gridheight = gbc.gridwidth = 1;
 		leftPanel.add(resetButton, gbc);
@@ -392,21 +425,21 @@ public class Dashboard extends JFrame{
 			}
 		});
 
-		gbc.gridy += gbc.gridheight;
-		leftPanel.add(new JLabel("Ongoing Delivery Task"), gbc);
+//		gbc.gridy += gbc.gridheight;
+//		leftPanel.add(new JLabel("Ongoing Delivery Task"), gbc);
 
 		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
-		leftPanel.add(delivtaScroll, gbc);
-		delivta.setLineWrap(true);
-		delivta.setWrapStyleWord(true);
-		delivta.setEditable(false);
+        JPanel ongoingDTPanel = new JPanel(new BorderLayout());
+        leftPanel.add(ongoingDTPanel, gbc);
+        ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Ongoing Task"));
+        ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
+        ongoingDTPanel.add(deliveryPaneScroll, BorderLayout.CENTER);
 		updateDeliveryTaskPanel();
 
-		gbc.gridy += gbc.gridheight;
-//		gbc.gridheight = 1;
-		gbc.weighty = 0;
-		leftPanel.add(new JLabel("Completed Delivery Task"), gbc);
+//		gbc.gridy += gbc.gridheight;
+//		gbc.weighty = 0;
+//		leftPanel.add(new JLabel("Completed Delivery Task"), gbc);
 
 		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
@@ -415,10 +448,22 @@ public class Dashboard extends JFrame{
 //		remedyta.setWrapStyleWord(true);
 //		remedyta.setEditable(false);
 //		updateRemedyCommandPanel();
-        leftPanel.add(dtTreeScroll, gbc);
+        JPanel completedDTPanel = new JPanel(new GridLayout(2, 1));
+        leftPanel.add(completedDTPanel, gbc);
+        completedDTPanel.setBorder(BorderFactory.createTitledBorder("Completed Task"));
+//        completedDTPanel.add(dtTreeScroll, BorderLayout.CENTER);
+        JPanel completedSysDTPanel = new JPanel(new BorderLayout());
+        completedSysDTPanel.add(completedSysDeliveryCountLabel, BorderLayout.NORTH);
+        completedSysDTPanel.add(completedSysDeliveryPaneScroll, BorderLayout.CENTER);
+        completedDTPanel.add(completedSysDTPanel);
+        JPanel completedUserDTPanel = new JPanel(new BorderLayout());
+        completedUserDTPanel.add(completedUserDeliveryCountLabel, BorderLayout.NORTH);
+        completedUserDTPanel.add(completedUserDeliveryPaneScroll, BorderLayout.CENTER);
+        completedDTPanel.add(completedUserDTPanel);
 
 		gbc.gridx = 1;
 		gbc.gridy = 0;
+        gbc.weightx = 1;
 		gbc.weighty = 0;
 		JButton deviceButton = new JButton("Device");
 		leftPanel.add(deviceButton, gbc);
@@ -490,7 +535,12 @@ public class Dashboard extends JFrame{
                 String s = cmd.substring("add dt ".length()).toLowerCase();
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
                         TrafficMap.getACitizen(), s.equals("u"));
-                addCompletedDeliveryTask(dt, s.equals("u"));
+//                Delivery.add(TrafficMap.getALocation(), TrafficMap.getALocation(), TrafficMap.getACitizen(), s.equals("u"));
+                if(dt.releasedByUser)
+                    Delivery.completedUserDelivNum++;
+                else
+                    Delivery.completedSysDelivNum++;
+                addCompletedDeliveryTask(dt);
             }
             else if(cmd.equals("all busy")){
                 Dashboard.log("All cars are busy!\n", Color.RED);
@@ -503,26 +553,29 @@ public class Dashboard extends JFrame{
 		});
 
 		gbc.gridx = 1;
-		gbc.gridy += gbc.gridheight;
+//		gbc.gridy += gbc.gridheight;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weighty = 0;
-		leftPanel.add(new JLabel("Vehicle Condition"), gbc);
+//		leftPanel.add(new JLabel("Vehicle Condition"), gbc);
 
 		gbc.gridy += gbc.gridheight;
 //		gbc.gridheight = 1;
 		gbc.weighty = 1;
-		leftPanel.add(VCPanel, gbc);
+        JPanel VCBorderpanel = new JPanel(new BorderLayout());
+        VCBorderpanel.setBorder(BorderFactory.createTitledBorder("Vehicle Condition"));
+        VCBorderpanel.add(VCPanel, BorderLayout.CENTER);
+		leftPanel.add(VCBorderpanel, gbc);
 
-		gbc.gridy += gbc.gridheight;
-//		gbc.gridheight = 1;
+//		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 0;
-		leftPanel.add(new JLabel("Road Condition"), gbc);
+//		leftPanel.add(new JLabel("Road Condition"), gbc);
 
 		gbc.gridy += gbc.gridheight;
-//		gbc.gridheight = 2;
-//		gbc.weighty = 0;
 		gbc.weighty = 1;
-		leftPanel.add(roadtaScroll, gbc);
+        JPanel RCBorderPanel = new JPanel(new BorderLayout());
+        RCBorderPanel.setBorder(BorderFactory.createTitledBorder("Road Condition"));
+        RCBorderPanel.add(roadtaScroll, BorderLayout.CENTER);
+		leftPanel.add(RCBorderPanel, gbc);
 		roadta.setLineWrap(true);
 		roadta.setWrapStyleWord(true);
 		roadta.setEditable(false);
@@ -814,32 +867,46 @@ public class Dashboard extends JFrame{
         desttf.setText(dest != null ? dest.name : "");
 	}
 
-	public static synchronized void updateDeliveryTaskPanel(){
+	public static void updateDeliveryTaskPanel(){
 		Queue<Delivery.DeliveryTask> queue = new LinkedList<>();
 		queue.addAll(Delivery.searchTasks);
 		queue.addAll(Delivery.deliveryTasks);
-		delivta.setText("Nums: " + queue.size());
-		for(Delivery.DeliveryTask dt : queue) {
-//            delivta.append("\nPhase: " + dt.phase + " Src: " + dt.src.name + " Dst: " + dt.dest.name);
-//            if(dt.releasedByUser)
-//                delivta.append(" *User Release*");
-            delivta.append(dt.toString());
+        synchronized (deliveryCountLabel) {
+            deliveryCountLabel.setText("Nums: " + queue.size());
+        }
+        synchronized (deliveryPane) {
+            deliveryPane.setText(Delivery.DeliveryTask.css);
+            HTMLDocument doc = (HTMLDocument) deliveryPane.getDocument();
+            HTMLEditorKit editorKit = (HTMLEditorKit) deliveryPane.getEditorKit();
+            for (Delivery.DeliveryTask dt : queue) {
+                try {
+                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
+                } catch (BadLocationException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 	}
 
-	public static synchronized void updateRemedyCommandPanel(){
-		remedyta.setText("Nums: "+ Remedy.getQueue().size());
-		for(Command cmd : Remedy.getQueue()){
-			remedyta.append("\n"+cmd.car.name+" "+((cmd.cmd==0)?"S":"F")+" "+cmd.deadline);
-		}
+	public static void updateRemedyCommandPanel(){
+        synchronized (remedyta) {
+            remedyta.setText("Nums: " + Remedy.getQueue().size());
+            for (Command cmd : Remedy.getQueue()) {
+                remedyta.append("\n" + cmd.car.name + " " + ((cmd.cmd == 0) ? "S" : "F") + " " + cmd.deadline);
+            }
+        }
 	}
 
-	public static synchronized void updateVehicleConditionPanel(Car car){
-		VCPanel.updateVC(car);
+	public static void updateVehicleConditionPanel(Car car){
+        synchronized (VCPanel) {
+            VCPanel.updateVC(car);
+        }
 	}
 
-	public static synchronized void updateVehicleConditionPanel(){
-		Resource.getConnectedCars().forEach(Dashboard::updateVehicleConditionPanel);
+	public static void updateVehicleConditionPanel(){
+        synchronized (VCPanel) {
+            Resource.getConnectedCars().forEach(Dashboard::updateVehicleConditionPanel);
+        }
 	}
 
     public static void log(List<String> strings, List<Color> colors) {
@@ -926,19 +993,57 @@ public class Dashboard extends JFrame{
         updateVehicleConditionPanel();
         roadta.setText("");
         logPane.setText("");
-        for(int i = 0;i < delivTaskTree.getRowCount();i++)
-            delivTaskTree.collapseRow(i);
-        sysRelNode.removeAllChildren();
-        userRelNode.removeAllChildren();
+//        for(int i = 0;i < delivTaskTree.getRowCount();i++)
+//            delivTaskTree.collapseRow(i);
+//        sysRelNode.removeAllChildren();
+//        userRelNode.removeAllChildren();
+        resetCompletedDeliveryTaskPanel();
     }
 
-    public static void addCompletedDeliveryTask(Delivery.DeliveryTask dt, boolean releasedByUser){
+    public static void addCompletedDeliveryTask(Delivery.DeliveryTask dt){
         if(dt == null)
             return;
-        DefaultMutableTreeNode node = releasedByUser ? userRelNode : sysRelNode;
-        synchronized (delivTaskTreeModel) {
-            delivTaskTreeModel.insertNodeInto(new DefaultMutableTreeNode(dt), node, node.getChildCount());
+        if(dt.releasedByUser) {
+            synchronized (completedUserDeliveryCountLabel) {
+                completedUserDeliveryCountLabel.setText("User Release Nums: " + Delivery.completedUserDelivNum);
+            }
+            synchronized (completedUserDeliveryPane) {
+                HTMLDocument doc = (HTMLDocument) completedUserDeliveryPane.getDocument();
+                HTMLEditorKit editorKit = (HTMLEditorKit) completedUserDeliveryPane.getEditorKit();
+                try {
+                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
+                    completedUserDeliveryPane.setCaretPosition(doc.getLength());
+                } catch (BadLocationException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        else {
+            synchronized (completedSysDeliveryCountLabel) {
+                completedSysDeliveryCountLabel.setText("System Release Nums: " + Delivery.completedSysDelivNum);
+            }
+            synchronized (completedSysDeliveryPane) {
+                HTMLDocument doc = (HTMLDocument) completedSysDeliveryPane.getDocument();
+                HTMLEditorKit editorKit = (HTMLEditorKit) completedSysDeliveryPane.getEditorKit();
+                try {
+                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
+                    completedSysDeliveryPane.setCaretPosition(doc.getLength());
+                } catch (BadLocationException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//        DefaultMutableTreeNode node = releasedByUser ? userRelNode : sysRelNode;
+//        synchronized (delivTaskTreeModel) {
+//            delivTaskTreeModel.insertNodeInto(new DefaultMutableTreeNode(dt), node, node.getChildCount());
+//        }
+    }
+
+    private static void resetCompletedDeliveryTaskPanel(){
+        completedSysDeliveryCountLabel.setText("System Release Nums: " + Delivery.completedSysDelivNum);
+        completedUserDeliveryCountLabel.setText("User Release Nums: " + Delivery.completedUserDelivNum);
+        completedSysDeliveryPane.setText(Delivery.DeliveryTask.css);
+        completedUserDeliveryPane.setText(Delivery.DeliveryTask.css);
     }
 
     public static void enableDeliveryButton(boolean b){
