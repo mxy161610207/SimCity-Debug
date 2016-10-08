@@ -412,7 +412,7 @@ public class Car {
 //			setBorderPainted(false);
 			this.name = name;
             color = colorOf(name);
-//			setSize(size, size);
+//			setSize(SIZE, SIZE);
 //			setMinimumSize(new Dimension(size, size));
 		}
 		

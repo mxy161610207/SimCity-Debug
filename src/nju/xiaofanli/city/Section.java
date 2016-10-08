@@ -155,6 +155,8 @@ public abstract class Section extends Location{
 		protected void paintComponent(Graphics g) {
 //			System.out.println(section.name);
 			super.paintComponent(g);
+			g.setFont(Dashboard.bold14dialog);
+            FontMetrics fm = g.getFontMetrics();
 			int n = section.realCars.size();
 			for(Car car : section.cars)
 				if(!car.hasPhantom())
@@ -194,7 +196,7 @@ public abstract class Section extends Location{
 					if(car.realLoc != null) {
                         if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.WHITE);
-                        g.drawString("FAKE", x, y + 10);
+                        g.drawString("FAKE", x+(cubeSize-fm.stringWidth("FAKE"))/2, y+(cubeSize+fm.getAscent())/2);
                         if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.BLACK);
                     }
@@ -211,7 +213,7 @@ public abstract class Section extends Location{
 					g.drawRect(x, y, cubeSize, cubeSize);
                     if(car.icon.color.equals(Color.BLACK))
                         g.setColor(Color.WHITE);
-                    g.drawString("REAL", x, y + 10);
+                    g.drawString("REAL", x+(cubeSize-fm.stringWidth("REAL"))/2, y+(cubeSize+fm.getAscent())/2);
                     if(car.icon.color.equals(Color.BLACK))
                         g.setColor(Color.BLACK);
 					if(vertical)
@@ -224,8 +226,7 @@ public abstract class Section extends Location{
 			//draw sections
 			if(Dashboard.showSection){
 				g.setColor(Color.BLACK);
-				String str = id+"";
-				FontMetrics fm = g.getFontMetrics();
+				String str = String.valueOf(id);
 				g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2);
 			}
 		}

@@ -52,8 +52,10 @@ class DPad extends JPanel{
 //		add(startB);
 		setLayout(new GridLayout(1, 2, 5, 5));
 		JButton jbf = new JButton("Drive");
+        jbf.setFont(Dashboard.bold14dialog);
 		add(jbf);
         JButton jbs = new JButton("Stop");
+        jbs.setFont(Dashboard.bold14dialog);
         add(jbs);
         JButton jbl = new JButton("Left");
         jbl.setEnabled(false);

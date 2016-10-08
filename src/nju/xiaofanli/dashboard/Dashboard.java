@@ -9,10 +9,7 @@ import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
-import nju.xiaofanli.city.Building;
-import nju.xiaofanli.city.Location;
-import nju.xiaofanli.city.Section;
-import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.city.*;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.CmdSender;
@@ -23,9 +20,8 @@ import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.*;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,6 +34,9 @@ import java.util.Queue;
 public class Dashboard extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static Dashboard instance = null;
+    public static final Font bold14dialog = new Font(Font.DIALOG, Font.BOLD, 14);
+    public static final Font bold15dialog = new Font(Font.DIALOG, Font.BOLD, 15);
+    public static final Font plain15dialog = new Font(Font.DIALOG, Font.PLAIN, 15);
 	private static final TrafficMap trafficMap = new TrafficMap();
 	private static final JPanel leftPanel = new JPanel();
 	private static final JPanel rightPanel = new JPanel();
@@ -51,19 +50,15 @@ public class Dashboard extends JFrame{
     private static final JScrollPane roadtaScroll = new JScrollPane(roadta);
 	private static final JTextPane logPane = new JTextPane();
     private static final JScrollPane logPaneScroll = new JScrollPane(logPane);
-//    private static final DefaultTreeModel delivTaskTreeModel;
-//    private static final JTree delivTaskTree;
-//    private static final JScrollPane dtTreeScroll;
-//    private static final DefaultMutableTreeNode sysRelNode;
-//    private static final DefaultMutableTreeNode userRelNode;
-    private static final JLabel completedUserDeliveryCountLabel = new JLabel();
-    private static final JTextPane completedUserDeliveryPane = new JTextPane();
-    private static final JScrollPane completedUserDeliveryPaneScroll = new JScrollPane(completedUserDeliveryPane);
-    private static final JLabel completedSysDeliveryCountLabel = new JLabel();
-    private static final JTextPane completedSysDeliveryPane = new JTextPane();
-    private static final JScrollPane completedSysDeliveryPaneScroll = new JScrollPane(completedSysDeliveryPane);
+//    private static final JLabel completedUserDeliveryCountLabel = new JLabel();
+//    private static final JTextPane completedUserDeliveryPane = new JTextPane();
+//    private static final JScrollPane completedUserDeliveryPaneScroll = new JScrollPane(completedUserDeliveryPane);
+//    private static final JLabel completedSysDeliveryCountLabel = new JLabel();
+//    private static final JTextPane completedSysDeliveryPane = new JTextPane();
+//    private static final JScrollPane completedSysDeliveryPaneScroll = new JScrollPane(completedSysDeliveryPane);
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
+    private static final JButton deviceButton = new JButton("Device");
     private static final JButton startdButton = new JButton("Start");
 	private static final JButton deliverButton = new JButton("Deliver");
 	private static final JButton canceldButton = new JButton("Cancel");
@@ -81,10 +76,8 @@ public class Dashboard extends JFrame{
 	private static final JTextField desttf = new JTextField();
 	private static final JTextField console  = new JTextField("Console");
 	private static Location src = null, dest = null;
-//	private static final JPanel deliveryPanel = new JPanel();
-//	private static final JPanel CCPanel = new JPanel();
-//	private static final JPanel miscPanel = new JPanel();
 	private static boolean delivSelModeOn = false, isSysDelivStarted = false;
+
 	public static boolean blink = false;
 	private static final Runnable blinkThread = new Runnable() {
 		private final int duration = 500;
@@ -114,113 +107,68 @@ public class Dashboard extends JFrame{
 	};
 
 	static {
+        carbox.setFont(bold14dialog);
+        resetButton.setFont(bold14dialog);
+        deviceButton.setFont(bold14dialog);
+        startdButton.setFont(bold14dialog);
+        deliverButton.setFont(bold14dialog);
+        canceldButton.setFont(bold14dialog);
+        jchkSensor.setFont(bold14dialog);
+        jchkSection.setFont(bold14dialog);
+        jchkBalloon.setFont(bold14dialog);
+        jchkCrash.setFont(bold14dialog);
+        jchkError.setFont(bold14dialog);
+        jchkDetection.setFont(bold14dialog);
+        jchkResolution.setFont(bold14dialog);
+        srctf.setFont(bold14dialog);
+        desttf.setFont(bold14dialog);
+        console.setFont(bold14dialog);
+        deliveryCountLabel.setFont(bold14dialog);
         deliveryCountLabel.setBackground(null);
         deliveryPane.setEditable(false);
         deliveryPane.setBackground(null);
-        deliveryPane.setContentType("text/html");
+//        deliveryPane.setContentType("text/html");
+        deliveryPane.setFont(plain15dialog);
         deliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
 //        deliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         deliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        completedSysDeliveryCountLabel.setBackground(null);
-        completedSysDeliveryPane.setEditable(false);
-        completedSysDeliveryPane.setBackground(null);
-        completedSysDeliveryPane.setContentType("text/html");
-        completedSysDeliveryPane.setText(Delivery.DeliveryTask.css);
-        completedSysDeliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
-        completedSysDeliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        completedSysDeliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        completedUserDeliveryCountLabel.setBackground(null);
-        completedUserDeliveryPane.setEditable(false);
-        completedUserDeliveryPane.setBackground(null);
-        completedUserDeliveryPane.setContentType("text/html");
-        completedUserDeliveryPane.setText(Delivery.DeliveryTask.css);
-        completedUserDeliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
-        completedUserDeliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        completedUserDeliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+//        completedSysDeliveryCountLabel.setBackground(null);
+//        completedSysDeliveryPane.setEditable(false);
+//        completedSysDeliveryPane.setBackground(null);
+//        completedSysDeliveryPane.setContentType("text/html");
+//        completedSysDeliveryPane.setText(Delivery.DeliveryTask.css);
+//        completedSysDeliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+//        completedSysDeliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+//        completedSysDeliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+//
+//        completedUserDeliveryCountLabel.setBackground(null);
+//        completedUserDeliveryPane.setEditable(false);
+//        completedUserDeliveryPane.setBackground(null);
+//        completedUserDeliveryPane.setContentType("text/html");
+//        completedUserDeliveryPane.setText(Delivery.DeliveryTask.css);
+//        completedUserDeliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
+//        completedUserDeliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+//        completedUserDeliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         remedytaScroll.setBorder(BorderFactory.createEmptyBorder());
         roadtaScroll.setBorder(BorderFactory.createEmptyBorder());
         logPaneScroll.setBorder(BorderFactory.createEmptyBorder());
         logPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         logPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        logPane.setFont(new Font(Font.DIALOG, Font.BOLD, 15));
+        logPane.setFont(plain15dialog);
         logPane.setEditable(false);
         logPane.setBackground(null);
         ((DefaultCaret) logPane.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+//      roadta.setLineWrap(true);
+//		roadta.setWrapStyleWord(true);
+        roadta.setEditable(false);
         roadta.setBackground(null);
-
-//        class NodeObj {
-//            private DefaultMutableTreeNode node = null;
-//            private boolean isUserNode;
-//
-//            @Override
-//            public String toString() {
-//                String s;
-//                if(isUserNode) {
-//                    s = "<html><font color=green>User Release";
-//                    if (node != null)
-//                        s += ": " + node.getChildCount();
-//                    s += "</font><html>";
-//                }
-//                else {
-//                    s = "System Release";
-//                    if (node != null)
-//                        s += ": " + node.getChildCount();
-//                }
-//                return s;
-//            }
-//        }
-//
-//        NodeObj nodeObj = new NodeObj();
-//        nodeObj.isUserNode = false;
-//        sysRelNode = new DefaultMutableTreeNode(nodeObj);
-//        nodeObj.node = sysRelNode;
-//        nodeObj = new NodeObj();
-//        nodeObj.isUserNode = true;
-//        userRelNode = new DefaultMutableTreeNode(nodeObj);
-//        nodeObj.node = userRelNode;
-//
-//        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-//        root.add(sysRelNode);
-//        root.add(userRelNode);
-//        delivTaskTreeModel = new DefaultTreeModel(root);
-//        delivTaskTreeModel.addTreeModelListener(new TreeModelListener() {
-//            @Override
-//            public void treeNodesChanged(TreeModelEvent e) {
-//
-//            }
-//
-//            @Override
-//            public void treeNodesInserted(TreeModelEvent e) {
-//                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
-//            }
-//
-//            @Override
-//            public void treeNodesRemoved(TreeModelEvent e) {
-//                delivTaskTreeModel.nodeChanged((DefaultMutableTreeNode) e.getTreePath().getLastPathComponent());
-//            }
-//
-//            @Override
-//            public void treeStructureChanged(TreeModelEvent e) {
-//
-//            }
-//        });
-//        delivTaskTree = new JTree(delivTaskTreeModel);
-//        delivTaskTree.setBackground(null);
-//        delivTaskTree.setToggleClickCount(1);
-//        delivTaskTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-//        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) delivTaskTree.getCellRenderer();
-//        renderer.setLeafIcon(Resource.loadImage("res/blue_check_toggle_rec.png",
-//                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
-//        renderer.setOpenIcon(Resource.loadImage("res/blue_collapse_toggle.png",
-//                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
-//        renderer.setClosedIcon(Resource.loadImage("res/blue_expand_toggle.png",
-//                renderer.getOpenIcon().getIconWidth(), renderer.getOpenIcon().getIconHeight()));
-//        delivTaskTree.setRootVisible(false);
-//        dtTreeScroll = new JScrollPane(delivTaskTree);
-//        dtTreeScroll.setBorder(BorderFactory.createEmptyBorder());
+        roadta.setFont(plain15dialog);
+        remedyta.setFont(plain15dialog);
+        remedyta.setEditable(false);
+        remedyta.setBackground(null);
+//		updateRemedyCommandPanel();
     }
 
 	private Dashboard() {
@@ -228,6 +176,7 @@ public class Dashboard extends JFrame{
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setVisible(true);
+        setResizable(false);
 	}
 
 	public static Dashboard getInstance(){
@@ -260,7 +209,6 @@ public class Dashboard extends JFrame{
 		if(checkingPanel != null){
 			setTitle("Self Checking");
 			setContentPane(checkingPanel);
-//			cards.show(getContentPane(), "Check");
 			pack();
 			setLocationRelativeTo(null);
 			return;
@@ -276,6 +224,7 @@ public class Dashboard extends JFrame{
             JPanel brickPanel = new JPanel();
             checkingPanel.add(brickPanel, gbc);
             brickPanel.setBorder(BorderFactory.createTitledBorder("Bricks"));
+            ((TitledBorder) brickPanel.getBorder()).setTitleFont(bold15dialog);
             brickPanel.setLayout(new GridBagLayout());
             GridBagConstraints bgbc = new GridBagConstraints();
 //		bgbc.fill = GridBagConstraints.BOTH;
@@ -302,6 +251,7 @@ public class Dashboard extends JFrame{
             gbc.gridy += gbc.gridheight;
             gbc.weightx = gbc.weighty = 0;
             JButton shutDownBtn = new JButton("Shutdown");
+            shutDownBtn.setFont(bold14dialog);
             checkingPanel.add(shutDownBtn, gbc);
             shutDownBtn.addActionListener(e -> {
                 shutDownBtn.setEnabled(false);
@@ -343,6 +293,7 @@ public class Dashboard extends JFrame{
             JPanel carPanel = new JPanel();
             checkingPanel.add(carPanel, gbc);
             carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
+            ((TitledBorder) carPanel.getBorder()).setTitleFont(bold15dialog);
             carPanel.setLayout(new GridBagLayout());
             GridBagConstraints cgbc = new GridBagConstraints();
 //		cgbc.fill = GridBagConstraints.BOTH;
@@ -375,16 +326,18 @@ public class Dashboard extends JFrame{
 	}
 
 	private static JPanel controlPanel = null;
+    private static int controlPanelWidth = 1280, controlPanelHeight = 720;
 	public void loadCtrlUI(){
 		if(controlPanel != null){
 			setTitle("Dashboard");
 			setContentPane(controlPanel);
-//			cards.show(getContentPane(), "Control");
-			pack();
+//			pack();
 			setLocationRelativeTo(null);
 			return;
 		}
 		controlPanel = new JPanel(new GridBagLayout());
+        controlPanel.setPreferredSize(new Dimension(controlPanelWidth, controlPanelHeight));
+        controlPanel.setSize(controlPanelWidth, controlPanelHeight);
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 //		gbc.anchor = GridBagConstraints.CENTER;
@@ -395,27 +348,33 @@ public class Dashboard extends JFrame{
 			b.icon.addMouseListener(new BuildingIconListener(b));
 
 		gbc.gridx = gbc.gridy = 0;
-		gbc.weightx = gbc.weighty = 1;
-		leftPanel.setPreferredSize(new Dimension(400, 0));
-		controlPanel.add(leftPanel, gbc);
-		gbc.gridx = 1;
-		gbc.weightx = gbc.weighty = 0;
-		controlPanel.add(trafficMap, gbc);
-		gbc.gridx = 2;
+//        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
+        gbc.weighty = 1;
+        controlPanel.add(trafficMap, gbc);
+
+		gbc.gridx += gbc.gridwidth;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = gbc.weighty = 1;
+//		leftPanel.setPreferredSize(new Dimension(400, 0));
+        controlPanel.add(leftPanel, gbc);
+
+        gbc.gridx += gbc.gridwidth;
+        gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
-		rightPanel.setPreferredSize(new Dimension(300, 0));
+        gbc.gridheight = 1;
+//		rightPanel.setPreferredSize(new Dimension(300, 0));
 		controlPanel.add(rightPanel, gbc);
 
 		//left panel settings
 		leftPanel.setLayout(new GridBagLayout());
 		gbc.insets = new Insets(1, 5, 1, 5);
 		gbc.gridx = gbc.gridy = 0;
-		gbc.weightx = 2;
+		gbc.weightx = 1;
 		gbc.weighty = 0;
 //		gbc.gridheight = gbc.gridwidth = 1;
 		leftPanel.add(resetButton, gbc);
-
 		resetButton.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				if(!resetButton.isEnabled())
@@ -426,50 +385,38 @@ public class Dashboard extends JFrame{
 		});
 
 //		gbc.gridy += gbc.gridheight;
-//		leftPanel.add(new JLabel("Ongoing Delivery Task"), gbc);
-
-		gbc.gridy += gbc.gridheight;
-		gbc.weighty = 1;
-        JPanel ongoingDTPanel = new JPanel(new BorderLayout());
-        leftPanel.add(ongoingDTPanel, gbc);
-        ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Ongoing Task"));
-        ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
-        ongoingDTPanel.add(deliveryPaneScroll, BorderLayout.CENTER);
-		updateDeliveryTaskPanel();
+//		gbc.weighty = 1;
+//        JPanel ongoingDTPanel = new JPanel(new BorderLayout());
+//        leftPanel.add(ongoingDTPanel, gbc);
+//        ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Ongoing tasks"));
+//        ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
+//        ongoingDTPanel.add(deliveryPaneScroll, BorderLayout.CENTER);
+//		updateDeliveryTaskPanel();
 
 //		gbc.gridy += gbc.gridheight;
-//		gbc.weighty = 0;
-//		leftPanel.add(new JLabel("Completed Delivery Task"), gbc);
-
-		gbc.gridy += gbc.gridheight;
-		gbc.weighty = 1;
-//		leftPanel.add(remedytaScroll, gbc);
-//		remedyta.setLineWrap(true);
-//		remedyta.setWrapStyleWord(true);
-//		remedyta.setEditable(false);
-//		updateRemedyCommandPanel();
-        JPanel completedDTPanel = new JPanel(new GridLayout(2, 1));
-        leftPanel.add(completedDTPanel, gbc);
-        completedDTPanel.setBorder(BorderFactory.createTitledBorder("Completed Task"));
+//		gbc.weighty = 1;
+//        JPanel completedDTPanel = new JPanel(new GridLayout(2, 1));
+//        leftPanel.add(completedDTPanel, gbc);
+//        completedDTPanel.setBorder(BorderFactory.createTitledBorder("Completed tasks"));
 //        completedDTPanel.add(dtTreeScroll, BorderLayout.CENTER);
-        JPanel completedSysDTPanel = new JPanel(new BorderLayout());
-        completedSysDTPanel.add(completedSysDeliveryCountLabel, BorderLayout.NORTH);
-        completedSysDTPanel.add(completedSysDeliveryPaneScroll, BorderLayout.CENTER);
-        completedDTPanel.add(completedSysDTPanel);
-        JPanel completedUserDTPanel = new JPanel(new BorderLayout());
-        completedUserDTPanel.add(completedUserDeliveryCountLabel, BorderLayout.NORTH);
-        completedUserDTPanel.add(completedUserDeliveryPaneScroll, BorderLayout.CENTER);
-        completedDTPanel.add(completedUserDTPanel);
+//        JPanel completedSysDTPanel = new JPanel(new BorderLayout());
+//        completedSysDTPanel.add(completedSysDeliveryCountLabel, BorderLayout.NORTH);
+//        completedSysDTPanel.add(completedSysDeliveryPaneScroll, BorderLayout.CENTER);
+//        completedDTPanel.add(completedSysDTPanel);
+//        JPanel completedUserDTPanel = new JPanel(new BorderLayout());
+//        completedUserDTPanel.add(completedUserDeliveryCountLabel, BorderLayout.NORTH);
+//        completedUserDTPanel.add(completedUserDeliveryPaneScroll, BorderLayout.CENTER);
+//        completedDTPanel.add(completedUserDTPanel);
 
-		gbc.gridx = 1;
+		gbc.gridx += gbc.gridwidth;
 		gbc.gridy = 0;
         gbc.weightx = 1;
 		gbc.weighty = 0;
-		JButton deviceButton = new JButton("Device");
 		leftPanel.add(deviceButton, gbc);
 		deviceButton.addActionListener(e -> showDeviceDialog(true));
 
 		gbc.gridx += gbc.gridwidth;
+        gbc.weightx = gbc.weighty = 0;
 		leftPanel.add(console, gbc);
 		console.addActionListener(e -> {
 			String cmd = console.getText();
@@ -535,50 +482,41 @@ public class Dashboard extends JFrame{
                 String s = cmd.substring("add dt ".length()).toLowerCase();
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
                         TrafficMap.getACitizen(), s.equals("u"));
-//                Delivery.add(TrafficMap.getALocation(), TrafficMap.getALocation(), TrafficMap.getACitizen(), s.equals("u"));
-                if(dt.releasedByUser)
-                    Delivery.completedUserDelivNum++;
-                else
-                    Delivery.completedSysDelivNum++;
-                addCompletedDeliveryTask(dt);
+                Delivery.add(dt);
+//                if(dt.releasedByUser)
+//                    Delivery.completedUserDelivNum++;
+//                else
+//                    Delivery.completedSysDelivNum++;
             }
             else if(cmd.equals("all busy")){
                 Dashboard.log("All cars are busy!\n", Color.RED);
             }
             else if(cmd.equals("pick") || cmd.equals("drop")) {
                 String name = Car.getACarName();
-                Dashboard.log(Arrays.asList(name, cmd.equals("pick") ? " picks up " : " drops off ", TrafficMap.getACitizen().name, "\n"),
-                        Arrays.asList(Car.colorOf(name), Color.BLACK, Color.GRAY));
+                Citizen citizen = TrafficMap.getACitizen();
+                Dashboard.log(Arrays.asList(name, cmd.equals("pick") ? " picks up " : " drops off ", citizen.name,
+                        " at ", TrafficMap.getALocation().name,"\n"),
+                        Arrays.asList(Car.colorOf(name), Color.BLACK, citizen.icon.color, Color.BLACK, Color.GRAY));
             }
 		});
 
-		gbc.gridx = 1;
-//		gbc.gridy += gbc.gridheight;
+		gbc.gridx = 0;
+        gbc.gridy += gbc.gridheight;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbc.weighty = 0;
-//		leftPanel.add(new JLabel("Vehicle Condition"), gbc);
-
-		gbc.gridy += gbc.gridheight;
-//		gbc.gridheight = 1;
 		gbc.weighty = 1;
         JPanel VCBorderpanel = new JPanel(new BorderLayout());
-        VCBorderpanel.setBorder(BorderFactory.createTitledBorder("Vehicle Condition"));
+        VCBorderpanel.setBorder(BorderFactory.createTitledBorder("Vehicle conditions"));
+        ((TitledBorder) VCBorderpanel.getBorder()).setTitleFont(bold15dialog);
         VCBorderpanel.add(VCPanel, BorderLayout.CENTER);
 		leftPanel.add(VCBorderpanel, gbc);
-
-//		gbc.gridy += gbc.gridheight;
-		gbc.weighty = 0;
-//		leftPanel.add(new JLabel("Road Condition"), gbc);
 
 		gbc.gridy += gbc.gridheight;
 		gbc.weighty = 1;
         JPanel RCBorderPanel = new JPanel(new BorderLayout());
-        RCBorderPanel.setBorder(BorderFactory.createTitledBorder("Road Condition"));
+        RCBorderPanel.setBorder(BorderFactory.createTitledBorder("Road condition"));
+        ((TitledBorder) RCBorderPanel.getBorder()).setTitleFont(bold15dialog);
         RCBorderPanel.add(roadtaScroll, BorderLayout.CENTER);
 		leftPanel.add(RCBorderPanel, gbc);
-		roadta.setLineWrap(true);
-		roadta.setWrapStyleWord(true);
-		roadta.setEditable(false);
 
 		//right panel settings
 		rightPanel.setLayout(new GridBagLayout());
@@ -596,6 +534,7 @@ public class Dashboard extends JFrame{
         JPanel miscPanel = new JPanel();
 		rightPanel.add(miscPanel, gbc);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
+        ((TitledBorder) miscPanel.getBorder()).setTitleFont(bold15dialog);
 //		miscPanel.setLayout(new GridLayout(2, 0));
 //		miscPanel.setPreferredSize(new Dimension(240, 90));
 		miscPanel.setLayout(new GridBagLayout());
@@ -642,6 +581,7 @@ public class Dashboard extends JFrame{
         JPanel CCPanel = new JPanel();
 		rightPanel.add(CCPanel, gbc);
 		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
+        ((TitledBorder) CCPanel.getBorder()).setTitleFont(bold15dialog);
 		CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		CCPanel.add(jchkDetection);
 		CCPanel.add(jchkResolution);
@@ -678,6 +618,7 @@ public class Dashboard extends JFrame{
         JPanel deliveryPanel = new JPanel();
 		rightPanel.add(deliveryPanel, gbc);
 		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Delivery"));
+        ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(bold15dialog);
 		deliveryPanel.setLayout(new GridBagLayout());
 
 		GridBagConstraints dgbc = new GridBagConstraints();
@@ -685,7 +626,9 @@ public class Dashboard extends JFrame{
 		dgbc.fill = GridBagConstraints.BOTH;
 		dgbc.gridx = 0;
 		dgbc.gridy = 0;
-		deliveryPanel.add(new JLabel("Src"), dgbc);
+        JLabel srcLabel = new JLabel("Src");
+        srcLabel.setFont(bold14dialog);
+		deliveryPanel.add(srcLabel, dgbc);
 		dgbc.gridx += dgbc.gridwidth;
 		dgbc.weightx = 1;
 //		dgbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -694,7 +637,9 @@ public class Dashboard extends JFrame{
 		dgbc.gridx += dgbc.gridwidth;
 //		dgbc.gridy += dgbc.gridheight;
 		dgbc.weightx = 0;
-		deliveryPanel.add(new JLabel("Dst"), dgbc);
+        JLabel destLabel = new JLabel("Dest");
+        destLabel.setFont(bold14dialog);
+		deliveryPanel.add(destLabel, dgbc);
 		dgbc.gridx += dgbc.gridwidth;
 		dgbc.weightx = 1;
 		deliveryPanel.add(desttf, dgbc);
@@ -717,7 +662,7 @@ public class Dashboard extends JFrame{
             else {
                 src = dest = null;
                 updateDeliverySrcPanel();
-                updateDeliveryDstPanel();
+                updateDeliveryDestPanel();
                 delivSelModeOn = true;
                 startdButton.setVisible(false);
                 deliverButton.setVisible(true);
@@ -744,10 +689,21 @@ public class Dashboard extends JFrame{
 		deliverButton.setVisible(false);
 		canceldButton.setVisible(false);
 
+        gbc.gridy += gbc.gridheight;
+        gbc.weighty = 0;
+        JPanel ongoingDTPanel = new JPanel(new BorderLayout());
+        rightPanel.add(ongoingDTPanel, gbc);
+        ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Tasks"));
+        ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(bold15dialog);
+        ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
+        ongoingDTPanel.add(deliveryPane, BorderLayout.CENTER);
+        updateDeliveryTaskPanel();
+
 		gbc.gridy += gbc.gridheight;
         gbc.weighty = 1;
         JPanel logPanel = new JPanel(new BorderLayout());
-        logPanel.setBorder(BorderFactory.createTitledBorder("Log"));
+        logPanel.setBorder(BorderFactory.createTitledBorder("Logs"));
+        ((TitledBorder) logPanel.getBorder()).setTitleFont(bold15dialog);
 		rightPanel.add(logPanel, gbc);
         logPanel.add(logPaneScroll, BorderLayout.CENTER);
 
@@ -863,7 +819,7 @@ public class Dashboard extends JFrame{
         srctf.setText(src != null ? src.name : "");
 	}
 
-	private static void updateDeliveryDstPanel(){
+	private static void updateDeliveryDestPanel(){
         desttf.setText(dest != null ? dest.name : "");
 	}
 
@@ -872,18 +828,48 @@ public class Dashboard extends JFrame{
 		queue.addAll(Delivery.searchTasks);
 		queue.addAll(Delivery.deliveryTasks);
         synchronized (deliveryCountLabel) {
-            deliveryCountLabel.setText("Nums: " + queue.size());
+            deliveryCountLabel.setText("Ongoing: " + queue.size()
+                    + "    Completed: " + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
         }
         synchronized (deliveryPane) {
-            deliveryPane.setText(Delivery.DeliveryTask.css);
-            HTMLDocument doc = (HTMLDocument) deliveryPane.getDocument();
-            HTMLEditorKit editorKit = (HTMLEditorKit) deliveryPane.getEditorKit();
+            deliveryPane.setText("");
+//            deliveryPane.setText(Delivery.DeliveryTask.css);
+//            HTMLDocument doc = (HTMLDocument) deliveryPane.getDocument();
+//            HTMLEditorKit editorKit = (HTMLEditorKit) deliveryPane.getEditorKit();
             for (Delivery.DeliveryTask dt : queue) {
-                try {
-                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
-                } catch (BadLocationException | IOException e) {
-                    e.printStackTrace();
+                append2pane(dt.citizen.name, dt.citizen.icon.color, deliveryPane);
+                switch (dt.phase) {
+                    case Delivery.DeliveryTask.SEARCH_CAR:
+                        append2pane(" at ", Color.BLACK, deliveryPane);
+                        append2pane(dt.src.name, Color.GRAY, deliveryPane);
+                        append2pane(" needs a taxi to ", Color.BLACK, deliveryPane);
+                        append2pane(dt.dest.name, Color.GRAY, deliveryPane);
+                        break;
+                    case Delivery.DeliveryTask.HEAD4SRC:
+                        append2pane(" at ", Color.BLACK, deliveryPane);
+                        append2pane(dt.src.name, Color.GRAY, deliveryPane);
+                        append2pane(" waits for ", Color.BLACK, deliveryPane);
+                        append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
+                        break;
+                    case Delivery.DeliveryTask.HEAD4DEST:
+                        append2pane(" gets on ", Color.BLACK, deliveryPane);
+                        append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
+                        append2pane(" at ", Color.BLACK, deliveryPane);
+                        append2pane(dt.car.loc.name, Color.GRAY, deliveryPane);
+                        break;
+                    case Delivery.DeliveryTask.COMPLETED:
+                        append2pane(" gets off ", Color.BLACK, deliveryPane);
+                        append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
+                        append2pane(" at ", Color.BLACK, deliveryPane);
+                        append2pane(dt.car.loc.name, Color.GRAY, deliveryPane);
+                        break;
                 }
+                append2pane("\n", Color.BLACK, deliveryPane);
+//                try {
+//                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
+//                } catch (BadLocationException | IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
 	}
@@ -909,31 +895,39 @@ public class Dashboard extends JFrame{
         }
 	}
 
-    public static void log(List<String> strings, List<Color> colors) {
+    public static void append2pane(List<String> strings, List<Color> colors, JTextPane pane) {
         if(strings == null || strings.isEmpty())
             return;
-        synchronized (logPane) {
+        synchronized (pane) {
             for(int i = 0;i < strings.size();i++)
-                log(strings.get(i), colors != null && i < colors.size() ? colors.get(i) : Color.BLACK);
+                append2pane(strings.get(i), colors != null && i < colors.size() ? colors.get(i) : Color.BLACK, pane);
         }
     }
 
-	public static void log(String str, Color color){
-        synchronized (logPane) {
+	public static void append2pane(String str, Color color, JTextPane pane){
+        synchronized (pane) {
             StyleContext sc = StyleContext.getDefaultStyleContext();
             Style style = sc.getStyle(color.toString());
             if (style == null) {
                 style = sc.addStyle(color.toString(), null);
                 StyleConstants.setForeground(style, color);
             }
-            StyledDocument doc = logPane.getStyledDocument();
+            StyledDocument doc = pane.getStyledDocument();
             try {
                 doc.insertString(doc.getLength(), str, style);
-                logPane.setCaretPosition(doc.getLength());
+                pane.setCaretPosition(doc.getLength());
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void log(List<String> strings, List<Color> colors) {
+        append2pane(strings, colors, logPane);
+    }
+
+    public static void log(String str, Color color) {
+        append2pane(str, color, logPane);
     }
 
 	public static synchronized void addCar(Car car){
@@ -987,63 +981,12 @@ public class Dashboard extends JFrame{
         canceldButton.setVisible(false);
         trafficMap.repaint();
         updateDeliverySrcPanel();
-        updateDeliveryDstPanel();
+        updateDeliveryDestPanel();
         updateDeliveryTaskPanel();
         updateRemedyCommandPanel();
         updateVehicleConditionPanel();
         roadta.setText("");
         logPane.setText("");
-//        for(int i = 0;i < delivTaskTree.getRowCount();i++)
-//            delivTaskTree.collapseRow(i);
-//        sysRelNode.removeAllChildren();
-//        userRelNode.removeAllChildren();
-        resetCompletedDeliveryTaskPanel();
-    }
-
-    public static void addCompletedDeliveryTask(Delivery.DeliveryTask dt){
-        if(dt == null)
-            return;
-        if(dt.releasedByUser) {
-            synchronized (completedUserDeliveryCountLabel) {
-                completedUserDeliveryCountLabel.setText("User Release Nums: " + Delivery.completedUserDelivNum);
-            }
-            synchronized (completedUserDeliveryPane) {
-                HTMLDocument doc = (HTMLDocument) completedUserDeliveryPane.getDocument();
-                HTMLEditorKit editorKit = (HTMLEditorKit) completedUserDeliveryPane.getEditorKit();
-                try {
-                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
-                    completedUserDeliveryPane.setCaretPosition(doc.getLength());
-                } catch (BadLocationException | IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        else {
-            synchronized (completedSysDeliveryCountLabel) {
-                completedSysDeliveryCountLabel.setText("System Release Nums: " + Delivery.completedSysDelivNum);
-            }
-            synchronized (completedSysDeliveryPane) {
-                HTMLDocument doc = (HTMLDocument) completedSysDeliveryPane.getDocument();
-                HTMLEditorKit editorKit = (HTMLEditorKit) completedSysDeliveryPane.getEditorKit();
-                try {
-                    editorKit.insertHTML(doc, doc.getLength(), dt.toString(), 0, 0, null);
-                    completedSysDeliveryPane.setCaretPosition(doc.getLength());
-                } catch (BadLocationException | IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-//        DefaultMutableTreeNode node = releasedByUser ? userRelNode : sysRelNode;
-//        synchronized (delivTaskTreeModel) {
-//            delivTaskTreeModel.insertNodeInto(new DefaultMutableTreeNode(dt), node, node.getChildCount());
-//        }
-    }
-
-    private static void resetCompletedDeliveryTaskPanel(){
-        completedSysDeliveryCountLabel.setText("System Release Nums: " + Delivery.completedSysDelivNum);
-        completedUserDeliveryCountLabel.setText("User Release Nums: " + Delivery.completedUserDelivNum);
-        completedSysDeliveryPane.setText(Delivery.DeliveryTask.css);
-        completedUserDeliveryPane.setText(Delivery.DeliveryTask.css);
     }
 
     public static void enableDeliveryButton(boolean b){
@@ -1070,7 +1013,7 @@ public class Dashboard extends JFrame{
 					if (src instanceof Section && section.sameAs((Section) src))
 						return;
 					dest = section;
-					updateDeliveryDstPanel();
+					updateDeliveryDestPanel();
 					deliverButton.setEnabled(true);
 				}
 			}
@@ -1130,7 +1073,7 @@ public class Dashboard extends JFrame{
 					if (building == src)
 						return;
 					dest = building;
-					updateDeliveryDstPanel();
+					updateDeliveryDestPanel();
 					deliverButton.setEnabled(true);
 				}
 			}

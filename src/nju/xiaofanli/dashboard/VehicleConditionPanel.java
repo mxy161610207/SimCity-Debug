@@ -1,9 +1,6 @@
 package nju.xiaofanli.dashboard;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,25 +50,28 @@ class VehicleConditionPanel extends JPanel{
 		private Car car = null;
 		private CarIcon icon = null;
 		private JTextArea text = new JTextArea();
-		GridBagConstraints gbc = new GridBagConstraints();
+		private GridBagConstraints gbc = new GridBagConstraints();
 		Entry(Car car) {
 			this.car = car;
 			this.icon = car.icon;
-			text.setLineWrap(true);
-			text.setWrapStyleWord(true);
+//			text.setLineWrap(true);
+//            text.setWrapStyleWord(true);
 			text.setEditable(false);
+			text.setBackground(null);
+            text.setFont(new Font(Font.DIALOG, Font.PLAIN, 15));
 			
 			setLayout(new GridBagLayout());
 			gbc.insets = new Insets(1, 5, 1, 5);
-			
+
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			add(icon, gbc);
-			
-			gbc.fill = GridBagConstraints.BOTH;
+
+            gbc.fill = GridBagConstraints.BOTH;
 			gbc.gridx += gbc.gridwidth;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
 			gbc.weightx = 1;
-			gbc.weighty = 1;
+//			gbc.weighty = 1;
 			add(text, gbc);
 		}
 		

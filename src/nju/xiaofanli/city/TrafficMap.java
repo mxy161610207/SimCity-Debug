@@ -1,14 +1,15 @@
 package nju.xiaofanli.city;
 
-import java.awt.Dimension;
-import java.awt.Insets;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.city.Section.BalloonIcon;
 import nju.xiaofanli.city.Section.Crossing;
@@ -33,7 +34,7 @@ public class TrafficMap extends JPanel{
     public static final List<Citizen> freeCitizens = new ArrayList<>();
 	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
 	
-	public static final int SH = 37;//street height
+	public static final int SH = 48;//street height
 	private static final int SW = SH * 2;//street width
 	private static final int CW = (int) (SH * 1.5);//crossing width
 	private static final int AW = CW / 2;
@@ -523,10 +524,14 @@ public class TrafficMap extends JPanel{
 			sensor.py = sensor.street.icon.coord.y;
 		}
 		sensor.icon = new JButton(sensor.name);
+		sensor.icon.setFont(Dashboard.bold14dialog);
 		sensor.icon.setVisible(false);
 		sensor.icon.setMargin(new Insets(0, 0, 0, 0));
-		sensor.icon.setBounds(sensor.px-18, sensor.py-8, 36, 16);
-		sensor.icon.addMouseListener(new Sensor.SensorIcon(sensor));
+//        sensor.icon.setBounds(sensor.px, sensor.py, 36, 18);
+        FontMetrics fm = sensor.icon.getFontMetrics(sensor.icon.getFont());
+        int w = fm.stringWidth(sensor.icon.getText())+8, h = fm.getHeight();
+		sensor.icon.setBounds(sensor.px-w/2, sensor.py-h/2, w, h);
+		sensor.icon.addMouseListener(new Sensor.SensorIconListener(sensor));
 	}
 	
 	private static void setAdjs(){

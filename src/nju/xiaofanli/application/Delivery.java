@@ -244,7 +244,6 @@ public class Delivery {
                                 Location dest = TrafficMap.getALocationExcept(src);
                                 add(src, dest, false);
                             }
-                            Dashboard.addCompletedDeliveryTask(dt);
 //                            Dashboard.log(car.name+" finished unloading");
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
@@ -305,7 +304,7 @@ public class Delivery {
 		return null;
 	}
 	
-	private static void add(DeliveryTask dtask){
+	public static void add(DeliveryTask dtask){
 		if(dtask == null || StateSwitcher.isResetting())
 			return;
 		synchronized (searchTasks) {
@@ -492,10 +491,6 @@ public class Delivery {
             sb.append("</table>");
 //            sb.append("</html>");
             return sb.toString();
-        }
-
-        private static String changeFontColor(String s, boolean releasedByUser){
-            return releasedByUser ? "<font color=green>" + s + "</font>" : s;
         }
     }
 }

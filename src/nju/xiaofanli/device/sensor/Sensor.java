@@ -53,9 +53,9 @@ public class Sensor {
 			state = UNDETECTED;
 	}
 	
-	public static class SensorIcon extends MouseAdapter{
+	public static class SensorIconListener extends MouseAdapter{
 		private Sensor sensor;
-		public SensorIcon(Sensor sensor) {
+		public SensorIconListener(Sensor sensor) {
 			this.sensor = sensor;
 		}
 		public void mousePressed(MouseEvent e) {

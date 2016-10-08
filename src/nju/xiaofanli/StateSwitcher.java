@@ -195,7 +195,7 @@ public class StateSwitcher {
 			TrafficMap.reset();
 			Middleware.reset();
             Delivery.reset();
-            Dashboard.reset();//always be the last to reset
+
 
 			//third step: resolve the inconsistency
 			checkIfSuspended();
@@ -239,6 +239,7 @@ public class StateSwitcher {
 			locatedCars.clear();
 			carInfo.clear();
 
+            Dashboard.reset();
 //			Dashboard.enableResetButton(true);
 			Dashboard.enableCtrlUI(true);
             Dashboard.enableDeliveryButton(true);
