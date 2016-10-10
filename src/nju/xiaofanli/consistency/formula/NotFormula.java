@@ -6,8 +6,6 @@
 
 package nju.xiaofanli.consistency.formula;
 
-import java.util.Set;
-
 import nju.xiaofanli.consistency.context.ContextChange;
 
 /**
@@ -35,15 +33,15 @@ public class NotFormula extends Formula {
     }
     
     @Override
-    public boolean evaluateECC(Assignment node) {
-    	value = !formula.evaluateECC(node);
-        return value;
+    public void evaluateECC(Assignment node) {
+        formula.evaluateECC(node);
+    	value = !formula.getValue();
     }
 
     @Override
-    public Set<Link> generateECC() {
-    	links = Link.flip(formula.generateECC());
-        return links;
+    public void generateECC() {
+        formula.generateECC();
+    	links = Link.flip(formula.getLinks());
     }
 
     @Override
@@ -52,17 +50,19 @@ public class NotFormula extends Formula {
     }
 
     @Override
-    public boolean evaluatePCC(Assignment node,ContextChange change) {
-        if(affect(change))
-        	value = !(formula.evaluatePCC(node,change));
-        return value;
+    public void evaluatePCC(Assignment node, ContextChange change) {
+        if(affect(change)) {
+            formula.evaluatePCC(node, change);
+            value = !formula.getValue();
+        }
     }
 
     @Override
-    public Set<Link> generatePCC(ContextChange change) {
-        if(affect(change))
-        	links = Link.flip(formula.generatePCC(change));
-        return links;
+    public void generatePCC(ContextChange change) {
+        if(affect(change)) {
+            formula.generatePCC(change);
+            links = Link.flip(formula.getLinks());
+        }
     }
 
     @Override

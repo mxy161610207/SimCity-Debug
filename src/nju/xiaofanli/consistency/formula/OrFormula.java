@@ -42,23 +42,23 @@ public class OrFormula extends Formula {
     }
     
     @Override
-    public boolean evaluateECC(Assignment node) {
+    public void evaluateECC(Assignment node) {
         first.evaluateECC(node);
         second.evaluateECC(node);
         value = first.value || second.value;
-        return value;
     }
 
     @Override
-    public Set<Link> generateECC() {
-    	Set<Link> l1 = first.generateECC();
-    	Set<Link> l2 = second.generateECC();
+    public void generateECC() {
+        first.generateECC();
+        second.generateECC();
+    	Set<Link> l1 = first.getLinks();
+    	Set<Link> l2 = second.getLinks();
         
         if(first.value)
     		links = second.value ? Link.union(l1, l2) : l1;
     	else
     		links = second.value ? l2 : Link.linkCartesian(l1, l2);
-        return links;
     }
 
     @Override
@@ -67,28 +67,29 @@ public class OrFormula extends Formula {
     }
 
     @Override
-    public boolean evaluatePCC(Assignment node,ContextChange change) {
+    public void evaluatePCC(Assignment node, ContextChange change) {
     	if(first.affect(change))
             first.evaluatePCC(node, change);
     	if(second.affect(change))
     		second.evaluatePCC(node, change);
         value = first.value || second.value;
-        return value;
     }
 
     @Override
-    public Set<Link> generatePCC(ContextChange change) {
-    	if(!affect(change))
-    		return links;
-    	
-    	Set<Link> l1 = first.affect(change) ? first.generatePCC(change) : first.links;
-    	Set<Link> l2 = second.affect(change) ? second.generatePCC(change) : second.links;
-    	
-    	if(first.value)
-    		links = second.value ? Link.union(l1, l2) : l1;
-    	else
-    		links = second.value ? l2 : Link.linkCartesian(l1, l2);
-        return links;
+    public void generatePCC(ContextChange change) {
+    	if(affect(change)) {
+            if(first.affect(change))
+                first.generatePCC(change);
+            if(second.affect(change))
+                second.generatePCC(change);
+            Set<Link> l1 = first.links;
+            Set<Link> l2 = second.links;
+
+            if (first.value)
+                links = second.value ? Link.union(l1, l2) : l1;
+            else
+                links = second.value ? l2 : Link.linkCartesian(l1, l2);
+        }
     }
 
     @Override

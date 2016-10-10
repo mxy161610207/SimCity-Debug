@@ -49,13 +49,13 @@ public abstract class Formula{
     	this.links = link;
     }
     
-    public abstract boolean evaluateECC(Assignment node);
+    public abstract void evaluateECC(Assignment node);
     
-    public abstract boolean evaluatePCC(Assignment node,ContextChange change);
+    public abstract void evaluatePCC(Assignment node,ContextChange change);
     
-    public abstract Set<Link> generateECC();
+    public abstract void generateECC();
     
-    public abstract Set<Link> generatePCC(ContextChange change);
+    public abstract void generatePCC(ContextChange change);
     //�ù�ʽ�Ƿ���һ��change���
     public abstract boolean affect(ContextChange change);
     //OCC��

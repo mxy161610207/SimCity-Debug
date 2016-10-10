@@ -5,7 +5,7 @@ from ev3dev.auto import *
 import socket
 import time
 
-IP = '192.168.1.122'
+IP = '192.168.1.121'
 PORT = 9999
 ADDR = (IP, PORT)
 

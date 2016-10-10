@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,66 +114,65 @@ public class BFunc extends Formula {
 	}
     
     @Override
-    public boolean evaluateECC(Assignment node) {
+    public void evaluateECC(Assignment node) {
         switch (type) {
-            case "still_state":
-                return funcStillState(node.getVar());
-            case "same_location":
-                return funcSameLocation(node.getVar());
-            case "same_time":
-                return funcSameTime(node.getVar());
-            case "before_time":
-                return funcBeforeTime(node.getVar());
-            case "test":
-                return funcTest(node.getVar());
-            case "true":
-                return funcTrue(node.getVar());
-            case "equal":
-                return funcEqual(node.getVar());
-            case "not_equal":
-                return funcNotEqual(node.getVar());
             case "same":
-                return funcSame(node.getVar());
-            case "not_same":
-                return funcNotSame(node.getVar());
-            case "smaller":
-                return funcSmaller(node.getVar());
-            case "overlap":
-                return funcOverlap(node.getVar());
-            case "before":
-                try {
-                    return funcBefore(node.getVar());
-                } catch (ParseException ex) {
-                    Logger.getLogger(BFunc.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                break;
-            case "sz_loc_range":
-                return funcSZLocRange(node.getVar());
-            case "sz_loc_dist":
-                return funcSZLocDist(node.getVar());
-            case "sz_loc_close":
-                return funcSZLocClose(node.getVar());
-            case "sz_spd_close":
-                return funcSZSpdClose(node.getVar());
-            case "sf_late":
-                return funcSFLate(node.getVar());
-            case "sf_worktime":
-                return funcSFWorktime(node.getVar());
-            case "sf_close":
-                return funcSFClose(node.getVar());
-            case "sf_far":
-                return funcSFFar(node.getVar());
+                value = funcSame(node.getVar()); break;
+            case "still_state":
+                value = funcStillState(node.getVar()); break;
+            case "same_location":
+                value = funcSameLocation(node.getVar()); break;
+            case "same_time":
+                value = funcSameTime(node.getVar()); break;
+            case "before_time":
+                value = funcBeforeTime(node.getVar()); break;
+//            case "test":
+//                value = funcTest(node.getVar());
+//            case "true":
+//                value = funcTrue(node.getVar());
+//            case "equal":
+//                value = funcEqual(node.getVar());
+//            case "not_equal":
+//                value = funcNotEqual(node.getVar());
+
+//            case "not_same":
+//                value = funcNotSame(node.getVar());
+//            case "smaller":
+//                value = funcSmaller(node.getVar());
+//            case "overlap":
+//                value = funcOverlap(node.getVar());
+//            case "before":
+//                try {
+//                    value = funcBefore(node.getVar());
+//                } catch (ParseException ex) {
+//                    Logger.getLogger(BFunc.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                break;
+//            case "sz_loc_range":
+//                value = funcSZLocRange(node.getVar());
+//            case "sz_loc_dist":
+//                value = funcSZLocDist(node.getVar());
+//            case "sz_loc_close":
+//                value = funcSZLocClose(node.getVar());
+//            case "sz_spd_close":
+//                value = funcSZSpdClose(node.getVar());
+//            case "sf_late":
+//                value = funcSFLate(node.getVar());
+//            case "sf_worktime":
+//                value = funcSFWorktime(node.getVar());
+//            case "sf_close":
+//                value = funcSFClose(node.getVar());
+//            case "sf_far":
+//                value = funcSFFar(node.getVar());
             default:
                 System.out.println("incorrect function: " + type);
                 System.exit(1);
         }
-
-        return false;
     }
 
 	@Override
-    public Set<Link> generateECC() {
-        return new HashSet<>();
+    public void generateECC() {
+        links = new HashSet<>();
     }
 
     @Override
@@ -183,14 +181,13 @@ public class BFunc extends Formula {
     }
 
     @Override
-    public boolean evaluatePCC(Assignment node,ContextChange change) {
-    	value = evaluateECC(node);
-        return value;
+    public void evaluatePCC(Assignment node, ContextChange change) {
+    	evaluateECC(node);
     }
 
     @Override
-    public Set<Link> generatePCC(ContextChange change) {
-    	return new HashSet<>();
+    public void generatePCC(ContextChange change) {
+        generateECC();
     }
 
     @Override

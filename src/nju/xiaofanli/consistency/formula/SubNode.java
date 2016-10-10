@@ -19,8 +19,8 @@ import nju.xiaofanli.consistency.context.ContextChange;
 public class SubNode{
     private Formula formula;
     private Context context;
-    protected boolean value;
-    protected Set<Link> links;
+//    protected boolean value;
+//    protected Set<Link> links;
 
     public SubNode(Context context) {
     	this.context = context;
@@ -42,23 +42,27 @@ public class SubNode{
     	return context;
     }
     
-    public boolean evaluateECC(Assignment node) {
-    	value = formula.evaluateECC(node);
-        return value;
+    public void evaluateECC(Assignment node) {
+    	formula.evaluateECC(node);
     }
 
-    public boolean evaluatePCC(Assignment node, ContextChange change) {
-    	value = formula.evaluatePCC(node,change);
-        return value;
+    public void evaluatePCC(Assignment node, ContextChange change) {
+    	formula.evaluatePCC(node,change);
     }
 
-    public Set<Link> generateECC() {
-    	links = formula.generateECC();
-        return links;
+    public void generateECC() {
+    	formula.generateECC();
     }
 
-    public Set<Link> generatePCC(ContextChange change) {
-    	links = formula.generatePCC(change);
-        return links;
+    public void generatePCC(ContextChange change) {
+    	formula.generatePCC(change);
+    }
+
+    public boolean getValue() {
+        return formula.getValue();
+    }
+
+    public Set<Link> getLinks() {
+        return formula.getLinks();
     }
 }
