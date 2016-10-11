@@ -29,7 +29,7 @@ public class TrafficMap extends JPanel{
 	public static final Map<String, Section> sections = new HashMap<>();
     public static final Map<String, Location> locations = new HashMap<>();
     public static final List<Location> locationList = new ArrayList<>();
-	public static final List<List<Sensor>> sensors = new ArrayList<>();
+	public static final Sensor[][] sensors = new Sensor[10][];
 	public static final List<Citizen> citizens = new ArrayList<>();
     public static final List<Citizen> freeCitizens = new ArrayList<>();
 	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
@@ -57,6 +57,17 @@ public class TrafficMap extends JPanel{
         for(int i = 0;i < streets.length;i++) {
             streets[i] = new Street();
         }
+
+        sensors[0] = new Sensor[2];
+        sensors[1] = new Sensor[3];
+        sensors[2] = new Sensor[4];
+        sensors[3] = new Sensor[4];
+        sensors[4] = new Sensor[3];
+        sensors[5] = new Sensor[3];
+        sensors[6] = new Sensor[4];
+        sensors[7] = new Sensor[4];
+        sensors[8] = new Sensor[3];
+        sensors[9] = new Sensor[2];
     }
 
 	public TrafficMap() {
@@ -69,7 +80,9 @@ public class TrafficMap extends JPanel{
 		initSensors();
 		initBuildings();
 
-        sensors.forEach(list -> list.forEach(sensor -> add(sensor.icon)));
+        for (Sensor[] array : sensors)
+            for (Sensor sensor : array)
+                add(sensor.icon);
         citizens.forEach(citizen -> add(citizen.icon));
         sections.values().forEach(section -> {
             add(section.balloon);
@@ -87,7 +100,9 @@ public class TrafficMap extends JPanel{
 	public static void reset(){
         cars.values().forEach(Car::reset);
         sections.values().forEach(Section::reset);
-        sensors.forEach(list -> list.forEach(Sensor::reset));
+        for (Sensor[] array : sensors)
+            for (Sensor sensor : array)
+                sensor.reset();
         citizens.forEach(Citizen::reset);
         freeCitizens.clear();
         freeCitizens.addAll(citizens);
@@ -366,90 +381,77 @@ public class TrafficMap extends JPanel{
 	}
 	
 	private static void initSensors(){
-		for(int i = 0;i < 10;i++){
-			ArrayList<Sensor> loc = new ArrayList<>();
-			sensors.add(loc);
-			loc.add(new Sensor());
-			loc.add(new Sensor());
-			if(i > 0 && i < 9){
-				loc.add(new Sensor());
-				if(i == 2 || i == 3 || i == 6 || i == 7)
-					loc.add(new Sensor());
-			}
-		}
-		setSensor(0, 0, 0, 2, 0);
-		setSensor(0, 1, 0, 6, 2);
-		setSensor(1, 0, 2, 8, 2);
-		setSensor(1, 1, 1, 3, 1);
-		setSensor(1, 2, 1, 8, 2);
-		
-		setSensor(2, 0, 1, 7, 2);
-		setSensor(2, 1, 3, 11, 0);
-		setSensor(2, 2, 0, 11, 0);
-		setSensor(2, 3, 0, 7, 2);
-		
-		setSensor(3, 0, 5, 16, 3);
-		setSensor(3, 1, 1, 12, 1);
-		setSensor(3, 2, 4, 12, 1);
-		setSensor(3, 3, 4, 16, 3);
-		
-		setSensor(4, 0, 5, 13, 0);
-		setSensor(4, 1, 5, 17, 3);
-		setSensor(4, 2, 2, 13, 0);
-		setSensor(5, 0, 3, 18, 0);
-		setSensor(5, 1, 3, 14, 3);
-		setSensor(5, 2, 6, 18, 0);
-		
-		setSensor(6, 0, 3, 15, 3);
-		setSensor(6, 1, 7, 19, 1);
-		setSensor(6, 2, 4, 15, 3);
-		setSensor(6, 3, 4, 19, 1);
-		
-		setSensor(7, 0, 7, 24, 2);
-		setSensor(7, 1, 8, 20, 0);
-		setSensor(7, 2, 5, 20, 0);
-		setSensor(7, 3, 8, 24, 2);
-	
-		setSensor(8, 0, 6, 23, 2);
-		setSensor(8, 1, 7, 28, 1);
-		setSensor(8, 2, 7, 23, 2);
-		setSensor(9, 0, 8, 29, 0);
-		setSensor(9, 1, 8, 25, 2);
+        for(int i = 0;i < sensors.length;i++)
+            for(int j = 0;j < sensors[i].length;j++)
+                sensors[i][j] = new Sensor(i, j);
+
+        setSensor(sensors[0][0], crossings[0], streets[2], NORTH);
+        setSensor(sensors[0][1], crossings[0], streets[6], WEST);
+        setSensor(sensors[1][0], crossings[2], streets[8], WEST);
+        setSensor(sensors[1][1], crossings[1], streets[3], SOUTH);
+        setSensor(sensors[1][2], crossings[1], streets[8], WEST);
+        setSensor(sensors[2][0], crossings[1], streets[7], WEST);
+        setSensor(sensors[2][1], crossings[3], streets[11], NORTH);
+        setSensor(sensors[2][2], crossings[0], streets[11], NORTH);
+        setSensor(sensors[2][3], crossings[0], streets[7], WEST);
+        setSensor(sensors[3][0], crossings[5], streets[16], EAST);
+        setSensor(sensors[3][1], crossings[1], streets[12], SOUTH);
+        setSensor(sensors[3][2], crossings[4], streets[12], SOUTH);
+        setSensor(sensors[3][3], crossings[4], streets[16], EAST);
+        setSensor(sensors[4][0], crossings[5], streets[13], NORTH);
+        setSensor(sensors[4][1], crossings[5], streets[17], EAST);
+        setSensor(sensors[4][2], crossings[2], streets[13], NORTH);
+        setSensor(sensors[5][0], crossings[3], streets[18], NORTH);
+        setSensor(sensors[5][1], crossings[3], streets[14], EAST);
+        setSensor(sensors[5][2], crossings[6], streets[18], NORTH);
+        setSensor(sensors[6][0], crossings[3], streets[15], EAST);
+        setSensor(sensors[6][1], crossings[7], streets[19], SOUTH);
+        setSensor(sensors[6][2], crossings[4], streets[15], EAST);
+        setSensor(sensors[6][3], crossings[4], streets[19], SOUTH);
+        setSensor(sensors[7][0], crossings[7], streets[24], WEST);
+        setSensor(sensors[7][1], crossings[8], streets[20], NORTH);
+        setSensor(sensors[7][2], crossings[5], streets[20], NORTH);
+        setSensor(sensors[7][3], crossings[8], streets[24], WEST);
+        setSensor(sensors[8][0], crossings[6], streets[23], WEST);
+        setSensor(sensors[8][1], crossings[7], streets[28], SOUTH);
+        setSensor(sensors[8][2], crossings[7], streets[23], WEST);
+        setSensor(sensors[9][0], crossings[8], streets[29], NORTH);
+        setSensor(sensors[9][1], crossings[8], streets[25], WEST);
 		
 		Queue<Sensor> orders = new LinkedList<>();
-		orders.add(sensors.get(0).get(0));
-		orders.add(sensors.get(1).get(1));
-		orders.add(sensors.get(3).get(1));
-		orders.add(sensors.get(3).get(2));
-		orders.add(sensors.get(6).get(3));
-		orders.add(sensors.get(6).get(1));
-		orders.add(sensors.get(8).get(1));
-		orders.add(sensors.get(9).get(0));
-		orders.add(sensors.get(7).get(1));
-		orders.add(sensors.get(7).get(2));
-		orders.add(sensors.get(4).get(0));
-		orders.add(sensors.get(4).get(2));
-		orders.add(sensors.get(1).get(0));
-		orders.add(sensors.get(1).get(2));
-		orders.add(sensors.get(2).get(0));
-		orders.add(sensors.get(2).get(3));
-		orders.add(sensors.get(0).get(1));
-		orders.add(sensors.get(5).get(1));
-		orders.add(sensors.get(6).get(0));
-		orders.add(sensors.get(6).get(2));
-		orders.add(sensors.get(3).get(3));
-		orders.add(sensors.get(3).get(0));
-		orders.add(sensors.get(4).get(1));
-		orders.add(sensors.get(9).get(1));
-		orders.add(sensors.get(7).get(3));
-		orders.add(sensors.get(7).get(0));
-		orders.add(sensors.get(8).get(2));
-		orders.add(sensors.get(8).get(0));
-		orders.add(sensors.get(5).get(2));
-		orders.add(sensors.get(5).get(0));
-		orders.add(sensors.get(2).get(1));
-		orders.add(sensors.get(2).get(2));
-		orders.add(sensors.get(0).get(0));
+        orders.add(sensors[0][0]);
+        orders.add(sensors[1][1]);
+        orders.add(sensors[3][1]);
+        orders.add(sensors[3][2]);
+        orders.add(sensors[6][3]);
+        orders.add(sensors[6][1]);
+        orders.add(sensors[8][1]);
+        orders.add(sensors[9][0]);
+        orders.add(sensors[7][1]);
+        orders.add(sensors[7][2]);
+        orders.add(sensors[4][0]);
+        orders.add(sensors[4][2]);
+        orders.add(sensors[1][0]);
+        orders.add(sensors[1][2]);
+        orders.add(sensors[2][0]);
+        orders.add(sensors[2][3]);
+        orders.add(sensors[0][1]);
+        orders.add(sensors[5][1]);
+        orders.add(sensors[6][0]);
+        orders.add(sensors[6][2]);
+        orders.add(sensors[3][3]);
+        orders.add(sensors[3][0]);
+        orders.add(sensors[4][1]);
+        orders.add(sensors[9][1]);
+        orders.add(sensors[7][3]);
+        orders.add(sensors[7][0]);
+        orders.add(sensors[8][2]);
+        orders.add(sensors[8][0]);
+        orders.add(sensors[5][2]);
+        orders.add(sensors[5][0]);
+        orders.add(sensors[2][1]);
+        orders.add(sensors[2][2]);
+        orders.add(sensors[0][0]);
 		
 		Sensor prev = orders.poll(), next;
 		while(!orders.isEmpty()){
@@ -466,19 +468,10 @@ public class TrafficMap extends JPanel{
 		}
 	}
 
-	private static void setSensor(int bid, int sid, int c, int s, int dir){
-		Sensor sensor = sensors.get(bid).get(sid);
-		sensor.bid = bid;
-		sensor.sid = sid;
-		sensor.state = Sensor.UNDETECTED;
-		sensor.name = "B" + bid + "S" + (sid+1);
+	private static void setSensor(Sensor sensor, Crossing crossing, Street street, int dir){
 		sensor.dir = TrafficMap.DIRECTION ? dir : oppositeDirOf(dir);
-		sensor.crossing = crossings[c];
-		sensor.street = streets[s];
-//		crossings[c].sensors.add(sensor);
-//		streets[s].sensors.add(sensor);
-		sensor.entryThreshold = 10;
-		sensor.leaveThreshold = 11;
+		sensor.crossing = crossing;
+		sensor.street = street;
 		
 		Section section = sectionBehind(sensor);
 		if(section instanceof Crossing){
@@ -723,7 +716,7 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	private static Section sectionBehind(Sensor sensor){
+	public static Section sectionBehind(Sensor sensor){
 		int bid = sensor.bid, id = sensor.sid;
 		switch(bid){
 		case 0:

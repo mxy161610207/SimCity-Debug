@@ -43,7 +43,7 @@ public class Car {
     public boolean isHornOn = false; //only for crash
 	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
-	public int realDir, realState;
+	public int realDir;
 
     private final String url;
     private StreamConnection conn = null;
@@ -83,9 +83,7 @@ public class Car {
 		dest = null;
 		isLoading = false;
 		passengers.clear();
-		realLoc = null;
-		realDir = TrafficMap.UNKNOWN_DIR;
-		realState = STOPPED;
+		resetRealInfo();
         isHornOn = false;
         firstEntry = true;
 	}
@@ -220,12 +218,7 @@ public class Car {
 		leave(prev, true);
 		section.cars.add(this);
 		notifyPolice(Police.AFTER_ENTRY, section);
-		section.icon.repaint();
-		if(section.isCombined()){
-//			dir = section.dir[0];//only combined sections can change a car's direction
-			for(Section s : section.combined)
-				s.icon.repaint();
-		}
+		section.icon.repaintAll();
 
         if(section.cars.size() + section.realCars.size() > 1){
             section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
@@ -267,11 +260,7 @@ public class Car {
 		if(loc == section)
 			loc = null;
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, section);
-		section.icon.repaint();
-		if(section.isCombined()){
-			for(Section s : section.combined)
-				s.icon.repaint();
-		}
+		section.icon.repaintAll();
 
         if(section.cars.size() + section.realCars.size() > 1){
             section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
@@ -291,16 +280,13 @@ public class Car {
 		isLoading = loading;
 		if(loc == null)
 			return;
-		loc.icon.repaint();
-		for(Section s : loc.combined)
-			s.icon.repaint();
+		loc.icon.repaintAll();
 	}
 
 	public void saveRealInfo(){
         loc.realCars.add(this);
         realLoc = loc;
         realDir = dir;
-        realState = state;
     }
 
     public void loadRealInfo(){
@@ -309,10 +295,26 @@ public class Car {
         leave(fakeLoc, false);
         realLoc.realCars.remove(this);
         dir = realDir;
-        state = realState;
+        resetRealInfo();
+    }
+
+    public void setRealInfo(Section loc, int dir) {
+        realLoc.realCars.remove(this);
+        realLoc.icon.repaintAll();
+        if (this.loc.sameAs(loc) && this.dir == dir) {
+            resetRealInfo();
+        }
+        else {
+            loc.realCars.add(this);
+            realLoc = loc;
+            realDir = dir;
+        }
+        loc.icon.repaintAll();
+    }
+
+    public void resetRealInfo() {
         realLoc = null;
         realDir = TrafficMap.UNKNOWN_DIR;
-        realState = STOPPED;
     }
 
 	public String getDirStr(){
@@ -346,12 +348,8 @@ public class Car {
 	public String getStateStr(){
 		return stateOf(state);
 	}
-	
-	public String getRealStateStr(){
-		return stateOf(getRealState());
-	}
-	
-	private static String stateOf(int state){
+
+    private static String stateOf(int state){
 		switch(state){
 		case STOPPED:
 			return "Stopped";
@@ -380,16 +378,8 @@ public class Car {
                 return null;
         }
     }
-	
-	public int getRealState(){
-		return !hasPhantom() ? state : realState;
-	}
 
-    public void setRealState(int realState){
-        this.realState = realState;
-    }
-
-	public Section getRealLoc(){
+    public Section getRealLoc(){
 		return !hasPhantom() ? loc : realLoc;
 	}
 

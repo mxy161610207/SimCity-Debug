@@ -91,7 +91,7 @@ public class Resource {
 		return TrafficMap.connectedCars;
 	}
 	
-	public static List<List<Sensor>> getSensors(){
+	public static Sensor[][] getSensors(){
 		return TrafficMap.sensors;
 	}
 	

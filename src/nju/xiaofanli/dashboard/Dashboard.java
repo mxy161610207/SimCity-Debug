@@ -59,7 +59,7 @@ public class Dashboard extends JFrame{
 	private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
-    private static final JButton startdButton = new JButton("Start");
+    private static final JButton startdButton = new JButton("Automatically generate task(s)");
 	private static final JButton deliverButton = new JButton("Deliver");
 	private static final JButton canceldButton = new JButton("Cancel");
 	private static final JCheckBox jchkSensor = new JCheckBox("Sensor");
@@ -483,7 +483,7 @@ public class Dashboard extends JFrame{
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
                         TrafficMap.getACitizen(), s.equals("u"));
                 Delivery.add(dt);
-//                if(dt.releasedByUser)
+//                if(dt.createdByUser)
 //                    Delivery.completedUserDelivNum++;
 //                else
 //                    Delivery.completedSysDelivNum++;
@@ -500,9 +500,8 @@ public class Dashboard extends JFrame{
             }
             else if(cmd.equals("wander")) {
                 for(Citizen citizen : Resource.getCitizens()) {
-                    citizen.setActivity(Citizen.Activity.Wander);
-                    if(!citizen.isAlive())
-                        citizen.start();
+                    citizen.setAction(Citizen.Action.Wander);
+                    citizen.startAction();
                 }
             }
 		});
@@ -571,8 +570,8 @@ public class Dashboard extends JFrame{
 
 		jchkSensor.addActionListener(e -> {
             showSensor = jchkSensor.isSelected();
-            for(List<Sensor> list : TrafficMap.sensors)
-                for(Sensor s : list)
+            for(Sensor[] array : TrafficMap.sensors)
+                for(Sensor s : array)
                     s.icon.setVisible(showSensor);
         });
 
@@ -625,7 +624,7 @@ public class Dashboard extends JFrame{
 //		gbc.gridwidth = GridBagConstraints.REMAINDER;
         JPanel deliveryPanel = new JPanel();
 		rightPanel.add(deliveryPanel, gbc);
-		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Delivery"));
+		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Taxi Service"));
         ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(bold15dialog);
 		deliveryPanel.setLayout(new GridBagLayout());
 
@@ -665,6 +664,7 @@ public class Dashboard extends JFrame{
 		startdButton.addActionListener(e -> {
             if(!isSysDelivStarted) {
                 isSysDelivStarted = true;
+                startdButton.setText("Manually create a task");
                 Delivery.startSysDelivery();
             }
             else {
@@ -988,6 +988,7 @@ public class Dashboard extends JFrame{
         delivSelModeOn = isSysDelivStarted = false;
         deliverButton.setVisible(false);
         startdButton.setVisible(true);
+        startdButton.setText("Automatically generate task(s)");
         canceldButton.setVisible(false);
         trafficMap.repaint();
         updateDeliverySrcPanel();

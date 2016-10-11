@@ -64,16 +64,10 @@ public class Command {
             car.lastCmd = cmd;
 			if(isForward) {
                 car.setState(Car.MOVING);
-                if(car.hasPhantom())
-                    car.setRealState(Car.MOVING);
 				//trigger move event
 				if(EventManager.hasListener(Event.Type.CAR_MOVE))
 					EventManager.trigger(new Event(Event.Type.CAR_MOVE, car.name, car.loc.name));
             }
-//			if(cmd == STOP && car.getState() != Car.STOPPED || cmd == MOVE_FORWARD && car.getState() != Car.MOVING)
-//				car.setState(Car.UNCERTAIN);
-//			if(car.hasPhantom() && (cmd == STOP && car.getRealState() != Car.STOPPED || cmd == MOVE_FORWARD && car.getRealState() != Car.MOVING))
-//				car.setRealState(Car.UNCERTAIN);
 			
 			if(remedy)
 				Remedy.addRemedyCommand(car, cmd);
@@ -89,14 +83,18 @@ public class Command {
 	static void wake(Car car){
 		if(car == null || !car.isConnected())
 			return;
-		if(StateSwitcher.isNormal()){
-			 if(car.getRealState() == Car.MOVING)
-				 drive(car);
-			 else if(car.getRealState() == Car.STOPPED)
-				 stop(car);
-		}
-		else if(StateSwitcher.isSuspending())
-			stop(car); // maintain its stopped state
+//		if(StateSwitcher.isNormal()){
+//			 if(car.getState() == Car.MOVING)
+//				 drive(car);
+//			 else if(car.getState() == Car.STOPPED)
+//				 stop(car);
+//		}
+//		else if(StateSwitcher.isSuspending())
+//			stop(car); // maintain its stopped state
+		if(car.trend == Car.MOVING)
+			drive(car);
+		else if(car.trend == Car.STOPPED)
+			stop(car);
 	}
 	
 	/**

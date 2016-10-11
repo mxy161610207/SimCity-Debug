@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <car name="Black Car" loc="Street 18" url="btspp://00066649A8C4:1;authenticate=true;encrypt=true"/>
+    <!--<car name="Black Car" loc="Street 18" url="btspp://00066649A8C4:1;authenticate=true;encrypt=true"/>-->
     <!--<car name="Green Car" loc="Crossing 6" url="btspp://000666459D35:1;authenticate=true;encrypt=true"/>-->
     <!--<car name="Orange Car" loc="Crossing 7" url="btspp://00066649960C:1;authenticate=true;encrypt=true"/>-->
     <!--<car name="Red Car" loc="Street 24" url="btspp://000666619F38:1;authenticate=true;encrypt=true"/>-->

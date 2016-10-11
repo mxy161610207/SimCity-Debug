@@ -12,17 +12,18 @@ import nju.xiaofanli.device.car.Car.CarIcon;
 import javax.swing.*;
 import java.awt.*;
 
-public class Citizen extends Thread {
+public class Citizen implements Runnable {
     public final String name;
     public final Gender gender;
     public final Job job;
-    private Activity act = null, nextAct = null;
-    public Activity state = null;
+    private Action action = null, nextAction = null;
+    public Action state = null;
     private long delay = 0;
     public Location loc = null, dest = null;
     public Car car = null;
     public CitizenIcon icon = null;
-    public boolean releasedByUser = false; //used in taking taxis
+    public boolean createdByUser = false; //used in taking taxis
+    public boolean isRunning = false;
 
     public enum Gender {
         Male, Female
@@ -32,7 +33,7 @@ public class Citizen extends Thread {
         Student, Doctor, Police, Cook, SuperHero, Reporter
     }
 
-    public enum Activity {
+    public enum Action {
         Wander, GoToWork, AtWork, GoToSchool, InClass, RescueTheWorld, HailATaxi, TakeATaxi, GetOff,
         GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals, Disappear
     }
@@ -42,7 +43,6 @@ public class Citizen extends Thread {
         this.gender = gender;
         this.job = job;
         this.icon = new CitizenIcon(this, iconFile, rgb);
-        setName("Citizen: " + name);
     }
 
     public static Gender genderOf(String gender){
@@ -60,18 +60,29 @@ public class Citizen extends Thread {
     }
 
     public void reset() {
-        act = nextAct = state = null;
+        action = nextAction = state = null;
         loc = dest = null;
         car = null;
         delay = 0;
-        releasedByUser = false;
+        isRunning = createdByUser = false;
         icon.setVisible(false);
+        synchronized (TrafficMap.freeCitizens) {
+            if (!TrafficMap.freeCitizens.contains(this))
+                TrafficMap.freeCitizens.add(this);
+        }
     }
 
-    public void setActivity(Activity act){
-        this.act = act;
+    public void setAction(Action action){
+        this.action = action;
         synchronized (this){
             this.notify();
+        }
+    }
+
+    public void startAction() {
+        if(!isRunning) {
+            isRunning = true;
+            Resource.execute(this);
         }
     }
 
@@ -79,25 +90,25 @@ public class Citizen extends Thread {
         Thread thread = Thread.currentThread();
         StateSwitcher.register(thread);
 
-        int[] count = new int[Activity.values().length];
+        int[] count = new int[Action.values().length];
         for(int i = 0;i < count.length;i++)
             count[i] = 0;
         //noinspection InfiniteLoopStatement
         while(true){
-            while(act == null || !StateSwitcher.isNormal())
+            while(action == null || !StateSwitcher.isNormal())
                 synchronized (this) {
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
 //                        e.printStackTrace();
                         if(StateSwitcher.isResetting()) {
-                            act = null;
                             StateSwitcher.unregister(thread);
+                            reset();
                             return;
                         }
                     }
                 }
-            if(act == null)
+            if(action == null)
                 continue;
 
             if(delay > 0) {
@@ -121,13 +132,13 @@ public class Citizen extends Thread {
                     }
                 }
             }
-            state = act;
-            switch (act) {
+            state = action;
+            switch (action) {
                 case Wander: {
                     int xmax = icon.getParent().getWidth() - icon.dimension.width;
                     int ymax = icon.getParent().getHeight() - icon.dimension.height;
-                    if (count[act.ordinal()] == 0) {
-                        count[act.ordinal()] = 3;
+                    if (count[action.ordinal()] == 0) {
+                        count[action.ordinal()] = 3;
                         delay = 1000;
                         if (!icon.isVisible()) {
                             int x = (int) (Math.random() * xmax);
@@ -142,7 +153,7 @@ public class Citizen extends Thread {
                             PkgHandler.send(new AppPkg().setCitizen(name, true));
                         }
                     } else {
-                        count[act.ordinal()]--;
+                        count[action.ordinal()]--;
                         int x = (int) (icon.getX() + 50 * Math.random() - 25);
                         if (x < 0)
                             x = 0;
@@ -158,8 +169,8 @@ public class Citizen extends Thread {
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
 
-                        if (count[act.ordinal()] == 0) {
-                            state = act = null;
+                        if (count[action.ordinal()] == 0) {
+                            state = action = null;
                             delay = 0;
                             PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                         }
@@ -167,7 +178,7 @@ public class Citizen extends Thread {
                     break;
                 }
                 case HailATaxi:
-                    act = null;
+                    action = null;
                     if(!icon.isVisible()){
                         int x, y;
                         if(loc instanceof Section){
@@ -181,10 +192,10 @@ public class Citizen extends Thread {
                         icon.setLocation(x-icon.getWidth()/8, y);
                         icon.setVisible(true);
                     }
-                    Delivery.add(loc, dest, this, releasedByUser);
+                    Delivery.add(loc, dest, this, createdByUser);
                     break;
                 case TakeATaxi:
-                    act = null;
+                    action = null;
                     icon.setVisible(false);// get on the taxi
                     PkgHandler.send(new AppPkg().setCitizen(name, false));
                     break;
@@ -205,58 +216,58 @@ public class Citizen extends Thread {
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
                         PkgHandler.send(new AppPkg().setCitizen(name, true));
                     }
-                    if(nextAct == null){
+                    if(nextAction == null){
 //                        dest = null;
-//                        state = act = null;
+//                        state = action = null;
 //                        PkgHandler.send(new AppPkg().setCitizen(name, "None"));
                         delay = 3000;
-                        act = Activity.Disappear;
+                        action = Action.Disappear;
                     }
                     else{
-                        if (nextAct != Activity.AtWork && nextAct != Activity.InClass
-                                && nextAct != Activity.UnderTreatment && nextAct != Activity.HavingMeals) {
+                        if (nextAction != Action.AtWork && nextAction != Action.InClass
+                                && nextAction != Action.UnderTreatment && nextAction != Action.HavingMeals) {
                             dest = null;
                         }
-                        act = nextAct;
-                        nextAct = null;
-                        PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
+                        action = nextAction;
+                        nextAction = null;
+                        PkgHandler.send(new AppPkg().setCitizen(name, action.toString()));
                     }
                     break;
                 case GetSick:case GetHungry:
-                    if(count[act.ordinal()] == 0){
-                        count[act.ordinal()] = 15;
+                    if(count[action.ordinal()] == 0){
+                        count[action.ordinal()] = 15;
                         delay = 300;
                     }
                     else{
-                        count[act.ordinal()]--;
+                        count[action.ordinal()]--;
                         icon.blink = !icon.blink;
                         icon.repaint();
-                        if(count[act.ordinal()] == 0){
+                        if(count[action.ordinal()] == 0){
                             delay = 0;
                             icon.blink = false;
                             icon.repaint();
-                            if(act == Activity.GetSick)
-                                act = Activity.GoToHospital;
-                            else if(act == Activity.GetHungry)
-                                act = Activity.GoToEat;
-                            PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
+                            if(action == Action.GetSick)
+                                action = Action.GoToHospital;
+                            else if(action == Action.GetHungry)
+                                action = Action.GoToEat;
+                            PkgHandler.send(new AppPkg().setCitizen(name, action.toString()));
                         }
                     }
                     break;
                 case GoToSchool:case GoToWork:case GoToHospital:case GoToEat:
-                    if(act == Activity.GoToHospital){
-                        nextAct = Activity.UnderTreatment;
+                    if(action == Action.GoToHospital){
+                        nextAction = Action.UnderTreatment;
                         dest = TrafficMap.buildings.get(Building.Type.Hospital);
                     }
-                    else if(act == Activity.GoToEat){
-                        nextAct = Activity.HavingMeals;
+                    else if(action == Action.GoToEat){
+                        nextAction = Action.HavingMeals;
                         dest = TrafficMap.buildings.get(Building.Type.Restaurant);
                     }
                     else{
-                        if(act == Activity.GoToWork)
-                            nextAct = Activity.AtWork;
-                        else if(act == Activity.GoToSchool)
-                            nextAct = Activity.InClass;
+                        if(action == Action.GoToWork)
+                            nextAction = Action.AtWork;
+                        else if(action == Action.GoToSchool)
+                            nextAction = Action.InClass;
 
                         switch (job) {
                             case Student:
@@ -282,16 +293,16 @@ public class Citizen extends Thread {
 
                     if((loc instanceof Building && loc == dest)
                             || (loc instanceof Section && ((Building) dest).addrs.contains(loc))){
-                        act = nextAct;
-                        nextAct = null;
+                        action = nextAction;
+                        nextAction = null;
                     }
                     else
-                        act = Activity.HailATaxi;
-                    PkgHandler.send(new AppPkg().setCitizen(name, act.toString()));
+                        action = Action.HailATaxi;
+                    PkgHandler.send(new AppPkg().setCitizen(name, action.toString()));
                     break;
                 case AtWork:case InClass:case UnderTreatment:case HavingMeals:
-                    if(count[act.ordinal()] == 0){
-                        count[act.ordinal()] = 50;
+                    if(count[action.ordinal()] == 0){
+                        count[action.ordinal()] = 50;
                         delay = 500;
                         if(dest == null)
                             throw new NullPointerException();
@@ -305,12 +316,12 @@ public class Citizen extends Thread {
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
                     }
                     else{
-                        count[act.ordinal()]--;
+                        count[action.ordinal()]--;
                         icon.blink = !icon.blink;
                         icon.repaint();
-                        if(count[act.ordinal()] == 0){
+                        if(count[action.ordinal()] == 0){
                             delay = 0;
-                            state = act = null;
+                            state = action = null;
                             icon.blink = false;
                             icon.repaint();
                             PkgHandler.send(new AppPkg().setCitizen(name, "None"));
@@ -318,17 +329,17 @@ public class Citizen extends Thread {
                     }
                     break;
                 case RescueTheWorld:
-                    if(count[act.ordinal()] == 0){
-                        count[act.ordinal()] = 5;
+                    if(count[action.ordinal()] == 0){
+                        count[action.ordinal()] = 5;
                         delay = 500;
                     }
                     else{
-                        count[act.ordinal()]--;
+                        count[action.ordinal()]--;
                         icon.blink = !icon.blink;
                         icon.repaint();
-                        if(count[act.ordinal()] == 0){
+                        if(count[action.ordinal()] == 0){
                             delay = 0;
-                            state = act = null;
+                            state = action = null;
                             icon.blink = false;
                             icon.repaint();
                             PkgHandler.send(new AppPkg().setCitizen(name, "None"));
@@ -338,10 +349,6 @@ public class Citizen extends Thread {
                 case Disappear:
                     StateSwitcher.unregister(thread);
                     reset();
-                    synchronized (TrafficMap.freeCitizens) {
-                        if (!TrafficMap.freeCitizens.contains(this))
-                            TrafficMap.freeCitizens.add(this);
-                    }
                     return;
             }
         }

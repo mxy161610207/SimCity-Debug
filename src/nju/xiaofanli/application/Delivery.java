@@ -192,7 +192,7 @@ public class Delivery {
                         iter.remove();
                         allBusy = false;
                         completedSysDelivNum++;
-                        if(dt.releasedByUser) {
+                        if(dt.createdByUser) {
                             userDelivNum--;
                             Dashboard.enableDeliveryButton(true);
                         }
@@ -252,7 +252,7 @@ public class Delivery {
                             car.notifyPolice(Police.REQUEST2ENTER);
 //                            allBusy = false;
 //
-//                            if(dt.releasedByUser) {
+//                            if(dt.createdByUser) {
 //                                userDelivNum--;
 //                                completedUserDelivNum++;
 //                                Dashboard.enableDeliveryButton(true);
@@ -356,8 +356,8 @@ public class Delivery {
 		    add(new DeliveryTask(src, dest, citizen, releasedByUser));
 	}
 
-    public static void add(Location src, Location dest, boolean releasedByUser){
-        if(releasedByUser){
+    public static void add(Location src, Location dest, boolean createdByUser){
+        if(createdByUser){
             if(userDelivNum == MAX_USER_DELIV_NUM)
                 return;
         }
@@ -370,7 +370,7 @@ public class Delivery {
         if(citizen == null)
             return;
 
-        if(releasedByUser){
+        if(createdByUser){
             if(++userDelivNum == MAX_USER_DELIV_NUM)
                 Dashboard.enableDeliveryButton(false);
         }
@@ -379,11 +379,10 @@ public class Delivery {
 
         citizen.loc = src;
         citizen.dest = dest;
-        citizen.setActivity(Citizen.Activity.HailATaxi);
-        citizen.releasedByUser = releasedByUser;
+        citizen.setAction(Citizen.Action.HailATaxi);
+        citizen.createdByUser = createdByUser;
 //        Resource.execute(citizen);
-        if(!citizen.isAlive())
-            citizen.start();
+        citizen.startAction();
 	}
 	
 	private static void clearSearchTasks(){
@@ -411,21 +410,21 @@ public class Delivery {
 		public int phase;//0: search car; 1: to src 2: to dest
 		public long startTime = 0;
 		public Citizen citizen = null;
-        public boolean releasedByUser = false;
+        public boolean createdByUser = false;
 
         public static final int SEARCH_CAR = 0;
         public static final int HEAD4SRC = 1;
         public static final int HEAD4DEST = 2;
         public static final int COMPLETED = 3;
 		
-		public DeliveryTask(Location src, Location dest, Citizen citizen, boolean releasedByUser) {
+		public DeliveryTask(Location src, Location dest, Citizen citizen, boolean createdByUser) {
 			this.id = Delivery.taskid++;
 			this.src = src;
 			this.dest = dest;
 			this.phase = SEARCH_CAR;
 			this.startTime = System.currentTimeMillis();
 			this.citizen = citizen;
-            this.releasedByUser = releasedByUser;
+            this.createdByUser = createdByUser;
 		}
 		
 		protected DeliveryTask clone() throws CloneNotSupportedException {
@@ -485,7 +484,7 @@ public class Delivery {
         public String toString() {
             StringBuilder sb = new StringBuilder();
 //            sb.append("<html>");
-            sb.append("<table class="+ (releasedByUser ? "user" : "sys") + ">");
+            sb.append("<table class="+ (createdByUser ? "user" : "sys") + ">");
             sb.append("<tr><th>").append("Src").append("</th>");
             sb.append("<td>").append(src.name).append("</td></tr>");
             sb.append("<tr><th>").append("Dest").append("</th>");

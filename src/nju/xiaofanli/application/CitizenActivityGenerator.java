@@ -7,7 +7,7 @@ import nju.xiaofanli.city.Citizen;
 public class CitizenActivityGenerator implements Runnable{
     public CitizenActivityGenerator(){
         Resource.getCitizens().forEach(x -> new Thread(x, x.name).start());
-        new Thread(this, "Citizen Activity Generator").start();
+        new Thread(this, "Citizen Action Generator").start();
     }
 
     @Override
@@ -20,24 +20,24 @@ public class CitizenActivityGenerator implements Runnable{
                     if(citizen.state != null)
                         continue;
                     if(!citizen.icon.isVisible()){
-                        citizen.setActivity(Citizen.Activity.Wander);
+                        citizen.setAction(Citizen.Action.Wander);
                         continue;
                     }
-                    citizen.setActivity(Citizen.Activity.GetHungry);
+                    citizen.setAction(Citizen.Action.GetHungry);
 //                double d = Math.random();
 //                if(d < 0.01)
-//                    citizen.setActivity(Activity.Wander);
+//                    citizen.setAction(Action.Wander);
 //                else if(d < 0.35){
 //                    if(citizen.job != Citizen.Job.Doctor)
-//                        citizen.setActivity(Activity.GetSick);
+//                        citizen.setAction(Action.GetSick);
 //                }
 //                else if(d < 0.6)
-//                    citizen.setActivity(Activity.GetHungry);
+//                    citizen.setAction(Action.GetHungry);
 //                else{
 //                    if(citizen.job == Job.Student)
-//                        citizen.setActivity(Activity.GoToSchool);
+//                        citizen.setAction(Action.GoToSchool);
 //                    else
-//                        citizen.setActivity(Activity.GoToWork);
+//                        citizen.setAction(Action.GoToWork);
 //                }
                 }
             }

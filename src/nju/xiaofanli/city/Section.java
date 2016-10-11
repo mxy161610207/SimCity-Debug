@@ -109,7 +109,7 @@ public abstract class Section extends Location{
 			}
 		}
 	}
-	
+
 	public boolean isOccupied(){
 		return !cars.isEmpty();
 	}
@@ -193,7 +193,7 @@ public abstract class Section extends Location{
 					g.fillRect(x, y, cubeSize, cubeSize);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, cubeSize, cubeSize);
-					if(car.realLoc != null) {
+					if(car.hasPhantom()) {
                         if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.WHITE);
                         g.drawString("FAKE", x+(cubeSize-fm.stringWidth("FAKE"))/2, y+fm.getAscent());
@@ -230,6 +230,12 @@ public abstract class Section extends Location{
 				g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2);
 			}
 		}
+
+        public void repaintAll(){
+            this.repaint();
+            if (section.isCombined())
+                section.combined.forEach(s -> s.icon.repaint());
+        }
 	}
 	
 	public void displayBalloon(int type, String sensor, String car, boolean isResolutionEnabled) {

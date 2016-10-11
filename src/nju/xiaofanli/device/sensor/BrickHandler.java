@@ -9,7 +9,6 @@ import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.context.Context;
 import nju.xiaofanli.context.ContextManager;
 import nju.xiaofanli.control.Police;
-import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.car.Remedy;
@@ -18,8 +17,6 @@ import nju.xiaofanli.event.EventManager;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class BrickHandler extends Thread{
     private static final Queue<RawData> rawData = new LinkedList<>();
@@ -59,7 +56,7 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void switchState(Car car, Sensor sensor, boolean isCtxTrue){
+    public static void switchState(Car car, Sensor sensor, boolean isRealCar, boolean isCtxTrue){
         switch(sensor.state){
             case Sensor.UNDETECTED:{
                 if(isCtxTrue){
@@ -70,14 +67,23 @@ public class BrickHandler extends Thread{
                         sensor.prevSensor.car = null;
                     }
 
-                    if(car.hasPhantom()){
-                        car.loadRealInfo();
-                        PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));//TODO bug here
+                    if (isRealCar) { //real car entered
+                        car.setRealInfo(sensor.nextSection,
+                                sensor.nextSection.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextSection.dir[0] : sensor.dir);
+                        break;
                     }
+//                    else if(car.hasPhantom()){
+//                        car.loadRealInfo();
+//                        PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));//TODO bug here
+//                    }
                 }
-                else if(!car.hasPhantom()){
-                    car.saveRealInfo();
-                    PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.getRealLoc().name));
+                else {
+                    if (isRealCar) //abandon false context triggered by real (invisible) car
+                        break;
+                    else if(!car.hasPhantom()) {
+                        car.saveRealInfo();
+                        PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.getRealLoc().name));
+                    }
                 }
 //    			else if(car.loc.sameAs(sensor.nextSection)){
 //    				//the phantom already in this section
@@ -146,22 +152,23 @@ public class BrickHandler extends Thread{
             case Sensor.UNDETECTED:
                 if(sensor.entryDetected(reading)){
                     Car car = null;
-                    int dir = TrafficMap.UNKNOWN_DIR, state = Car.STOPPED;
+                    int dir = TrafficMap.UNKNOWN_DIR;
+                    boolean isRealCar = false;
                     //check real cars first
                     for(Car realCar : sensor.prevSection.realCars){
                         if(realCar.realDir == sensor.dir){
+                            isRealCar = true;
                             car = realCar;
                             dir = realCar.realDir;
-                            state = realCar.realState;
                             break;
                         }
                     }
                     if(car == null){
                         for(Car tmp : sensor.prevSection.cars){
                             if(tmp.dir == sensor.dir){
+                                isRealCar = false;
                                 car = tmp;
                                 dir = car.dir;
-                                state = car.state;
                                 break;
                             }
                         }
@@ -173,8 +180,8 @@ public class BrickHandler extends Thread{
                     }
                     System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading);
 
-                    Middleware.add(car.name, dir, state, "movement", "enter",
-                            sensor.prevSection.name, sensor.nextSection.name, time, car, sensor);
+                    Middleware.add(car.name, dir, car.state, "movement", "enter",
+                            sensor.prevSection.name, sensor.nextSection.name, time, car, sensor, isRealCar);
                 }
                 break;
         }
@@ -199,7 +206,7 @@ public class BrickHandler extends Thread{
     }
 
     public static void add(int bid, int sid, int reading, long time){
-        Sensor sensor = Resource.getSensors().get(bid).get(sid);
+        Sensor sensor = Resource.getSensors()[bid][sid];
         sensor.reading = reading;
         if(StateSwitcher.isResetting()){
             switchStateWhenResetting(sensor, reading);

@@ -1,10 +1,13 @@
 package nju.xiaofanli.device.sensor;
 
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 
+import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.Section.Crossing;
@@ -26,7 +29,6 @@ public class Sensor {
 	public Sensor prevSensor = null;
 	public int dir;
 	public boolean isEntrance;
-//	public boolean isTriggered = false;
 	public int showPos = -1;//4 types in total
 	public int px, py;
 	public JButton icon = null;
@@ -34,7 +36,16 @@ public class Sensor {
 	public final static int INITIAL = 0;
 	public final static int DETECTED = 1;
 	public final static int UNDETECTED = 2;
-	
+
+    public Sensor(int bid, int sid) {
+        this.bid = bid;
+        this.sid = sid;
+        name = "B" + bid + "S" + (sid+1);
+        state = Sensor.UNDETECTED;
+        entryThreshold = 10;
+        leaveThreshold = 11;
+    }
+
 	boolean entryDetected(int reading){
 		return reading <= entryThreshold;
 	}

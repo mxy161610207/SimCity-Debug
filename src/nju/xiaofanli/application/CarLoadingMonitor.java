@@ -14,11 +14,11 @@ public class CarLoadingMonitor implements EventListener{
         switch (event.type) {
             case CAR_START_LOADING:{
                 Car car = Car.carOf(event.car);
-                if(car.dt != null && car.dt.citizen != null && car.dt.citizen.state == Citizen.Activity.HailATaxi){
+                if(car.dt != null && car.dt.citizen != null && car.dt.citizen.state == Citizen.Action.HailATaxi){
                     Citizen citizen = car.dt.citizen;
                     car.passengers.add(citizen);
                     citizen.car = car;
-                    citizen.setActivity(Citizen.Activity.TakeATaxi);
+                    citizen.setAction(Citizen.Action.TakeATaxi);
                     Dashboard.log(Arrays.asList(car.name, " picks up ", citizen.name, " at ",  car.loc.name, "\n"),
                             Arrays.asList(car.icon.color, Color.BLACK, citizen.icon.color, Color.BLACK, Color.GRAY));
                 }
@@ -26,12 +26,12 @@ public class CarLoadingMonitor implements EventListener{
             }
             case CAR_START_UNLOADING:{
                 Car car = Car.carOf(event.car);
-                if(car.dt != null && car.dt.citizen != null && car.dt.citizen.state == Citizen.Activity.TakeATaxi){
+                if(car.dt != null && car.dt.citizen != null && car.dt.citizen.state == Citizen.Action.TakeATaxi){
                     Citizen citizen = car.dt.citizen;
                     car.passengers.remove(citizen);
                     citizen.car = null;
                     citizen.loc = car.loc;
-                    citizen.setActivity(Citizen.Activity.GetOff);
+                    citizen.setAction(Citizen.Action.GetOff);
                     Dashboard.log(Arrays.asList(car.name, " drops off ", citizen.name, " at ",  car.loc.name, "\n"),
                             Arrays.asList(car.icon.color, Color.BLACK, citizen.icon.color, Color.BLACK, Color.GRAY));
                 }

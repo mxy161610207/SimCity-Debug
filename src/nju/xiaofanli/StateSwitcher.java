@@ -148,7 +148,7 @@ public class StateSwitcher {
 			}
 			else{//Only moving cars and crashed cars need to be located
 				for(Car car :Resource.getConnectedCars()){
-					if(car.getRealState() != Car.STOPPED)
+					if(car.getState() != Car.STOPPED)
 						cars2locate.add(car);
 					if(car.getRealLoc() != null){
 						Set<Car> crashedCars = new HashSet<>(car.getRealLoc().realCars);
@@ -240,7 +240,6 @@ public class StateSwitcher {
 			carInfo.clear();
 
             Dashboard.reset();
-//			Dashboard.enableResetButton(true);
 			Dashboard.enableCtrlUI(true);
             Dashboard.enableDeliveryButton(true);
 			setState(State.NORMAL);
@@ -290,10 +289,6 @@ public class StateSwitcher {
 			if(car.isHornOn)
 				whistlingCars.add(car);
 			Command.silence(car);
-//			if(prevState != State.NORMAL)
-//				continue;
-//			if (car.getRealState() == Car.MOVING || car.getRealState() == Car.UNCERTAIN && car.lastCmd == Car.MOVING)
-//				movingCars.add(car);
 		}
 		if(prevState == State.NORMAL)
 			Dashboard.enableCtrlUI(false);

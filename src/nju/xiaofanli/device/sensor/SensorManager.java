@@ -1,14 +1,13 @@
 package nju.xiaofanli.device.sensor;
 
+import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.city.TrafficMap;
+
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import nju.xiaofanli.city.TrafficMap;
-import nju.xiaofanli.StateSwitcher;
 
 public class SensorManager {
 	private static ConcurrentHashMap<Sensor, Set<SensorListener>> listeners = new ConcurrentHashMap<>();
@@ -18,8 +17,8 @@ public class SensorManager {
 		if(!worker.isAlive())
 			worker.start();
 		if(sensor.equals("ALL") || sensor.equals("all")){
-			for(List<Sensor> list : TrafficMap.sensors)
-				for(Sensor s : list){
+			for(Sensor[] array : TrafficMap.sensors)
+				for(Sensor s : array){
 					if(!listeners.containsKey(s))
 						listeners.put(s, new HashSet<>());
 					listeners.get(s).add(listener);
@@ -28,10 +27,10 @@ public class SensorManager {
 		}
 		else{
 			int bid = sensor.charAt(0) - '0';
-			int sid = sensor.charAt(1) - '0';
+			int sid = sensor.charAt(1) - '1';
 			if(bid >= 0 && bid <= 9){
-				if(sid >= 1 && sid <= TrafficMap.sensors.get(bid).size()){
-					Sensor s = TrafficMap.sensors.get(bid).get(sid);
+				if(sid >= 0 && sid < TrafficMap.sensors[bid].length){
+					Sensor s = TrafficMap.sensors[bid][sid];
 					if(!listeners.containsKey(s))
 						listeners.put(s, new HashSet<>());
 					listeners.get(s).add(listener);
