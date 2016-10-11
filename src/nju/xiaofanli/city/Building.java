@@ -1,5 +1,7 @@
 package nju.xiaofanli.city;
 
+import nju.xiaofanli.Resource;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -13,18 +15,20 @@ import javax.swing.JButton;
 
 public class Building extends Location{
 	public Type type = null;
-	public int block;//block number
-	public BuildingIcon icon = new BuildingIcon(this);
-	public Set<Section> addrs = new HashSet<>();
+	public int block = -1;//block number
+	public BuildingIcon icon = null;
+	public Set<Section> addrs = null;
 	
 	public enum Type {
 		Hospital, School, PoliceStation, Restaurant, StarkIndustries
 	}
 	
-	public Building(String name, Type type, int block) {
+	public Building(String name, Type type, int block, String iconFile) {
 		this.name = name;
 		this.type = type;
 		this.block  = block;
+        this.icon = new BuildingIcon(this, iconFile);
+        this.addrs = new HashSet<>();
 	}
 	
 	public static Type typeOf(String type){
@@ -38,13 +42,15 @@ public class Building extends Location{
 		private static final long serialVersionUID = 1L;
 		private Building building = null;
 		private ImageIcon imageIcon = null;
+        private final String iconFile;
 		TrafficMap.Coord coord = new TrafficMap.Coord();
 		
-		BuildingIcon(Building building) {
+		BuildingIcon(Building building, String iconFile) {
 			setOpaque(false);
 			setContentAreaFilled(false);
 //			setBorderPainted(false);
 			this.building = building;
+            this.iconFile = iconFile;
 		}
 		
 		protected void paintBorder(Graphics g) {
@@ -67,31 +73,7 @@ public class Building extends Location{
 //		}
 		
 		void setIcon(){
-			switch (building.type) {
-			case StarkIndustries:
-				imageIcon = new ImageIcon("res/stark_industries.png");
-				break;
-			case Hospital:
-				imageIcon = new ImageIcon("res/hospital.png");
-				break;
-			case School:
-				imageIcon = new ImageIcon("res/nju.png");
-				break;
-			case PoliceStation:
-				imageIcon = new ImageIcon("res/shield.png");
-				break;
-			case Restaurant:
-				imageIcon = new ImageIcon("res/java.png");
-				break;
-			default:
-				return;
-			}
-			Image image = imageIcon.getImage();
-			if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
-				image = image.getScaledInstance(coord.w, -1, Image.SCALE_SMOOTH);
-			else
-				image = image.getScaledInstance(-1, coord.h, Image.SCALE_SMOOTH);
-			imageIcon = new ImageIcon(image);
+			imageIcon = Resource.loadImage(iconFile, coord.w, coord.h);
 			setIcon(imageIcon);
 		}
 		

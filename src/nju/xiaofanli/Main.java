@@ -75,7 +75,8 @@ public class Main {
 		for(Element elm : list){
 			Building b = new Building(elm.attributeValue("name"),
 					Building.typeOf(elm.attributeValue("type")),
-					Integer.parseInt(elm.attributeValue("loc")));
+					Integer.parseInt(elm.attributeValue("loc")),
+                    elm.attributeValue("icon"));
 			TrafficMap.buildings.put(b.type, b);
 		}
 		
@@ -83,7 +84,8 @@ public class Main {
 		for(Element elm : list){
 			Citizen citizen = new Citizen(elm.attributeValue("name"),
 					Citizen.genderOf(elm.attributeValue("gender")),
-					Citizen.jobOf(elm.attributeValue("job")));
+					Citizen.jobOf(elm.attributeValue("job")),
+					elm.attributeValue("icon"));
 			TrafficMap.citizens.add(citizen);
             TrafficMap.freeCitizens.add(citizen);
 		}

@@ -477,8 +477,8 @@ public class TrafficMap extends JPanel{
 		sensor.street = streets[s];
 //		crossings[c].sensors.add(sensor);
 //		streets[s].sensors.add(sensor);
-		sensor.entryThreshold = 9;
-		sensor.leaveThreshold = 10;
+		sensor.entryThreshold = 10;
+		sensor.leaveThreshold = 11;
 		
 		Section section = sectionBehind(sensor);
 		if(section instanceof Crossing){

@@ -47,44 +47,63 @@ public class ConfigGenerator {
 		car.addAttribute("name", Car.WHITE);
 		car.addAttribute("loc", "Street 28");
         car.addAttribute("url", "btspp://00066661AA61:1;authenticate=true;encrypt=true");
-		//building
-		Element building = root.addElement("building");
-		building.addAttribute("name", "Stark Industries");
-		building.addAttribute("type", Building.Type.StarkIndustries.toString());
-		building.addAttribute("loc", "9");
-		
-		building = root.addElement("building");
-		building.addAttribute("name", "Hospital");
-		building.addAttribute("type", Building.Type.Hospital.toString());
-		building.addAttribute("loc", "6");
-		
-		building = root.addElement("building");
-		building.addAttribute("name", "School");
-		building.addAttribute("type", Building.Type.School.toString());
-		building.addAttribute("loc", "5");
-		
-		building = root.addElement("building");
-		building.addAttribute("name", "Police Station");
-		building.addAttribute("type", Building.Type.PoliceStation.toString());
-		building.addAttribute("loc", "10");
-		
-		building = root.addElement("building");
-		building.addAttribute("name", "Restaurant");
-		building.addAttribute("type", Building.Type.Restaurant.toString());
-		building.addAttribute("loc", "12");
-		
-		//citizen
-		Element citizen = root.addElement("citizen");
-		citizen.addAttribute("name", "Tony Stark");
-		citizen.addAttribute("gender", Citizen.Gender.Male.toString());
-		citizen.addAttribute("job", Citizen.Job.IronMan.toString());
-		
+
 		//Brick
 		for(int i = 0;i < 10;i++){
 			Element brick = root.addElement("brick");
 			brick.addAttribute("name", "" + i);
 			brick.addAttribute("address", "192.168.1.11" + i);
 		}
+
+        //building
+        Element building = root.addElement("building");
+        building.addAttribute("name", "Stark Industries");
+        building.addAttribute("type", Building.Type.StarkIndustries.toString());
+        building.addAttribute("loc", "9");
+        building.addAttribute("icon", "res/stark_industries.png");
+
+        building = root.addElement("building");
+        building.addAttribute("name", "Hospital");
+        building.addAttribute("type", Building.Type.Hospital.toString());
+        building.addAttribute("loc", "6");
+        building.addAttribute("icon", "res/hospital.png");
+
+        building = root.addElement("building");
+        building.addAttribute("name", "School");
+        building.addAttribute("type", Building.Type.School.toString());
+        building.addAttribute("loc", "5");
+        building.addAttribute("icon", "res/nju.png");
+
+        building = root.addElement("building");
+        building.addAttribute("name", "Police Station");
+        building.addAttribute("type", Building.Type.PoliceStation.toString());
+        building.addAttribute("loc", "10");
+        building.addAttribute("icon", "res/shield.png");
+
+        building = root.addElement("building");
+        building.addAttribute("name", "Restaurant");
+        building.addAttribute("type", Building.Type.Restaurant.toString());
+        building.addAttribute("loc", "13");
+        building.addAttribute("icon", "res/java.png");
+
+        //citizen
+        Element citizen = root.addElement("citizen");
+        citizen.addAttribute("name", "Tony Stark");
+        citizen.addAttribute("gender", Citizen.Gender.Male.toString());
+        citizen.addAttribute("job", Citizen.Job.SuperHero.toString());
+        building.addAttribute("icon", "res/ironman.png");
+
+        citizen = root.addElement("citizen");
+        citizen.addAttribute("name", "Tony Stark");
+        citizen.addAttribute("gender", Citizen.Gender.Male.toString());
+        citizen.addAttribute("job", Citizen.Job.SuperHero.toString());
+        building.addAttribute("icon", "res/ironman.png");
+
+        citizen = root.addElement("citizen");
+        citizen.addAttribute("name", "Wade Wilson");
+        citizen.addAttribute("gender", Citizen.Gender.Male.toString());
+        citizen.addAttribute("job", Citizen.Job.SuperHero.toString());
+        building.addAttribute("icon", "res/deadpool.png");
 		
 		OutputFormat format = OutputFormat.createPrettyPrint();
 		XMLWriter writer = new XMLWriter(new FileWriter(FILE), format);

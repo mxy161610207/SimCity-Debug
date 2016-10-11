@@ -1,5 +1,6 @@
 package nju.xiaofanli.city;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.monitor.AppPkg;
@@ -10,10 +11,8 @@ import nju.xiaofanli.device.car.Car.CarIcon;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-public class Citizen implements Runnable{
+public class Citizen extends Thread {
     public final String name;
     public final Gender gender;
     public final Job job;
@@ -22,7 +21,7 @@ public class Citizen implements Runnable{
     private long delay = 0;
     public Location loc = null, dest = null;
     public Car car = null;
-    public CitizenIcon icon = new CitizenIcon(this);
+    public CitizenIcon icon = null;
     public boolean releasedByUser = false; //used in taking taxis
 
     public enum Gender {
@@ -30,7 +29,7 @@ public class Citizen implements Runnable{
     }
 
     public enum Job{
-        Student, Doctor, Police, Cook, IronMan
+        Student, Doctor, Police, Cook, SuperHero, Reporter
     }
 
     public enum Activity {
@@ -38,10 +37,12 @@ public class Citizen implements Runnable{
         GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals, Disappear
     }
 
-    public Citizen(String name, Gender gender, Job job) {
+    public Citizen(String name, Gender gender, Job job, String iconFile) {
         this.name = name;
         this.gender = gender;
         this.job = job;
+        this.icon = new CitizenIcon(this, iconFile);
+        setName("Citizen: " + name);
     }
 
     public static Gender genderOf(String gender){
@@ -123,8 +124,8 @@ public class Citizen implements Runnable{
             state = act;
             switch (act) {
                 case Wander: {
-                    int xmax = icon.getParent().getWidth() - CitizenIcon.SIZE;
-                    int ymax = icon.getParent().getHeight() - CitizenIcon.SIZE;
+                    int xmax = icon.getParent().getWidth() - icon.dimension.width;
+                    int ymax = icon.getParent().getHeight() - icon.dimension.height;
                     if (count[act.ordinal()] == 0) {
                         count[act.ordinal()] = 3;
                         delay = 1000;
@@ -135,7 +136,7 @@ public class Citizen implements Runnable{
 //						y = TrafficMap.streets[23].icon.coord.y;
                             icon.setLocation(x, y);
                             icon.setVisible(true);
-                            loc = Dashboard.getNearestSection(icon.getX() + CitizenIcon.SIZE / 2, icon.getY() + CitizenIcon.SIZE / 2);
+                            loc = Dashboard.getNearestSection(icon.getCenterX(), icon.getCenterY());
 
                             PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
                             PkgHandler.send(new AppPkg().setCitizen(name, true));
@@ -153,7 +154,7 @@ public class Citizen implements Runnable{
                         else if (y > ymax)
                             y = ymax;
                         icon.setLocation(x, y);
-                        loc = Dashboard.getNearestSection(icon.getX() + CitizenIcon.SIZE / 2, icon.getY() + CitizenIcon.SIZE / 2);
+                        loc = Dashboard.getNearestSection(icon.getCenterX(), icon.getCenterY());
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
 
@@ -177,7 +178,7 @@ public class Citizen implements Runnable{
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
-                        icon.setLocation(x, y);
+                        icon.setLocation(x-icon.getWidth()/4, y-icon.getHeight()/4);
                         icon.setVisible(true);
                     }
                     Delivery.add(loc, dest, this, releasedByUser);
@@ -198,7 +199,7 @@ public class Citizen implements Runnable{
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
-                        icon.setLocation(x, y);
+                        icon.setLocation(x-icon.getWidth()/4, y-icon.getHeight()/4);
                         icon.setVisible(true);
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
@@ -267,7 +268,7 @@ public class Citizen implements Runnable{
                             case Doctor:
                                 dest = TrafficMap.buildings.get(Building.Type.Hospital);
                                 break;
-                            case IronMan:
+                            case SuperHero:
                                 dest = TrafficMap.buildings.get(Building.Type.StarkIndustries);
                                 break;
                             case Police:
@@ -295,8 +296,8 @@ public class Citizen implements Runnable{
                         if(dest == null)
                             throw new NullPointerException();
                         loc = dest;
-                        int xmax = ((Building) dest).icon.getWidth() - CitizenIcon.SIZE;
-                        int ymax = ((Building) dest).icon.getHeight() - CitizenIcon.SIZE;
+                        int xmax = ((Building) dest).icon.getWidth() - icon.dimension.width;
+                        int ymax = ((Building) dest).icon.getHeight() - icon.dimension.height;
                         int x = (int) (Math.random() * xmax) + ((Building) dest).icon.coord.x;
                         int y = (int) (Math.random() * ymax) + ((Building) dest).icon.coord.y;
                         icon.setLocation(x, y);
@@ -346,91 +347,103 @@ public class Citizen implements Runnable{
         }
     }
 
-    public static class CitizenIcon extends JButton{
+    public static class CitizenIcon extends JLabel{
         private static final long serialVersionUID = 1L;
-        private Citizen citizen = null;
-        public Color color = null;
+        private final Citizen citizen;
+        private ImageIcon imageIcon;
+        public final Color color;
         private boolean showName = false;
         private boolean showState = false;
         public boolean blink = false;
-        public static final int SIZE = (int) (0.8*CarIcon.SIZE);
-        public CitizenIcon(Citizen citizen) {
-            setOpaque(false);
-            setContentAreaFilled(false);
-            setSize(new Dimension(10*SIZE, SIZE));
-            setVisible(false);
-//			setBorderPainted(false);
+        final Dimension dimension;
+        static final int AVATAR_SIZE = CarIcon.SIZE;//(int) (0.8*CarIcon.AVATAR_SIZE);
+
+        CitizenIcon(Citizen citizen, String iconFile) {
             this.citizen = citizen;
+            setOpaque(false);
+//            setContentAreaFilled(false);
+            setVisible(false);
+            setBorder(null);
+//			setBorderPainted(false);
+//            setMargin(new Insets(0, 0, 0, 0));
             color = new Color((int) (Math.random()*256), (int) (Math.random()*256), (int) (Math.random()*256));
-            addMouseListener(new MouseListener() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    showState = !showState;
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    showName = true;
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    showName = false;
-                    showState = false;
-                }
-            });
+            imageIcon = Resource.loadImage(iconFile, AVATAR_SIZE, AVATAR_SIZE);
+            setIcon(imageIcon);
+            setText(citizen.name);
+            setVerticalTextPosition(SwingConstants.BOTTOM);
+            setHorizontalTextPosition(SwingConstants.CENTER);
+            setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+            FontMetrics fm = getFontMetrics(getFont());
+            dimension = new Dimension(Math.max(AVATAR_SIZE, fm.stringWidth(citizen.name)+40), AVATAR_SIZE +fm.getHeight());
+            setSize(dimension);
         }
 
-        protected void paintBorder(Graphics g) {
+//        protected void paintBorder(Graphics g) {
 //			super.paintBorder(g);
-            ((Graphics2D )g).setStroke(new BasicStroke(2.0f));
-            if(getModel().isPressed())
-                g.setColor(Color.black);
-            else if(getModel().isRollover())
-                g.setColor(Color.gray);
-            else
-                return;
-
-            g.drawOval(1, 1, SIZE-1, SIZE-1);
-        }
+//            ((Graphics2D )g).setStroke(new BasicStroke(2.0f));
+//            if(getModel().isPressed())
+//                g.setColor(Color.black);
+//            else if(getModel().isRollover())
+//                g.setColor(Color.gray);
+//            else
+//                return;
+//
+//            g.drawOval(1, 1, AVATAR_SIZE-1, AVATAR_SIZE-1);
+//        }
 
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if(!blink){
-                switch (citizen.state) {
-                    case GetSick:
-                        g.setColor(Color.RED);
-                        break;
-                    case GetHungry:
-                        g.setColor(Color.YELLOW);
-                        break;
-                    default:
-                        g.setColor(color);
-                        break;
-                }
-                g.fillOval(0, 0, SIZE, SIZE);
-                g.setColor(Color.BLACK);
-                g.drawOval(1, 1, SIZE-2, SIZE-2);
+//                switch (citizen.state) {
+//                    case GetSick:
+//                        g.setColor(Color.RED);
+//                        break;
+//                    case GetHungry:
+//                        g.setColor(Color.YELLOW);
+//                        break;
+//                    default:
+//                        g.setColor(color);
+//                        break;
+//                }
+//                g.fillOval(0, 0, AVATAR_SIZE, AVATAR_SIZE);
+//                g.setColor(Color.BLACK);
+//                g.drawOval(1, 1, AVATAR_SIZE-2, AVATAR_SIZE-2);
             }
-            if(showState){
-                g.setColor(Color.BLACK);
-                String str = citizen.state == null ? "None" : citizen.state.toString();
-                FontMetrics fm = g.getFontMetrics();
-                g.drawString(str, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
-            }
-            else if(showName){
-                g.setColor(Color.BLACK);
-                FontMetrics fm = g.getFontMetrics();
-                g.drawString(citizen.name, (int) (1.2*SIZE), (getHeight()+fm.getAscent())/2);
-            }
+//            if(showState){
+//                g.setColor(Color.BLACK);
+//                String str = citizen.state == null ? "None" : citizen.state.toString();
+//                FontMetrics fm = g.getFontMetrics();
+//                g.drawString(str, (int) (1.2*AVATAR_SIZE), (getHeight()+fm.getAscent())/2);
+//            }
+//            else if(showName){
+//                g.setColor(Color.BLACK);
+//                FontMetrics fm = g.getFontMetrics();
+//                g.drawString(citizen.name, (int) (1.2*AVATAR_SIZE), (getHeight()+fm.getAscent())/2);
+//            }
+        }
+
+//        private void setIcon() {
+//            String filename;
+//            switch (citizen.name) {
+//                case "Tintin":
+//                    filename = "res/tintin.png"; break;
+//                case "Wade Wilson":
+//                    filename = "res/deadpool.png"; break;
+//                case "Scott Lang":
+//                    filename = "res/antman.png"; break;
+//                default:
+//                    return;
+//            }
+//            imageIcon = Resource.loadImage(filename, AVATAR_SIZE, AVATAR_SIZE);
+//            setIcon(imageIcon);
+//        }
+
+        public int getCenterX() {
+            return getX() + dimension.width / 2;
+        }
+
+        public int getCenterY() {
+            return getY() + dimension.height / 2;
         }
     }
 }

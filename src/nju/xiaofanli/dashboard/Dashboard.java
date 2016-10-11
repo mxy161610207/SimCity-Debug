@@ -498,6 +498,13 @@ public class Dashboard extends JFrame{
                         " at ", TrafficMap.getALocation().name,"\n"),
                         Arrays.asList(Car.colorOf(name), Color.BLACK, citizen.icon.color, Color.BLACK, Color.GRAY));
             }
+            else if(cmd.equals("wander")) {
+                for(Citizen citizen : Resource.getCitizens()) {
+                    citizen.setActivity(Citizen.Activity.Wander);
+                    if(!citizen.isAlive())
+                        citizen.start();
+                }
+            }
 		});
 
 		gbc.gridx = 0;
@@ -560,6 +567,7 @@ public class Dashboard extends JFrame{
             showSection = jchkSection.isSelected();
             trafficMap.repaint();
         });
+        jchkSection.doClick();
 
 		jchkSensor.addActionListener(e -> {
             showSensor = jchkSensor.isSelected();
@@ -856,6 +864,8 @@ public class Dashboard extends JFrame{
                         append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
                         append2pane(" at ", Color.BLACK, deliveryPane);
                         append2pane(dt.car.loc.name, Color.GRAY, deliveryPane);
+                        append2pane(" and heads for ", Color.BLACK, deliveryPane);
+                        append2pane(dt.dest.name, Color.GRAY, deliveryPane);
                         break;
                     case Delivery.DeliveryTask.COMPLETED:
                         append2pane(" gets off ", Color.BLACK, deliveryPane);

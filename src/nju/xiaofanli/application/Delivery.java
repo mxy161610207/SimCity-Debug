@@ -188,9 +188,28 @@ public class Delivery {
             synchronized (deliveryTasks) {
                 for(Iterator<DeliveryTask> iter = deliveryTasks.iterator();iter.hasNext();){
                     DeliveryTask dt = iter.next();
+                    if(dt.phase == DeliveryTask.COMPLETED && System.currentTimeMillis() - dt.startTime > 3000) {
+                        iter.remove();
+                        allBusy = false;
+                        completedSysDelivNum++;
+                        if(dt.releasedByUser) {
+                            userDelivNum--;
+                            Dashboard.enableDeliveryButton(true);
+                        }
+                        else {
+                            sysDelivNum--;
+                            Location src = TrafficMap.getALocation();
+                            Location dest = TrafficMap.getALocationExcept(src);
+                            add(src, dest, false);
+                        }
+                        if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
+                            EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt));
+                        Dashboard.updateDeliveryTaskPanel();
+                        continue;
+                    }
                     Car car = dt.car;
-                    long recent = Math.max(car.stopTime, dt.startTime);
-                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED && System.currentTimeMillis() - recent > 3000) {
+                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED
+                            && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
                         //head for the src
                         if(dt.phase == DeliveryTask.HEAD4SRC){
                             dt.phase = DeliveryTask.HEAD4DEST;
@@ -222,39 +241,40 @@ public class Delivery {
                         }
                         //head for the dest
                         else if(dt.phase == DeliveryTask.HEAD4DEST){
-                            iter.remove();
+//                            iter.remove();
                             dt.phase = DeliveryTask.COMPLETED;
+                            dt.startTime = System.currentTimeMillis();
                             car.dt = null;
                             car.dest = null;
                             car.finalState = Car.MOVING;
                             car.setLoading(false);
                             car.loc.icon.repaint();
                             car.notifyPolice(Police.REQUEST2ENTER);
-                            allBusy = false;
-
-                            if(dt.releasedByUser) {
-                                userDelivNum--;
-                                completedUserDelivNum++;
-                                Dashboard.enableDeliveryButton(true);
-                            }
-                            else {
-                                sysDelivNum--;
-                                completedSysDelivNum++;
-                                Location src = TrafficMap.getALocation();
-                                Location dest = TrafficMap.getALocationExcept(src);
-                                add(src, dest, false);
-                            }
+//                            allBusy = false;
+//
+//                            if(dt.releasedByUser) {
+//                                userDelivNum--;
+//                                completedUserDelivNum++;
+//                                Dashboard.enableDeliveryButton(true);
+//                            }
+//                            else {
+//                                sysDelivNum--;
+//                                completedSysDelivNum++;
+//                                Location src = TrafficMap.getALocation();
+//                                Location dest = TrafficMap.getALocationExcept(src);
+//                                add(src, dest, false);
+//                            }
 //                            Dashboard.log(car.name+" finished unloading");
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
                                 EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name));
-                            //trigger complete event
-                            if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
-                                try {
-                                    EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt.clone()));
-                                } catch (CloneNotSupportedException e) {
-                                    e.printStackTrace();
-                                }
+//                            //trigger complete event
+//                            if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
+//                                try {
+//                                    EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt.clone()));
+//                                } catch (CloneNotSupportedException e) {
+//                                    e.printStackTrace();
+//                                }
                         }
                         Dashboard.updateDeliveryTaskPanel();
                     }
@@ -361,8 +381,9 @@ public class Delivery {
         citizen.dest = dest;
         citizen.setActivity(Citizen.Activity.HailATaxi);
         citizen.releasedByUser = releasedByUser;
-        Resource.execute(citizen);
-//		add(src, dest, citizen, releasedByUser);
+//        Resource.execute(citizen);
+        if(!citizen.isAlive())
+            citizen.start();
 	}
 	
 	private static void clearSearchTasks(){
