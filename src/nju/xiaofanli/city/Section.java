@@ -196,7 +196,7 @@ public abstract class Section extends Location{
 					if(car.realLoc != null) {
                         if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.WHITE);
-                        g.drawString("FAKE", x+(cubeSize-fm.stringWidth("FAKE"))/2, y+(cubeSize+fm.getAscent())/2);
+                        g.drawString("FAKE", x+(cubeSize-fm.stringWidth("FAKE"))/2, y+fm.getAscent());
                         if(car.icon.color.equals(Color.BLACK))
                             g.setColor(Color.BLACK);
                     }
@@ -213,7 +213,7 @@ public abstract class Section extends Location{
 					g.drawRect(x, y, cubeSize, cubeSize);
                     if(car.icon.color.equals(Color.BLACK))
                         g.setColor(Color.WHITE);
-                    g.drawString("REAL", x+(cubeSize-fm.stringWidth("REAL"))/2, y+(cubeSize+fm.getAscent())/2);
+                    g.drawString("REAL", x+(cubeSize-fm.stringWidth("REAL"))/2, y+fm.getAscent());
                     if(car.icon.color.equals(Color.BLACK))
                         g.setColor(Color.BLACK);
 					if(vertical)

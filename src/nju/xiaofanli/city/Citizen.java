@@ -37,11 +37,11 @@ public class Citizen extends Thread {
         GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals, Disappear
     }
 
-    public Citizen(String name, Gender gender, Job job, String iconFile) {
+    public Citizen(String name, Gender gender, Job job, String iconFile, int rgb) {
         this.name = name;
         this.gender = gender;
         this.job = job;
-        this.icon = new CitizenIcon(this, iconFile);
+        this.icon = new CitizenIcon(this, iconFile, rgb);
         setName("Citizen: " + name);
     }
 
@@ -178,7 +178,7 @@ public class Citizen extends Thread {
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
-                        icon.setLocation(x-icon.getWidth()/4, y-icon.getHeight()/4);
+                        icon.setLocation(x-icon.getWidth()/8, y);
                         icon.setVisible(true);
                     }
                     Delivery.add(loc, dest, this, releasedByUser);
@@ -358,7 +358,7 @@ public class Citizen extends Thread {
         final Dimension dimension;
         static final int AVATAR_SIZE = CarIcon.SIZE;//(int) (0.8*CarIcon.AVATAR_SIZE);
 
-        CitizenIcon(Citizen citizen, String iconFile) {
+        CitizenIcon(Citizen citizen, String iconFile, int rgb) {
             this.citizen = citizen;
             setOpaque(false);
 //            setContentAreaFilled(false);
@@ -366,7 +366,8 @@ public class Citizen extends Thread {
             setBorder(null);
 //			setBorderPainted(false);
 //            setMargin(new Insets(0, 0, 0, 0));
-            color = new Color((int) (Math.random()*256), (int) (Math.random()*256), (int) (Math.random()*256));
+            color = new Color(rgb);
+            setForeground(color);
             imageIcon = Resource.loadImage(iconFile, AVATAR_SIZE, AVATAR_SIZE);
             setIcon(imageIcon);
             setText(citizen.name);

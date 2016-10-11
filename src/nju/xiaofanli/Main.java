@@ -44,7 +44,7 @@ public class Main {
 //        new RandomDataGenerator();
 		initial = false;
 	}
-	
+
 	private static void addModule(){
 		EventManager.register(new AppMonitor(), Event.Type.ALL);
 		EventManager.register(new VehicleConditionMonitor(), Arrays.asList(Event.Type.ADD_CAR, Event.Type.CAR_CRASH,
@@ -85,7 +85,7 @@ public class Main {
 			Citizen citizen = new Citizen(elm.attributeValue("name"),
 					Citizen.genderOf(elm.attributeValue("gender")),
 					Citizen.jobOf(elm.attributeValue("job")),
-					elm.attributeValue("icon"));
+					elm.attributeValue("icon"), Integer.parseInt(elm.attributeValue("color"), 16));
 			TrafficMap.citizens.add(citizen);
             TrafficMap.freeCitizens.add(citizen);
 		}

@@ -103,11 +103,11 @@ public class BrickHandler extends Thread{
                         if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
                             EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
                     }
-                    else if(car.finalState == Car.STOPPED){
-                        car.finalState = Car.MOVING;
-                        car.notifyPolice(Police.REQUEST2ENTER);
-//                        Dashboard.log(car.name+" failed to stop at dest, keep going");
-                    }
+//                    else if(car.finalState == Car.STOPPED){
+//                        car.finalState = Car.MOVING;
+//                        car.notifyPolice(Police.REQUEST2ENTER);
+////                        Dashboard.log(car.name+" failed to stop at dest, keep going");
+//                    }
                     else
                         car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
                 }
@@ -135,7 +135,7 @@ public class BrickHandler extends Thread{
                     if(sensor.car != null && !sensor.car.hasPhantom()
                             && sensor.car.loc.sameAs(sensor.nextSection)
                             && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
-                        System.out.println(sensor.name + " !!!FALSE POSITIVE!!!" +"\treading: " + reading);
+                        System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading);
                         break;
                     }
                     sensor.state = Sensor.UNDETECTED;
@@ -167,11 +167,11 @@ public class BrickHandler extends Thread{
                         }
                     }
                     if(car == null){
-                        System.out.println(sensor.name + ": Cannot find any car!\treading: "+reading);
+                        System.out.println("[" + sensor.name + "] Cannot find any car!\treading: "+reading);
                         sensor.state = Sensor.UNDETECTED;
                         break;
                     }
-//                    System.out.println(sensor.name + " ENTERING!!!" + "\treading: " + reading);
+                    System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading);
 
                     Middleware.add(car.name, dir, state, "movement", "enter",
                             sensor.prevSection.name, sensor.nextSection.name, time, car, sensor);
