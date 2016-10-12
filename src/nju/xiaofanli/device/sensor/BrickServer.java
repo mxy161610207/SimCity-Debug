@@ -1,5 +1,7 @@
 package nju.xiaofanli.device.sensor;
 
+import nju.xiaofanli.Resource;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -9,7 +11,8 @@ public class BrickServer implements Runnable{
 	private static DatagramSocket server = null;
 	private static final int PORT = 9999;
 //	private static long recvTime[] = new long[10];
-	
+	public static Sensor showingSensor = null;
+
 	public BrickServer() {
 		new Thread(this, "Brick Server").start();
 //		keyListener.start();
@@ -35,6 +38,8 @@ public class BrickServer implements Runnable{
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
 //				System.out.println(data.substring(2));
 				int d = Integer.parseInt(data.substring(2));//byte2int(b, 8);
+                if(showingSensor != null && Resource.getSensors()[bid][sid] == showingSensor)
+                    System.out.println("["+showingSensor.name+"] reading: "+d);
 //				if(((pre[bid][sid] + 1) % 100) != d)
 //					System.err.println("B"+bid+"S"+(sid+1)+":"+pre[bid][sid]+" "+d);
 //				pre[bid][sid] = d;

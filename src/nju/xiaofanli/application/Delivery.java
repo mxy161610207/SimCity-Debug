@@ -76,22 +76,14 @@ public class Delivery {
 				car.dt = dt;
 				dt.car = car;
 				dt.phase = DeliveryTask.HEAD4SRC;
-//				Dashboard.log("find "+car.name+" at "+car.loc.name);
 				if(car.hasPhantom())
 					Dashboard.playErrorSound();
-				if(car.dest.sameAs(car.loc)){
-					if(car.state == Car.STOPPED){
-						car.setLoading(true);
-						Command.send(car, Command.WHISTLE2);
-						//trigger start loading event
-						if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
-							EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
-					}
-					else{
-						car.finalState = Car.STOPPED;
-						car.notifyPolice(Police.REQUEST2STOP);
-					}
-//					Dashboard.log(car.name + " reached dest");
+				if(car.dest.sameAs(car.loc) && car.state == Car.STOPPED){
+                    car.setLoading(true);
+                    Command.send(car, Command.WHISTLE2);
+                    //trigger start loading event
+                    if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
+                        EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
 					//trigger reach dest event
 					if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
@@ -99,7 +91,6 @@ public class Delivery {
 				else{
 					car.finalState = Car.MOVING;
 					car.notifyPolice(Police.REQUEST2ENTER);
-//					Dashboard.log(car.name+" heads for src "+car.dest.name);
 				}
 					
 				if(!StateSwitcher.isResetting()){

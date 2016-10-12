@@ -80,7 +80,7 @@ class VehicleConditionPanel extends JPanel{
 			if(car.loc != null)
 				str += "\nLoc: " + car.loc.name;
 			if(car.dest != null)
-				str += "\nDst: " + car.dest.name;
+				str += "\nDest: " + car.dest.name;
 			
 			text.setText(str);
 			repaint();

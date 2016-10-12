@@ -220,31 +220,31 @@ public class Car {
 		notifyPolice(Police.AFTER_ENTRY, section);
 		section.icon.repaintAll();
 
-        if(section.cars.size() + section.realCars.size() > 1){
-            section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
-            section.realCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+        Set<Car> allRealCars = new HashSet<>(section.realCars);
+        allRealCars.addAll(section.cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
+        if(allRealCars.size() > 1) {
+            allRealCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+            // stop all crashed cars to keep the scene intact
+            allRealCars.forEach(car -> {
+                car.finalState = STOPPED;
+                car.notifyPolice(Police.REQUEST2STOP);
+            });
 
-            int real = section.realCars.size();
-            for(Car c : section.cars)
-                if(!c.hasPhantom())
-                    real++;
-
-            if(real > 1)
-                Dashboard.playCrashSound();
+            Dashboard.playCrashSound();
         }
         else{
-            section.cars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
-            section.realCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
+            allRealCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
         }
 
         //trigger entering event
         if(EventManager.hasListener(Event.Type.CAR_ENTER))
             EventManager.trigger(new Event(Event.Type.CAR_ENTER, name, loc.name));
+
         if(loc.cars.size() > 1){
-            Set<String> crashedCars = loc.cars.stream().map(crashedCar -> crashedCar.name).collect(Collectors.toSet());
+            Set<String> crashedCarNames = loc.cars.stream().map(crashedCar -> crashedCar.name).collect(Collectors.toSet());
             //trigger crash event
             if(EventManager.hasListener(Event.Type.CAR_CRASH))
-                EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCars, loc.name));
+                EventManager.trigger(new Event(Event.Type.CAR_CRASH, crashedCarNames, loc.name));
         }
 	}
 
@@ -262,13 +262,13 @@ public class Car {
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, section);
 		section.icon.repaintAll();
 
-        if(section.cars.size() + section.realCars.size() > 1){
-            section.cars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
-            section.realCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
+        Set<Car> allRealCars = new HashSet<>(section.realCars);
+        allRealCars.addAll(section.cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
+        if(allRealCars.size() > 1){
+            allRealCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
         }
         else{
-            section.cars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
-            section.realCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
+            allRealCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
         }
 
 		//trigger leaving event

@@ -210,7 +210,7 @@ public class Citizen implements Runnable {
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
-                        icon.setLocation(x-icon.getWidth()/4, y-icon.getHeight()/4);
+                        icon.setLocation(x-icon.getWidth()/8, y);
                         icon.setVisible(true);
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));

@@ -42,8 +42,8 @@ public class Sensor {
         this.sid = sid;
         name = "B" + bid + "S" + (sid+1);
         state = Sensor.UNDETECTED;
-        entryThreshold = 10;
-        leaveThreshold = 11;
+        entryThreshold = (int) (undetectedReading[bid][sid] * 0.75); //10;
+        leaveThreshold = entryThreshold + 1; //11;
     }
 
 	boolean entryDetected(int reading){
@@ -79,21 +79,61 @@ public class Sensor {
 //				System.out.println("right click");
 				BrickHandler.add(sensor.bid, sensor.sid, 20, System.currentTimeMillis());
 				break;
-			case MouseEvent.BUTTON2:
-				System.out.print(sensor.name + " ");
-				switch (sensor.state) {
-				case INITIAL:
-					System.out.println("INITIAL");
-					break;
-				case DETECTED:
-					System.out.println("DETECTED");
-					break;
-				case UNDETECTED:
-					System.out.println("UNDETECTED");
-					break;
-				}
+			case MouseEvent.BUTTON2: {
+                BrickServer.showingSensor = BrickServer.showingSensor != sensor ? sensor : null;
+                String str = "[" + sensor.name + "] state=";
+                switch (sensor.state) {
+                    case INITIAL:
+                        str += "INITIAL";
+                        break;
+                    case DETECTED:
+                        str += "DETECTED";
+                        break;
+                    case UNDETECTED:
+                        str += "UNDETECTED";
+                        break;
+                }
+                str += ", entryThreshold=" + sensor.entryThreshold + ", leaveThreshold=" + sensor.leaveThreshold;
+                System.out.println(str);
+            }
 				break;
 			}		
 		}
 	}
+
+	private static final int[][] undetectedReading = new int[10][4];
+	static {
+        undetectedReading[0][0] = 24;
+        undetectedReading[0][1] = 30;
+        undetectedReading[1][0] = 24;
+        undetectedReading[1][1] = 16;
+        undetectedReading[1][2] = 18;
+        undetectedReading[2][0] = 22;
+        undetectedReading[2][1] = 18;
+        undetectedReading[2][2] = 25;
+        undetectedReading[2][3] = 19;
+        undetectedReading[3][0] = 17;
+        undetectedReading[3][1] = 22;
+        undetectedReading[3][2] = 18;
+        undetectedReading[3][3] = 17;
+        undetectedReading[4][0] = 16;
+        undetectedReading[4][1] = 20;
+        undetectedReading[4][2] = 15;
+        undetectedReading[5][0] = 20;
+        undetectedReading[5][1] = 28;
+        undetectedReading[5][2] = 17;
+        undetectedReading[6][0] = 17;
+        undetectedReading[6][1] = 19;
+        undetectedReading[6][2] = 18;
+        undetectedReading[6][3] = 21;
+        undetectedReading[7][0] = 17;
+        undetectedReading[7][1] = 19;
+        undetectedReading[7][2] = 19;
+        undetectedReading[7][3] = 23;
+        undetectedReading[8][0] = 19;
+        undetectedReading[8][1] = 27;
+        undetectedReading[8][2] = 26;
+        undetectedReading[9][0] = 23;
+        undetectedReading[9][1] = 21;
+    }
 }

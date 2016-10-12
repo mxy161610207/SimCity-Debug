@@ -90,7 +90,7 @@ public class BrickHandler extends Thread{
 //    				break;
 //    			}
 
-                System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects car: "+car.name);
+                System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects "+car.name);
 
                 car.enter(sensor.nextSection);
                 car.dir = sensor.nextSection.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextSection.dir[0] : sensor.dir;
@@ -146,7 +146,7 @@ public class BrickHandler extends Thread{
                     }
                     sensor.state = Sensor.UNDETECTED;
                     sensor.car = null;
-//                    System.out.println(sensor.name + " LEAVING!!!" + "\treading: " + reading);
+                    System.out.println("[" + sensor.name + "] LEAVING!!!" + "\treading: " + reading);
                 }
                 break;
             case Sensor.UNDETECTED:

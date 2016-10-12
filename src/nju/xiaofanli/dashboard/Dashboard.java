@@ -11,6 +11,7 @@ import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.city.*;
 import nju.xiaofanli.consistency.middleware.Middleware;
+import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.CmdSender;
 import nju.xiaofanli.device.car.Command;
@@ -664,6 +665,10 @@ public class Dashboard extends JFrame{
 		startdButton.addActionListener(e -> {
             if(!isSysDelivStarted) {
                 isSysDelivStarted = true;
+                Resource.getConnectedCars().forEach(car -> {
+                    car.finalState = Car.MOVING;
+                    car.notifyPolice(Police.REQUEST2ENTER);
+                });
                 startdButton.setText("Manually create a task");
                 Delivery.startSysDelivery();
             }
