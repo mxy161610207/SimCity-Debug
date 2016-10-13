@@ -243,6 +243,8 @@ public class StateSwitcher {
 			Dashboard.enableCtrlUI(true);
             Dashboard.enableDeliveryButton(true);
 			setState(State.NORMAL);
+
+            TrafficMap.checkRealCrash();
 		}
 
 		private void checkIfSuspended(){

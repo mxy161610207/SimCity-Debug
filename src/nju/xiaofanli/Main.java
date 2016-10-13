@@ -43,6 +43,7 @@ public class Main {
 //		new CitizenActivityGenerator();
 //        new RandomDataGenerator();
 		initial = false;
+        TrafficMap.checkRealCrash();
 	}
 
 	private static void addModule(){

@@ -686,6 +686,17 @@ public class TrafficMap extends JPanel{
 		Section.combine(sections);
 	}
 
+	public static void checkRealCrash() {
+        List<Section> set = new LinkedList<>(sections.values());
+        while (!set.isEmpty()) {
+            Section section = set.remove(0);
+            section.checkRealCrash();
+
+            set.remove(section);
+            set.removeAll(section.combined);
+        }
+    }
+
 	public static void enableSensorIcons(boolean enable) {
         for (Sensor[] array : sensors)
             for(Sensor sensor : array)
