@@ -146,7 +146,7 @@ public class Detection {
                 result.setSubFormula(createTreePCC(((NotFormula) formula).getFormula(), change));
                 return result;
             }
-            case "bfunction": {
+            default: { //names of bfunctions
                 BFunc result = new BFunc(formula.getType());
                 result.setValue(formula.getValue());
                 result.setLinks(formula.getLinks());
@@ -154,7 +154,6 @@ public class Detection {
                 return result;
             }
         }
-        return formula;
     }
 	
 	//������������ECC��
@@ -202,13 +201,12 @@ public class Detection {
                 result.setSubFormula(createTreeECC(((NotFormula) formula).getFormula()));
                 return result;
             }
-            case "bfunction": {
+            default: { //names of bfunctions
                 BFunc result = new BFunc(formula.getType());
                 result.setParam(new HashMap<>(((BFunc) formula).getParam()));
                 return result;
             }
         }
-        return formula;
     }
     
 	//��

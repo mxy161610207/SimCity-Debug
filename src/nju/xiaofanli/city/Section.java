@@ -11,10 +11,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Car.CarIcon;
 import nju.xiaofanli.city.Section.Crossing.CrossingIcon;
@@ -24,6 +26,7 @@ import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.Resource;
+import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.Sensor;
 
 public abstract class Section extends Location{
@@ -257,6 +260,30 @@ public abstract class Section extends Location{
 		setPermitted(null);
 		waiting.clear();
 	}
+
+	public void checkRealCrash() {
+        Set<Car> allRealCars = new HashSet<>(realCars);
+        allRealCars.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
+        if(allRealCars.size() > 1) {
+            // stop all crashed cars to keep the scene intact
+            allRealCars.forEach(car -> {
+                car.isInCrash = true;
+//                car.finalState = STOPPED;
+                car.notifyPolice(Police.REQUEST2STOP);
+                if(!car.isHornOn)
+                    Command.send(car, Command.HORN_ON);
+            });
+
+            Dashboard.playCrashSound();
+        }
+        else{
+            allRealCars.forEach(car -> {
+                car.isInCrash = false;
+                if(car.isHornOn)
+                    Command.send(car, Command.HORN_OFF);
+            });
+        }
+    }
 	
 	public static class BalloonIcon extends JButton{
 		private static final long serialVersionUID = 1L;

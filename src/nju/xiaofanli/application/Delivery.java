@@ -89,7 +89,7 @@ public class Delivery {
 						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
 				}
 				else{
-					car.finalState = Car.MOVING;
+//					car.finalState = Car.MOVING;
 					car.notifyPolice(Police.REQUEST2ENTER);
 				}
 					
@@ -225,7 +225,7 @@ public class Delivery {
                                     EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
                             }
                             else{
-                                car.finalState = Car.MOVING;
+//                                car.finalState = Car.MOVING;
                                 car.notifyPolice(Police.REQUEST2ENTER);
 //                                Dashboard.log(car.name+" heads for dest "+car.dest.name);
                             }
@@ -237,7 +237,7 @@ public class Delivery {
                             dt.startTime = System.currentTimeMillis();
                             car.dt = null;
                             car.dest = null;
-                            car.finalState = Car.MOVING;
+//                            car.finalState = Car.MOVING;
                             car.setLoading(false);
                             car.loc.icon.repaint();
                             car.notifyPolice(Police.REQUEST2ENTER);

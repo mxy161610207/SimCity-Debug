@@ -128,7 +128,7 @@ public class Middleware {
 	}
 
 	public static Context getContext(Object subject, Object direction, Object state, Object category, Object predicate,
-                                          Object prev, Object object, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+                                          Object prev, Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
         Context context = new Context();
         context.addField("subject", subject);
         context.addField("direction", direction);
@@ -137,6 +137,7 @@ public class Middleware {
         context.addField("predicate", predicate);
         context.addField("prev", prev);
         context.addField("object", object);
+        context.addField("next", next);
         context.addField("timestamp", timestamp);
         context.addField("car", car);
         context.addField("sensor", sensor);
@@ -165,10 +166,10 @@ public class Middleware {
     }
 
 	public static void add(Object subject, Object direction, Object state, Object category, Object predicate,
-                           Object prev, Object object, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+                           Object prev, Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
 		if(StateSwitcher.isResetting())
 			return;
-        Context context = getContext(subject, direction, state, category, predicate, prev, object, timestamp, car, sensor, isRealCar);
+        Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar);
 		synchronized (queue) {
 			queue.add(context);
 			queue.notify();
@@ -179,8 +180,8 @@ public class Middleware {
      * Only called in the initial phase, directly add true contexts to patterns
      */
     public static void addInitialContext(Object subject, Object direction, Object state, Object category, Object predicate,
-                                         Object prev, Object object, Object timestamp, Car car, Sensor sensor) {
-        Context context = getContext(subject, direction, state, category, predicate, prev, object, timestamp, car, sensor, false);
+                                         Object prev, Object object, Object next, Object timestamp, Car car, Sensor sensor) {
+        Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, false);
         Map<String, List<ContextChange>> changes = getChanges(context);
         Operation.operate(changes, resolutionStrategy);
 //        display();
@@ -238,7 +239,7 @@ public class Middleware {
         while(!list.isEmpty()){
         	String testCase = list.poll();
         	String[] s = testCase.split(", ");
-        	add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], Long.parseLong(s[7]), null, null, false);
+        	add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], s[7], Long.parseLong(s[8]), null, null, false);
         }
 	}
 

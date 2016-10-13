@@ -102,7 +102,7 @@ public class BrickHandler extends Thread{
 //			    System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
                 if(car.dest != null){
                     if(car.dest.sameAs(car.loc)){
-                        car.finalState = Car.STOPPED;
+//                        car.finalState = Car.STOPPED;
                         car.notifyPolice(Police.REQUEST2STOP);
 //                        Dashboard.log(car.name+" reached destination");
                         //trigger reach dest event
@@ -181,7 +181,8 @@ public class BrickHandler extends Thread{
                     System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading);
 
                     Middleware.add(car.name, dir, car.state, "movement", "enter",
-                            sensor.prevSection.name, sensor.nextSection.name, time, car, sensor, isRealCar);
+                            sensor.prevSection.name, sensor.nextSection.name, sensor.nextSensor.nextSection.name,
+                            time, car, sensor, isRealCar);
                 }
                 break;
         }

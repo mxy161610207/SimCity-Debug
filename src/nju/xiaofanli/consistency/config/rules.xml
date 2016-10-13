@@ -1,352 +1,388 @@
 <?xml version="1.0"?>
 
 <rules>
-	<rule>
-		<id>rule_00</id>
-		<formula>
-			<forall var="v1" in="latest">
-			    <not>
-					<bfunc name="still_state">
-						<param pos="1" var="v1" field="state" />
-					</bfunc>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_00</id>
+        <formula>
+            <forall var="v1" in="latest">
+                <not>
+                    <bfunc name="still_state">
+                        <param pos="1" var="v1" field="state" />
+                    </bfunc>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_01</id>
-		<formula>
-			<forall var="v1" in="orange_car1">
-				<not>
-					<exists var="v2" in="orange_car2">
-					    <and>
-					        <not>
-								<bfunc name="same">
-									<param pos="1" var="v1" field="name" />
-									<param pos="2" var="v2" field="name" />
-								</bfunc>
-							</not>
-							<and>
-								<not>
-									<bfunc name="same_location">
-										<param pos="1" var="v1" field="object" />
-										<param pos="2" var="v2" field="object" />
-									</bfunc>
-								</not>
-								<bfunc name="same_time">
-									<param pos="1" var="v1" field="timestamp" />
-									<param pos="2" var="v2" field="timestamp" />
-								</bfunc>
-							</and>
-						</and>
-					</exists>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_01</id>
+        <formula>
+            <forall var="v1" in="orange_car1">
+                <not>
+                    <exists var="v2" in="orange_car2">
+                        <and>
+                            <not>
+                                <bfunc name="same">
+                                    <param pos="1" var="v1" field="name" />
+                                    <param pos="2" var="v2" field="name" />
+                                </bfunc>
+                            </not>
+                            <and>
+                                <not>
+                                    <bfunc name="same_location">
+                                        <param pos="1" var="v1" field="object" />
+                                        <param pos="2" var="v2" field="object" />
+                                    </bfunc>
+                                </not>
+                                <bfunc name="same_time">
+                                    <param pos="1" var="v1" field="timestamp" />
+                                    <param pos="2" var="v2" field="timestamp" />
+                                </bfunc>
+                            </and>
+                        </and>
+                    </exists>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_02</id>
-		<formula>
-			<forall var="v1" in="green_car1">
-				<not>
-					<exists var="v2" in="green_car2">
-					    <and>
-					        <not>
-								<bfunc name="same">
-									<param pos="1" var="v1" field="name" />
-									<param pos="2" var="v2" field="name" />
-								</bfunc>
-							</not>
-							<and>
-								<not>
-									<bfunc name="same_location">
-										<param pos="1" var="v1" field="object" />
-										<param pos="2" var="v2" field="object" />
-									</bfunc>
-								</not>
-								<bfunc name="same_time">
-									<param pos="1" var="v1" field="timestamp" />
-									<param pos="2" var="v2" field="timestamp" />
-								</bfunc>
-							</and>
-						</and>
-					</exists>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_02</id>
+        <formula>
+            <forall var="v1" in="green_car1">
+                <not>
+                    <exists var="v2" in="green_car2">
+                        <and>
+                            <not>
+                                <bfunc name="same">
+                                    <param pos="1" var="v1" field="name" />
+                                    <param pos="2" var="v2" field="name" />
+                                </bfunc>
+                            </not>
+                            <and>
+                                <not>
+                                    <bfunc name="same_location">
+                                        <param pos="1" var="v1" field="object" />
+                                        <param pos="2" var="v2" field="object" />
+                                    </bfunc>
+                                </not>
+                                <bfunc name="same_time">
+                                    <param pos="1" var="v1" field="timestamp" />
+                                    <param pos="2" var="v2" field="timestamp" />
+                                </bfunc>
+                            </and>
+                        </and>
+                    </exists>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_03</id>
-		<formula>
-			<forall var="v1" in="black_car1">
-				<not>
-					<exists var="v2" in="black_car2">
-					    <and>
-					        <not>
-								<bfunc name="same">
-									<param pos="1" var="v1" field="name" />
-									<param pos="2" var="v2" field="name" />
-								</bfunc>
-							</not>
-							<and>
-								<not>
-									<bfunc name="same_location">
-										<param pos="1" var="v1" field="object" />
-										<param pos="2" var="v2" field="object" />
-									</bfunc>
-								</not>
-								<bfunc name="same_time">
-									<param pos="1" var="v1" field="timestamp" />
-									<param pos="2" var="v2" field="timestamp" />
-								</bfunc>
-							</and>
-						</and>
-					</exists>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_03</id>
+        <formula>
+            <forall var="v1" in="black_car1">
+                <not>
+                    <exists var="v2" in="black_car2">
+                        <and>
+                            <not>
+                                <bfunc name="same">
+                                    <param pos="1" var="v1" field="name" />
+                                    <param pos="2" var="v2" field="name" />
+                                </bfunc>
+                            </not>
+                            <and>
+                                <not>
+                                    <bfunc name="same_location">
+                                        <param pos="1" var="v1" field="object" />
+                                        <param pos="2" var="v2" field="object" />
+                                    </bfunc>
+                                </not>
+                                <bfunc name="same_time">
+                                    <param pos="1" var="v1" field="timestamp" />
+                                    <param pos="2" var="v2" field="timestamp" />
+                                </bfunc>
+                            </and>
+                        </and>
+                    </exists>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_04</id>
-		<formula>
-			<forall var="v1" in="white_car1">
-				<not>
-					<exists var="v2" in="white_car2">
-					    <and>
-					        <not>
-								<bfunc name="same">
-									<param pos="1" var="v1" field="name" />
-									<param pos="2" var="v2" field="name" />
-								</bfunc>
-							</not>
-							<and>
-								<not>
-									<bfunc name="same_location">
-										<param pos="1" var="v1" field="object" />
-										<param pos="2" var="v2" field="object" />
-									</bfunc>
-								</not>
-								<bfunc name="same_time">
-									<param pos="1" var="v1" field="timestamp" />
-									<param pos="2" var="v2" field="timestamp" />
-								</bfunc>
-							</and>
-						</and>
-					</exists>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_04</id>
+        <formula>
+            <forall var="v1" in="white_car1">
+                <not>
+                    <exists var="v2" in="white_car2">
+                        <and>
+                            <not>
+                                <bfunc name="same">
+                                    <param pos="1" var="v1" field="name" />
+                                    <param pos="2" var="v2" field="name" />
+                                </bfunc>
+                            </not>
+                            <and>
+                                <not>
+                                    <bfunc name="same_location">
+                                        <param pos="1" var="v1" field="object" />
+                                        <param pos="2" var="v2" field="object" />
+                                    </bfunc>
+                                </not>
+                                <bfunc name="same_time">
+                                    <param pos="1" var="v1" field="timestamp" />
+                                    <param pos="2" var="v2" field="timestamp" />
+                                </bfunc>
+                            </and>
+                        </and>
+                    </exists>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_05</id>
-		<formula>
-			<forall var="v1" in="red_car1">
-				<not>
-					<exists var="v2" in="red_car2">
-					    <and>
-					        <not>
-								<bfunc name="same">
-									<param pos="1" var="v1" field="name" />
-									<param pos="2" var="v2" field="name" />
-								</bfunc>
-							</not>
-							<and>
-								<not>
-									<bfunc name="same_location">
-										<param pos="1" var="v1" field="object" />
-										<param pos="2" var="v2" field="object" />
-									</bfunc>
-								</not>
-								<bfunc name="same_time">
-									<param pos="1" var="v1" field="timestamp" />
-									<param pos="2" var="v2" field="timestamp" />
-								</bfunc>
-							</and>
-						</and>
-					</exists>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_05</id>
+        <formula>
+            <forall var="v1" in="red_car1">
+                <not>
+                    <exists var="v2" in="red_car2">
+                        <and>
+                            <not>
+                                <bfunc name="same">
+                                    <param pos="1" var="v1" field="name" />
+                                    <param pos="2" var="v2" field="name" />
+                                </bfunc>
+                            </not>
+                            <and>
+                                <not>
+                                    <bfunc name="same_location">
+                                        <param pos="1" var="v1" field="object" />
+                                        <param pos="2" var="v2" field="object" />
+                                    </bfunc>
+                                </not>
+                                <bfunc name="same_time">
+                                    <param pos="1" var="v1" field="timestamp" />
+                                    <param pos="2" var="v2" field="timestamp" />
+                                </bfunc>
+                            </and>
+                        </and>
+                    </exists>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_06</id>
-		<formula>
-			<forall var="v1" in="silver_suv1">
-				<not>
-					<exists var="v2" in="silver_suv2">
-					    <and>
-					        <not>
-								<bfunc name="same">
-									<param pos="1" var="v1" field="name" />
-									<param pos="2" var="v2" field="name" />
-								</bfunc>
-							</not>
-							<and>
-								<not>
-									<bfunc name="same_location">
-										<param pos="1" var="v1" field="object" />
-										<param pos="2" var="v2" field="object" />
-									</bfunc>
-								</not>
-								<bfunc name="same_time">
-									<param pos="1" var="v1" field="timestamp" />
-									<param pos="2" var="v2" field="timestamp" />
-								</bfunc>
-							</and>
-						</and>
-					</exists>
-				</not>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_06</id>
+        <formula>
+            <forall var="v1" in="silver_suv1">
+                <not>
+                    <exists var="v2" in="silver_suv2">
+                        <and>
+                            <not>
+                                <bfunc name="same">
+                                    <param pos="1" var="v1" field="name" />
+                                    <param pos="2" var="v2" field="name" />
+                                </bfunc>
+                            </not>
+                            <and>
+                                <not>
+                                    <bfunc name="same_location">
+                                        <param pos="1" var="v1" field="object" />
+                                        <param pos="2" var="v2" field="object" />
+                                    </bfunc>
+                                </not>
+                                <bfunc name="same_time">
+                                    <param pos="1" var="v1" field="timestamp" />
+                                    <param pos="2" var="v2" field="timestamp" />
+                                </bfunc>
+                            </and>
+                        </and>
+                    </exists>
+                </not>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_07</id>
-		<formula>
-			<forall var="v1" in="orange_car3">
-				<or>
-					<not>
-						<exists var="v2" in="orange_car4">
-							<bfunc name="before_time">
-								<param pos="1" var="v2" field="timestamp" />
-								<param pos="2" var="v1" field="timestamp" />
-							</bfunc>
-						</exists>
-					</not>
-					<exists var="v3" in="orange_car5">
-						<bfunc name="same_location">
-							<param pos="1" var="v1" field="prev" />
-							<param pos="2" var="v3" field="object" />
-						</bfunc>
-					</exists>
-				</or>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_07</id>
+        <formula>
+            <forall var="v1" in="orange_car3">
+                <or>
+                    <not>
+                        <exists var="v2" in="orange_car4">
+                            <bfunc name="before_time">
+                                <param pos="1" var="v2" field="timestamp" />
+                                <param pos="2" var="v1" field="timestamp" />
+                            </bfunc>
+                        </exists>
+                    </not>
+                    <exists var="v3" in="orange_car5">
+                        <and>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="prev" />
+                                <param pos="2" var="v3" field="object" />
+                            </bfunc>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="object" />
+                                <param pos="2" var="v3" field="next" />
+                            </bfunc>
+                        </and>
+                    </exists>
+                </or>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_08</id>
-		<formula>
-			<forall var="v1" in="green_car3">
-				<or>
-					<not>
-						<exists var="v2" in="green_car4">
-							<bfunc name="before_time">
-								<param pos="1" var="v2" field="timestamp" />
-								<param pos="2" var="v1" field="timestamp" />
-							</bfunc>
-						</exists>
-					</not>
-					<exists var="v3" in="green_car5">
-						<bfunc name="same_location">
-							<param pos="1" var="v1" field="prev" />
-							<param pos="2" var="v3" field="object" />
-						</bfunc>
-					</exists>
-				</or>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_08</id>
+        <formula>
+            <forall var="v1" in="green_car3">
+                <or>
+                    <not>
+                        <exists var="v2" in="green_car4">
+                            <bfunc name="before_time">
+                                <param pos="1" var="v2" field="timestamp" />
+                                <param pos="2" var="v1" field="timestamp" />
+                            </bfunc>
+                        </exists>
+                    </not>
+                    <exists var="v3" in="green_car5">
+                        <and>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="prev" />
+                                <param pos="2" var="v3" field="object" />
+                            </bfunc>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="object" />
+                                <param pos="2" var="v3" field="next" />
+                            </bfunc>
+                        </and>
+                    </exists>
+                </or>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_09</id>
-		<formula>
-			<forall var="v1" in="black_car3">
-				<or>
-					<not>
-						<exists var="v2" in="black_car4">
-							<bfunc name="before_time">
-								<param pos="1" var="v2" field="timestamp" />
-								<param pos="2" var="v1" field="timestamp" />
-							</bfunc>
-						</exists>
-					</not>
-					<exists var="v3" in="black_car5">
-						<bfunc name="same_location">
-							<param pos="1" var="v1" field="prev" />
-							<param pos="2" var="v3" field="object" />
-						</bfunc>
-					</exists>
-				</or>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_09</id>
+        <formula>
+            <forall var="v1" in="black_car3">
+                <or>
+                    <not>
+                        <exists var="v2" in="black_car4">
+                            <bfunc name="before_time">
+                                <param pos="1" var="v2" field="timestamp" />
+                                <param pos="2" var="v1" field="timestamp" />
+                            </bfunc>
+                        </exists>
+                    </not>
+                    <exists var="v3" in="black_car5">
+                        <and>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="prev" />
+                                <param pos="2" var="v3" field="object" />
+                            </bfunc>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="object" />
+                                <param pos="2" var="v3" field="next" />
+                            </bfunc>
+                        </and>
+                    </exists>
+                </or>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_10</id>
-		<formula>
-			<forall var="v1" in="white_car3">
-				<or>
-					<not>
-						<exists var="v2" in="white_car4">
-							<bfunc name="before_time">
-								<param pos="1" var="v2" field="timestamp" />
-								<param pos="2" var="v1" field="timestamp" />
-							</bfunc>
-						</exists>
-					</not>
-					<exists var="v3" in="white_car5">
-						<bfunc name="same_location">
-							<param pos="1" var="v1" field="prev" />
-							<param pos="2" var="v3" field="object" />
-						</bfunc>
-					</exists>
-				</or>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_10</id>
+        <formula>
+            <forall var="v1" in="white_car3">
+                <or>
+                    <not>
+                        <exists var="v2" in="white_car4">
+                            <bfunc name="before_time">
+                                <param pos="1" var="v2" field="timestamp" />
+                                <param pos="2" var="v1" field="timestamp" />
+                            </bfunc>
+                        </exists>
+                    </not>
+                    <exists var="v3" in="white_car5">
+                        <and>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="prev" />
+                                <param pos="2" var="v3" field="object" />
+                            </bfunc>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="object" />
+                                <param pos="2" var="v3" field="next" />
+                            </bfunc>
+                        </and>
+                    </exists>
+                </or>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_11</id>
-		<formula>
-			<forall var="v1" in="red_car3">
-				<or>
-					<not>
-						<exists var="v2" in="red_car4">
-							<bfunc name="before_time">
-								<param pos="1" var="v2" field="timestamp" />
-								<param pos="2" var="v1" field="timestamp" />
-							</bfunc>
-						</exists>
-					</not>
-					<exists var="v3" in="red_car5">
-						<bfunc name="same_location">
-							<param pos="1" var="v1" field="prev" />
-							<param pos="2" var="v3" field="object" />
-						</bfunc>
-					</exists>
-				</or>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_11</id>
+        <formula>
+            <forall var="v1" in="red_car3">
+                <or>
+                    <not>
+                        <exists var="v2" in="red_car4">
+                            <bfunc name="before_time">
+                                <param pos="1" var="v2" field="timestamp" />
+                                <param pos="2" var="v1" field="timestamp" />
+                            </bfunc>
+                        </exists>
+                    </not>
+                    <exists var="v3" in="red_car5">
+                        <and>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="prev" />
+                                <param pos="2" var="v3" field="object" />
+                            </bfunc>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="object" />
+                                <param pos="2" var="v3" field="next" />
+                            </bfunc>
+                        </and>
+                    </exists>
+                </or>
+            </forall>
+        </formula>
+    </rule>
 
-	<rule>
-		<id>rule_12</id>
-		<formula>
-			<forall var="v1" in="silver_suv3">
-				<or>
-					<not>
-						<exists var="v2" in="silver_suv4">
-							<bfunc name="before_time">
-								<param pos="1" var="v2" field="timestamp" />
-								<param pos="2" var="v1" field="timestamp" />
-							</bfunc>
-						</exists>
-					</not>
-					<exists var="v3" in="silver_suv5">
-						<bfunc name="same_location">
-							<param pos="1" var="v1" field="prev" />
-							<param pos="2" var="v3" field="object" />
-						</bfunc>
-					</exists>
-				</or>
-			</forall>
-		</formula>
-	</rule>
+    <rule>
+        <id>rule_12</id>
+        <formula>
+            <forall var="v1" in="silver_suv3">
+                <or>
+                    <not>
+                        <exists var="v2" in="silver_suv4">
+                            <bfunc name="before_time">
+                                <param pos="1" var="v2" field="timestamp" />
+                                <param pos="2" var="v1" field="timestamp" />
+                            </bfunc>
+                        </exists>
+                    </not>
+                    <exists var="v3" in="silver_suv5">
+                        <and>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="prev" />
+                                <param pos="2" var="v3" field="object" />
+                            </bfunc>
+                            <bfunc name="same_location">
+                                <param pos="1" var="v1" field="object" />
+                                <param pos="2" var="v3" field="next" />
+                            </bfunc>
+                        </and>
+                    </exists>
+                </or>
+            </forall>
+        </formula>
+    </rule>
 </rules>

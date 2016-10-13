@@ -1,24 +1,20 @@
 package nju.xiaofanli.device.sensor;
 
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JButton;
-
-import nju.xiaofanli.city.TrafficMap;
-import nju.xiaofanli.dashboard.Dashboard;
-import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.Section.Crossing;
 import nju.xiaofanli.city.Section.Street;
+import nju.xiaofanli.device.car.Car;
+
+import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Sensor {
 	public int bid;
 	public int sid;
 	public String name;
 	public int state;
-	public int reading;
+	public int reading = 30;
 	public int entryThreshold, leaveThreshold;
 	public Crossing crossing;
 	public Street street;
@@ -77,7 +73,7 @@ public class Sensor {
 				break;
 			case MouseEvent.BUTTON3:
 //				System.out.println("right click");
-				BrickHandler.add(sensor.bid, sensor.sid, 20, System.currentTimeMillis());
+				BrickHandler.add(sensor.bid, sensor.sid, 30, System.currentTimeMillis());
 				break;
 			case MouseEvent.BUTTON2: {
                 BrickServer.showingSensor = BrickServer.showingSensor != sensor ? sensor : null;

@@ -29,8 +29,7 @@ public class Car {
 	public final String name;
 	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int lastCmd = Command.STOP;
-    public int trend = STOPPED; // Only used by suspend!
-	public int finalState = STOPPED;
+    public int trend = STOPPED; // Only used by suspend and wake!
     public Section loc = null;
 	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
 	public Delivery.DeliveryTask dt = null;
@@ -41,6 +40,7 @@ public class Car {
 	public CarIcon icon = null;
 	public Set<Citizen> passengers = new HashSet<>();
     public boolean isHornOn = false; //only for crash
+    public boolean isInCrash = false;
 	
 	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
 	public int realDir;
@@ -76,7 +76,7 @@ public class Car {
 		state = STOPPED;
 		lastCmd = Command.STOP;
         trend = STOPPED;
-		finalState = STOPPED;
+//		finalState = STOPPED;
         loc = null;
 		dir = TrafficMap.UNKNOWN_DIR;
 		dt = null;
@@ -84,13 +84,17 @@ public class Car {
 		isLoading = false;
 		passengers.clear();
 		resetRealInfo();
-        isHornOn = false;
+        isInCrash = isHornOn = false;
         firstEntry = true;
 	}
 
 	public void notifyPolice(int cmd) {
 		Police.add(this, dir, loc, cmd, loc.adjSects.get(dir));
 	}
+
+	public void notifyPolice(int cmd, boolean fromUser) {
+        Police.add(this, dir, loc, cmd, loc.adjSects.get(dir), fromUser);
+    }
 
 	public void notifyPolice(int cmd, Section requested) {
 		if(requested == null)
@@ -119,8 +123,9 @@ public class Car {
         }
         sensor.nextSection.cars.add(this);
         PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
-        Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter", sensor.prevSection.name, sensor.nextSection.name,
-                System.currentTimeMillis(), null, null);
+        Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter",
+                sensor.prevSection.name, sensor.nextSection.name, sensor.nextSensor.nextSection.name,
+                System.currentTimeMillis(), this, sensor);
     }
 
 	public void init() {
@@ -219,22 +224,7 @@ public class Car {
 		section.cars.add(this);
 		notifyPolice(Police.AFTER_ENTRY, section);
 		section.icon.repaintAll();
-
-        Set<Car> allRealCars = new HashSet<>(section.realCars);
-        allRealCars.addAll(section.cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
-        if(allRealCars.size() > 1) {
-            allRealCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
-            // stop all crashed cars to keep the scene intact
-            allRealCars.forEach(car -> {
-                car.finalState = STOPPED;
-                car.notifyPolice(Police.REQUEST2STOP);
-            });
-
-            Dashboard.playCrashSound();
-        }
-        else{
-            allRealCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
-        }
+        section.checkRealCrash();
 
         //trigger entering event
         if(EventManager.hasListener(Event.Type.CAR_ENTER))
@@ -261,15 +251,7 @@ public class Car {
 			loc = null;
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, section);
 		section.icon.repaintAll();
-
-        Set<Car> allRealCars = new HashSet<>(section.realCars);
-        allRealCars.addAll(section.cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
-        if(allRealCars.size() > 1){
-            allRealCars.stream().filter(car -> !car.isHornOn).forEach(car -> Command.send(car, Command.HORN_ON));
-        }
-        else{
-            allRealCars.stream().filter(car -> car.isHornOn).forEach(car -> Command.send(car, Command.HORN_OFF));
-        }
+        section.checkRealCrash();
 
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
@@ -301,6 +283,7 @@ public class Car {
     public void setRealInfo(Section loc, int dir) {
         realLoc.realCars.remove(this);
         realLoc.icon.repaintAll();
+        realLoc.checkRealCrash();
         if (this.loc.sameAs(loc) && this.dir == dir) {
             resetRealInfo();
         }
@@ -310,6 +293,7 @@ public class Car {
             realDir = dir;
         }
         loc.icon.repaintAll();
+        loc.checkRealCrash();
     }
 
     public void resetRealInfo() {

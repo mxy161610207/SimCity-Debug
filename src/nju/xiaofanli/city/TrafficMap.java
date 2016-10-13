@@ -685,6 +685,12 @@ public class TrafficMap extends JPanel{
 		sections.add(crossings[6]);
 		Section.combine(sections);
 	}
+
+	public static void enableSensorIcons(boolean enable) {
+        for (Sensor[] array : sensors)
+            for(Sensor sensor : array)
+                sensor.icon.setEnabled(enable);
+    }
 	
 	public static int oppositeDirOf(int dir){
 		switch (dir) {

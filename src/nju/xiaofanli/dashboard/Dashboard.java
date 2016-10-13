@@ -666,7 +666,7 @@ public class Dashboard extends JFrame{
             if(!isSysDelivStarted) {
                 isSysDelivStarted = true;
                 Resource.getConnectedCars().forEach(car -> {
-                    car.finalState = Car.MOVING;
+//                    car.finalState = Car.MOVING;
                     car.notifyPolice(Police.REQUEST2ENTER);
                 });
                 startdButton.setText("Manually create a task");
@@ -756,6 +756,7 @@ public class Dashboard extends JFrame{
 
 	public static void enableCtrlUI(boolean enabled){
 		setEnabledRecurse(controlPanel, enabled);
+        TrafficMap.enableSensorIcons(true);
 	}
 
 	private static final JDialog deviceDialog = new JDialog(getInstance(), "Device");

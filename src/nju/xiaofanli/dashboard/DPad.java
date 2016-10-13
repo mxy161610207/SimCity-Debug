@@ -67,15 +67,15 @@ class DPad extends JPanel{
 		jbs.addActionListener(arg -> {
 			Car car = Dashboard.getSelectedCar();
             if(car != null){
-                car.finalState = Car.STOPPED;
-                car.notifyPolice(Police.REQUEST2STOP);
+//                car.finalState = Car.STOPPED;
+                car.notifyPolice(Police.REQUEST2STOP, true);
             }
         });
 		jbf.addActionListener(arg -> {
             Car car = Dashboard.getSelectedCar();
             if(car != null){
-                car.finalState = Car.MOVING;
-                car.notifyPolice(Police.REQUEST2ENTER);
+//                car.finalState = Car.MOVING;
+                car.notifyPolice(Police.REQUEST2ENTER, true);
             }
         });
 //		jbb.addActionListener(arg -> {
