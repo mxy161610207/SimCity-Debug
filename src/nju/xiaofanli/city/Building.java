@@ -6,7 +6,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ public class Building extends Location{
 	public Type type = null;
 	public int block = -1;//block number
 	public BuildingIcon icon = null;
-	public Set<Section> addrs = null;
+	public Set<Road> addrs = null;
 	
 	public enum Type {
 		Hospital, School, PoliceStation, Restaurant, StarkIndustries

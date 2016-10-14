@@ -7,12 +7,12 @@ public abstract class Location {
 	public static Location LocOf(String name){
 		if(name == null)
 			return null;
-		for(Section s : TrafficMap.sections.values())
-			if(s.name.equals(name))
-				return s;
-		for(Building b : TrafficMap.buildings.values())
-			if(b.name.equals(name))
-				return b;
+		for(Road road : TrafficMap.roads.values())
+			if(road.name.equals(name))
+				return road;
+		for(Building building : TrafficMap.buildings.values())
+			if(building.name.equals(name))
+				return building;
 		return null;
 	}
 }

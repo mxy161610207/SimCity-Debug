@@ -1,7 +1,7 @@
 package nju.xiaofanli;
 
 import nju.xiaofanli.application.Delivery;
-import nju.xiaofanli.city.Section;
+import nju.xiaofanli.city.Road;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.dashboard.Dashboard;
@@ -112,10 +112,10 @@ public class StateSwitcher {
         if(car != null && car.loc == null){//still not located, then locate it
             resetTask.car2locate = null;
             Command.stop(car);
-//            car.loc = sensor.nextSection;
+//            car.loc = sensor.nextRoad;
 //			if(car.dir == TrafficMap.UNKNOWN_DIR)
 //            	car.dir = car.loc.dir[1] == TrafficMap.UNKNOWN_DIR ? car.loc.dir[0] : sensor.dir;
-//            sensor.nextSection.cars.add(car);
+//            sensor.nextRoad.cars.add(car);
             car.initLocAndDir(sensor);
             resetTask.locatedCars.add(car);
             wakeUp();
@@ -259,9 +259,9 @@ public class StateSwitcher {
 		}
 
 		private class CarInfo{
-			private Section loc;
+			private Road loc;
 			private int dir;
-			private CarInfo(Section loc, int dir){
+			private CarInfo(Road loc, int dir){
 				this.loc = loc;
 				this.dir = dir;
 			}

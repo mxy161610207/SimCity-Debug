@@ -1,6 +1,6 @@
 package nju.xiaofanli;
 
-import java.awt.Image;
+import java.awt.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,23 +18,28 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 import nju.xiaofanli.city.Citizen;
+import nju.xiaofanli.city.Road;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.Section;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.sensor.Sensor;
 
 public class Resource {
-	private static ExecutorService threadPool = Executors.newCachedThreadPool();
+    private static ExecutorService threadPool = Executors.newCachedThreadPool();
 	private static Map<String, String> brickAddr = new HashMap<>();
 	private final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON;
 	private final static ImageIcon BLACK_QUESTION_ICON, GREEN_CHECK_ICON, ORANGE_CHECK_ICON, RED_X_ICON;
 	private final static JSch JSCH = new JSch();
-//	private static Map<String, Session> sessions = new HashMap<>();
+	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
+    public static final Color SILVER = new Color(192, 192, 192);
+    private static Color LIGHT_GREEN = new Color(0, 255, 127);
+    public static Color CHOCOLATE = new Color(139, 69, 19);
+
+    //	private static Map<String, Session> sessions = new HashMap<>();
 	static{
-		GREEN_BALLOON_ICON = loadImage("res/green_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
-		RED_BALLOON_ICON = loadImage("res/red_balloon.png", Section.BalloonIcon.WIDTH, Section.BalloonIcon.HEIGHT);
+		GREEN_BALLOON_ICON = loadImage("res/green_balloon.png", Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
+		RED_BALLOON_ICON = loadImage("res/red_balloon.png", Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
 		BLACK_QUESTION_ICON = loadImage("res/black_question_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		GREEN_CHECK_ICON = loadImage("res/green_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		ORANGE_CHECK_ICON = loadImage("res/orange_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
@@ -95,20 +100,20 @@ public class Resource {
 		return TrafficMap.sensors;
 	}
 	
-	public static Section.Crossing[] getCrossings(){
-		return TrafficMap.crossings;
+	public static Road.Crossroad[] getCrossroads(){
+		return TrafficMap.crossroads;
 	}
 	
-	public static Section.Street[] getStreets(){
+	public static Road.Street[] getStreets(){
 		return TrafficMap.streets;
 	}
 	
-	public static Map<String, Section> getSections(){
-		return TrafficMap.sections;
+	public static Map<String, Road> getRoads(){
+		return TrafficMap.roads;
 	}
 	
-	public static Section getSection(String name){
-		return TrafficMap.sections.get(name);
+	public static Road getRoad(String name){
+		return TrafficMap.roads.get(name);
 	}
 
 	public static List<Citizen> getCitizens(){

@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.city.Road;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
-import nju.xiaofanli.city.Section;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
@@ -158,15 +158,15 @@ public class Police implements Runnable{
             EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, request.car.name, request.loc.name, request.cmd));
     }
 
-    public static void add(Car car, int dir, Section loc, int cmd, Section requested) {
+    public static void add(Car car, int dir, Road loc, int cmd, Road requested) {
         add(new Request(car, dir, loc, cmd, requested));
     }
 
-    public static void add(Car car, int dir, Section loc, int cmd, Section requested, boolean fromUser) {
+    public static void add(Car car, int dir, Road loc, int cmd, Road requested, boolean fromUser) {
         add(new Request(car, dir, loc, cmd, requested, fromUser));
     }
 
-    private static void sendNotice(Section loc){
+    private static void sendNotice(Road loc){
         notifier.add(loc);
     }
 
@@ -196,7 +196,7 @@ public class Police implements Runnable{
 					}
 				}
 
-				Section loc;
+				Road loc;
 				synchronized (req) {
 					loc = req.poll().loc;
 				}
@@ -226,7 +226,7 @@ public class Police implements Runnable{
 			}
 		}
 
-		public void add(Section loc){
+		public void add(Road loc){
 			if(StateSwitcher.isResetting())
 				return;
 			synchronized (req) {
@@ -245,13 +245,13 @@ public class Police implements Runnable{
 	private static class Request{
 		Car car;
 		int dir;
-		Section loc, requested;
+		Road loc, requested;
 		int cmd;
         boolean fromUser = false; // whether this request is sent by user
 		/**
 		 * for requests that police handles
 		 */
-		Request(Car car, int dir, Section loc, int cmd, Section requested) {
+		Request(Car car, int dir, Road loc, int cmd, Road requested) {
 			this.car = car;
 			this.dir = dir;
 			this.loc = loc;
@@ -259,7 +259,7 @@ public class Police implements Runnable{
 			this.requested = requested;
 		}
 
-        Request(Car car, int dir, Section loc, int cmd, Section requested, boolean fromUser) {
+        Request(Car car, int dir, Road loc, int cmd, Road requested, boolean fromUser) {
             this(car, dir, loc, cmd, requested);
             this.fromUser = fromUser;
         }
@@ -267,7 +267,7 @@ public class Police implements Runnable{
 		/**
 		 * for requests that notifier handles
 		 */
-		Request(Section loc) {
+		Request(Road loc) {
 			this.loc = loc;
 		}
 	}

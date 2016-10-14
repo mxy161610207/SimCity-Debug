@@ -147,7 +147,7 @@ public class Citizen implements Runnable {
 //						y = TrafficMap.streets[23].icon.coord.y;
                             icon.setLocation(x, y);
                             icon.setVisible(true);
-                            loc = Dashboard.getNearestSection(icon.getCenterX(), icon.getCenterY());
+                            loc = Dashboard.getNearestRoad(icon.getCenterX(), icon.getCenterY());
 
                             PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
                             PkgHandler.send(new AppPkg().setCitizen(name, true));
@@ -165,7 +165,7 @@ public class Citizen implements Runnable {
                         else if (y > ymax)
                             y = ymax;
                         icon.setLocation(x, y);
-                        loc = Dashboard.getNearestSection(icon.getCenterX(), icon.getCenterY());
+                        loc = Dashboard.getNearestRoad(icon.getCenterX(), icon.getCenterY());
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x / TrafficMap.SIZE, (double) y / TrafficMap.SIZE));
 
@@ -181,9 +181,9 @@ public class Citizen implements Runnable {
                     action = null;
                     if(!icon.isVisible()){
                         int x, y;
-                        if(loc instanceof Section){
-                            x = ((Section) loc).icon.coord.centerX;
-                            y = ((Section) loc).icon.coord.centerY;
+                        if(loc instanceof Road){
+                            x = ((Road) loc).icon.coord.centerX;
+                            y = ((Road) loc).icon.coord.centerY;
                         }
                         else{
                             x = ((Building) loc).icon.coord.centerX;
@@ -202,9 +202,9 @@ public class Citizen implements Runnable {
                 case GetOff:
                     if(loc != null){
                         int x, y;
-                        if(loc instanceof Section){
-                            x = ((Section) loc).icon.coord.centerX;
-                            y = ((Section) loc).icon.coord.centerY;
+                        if(loc instanceof Road){
+                            x = ((Road) loc).icon.coord.centerX;
+                            y = ((Road) loc).icon.coord.centerY;
                         }
                         else{
                             x = ((Building) loc).icon.coord.centerX;
@@ -292,7 +292,7 @@ public class Citizen implements Runnable {
                     }
 
                     if((loc instanceof Building && loc == dest)
-                            || (loc instanceof Section && ((Building) dest).addrs.contains(loc))){
+                            || (loc instanceof Road && ((Building) dest).addrs.contains(loc))){
                         action = nextAction;
                         nextAction = null;
                     }
@@ -382,7 +382,7 @@ public class Citizen implements Runnable {
             setHorizontalTextPosition(SwingConstants.CENTER);
             setFont(new Font(Font.DIALOG, Font.BOLD, 14));
             FontMetrics fm = getFontMetrics(getFont());
-            dimension = new Dimension(Math.max(AVATAR_SIZE, fm.stringWidth(citizen.name)+40), AVATAR_SIZE +fm.getHeight());
+            dimension = new Dimension(Math.max(AVATAR_SIZE, fm.stringWidth(citizen.name)+40), AVATAR_SIZE+fm.getHeight());
             setSize(dimension);
         }
 

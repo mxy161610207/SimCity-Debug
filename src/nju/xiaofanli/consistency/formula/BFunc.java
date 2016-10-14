@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.consistency.context.Context;
@@ -110,7 +108,7 @@ public class BFunc extends Formula {
     	if (v1 == null || v2 == null)
     		return false;
 
-		return Resource.getSection(v1).sameAs(Resource.getSection(v2));
+		return Resource.getRoad(v1).sameAs(Resource.getRoad(v2));
 	}
     
     @Override

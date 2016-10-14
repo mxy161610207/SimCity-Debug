@@ -16,7 +16,7 @@ import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.city.Building;
 import nju.xiaofanli.city.Citizen;
 import nju.xiaofanli.city.Location;
-import nju.xiaofanli.city.Section;
+import nju.xiaofanli.city.Road;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.StateSwitcher;
@@ -86,17 +86,16 @@ public class PkgHandler implements Runnable{
 				break;
 			}
 			case 3:{
-				Section sect = Section.sectionOf(p.loc);
-				if(sect != null){
+				Road road = Road.roadOf(p.loc);
+				if(road != null){
 					Car car = Car.carOf(p.car);
 					if(car != null){
-						if(sect.cars.contains(car)){
+						if(road.cars.contains(car)){
 							car.dir = TrafficMap.UNKNOWN_DIR;
-							car.leave(sect, false);
+							car.leave(road, false);
 						}
 						else{
-							car.dir = p.dir;
-							car.enter(sect);
+							car.enter(road, p.dir);
 						}
 					}
 				}

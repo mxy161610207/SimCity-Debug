@@ -71,11 +71,7 @@ public class ContextManager {
 					continue;
 				
 				for(ContextListener listener : listeners)
-					try {
-						listener.contextChanged(context.clone());
-					} catch (CloneNotSupportedException e) {
-						e.printStackTrace();
-					}
+                    listener.contextChanged(context);
 			}
 		}
 	};

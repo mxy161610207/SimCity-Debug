@@ -87,14 +87,10 @@ public class EventManager {
 				}
 				if(event == null)
 					continue;
-				
-				try {
-					if(listeners.containsKey(event.type))
-						for(EventListener listener : listeners.get(event.type))
-							listener.eventTriggered(event.clone());
-				} catch (CloneNotSupportedException e) {
-					e.printStackTrace();
-				}
+
+				if(listeners.containsKey(event.type))
+                    for(EventListener listener : listeners.get(event.type))
+                        listener.eventTriggered(event);
 			}
 		}
 	};

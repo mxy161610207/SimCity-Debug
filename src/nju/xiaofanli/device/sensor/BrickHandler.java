@@ -68,8 +68,8 @@ public class BrickHandler extends Thread{
                     }
 
                     if (isRealCar) { //real car entered
-                        car.setRealInfo(sensor.nextSection,
-                                sensor.nextSection.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextSection.dir[0] : sensor.dir);
+                        car.setRealInfo(sensor.nextRoad,
+                                sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
                         break;
                     }
 //                    else if(car.hasPhantom()){
@@ -85,16 +85,17 @@ public class BrickHandler extends Thread{
                         PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.getRealLoc().name));
                     }
                 }
-//    			else if(car.loc.sameAs(sensor.nextSection)){
-//    				//the phantom already in this section
+//    			else if(car.loc.sameAs(sensor.nextRoad)){
+//    				//the phantom already in this road
 //    				break;
 //    			}
 
                 System.out.println("B"+sensor.bid+"S"+(sensor.sid+1)+" detects "+car.name);
 
-                car.enter(sensor.nextSection);
-                car.dir = sensor.nextSection.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextSection.dir[0] : sensor.dir;
+                car.dir = sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir;
+                car.enter(sensor.nextRoad, sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
 //                car.state = Car.MOVING;
+
 
                 Remedy.updateRemedyQWhenDetect(car);
 
@@ -114,8 +115,11 @@ public class BrickHandler extends Thread{
 //                        car.notifyPolice(Police.REQUEST2ENTER);
 ////                        Dashboard.log(car.name+" failed to stop at dest, keep going");
 //                    }
-                    else
+                    else {
                         car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
+                        if(car.getLoading()) //for fake car keeping blinking
+                            car.setLoading(false);
+                    }
                 }
                 else
                     car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
@@ -139,14 +143,14 @@ public class BrickHandler extends Thread{
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
                     if(sensor.car != null && !sensor.car.hasPhantom()
-                            && sensor.car.loc.sameAs(sensor.nextSection)
+                            && sensor.car.loc.sameAs(sensor.nextRoad)
                             && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
-                        System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading);
+                        System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading + "\t" + System.currentTimeMillis());
                         break;
                     }
                     sensor.state = Sensor.UNDETECTED;
                     sensor.car = null;
-                    System.out.println("[" + sensor.name + "] LEAVING!!!" + "\treading: " + reading);
+                    System.out.println("[" + sensor.name + "] LEAVING!!!" + "\treading: " + reading + "\t" + System.currentTimeMillis());
                 }
                 break;
             case Sensor.UNDETECTED:
@@ -155,7 +159,7 @@ public class BrickHandler extends Thread{
                     int dir = TrafficMap.UNKNOWN_DIR;
                     boolean isRealCar = false;
                     //check real cars first
-                    for(Car realCar : sensor.prevSection.realCars){
+                    for(Car realCar : sensor.prevRoad.realCars){
                         if(realCar.realDir == sensor.dir){
                             isRealCar = true;
                             car = realCar;
@@ -164,7 +168,7 @@ public class BrickHandler extends Thread{
                         }
                     }
                     if(car == null){
-                        for(Car tmp : sensor.prevSection.cars){
+                        for(Car tmp : sensor.prevRoad.cars){
                             if(tmp.dir == sensor.dir){
                                 isRealCar = false;
                                 car = tmp;
@@ -174,14 +178,14 @@ public class BrickHandler extends Thread{
                         }
                     }
                     if(car == null){
-                        System.out.println("[" + sensor.name + "] Cannot find any car!\treading: "+reading);
+                        System.out.println("[" + sensor.name + "] Cannot find any car!\treading: "+reading + "\t" + System.currentTimeMillis());
                         sensor.state = Sensor.UNDETECTED;
                         break;
                     }
-                    System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading);
+                    System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + System.currentTimeMillis());
 
                     Middleware.add(car.name, dir, car.state, "movement", "enter",
-                            sensor.prevSection.name, sensor.nextSection.name, sensor.nextSensor.nextSection.name,
+                            sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                             time, car, sensor, isRealCar);
                 }
                 break;

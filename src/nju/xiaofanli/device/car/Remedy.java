@@ -181,7 +181,7 @@ public class Remedy implements Runnable{
 	
 	private static void printQueue(){
         StringBuilder sb = new StringBuilder();
-        queue.forEach(x -> sb.append(x.car.name).append("\t").append((x.cmd == Command.STOP) ? "S" : "F").append("\t").append(x.deadline));
+        queue.forEach(x -> sb.append(x.car.name).append("\t").append((x.cmd == Command.STOP) ? "S" : "F").append("\t").append(x.deadline).append("\t\t"));
 //		System.out.println("-----------------------");
         System.out.println(sb.toString());
 	}

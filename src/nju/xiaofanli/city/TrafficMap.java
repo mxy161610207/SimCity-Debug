@@ -6,16 +6,13 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.Section.BalloonIcon;
-import nju.xiaofanli.city.Section.Crossing;
-import nju.xiaofanli.city.Section.Crossing.CrossingIcon;
-import nju.xiaofanli.city.Section.Street;
-import nju.xiaofanli.city.Section.Street.StreetIcon;
+import nju.xiaofanli.city.Road.Crossroad;
+import nju.xiaofanli.city.Road.Crossroad.CrossroadIcon;
+import nju.xiaofanli.city.Road.Street;
+import nju.xiaofanli.city.Road.Street.StreetIcon;
 import nju.xiaofanli.device.sensor.Sensor;
 
 public class TrafficMap extends JPanel{
@@ -24,9 +21,9 @@ public class TrafficMap extends JPanel{
 	public static final ConcurrentMap<String, Car> cars = new ConcurrentHashMap<>();
     public static final List<Car> carList = new ArrayList<>();
 	public static final Set<Car> connectedCars = new HashSet<>();
-	public static final Crossing[] crossings = new Crossing[9];
+	public static final Crossroad[] crossroads = new Crossroad[9];
 	public static final Street[] streets = new Street[32];
-	public static final Map<String, Section> sections = new HashMap<>();
+	public static final Map<String, Road> roads = new HashMap<>();
     public static final Map<String, Location> locations = new HashMap<>();
     public static final List<Location> locationList = new ArrayList<>();
 	public static final Sensor[][] sensors = new Sensor[10][];
@@ -36,7 +33,7 @@ public class TrafficMap extends JPanel{
 	
 	public static final int SH = 48;//street height
 	private static final int SW = SH * 2;//street width
-	private static final int CW = (int) (SH * 1.5);//crossing width
+	private static final int CW = (int) (SH * 1.5);//crossroad width
 	private static final int AW = CW / 2;
 	private static final int U1 = CW + SW;
 	private static final int U2 = (CW-SH)/2;
@@ -51,8 +48,8 @@ public class TrafficMap extends JPanel{
 	public static final int EAST = 3;
 
     static{
-        for(int i = 0;i < crossings.length;i++) {
-            crossings[i] = new Crossing();
+        for(int i = 0; i < crossroads.length; i++) {
+            crossroads[i] = new Road.Crossroad();
         }
         for(int i = 0;i < streets.length;i++) {
             streets[i] = new Street();
@@ -76,30 +73,33 @@ public class TrafficMap extends JPanel{
 		setMinimumSize(new Dimension(SIZE, SIZE));
 		setMaximumSize(new Dimension(SIZE, SIZE));
 		setPreferredSize(new Dimension(SIZE, SIZE));
-		initSections();
+		initRoads();
 		initSensors();
 		initBuildings();
 
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 add(sensor.icon);
+        for (Sensor[] array : sensors)
+            for (Sensor sensor : array)
+                add(sensor.balloon);
         citizens.forEach(citizen -> add(citizen.icon));
-        sections.values().forEach(section -> {
-            add(section.balloon);
-            locations.put(section.name, section);
+        roads.values().forEach(road -> {
+//            add(road.balloon);
+            locations.put(road.name, road);
         });
 		buildings.values().forEach(building -> {
             add(building.icon);
             locations.put(building.name, building);
 		});
-        sections.values().forEach(section -> add(section.icon));
+        roads.values().forEach(road -> add(road.icon));
 
         locationList.addAll(locations.values());
 	}
 	
 	public static void reset(){
         cars.values().forEach(Car::reset);
-        sections.values().forEach(Section::reset);
+        roads.values().forEach(Road::reset);
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 sensor.reset();
@@ -118,7 +118,7 @@ public class TrafficMap extends JPanel{
             return getALocation();
 
         Location res = getALocation();
-        while(res instanceof Section && ((Section) location).sameAs((Section) res))
+        while(res instanceof Road && ((Road) location).sameAs((Road) res))
             res = getALocation();
         return res;
     }
@@ -146,9 +146,9 @@ public class TrafficMap extends JPanel{
 			if(building.block < 0 || building.block > 15)
 				return;
 			int size = streets[7].icon.coord.w;
-			int x = crossings[0].icon.coord.x - size;
-			int y = crossings[0].icon.coord.y - size;
-			int u = size + crossings[0].icon.coord.w;
+			int x = crossroads[0].icon.coord.x - size;
+			int y = crossroads[0].icon.coord.y - size;
+			int u = size + crossroads[0].icon.coord.w;
 			x += (building.block % 4) * u;
 			y += (building.block / 4) * u;
 			building.icon.coord.x = x;
@@ -163,21 +163,21 @@ public class TrafficMap extends JPanel{
 			case 0:
 				building.addrs.add(streets[2]);
 				building.addrs.add(streets[6]);
-				building.addrs.add(crossings[0]);
+				building.addrs.add(crossroads[0]);
 				break;
 			case 1:
 				building.addrs.add(streets[0]);
 				building.addrs.addAll(streets[0].combined);
 				building.addrs.add(streets[7]);
-				building.addrs.add(crossings[0]);
-				building.addrs.add(crossings[1]);
+				building.addrs.add(crossroads[0]);
+				building.addrs.add(crossroads[1]);
 				break;
 			case 2:
 				building.addrs.add(streets[3]);
 				building.addrs.add(streets[4]);
 				building.addrs.add(streets[8]);
-				building.addrs.add(crossings[1]);
-				building.addrs.add(crossings[2]);
+				building.addrs.add(crossroads[1]);
+				building.addrs.add(crossroads[2]);
 				break;
 			case 3:
 				building.addrs.add(streets[1]);
@@ -187,8 +187,8 @@ public class TrafficMap extends JPanel{
 				building.addrs.add(streets[6]);
 				building.addrs.addAll(streets[6].combined);
 				building.addrs.add(streets[11]);
-				building.addrs.add(crossings[0]);
-				building.addrs.add(crossings[3]);
+				building.addrs.add(crossroads[0]);
+				building.addrs.add(crossroads[3]);
 				break;
 			case 5:case 6:case 9:case 10:{
 				int a = building.block / 9;
@@ -199,34 +199,34 @@ public class TrafficMap extends JPanel{
 				building.addrs.add(streets[11+offset]);
 				building.addrs.add(streets[15+offset]);
 				offset = 3*a+b;
-				building.addrs.add(crossings[offset]);
+				building.addrs.add(crossroads[offset]);
 				if(offset != 1)
-					building.addrs.add(crossings[1+offset]);
+					building.addrs.add(crossroads[1+offset]);
 				if(offset != 3)
-					building.addrs.add(crossings[3+offset]);
-				building.addrs.add(crossings[4+offset]);
+					building.addrs.add(crossroads[3+offset]);
+				building.addrs.add(crossroads[4+offset]);
 			}
 				break;
 			case 7:
 				building.addrs.add(streets[9]);
 				building.addrs.add(streets[13]);
 				building.addrs.add(streets[17]);
-				building.addrs.add(crossings[2]);
-				building.addrs.add(crossings[5]);
+				building.addrs.add(crossroads[2]);
+				building.addrs.add(crossroads[5]);
 				break;
 			case 8:
 				building.addrs.add(streets[14]);
 				building.addrs.add(streets[18]);
 				building.addrs.add(streets[22]);
-				building.addrs.add(crossings[3]);
-				building.addrs.add(crossings[6]);
+				building.addrs.add(crossroads[3]);
+				building.addrs.add(crossroads[6]);
 				break;
 			case 11:
 				building.addrs.add(streets[17]);
 				building.addrs.addAll(streets[17].combined);
 				building.addrs.add(streets[20]);
-				building.addrs.add(crossings[5]);
-				building.addrs.add(crossings[8]);
+				building.addrs.add(crossroads[5]);
+				building.addrs.add(crossroads[8]);
 				break;
 			case 12:
 				building.addrs.add(streets[22]);
@@ -236,55 +236,55 @@ public class TrafficMap extends JPanel{
 				building.addrs.add(streets[27]);
 				building.addrs.add(streets[28]);
 				building.addrs.add(streets[23]);
-				building.addrs.add(crossings[6]);
-				building.addrs.add(crossings[7]);
+				building.addrs.add(crossroads[6]);
+				building.addrs.add(crossroads[7]);
 				break;
 			case 14:
 				building.addrs.add(streets[28]);
 				building.addrs.addAll(streets[28].combined);
 				building.addrs.add(streets[24]);
-				building.addrs.add(crossings[7]);
-				building.addrs.add(crossings[8]);
+				building.addrs.add(crossroads[7]);
+				building.addrs.add(crossroads[8]);
 				break;
 			case 15:
 				building.addrs.add(streets[25]);
 				building.addrs.add(streets[29]);
-				building.addrs.add(crossings[8]);
+				building.addrs.add(crossroads[8]);
 				break;
 			}
-			Set<Section> newS = new HashSet<>();
-			for(Section s : building.addrs)
-				newS.addAll(s.combined);
-			building.addrs.addAll(newS);
+			Set<Road> rs = new HashSet<>();
+			for(Road road : building.addrs)
+				rs.addAll(road.combined);
+			building.addrs.addAll(rs);
 		}
 	}
 	
-	private static void initSections() {
-		for(int i = 0;i < crossings.length;i++){
-			crossings[i].id = i;
-			crossings[i].name = "Crossing " + i;
-            sections.put(crossings[i].name, crossings[i]);
-			crossings[i].icon = new CrossingIcon();
-			crossings[i].icon.id = i;
-			crossings[i].icon.section = crossings[i];
-//			crossings[i].icon.coord.x = (i%3+1)*u;
-//			crossings[i].icon.coord.y = (i/3+1)*u;
-			crossings[i].icon.coord.x = (SH+CW)/2 + SW + (i%3) * U1;
-			crossings[i].icon.coord.y = (SH+CW)/2 + SW + (i/3) * U1;
-			crossings[i].icon.coord.w = CW;
-			crossings[i].icon.coord.h = CW;
-			crossings[i].icon.coord.centerX = crossings[i].icon.coord.x + crossings[i].icon.coord.w/2;
-			crossings[i].icon.coord.centerY = crossings[i].icon.coord.y + crossings[i].icon.coord.h/2;
-			crossings[i].icon.setBounds(crossings[i].icon.coord.x, crossings[i].icon.coord.y,
-					crossings[i].icon.coord.w, crossings[i].icon.coord.h);
+	private static void initRoads() {
+		for(int i = 0; i < crossroads.length; i++){
+			crossroads[i].id = i;
+			crossroads[i].name = "Crossroad " + i;
+            roads.put(crossroads[i].name, crossroads[i]);
+			crossroads[i].icon = new CrossroadIcon();
+			crossroads[i].icon.id = i;
+			crossroads[i].icon.road = crossroads[i];
+//			crossroads[i].icon.coord.x = (i%3+1)*u;
+//			crossroads[i].icon.coord.y = (i/3+1)*u;
+			crossroads[i].icon.coord.x = (SH+CW)/2 + SW + (i%3) * U1;
+			crossroads[i].icon.coord.y = (SH+CW)/2 + SW + (i/3) * U1;
+			crossroads[i].icon.coord.w = CW;
+			crossroads[i].icon.coord.h = CW;
+			crossroads[i].icon.coord.centerX = crossroads[i].icon.coord.x + crossroads[i].icon.coord.w/2;
+			crossroads[i].icon.coord.centerY = crossroads[i].icon.coord.y + crossroads[i].icon.coord.h/2;
+			crossroads[i].icon.setBounds(crossroads[i].icon.coord.x, crossroads[i].icon.coord.y,
+					crossroads[i].icon.coord.w, crossroads[i].icon.coord.h);
 		}
 		for(int i = 0;i < streets.length;i++){
 			streets[i].id = i;
 			streets[i].name = "Street " + i;
-            sections.put(streets[i].name, streets[i]);
+            roads.put(streets[i].name, streets[i]);
 			streets[i].icon = new StreetIcon();
 			streets[i].icon.id = i;
-			streets[i].icon.section = streets[i];
+			streets[i].icon.road = streets[i];
 			int quotient = i / 8;
 			int remainder = i % 8;
 			//vertical streets
@@ -368,15 +368,7 @@ public class TrafficMap extends JPanel{
 					streets[i].icon.coord.w, streets[i].icon.coord.h);
 		}
 		
-		Section.BalloonIcon.readBalloonImage();
-		for(Section section : sections.values()){
-			section.balloon = new Section.BalloonIcon();
-			section.balloon.setBounds(section.icon.coord.centerX- BalloonIcon.WIDTH / 2,
-					section.icon.coord.centerY - BalloonIcon.HEIGHT, BalloonIcon.WIDTH, BalloonIcon.HEIGHT);
-//			section.displayBalloon(2, "B2S2", "Red Car", true);
-		}
-		
-		combineSections();
+		combineRoads();
 		setAdjs();
 	}
 	
@@ -385,38 +377,38 @@ public class TrafficMap extends JPanel{
             for(int j = 0;j < sensors[i].length;j++)
                 sensors[i][j] = new Sensor(i, j);
 
-        setSensor(sensors[0][0], crossings[0], streets[2], NORTH);
-        setSensor(sensors[0][1], crossings[0], streets[6], WEST);
-        setSensor(sensors[1][0], crossings[2], streets[8], WEST);
-        setSensor(sensors[1][1], crossings[1], streets[3], SOUTH);
-        setSensor(sensors[1][2], crossings[1], streets[8], WEST);
-        setSensor(sensors[2][0], crossings[1], streets[7], WEST);
-        setSensor(sensors[2][1], crossings[3], streets[11], NORTH);
-        setSensor(sensors[2][2], crossings[0], streets[11], NORTH);
-        setSensor(sensors[2][3], crossings[0], streets[7], WEST);
-        setSensor(sensors[3][0], crossings[5], streets[16], EAST);
-        setSensor(sensors[3][1], crossings[1], streets[12], SOUTH);
-        setSensor(sensors[3][2], crossings[4], streets[12], SOUTH);
-        setSensor(sensors[3][3], crossings[4], streets[16], EAST);
-        setSensor(sensors[4][0], crossings[5], streets[13], NORTH);
-        setSensor(sensors[4][1], crossings[5], streets[17], EAST);
-        setSensor(sensors[4][2], crossings[2], streets[13], NORTH);
-        setSensor(sensors[5][0], crossings[3], streets[18], NORTH);
-        setSensor(sensors[5][1], crossings[3], streets[14], EAST);
-        setSensor(sensors[5][2], crossings[6], streets[18], NORTH);
-        setSensor(sensors[6][0], crossings[3], streets[15], EAST);
-        setSensor(sensors[6][1], crossings[7], streets[19], SOUTH);
-        setSensor(sensors[6][2], crossings[4], streets[15], EAST);
-        setSensor(sensors[6][3], crossings[4], streets[19], SOUTH);
-        setSensor(sensors[7][0], crossings[7], streets[24], WEST);
-        setSensor(sensors[7][1], crossings[8], streets[20], NORTH);
-        setSensor(sensors[7][2], crossings[5], streets[20], NORTH);
-        setSensor(sensors[7][3], crossings[8], streets[24], WEST);
-        setSensor(sensors[8][0], crossings[6], streets[23], WEST);
-        setSensor(sensors[8][1], crossings[7], streets[28], SOUTH);
-        setSensor(sensors[8][2], crossings[7], streets[23], WEST);
-        setSensor(sensors[9][0], crossings[8], streets[29], NORTH);
-        setSensor(sensors[9][1], crossings[8], streets[25], WEST);
+        setSensor(sensors[0][0], crossroads[0], streets[2], NORTH);
+        setSensor(sensors[0][1], crossroads[0], streets[6], WEST);
+        setSensor(sensors[1][0], crossroads[2], streets[8], WEST);
+        setSensor(sensors[1][1], crossroads[1], streets[3], SOUTH);
+        setSensor(sensors[1][2], crossroads[1], streets[8], WEST);
+        setSensor(sensors[2][0], crossroads[1], streets[7], WEST);
+        setSensor(sensors[2][1], crossroads[3], streets[11], NORTH);
+        setSensor(sensors[2][2], crossroads[0], streets[11], NORTH);
+        setSensor(sensors[2][3], crossroads[0], streets[7], WEST);
+        setSensor(sensors[3][0], crossroads[5], streets[16], EAST);
+        setSensor(sensors[3][1], crossroads[1], streets[12], SOUTH);
+        setSensor(sensors[3][2], crossroads[4], streets[12], SOUTH);
+        setSensor(sensors[3][3], crossroads[4], streets[16], EAST);
+        setSensor(sensors[4][0], crossroads[5], streets[13], NORTH);
+        setSensor(sensors[4][1], crossroads[5], streets[17], EAST);
+        setSensor(sensors[4][2], crossroads[2], streets[13], NORTH);
+        setSensor(sensors[5][0], crossroads[3], streets[18], NORTH);
+        setSensor(sensors[5][1], crossroads[3], streets[14], EAST);
+        setSensor(sensors[5][2], crossroads[6], streets[18], NORTH);
+        setSensor(sensors[6][0], crossroads[3], streets[15], EAST);
+        setSensor(sensors[6][1], crossroads[7], streets[19], SOUTH);
+        setSensor(sensors[6][2], crossroads[4], streets[15], EAST);
+        setSensor(sensors[6][3], crossroads[4], streets[19], SOUTH);
+        setSensor(sensors[7][0], crossroads[7], streets[24], WEST);
+        setSensor(sensors[7][1], crossroads[8], streets[20], NORTH);
+        setSensor(sensors[7][2], crossroads[5], streets[20], NORTH);
+        setSensor(sensors[7][3], crossroads[8], streets[24], WEST);
+        setSensor(sensors[8][0], crossroads[6], streets[23], WEST);
+        setSensor(sensors[8][1], crossroads[7], streets[28], SOUTH);
+        setSensor(sensors[8][2], crossroads[7], streets[23], WEST);
+        setSensor(sensors[9][0], crossroads[8], streets[29], NORTH);
+        setSensor(sensors[9][1], crossroads[8], streets[25], WEST);
 		
 		Queue<Sensor> orders = new LinkedList<>();
         orders.add(sensors[0][0]);
@@ -466,140 +458,144 @@ public class TrafficMap extends JPanel{
 			}
 			prev = next;
 		}
+
+		for(Sensor[] array : sensors){
+            for(Sensor sensor : array) {
+                Rectangle bounds = sensor.icon.getBounds();
+                sensor.balloon.setBounds(bounds.x + bounds.width/2 - Sensor.BalloonIcon.WIDTH/2,
+                        bounds.y + bounds.height/2 - (sensor.balloon.useReversedIcon ? 0 : Sensor.BalloonIcon.HEIGHT),
+                        Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
+            }
+		}
 	}
 
-	private static void setSensor(Sensor sensor, Crossing crossing, Street street, int dir){
+	private static void setSensor(Sensor sensor, Road.Crossroad crossroad, Street street, int dir){
 		sensor.dir = TrafficMap.DIRECTION ? dir : oppositeDirOf(dir);
-		sensor.crossing = crossing;
+		sensor.crossroad = crossroad;
 		sensor.street = street;
 		
-		Section section = sectionBehind(sensor);
-		if(section instanceof Crossing){
+		Road road = roadBehind(sensor);
+		if(road instanceof Crossroad){
 			sensor.isEntrance = true;
-			sensor.nextSection = sensor.crossing;
-			sensor.prevSection = sensor.street;
+			sensor.nextRoad = sensor.crossroad;
+			sensor.prevRoad = sensor.street;
 			sensor.street.dir[0] = sensor.dir;
 		}
 		else{
 			sensor.isEntrance = false;
-			sensor.nextSection = sensor.street;
-			sensor.prevSection = sensor.crossing;
-			if(sensor.crossing.dir[0] == UNKNOWN_DIR)
-				sensor.crossing.dir[0] = sensor.dir;
+			sensor.nextRoad = sensor.street;
+			sensor.prevRoad = sensor.crossroad;
+			if(sensor.crossroad.dir[0] == UNKNOWN_DIR)
+				sensor.crossroad.dir[0] = sensor.dir;
 			else
-				sensor.crossing.dir[1] = sensor.dir;
+				sensor.crossroad.dir[1] = sensor.dir;
 		}
 		
-		sensor.prevSection.adjSensors.put(sensor.dir, sensor);
-		if(sensor.nextSection.isCombined() && sensor.nextSection instanceof Street)
-			sensor.nextSection.adjSensors.put(oppositeDirOf(sensor.nextSection.dir[0]), sensor);
+		sensor.prevRoad.adjSensors.put(sensor.dir, sensor);
+		if(sensor.nextRoad.isCombined() && sensor.nextRoad instanceof Street)
+			sensor.nextRoad.adjSensors.put(oppositeDirOf(sensor.nextRoad.dir[0]), sensor);
 		else
-			sensor.nextSection.adjSensors.put(oppositeDirOf(sensor.dir), sensor);
+			sensor.nextRoad.adjSensors.put(oppositeDirOf(sensor.dir), sensor);
 		
-		if(sensor.crossing.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
+		if(sensor.crossroad.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
 			sensor.showPos = 0;
-			sensor.px = sensor.crossing.icon.coord.x;
-			sensor.py = sensor.crossing.icon.coord.y + sensor.crossing.icon.coord.h/2;
+			sensor.px = sensor.crossroad.icon.coord.x;
+			sensor.py = sensor.crossroad.icon.coord.y + sensor.crossroad.icon.coord.h/2;
 		}
-		else if(sensor.crossing.icon.coord.y-sensor.street.icon.coord.y == sensor.street.icon.coord.h){
+		else if(sensor.crossroad.icon.coord.y-sensor.street.icon.coord.y == sensor.street.icon.coord.h){
 			sensor.showPos = 1;
-			sensor.px = sensor.crossing.icon.coord.x + sensor.crossing.icon.coord.w/2;
-			sensor.py = sensor.crossing.icon.coord.y;
+			sensor.px = sensor.crossroad.icon.coord.x + sensor.crossroad.icon.coord.w/2;
+			sensor.py = sensor.crossroad.icon.coord.y;
 		}
-		else if(sensor.street.icon.coord.x-sensor.crossing.icon.coord.x == sensor.crossing.icon.coord.w){
+		else if(sensor.street.icon.coord.x-sensor.crossroad.icon.coord.x == sensor.crossroad.icon.coord.w){
 			sensor.showPos = 2;
 			sensor.px = sensor.street.icon.coord.x;
-			sensor.py = sensor.crossing.icon.coord.y + sensor.crossing.icon.coord.h/2;
+			sensor.py = sensor.crossroad.icon.coord.y + sensor.crossroad.icon.coord.h/2;
 		}
-		else if(sensor.street.icon.coord.y-sensor.crossing.icon.coord.y == sensor.crossing.icon.coord.h){
+		else if(sensor.street.icon.coord.y-sensor.crossroad.icon.coord.y == sensor.crossroad.icon.coord.h){
 			sensor.showPos = 3;
-			sensor.px = sensor.crossing.icon.coord.x + sensor.crossing.icon.coord.w/2;
+			sensor.px = sensor.crossroad.icon.coord.x + sensor.crossroad.icon.coord.w/2;
 			sensor.py = sensor.street.icon.coord.y;
 		}
-		sensor.icon = new JButton(sensor.name);
-		sensor.icon.setFont(Dashboard.bold14dialog);
-		sensor.icon.setVisible(false);
-		sensor.icon.setMargin(new Insets(0, 0, 0, 0));
-//        sensor.icon.setBounds(sensor.px, sensor.py, 36, 18);
+
         FontMetrics fm = sensor.icon.getFontMetrics(sensor.icon.getFont());
         int w = fm.stringWidth(sensor.icon.getText())+8, h = fm.getHeight();
 		sensor.icon.setBounds(sensor.px-w/2, sensor.py-h/2, w, h);
-		sensor.icon.addMouseListener(new Sensor.SensorIconListener(sensor));
 	}
 	
 	private static void setAdjs(){
-		crossings[0].adjSects.put(0, streets[2]);
-		crossings[0].adjSects.put(1, streets[11]);
-		crossings[0].adjSects.put(2, streets[6]);
-		crossings[0].adjSects.put(3, streets[7]);
-		crossings[1].adjSects.put(0, streets[3]);
-		crossings[1].adjSects.put(1, streets[12]);
-		crossings[1].adjSects.put(2, streets[7]);
-		crossings[1].adjSects.put(3, streets[8]);
-		crossings[2].adjSects.put(1, streets[13]);
-		crossings[2].adjSects.put(2, streets[8]);
-		crossings[3].adjSects.put(0, streets[11]);
-		crossings[3].adjSects.put(1, streets[18]);
-		crossings[3].adjSects.put(2, streets[14]);
-		crossings[3].adjSects.put(3, streets[15]);
-		crossings[4].adjSects.put(0, streets[12]);
-		crossings[4].adjSects.put(1, streets[19]);
-		crossings[4].adjSects.put(2, streets[15]);
-		crossings[4].adjSects.put(3, streets[16]);
-		crossings[5].adjSects.put(0, streets[13]);
-		crossings[5].adjSects.put(1, streets[20]);
-		crossings[5].adjSects.put(2, streets[16]);
-		crossings[5].adjSects.put(3, streets[17]);
-		crossings[6].adjSects.put(0, streets[18]);
-		crossings[6].adjSects.put(3, streets[23]);
-		crossings[7].adjSects.put(0, streets[19]);
-		crossings[7].adjSects.put(1, streets[28]);
-		crossings[7].adjSects.put(2, streets[23]);
-		crossings[7].adjSects.put(3, streets[24]);
-		crossings[8].adjSects.put(0, streets[20]);
-		crossings[8].adjSects.put(1, streets[29]);
-		crossings[8].adjSects.put(2, streets[24]);
-		crossings[8].adjSects.put(3, streets[25]);
+		crossroads[0].adjRoads.put(0, streets[2]);
+		crossroads[0].adjRoads.put(1, streets[11]);
+		crossroads[0].adjRoads.put(2, streets[6]);
+		crossroads[0].adjRoads.put(3, streets[7]);
+		crossroads[1].adjRoads.put(0, streets[3]);
+		crossroads[1].adjRoads.put(1, streets[12]);
+		crossroads[1].adjRoads.put(2, streets[7]);
+		crossroads[1].adjRoads.put(3, streets[8]);
+		crossroads[2].adjRoads.put(1, streets[13]);
+		crossroads[2].adjRoads.put(2, streets[8]);
+		crossroads[3].adjRoads.put(0, streets[11]);
+		crossroads[3].adjRoads.put(1, streets[18]);
+		crossroads[3].adjRoads.put(2, streets[14]);
+		crossroads[3].adjRoads.put(3, streets[15]);
+		crossroads[4].adjRoads.put(0, streets[12]);
+		crossroads[4].adjRoads.put(1, streets[19]);
+		crossroads[4].adjRoads.put(2, streets[15]);
+		crossroads[4].adjRoads.put(3, streets[16]);
+		crossroads[5].adjRoads.put(0, streets[13]);
+		crossroads[5].adjRoads.put(1, streets[20]);
+		crossroads[5].adjRoads.put(2, streets[16]);
+		crossroads[5].adjRoads.put(3, streets[17]);
+		crossroads[6].adjRoads.put(0, streets[18]);
+		crossroads[6].adjRoads.put(3, streets[23]);
+		crossroads[7].adjRoads.put(0, streets[19]);
+		crossroads[7].adjRoads.put(1, streets[28]);
+		crossroads[7].adjRoads.put(2, streets[23]);
+		crossroads[7].adjRoads.put(3, streets[24]);
+		crossroads[8].adjRoads.put(0, streets[20]);
+		crossroads[8].adjRoads.put(1, streets[29]);
+		crossroads[8].adjRoads.put(2, streets[24]);
+		crossroads[8].adjRoads.put(3, streets[25]);
 		
 		//TODO when city direction is reversed, this will be wrong
 		if(TrafficMap.DIRECTION){
-			streets[0].adjSects.put(0, crossings[0]);
-			streets[0].adjSects.put(1, crossings[1]);
-			streets[6].adjSects.put(2, crossings[0]);
-			streets[6].adjSects.put(3, crossings[3]);
-			streets[17].adjSects.put(2, crossings[8]);
-			streets[17].adjSects.put(3, crossings[5]);
-			streets[28].adjSects.put(0, crossings[8]);
-			streets[28].adjSects.put(1, crossings[7]);
+			streets[0].adjRoads.put(0, crossroads[0]);
+			streets[0].adjRoads.put(1, crossroads[1]);
+			streets[6].adjRoads.put(2, crossroads[0]);
+			streets[6].adjRoads.put(3, crossroads[3]);
+			streets[17].adjRoads.put(2, crossroads[8]);
+			streets[17].adjRoads.put(3, crossroads[5]);
+			streets[28].adjRoads.put(0, crossroads[8]);
+			streets[28].adjRoads.put(1, crossroads[7]);
 		}
 		else{
-			streets[0].adjSects.put(1, crossings[0]);
-			streets[0].adjSects.put(0, crossings[1]);
-			streets[6].adjSects.put(3, crossings[0]);
-			streets[6].adjSects.put(2, crossings[3]);
-			streets[17].adjSects.put(3, crossings[8]);
-			streets[17].adjSects.put(2, crossings[5]);
-			streets[28].adjSects.put(1, crossings[8]);
-			streets[28].adjSects.put(0, crossings[7]);
+			streets[0].adjRoads.put(1, crossroads[0]);
+			streets[0].adjRoads.put(0, crossroads[1]);
+			streets[6].adjRoads.put(3, crossroads[0]);
+			streets[6].adjRoads.put(2, crossroads[3]);
+			streets[17].adjRoads.put(3, crossroads[8]);
+			streets[17].adjRoads.put(2, crossroads[5]);
+			streets[28].adjRoads.put(1, crossroads[8]);
+			streets[28].adjRoads.put(0, crossroads[7]);
 		}
 		
 		for(int i = 0;i < 3;i++)
 			for(int j = 0;j < 2;j++){
-				streets[7+8*i+j].adjSects.put(2, crossings[3*i+j]);
-				streets[7+8*i+j].adjSects.put(3, crossings[1+3*i+j]);
-				streets[11+7*j+i].adjSects.put(0, crossings[i+3*j]);
-				streets[11+7*j+i].adjSects.put(1, crossings[3+i+3*j]);
+				streets[7+8*i+j].adjRoads.put(2, crossroads[3*i+j]);
+				streets[7+8*i+j].adjRoads.put(3, crossroads[1+3*i+j]);
+				streets[11+7*j+i].adjRoads.put(0, crossroads[i+3*j]);
+				streets[11+7*j+i].adjRoads.put(1, crossroads[3+i+3*j]);
 			}
 		
-		setAccess(crossings[0], 7, 6, 11, 2);
-		setAccess(crossings[1], 8, 7, 3, 12);
-		setAccess(crossings[2], 13, 8);
-		setAccess(crossings[3], 14, 15, 18, 11);
-		setAccess(crossings[4], 15, 16, 12, 19);
-		setAccess(crossings[5], 16, 17, 20, 13);
-		setAccess(crossings[6], 23, 18);
-		setAccess(crossings[7], 24, 23, 19, 28);
-		setAccess(crossings[8], 25, 24, 29, 20);
+		setAccess(crossroads[0], 7, 6, 11, 2);
+		setAccess(crossroads[1], 8, 7, 3, 12);
+		setAccess(crossroads[2], 13, 8);
+		setAccess(crossroads[3], 14, 15, 18, 11);
+		setAccess(crossroads[4], 15, 16, 12, 19);
+		setAccess(crossroads[5], 16, 17, 20, 13);
+		setAccess(crossroads[6], 23, 18);
+		setAccess(crossroads[7], 24, 23, 19, 28);
+		setAccess(crossroads[8], 25, 24, 29, 20);
 		setAccess(streets[0], 0, 1);
 		setAccess(streets[6], 0, 3);
 		setAccess(streets[7], 1, 0);
@@ -618,82 +614,82 @@ public class TrafficMap extends JPanel{
 		setAccess(streets[28], 7, 8);
 	}
 	
-	private static void setAccess(Section s, int entry1, int exit1, int entry2, int exit2){
-		setAccess(s, entry1, exit1);
-		setAccess(s, entry2, exit2);
+	private static void setAccess(Road road, int entry1, int exit1, int entry2, int exit2){
+		setAccess(road, entry1, exit1);
+		setAccess(road, entry2, exit2);
 	}
 	
-	private static void setAccess(Section s, int entry, int exit){
-		Section in, out;
-		if(s instanceof Crossing){
+	private static void setAccess(Road road, int entry, int exit){
+		Road in, out;
+		if(road instanceof Crossroad){
 			in = streets[entry];
 			out = streets[exit];
 		}
 		else{
-			in = crossings[entry];
-			out = crossings[exit];
+			in = crossroads[entry];
+			out = crossroads[exit];
 		}
 			
 		if(TrafficMap.DIRECTION){
-			s.entrance2exit.put(in, out);
-			s.exit2entrance.put(out, in);
+			road.entrance2exit.put(in, out);
+			road.exit2entrance.put(out, in);
 		}
 		else{
-			s.entrance2exit.put(out, in);
-			s.exit2entrance.put(in, out);
+			road.entrance2exit.put(out, in);
+			road.exit2entrance.put(in, out);
 		}
 	}
 	
-	private static void combineSections(){
-		Set<Section> sections = new HashSet<>();
-		sections.add(streets[0]);
-		sections.add(streets[2]);
-		sections.add(streets[3]);
-		Section.combine(sections);
+	private static void combineRoads(){
+		Set<Road> roads = new HashSet<>();
+		roads.add(streets[0]);
+		roads.add(streets[2]);
+		roads.add(streets[3]);
+		Road.combine(roads);
 		
-		sections.clear();
-		sections.add(streets[6]);
-		sections.add(streets[10]);
-		sections.add(streets[14]);
-		Section.combine(sections);
+		roads.clear();
+		roads.add(streets[6]);
+		roads.add(streets[10]);
+		roads.add(streets[14]);
+		Road.combine(roads);
 		
-		sections.clear();
-		sections.add(streets[17]);
-		sections.add(streets[21]);
-		sections.add(streets[25]);
-		Section.combine(sections);
+		roads.clear();
+		roads.add(streets[17]);
+		roads.add(streets[21]);
+		roads.add(streets[25]);
+		Road.combine(roads);
 		
-		sections.clear();
-		sections.add(streets[28]);
-		sections.add(streets[29]);
-		sections.add(streets[31]);
-		Section.combine(sections);
+		roads.clear();
+		roads.add(streets[28]);
+		roads.add(streets[29]);
+		roads.add(streets[31]);
+		Road.combine(roads);
 		
-		sections.clear();
-		sections.add(streets[1]);
-		sections.add(streets[4]);
-		sections.add(streets[5]);
-		sections.add(streets[9]);
-		sections.add(crossings[2]);
-		Section.combine(sections);
+		roads.clear();
+		roads.add(streets[1]);
+		roads.add(streets[4]);
+		roads.add(streets[5]);
+		roads.add(streets[9]);
+		roads.add(crossroads[2]);
+		Road.combine(roads);
 		
-		sections.clear();
-		sections.add(streets[22]);
-		sections.add(streets[26]);
-		sections.add(streets[27]);
-		sections.add(streets[30]);
-		sections.add(crossings[6]);
-		Section.combine(sections);
+		roads.clear();
+		roads.add(streets[22]);
+		roads.add(streets[26]);
+		roads.add(streets[27]);
+		roads.add(streets[30]);
+		roads.add(crossroads[6]);
+		Road.combine(roads);
 	}
 
 	public static void checkRealCrash() {
-        List<Section> set = new LinkedList<>(sections.values());
+        List<Road> set = new LinkedList<>(roads.values());
         while (!set.isEmpty()) {
-            Section section = set.remove(0);
-            section.checkRealCrash();
+            Road road = set.remove(0);
+            road.checkRealCrash();
 
-            set.remove(section);
-            set.removeAll(section.combined);
+            set.remove(road);
+            set.removeAll(road.combined);
         }
     }
 
@@ -733,27 +729,27 @@ public class TrafficMap extends JPanel{
 		}
 	}
 	
-	public static Section sectionBehind(Sensor sensor){
+	public static Road roadBehind(Sensor sensor){
 		int bid = sensor.bid, id = sensor.sid;
 		switch(bid){
 		case 0:
-			return TrafficMap.DIRECTION ? sensor.street : sensor.crossing;
+			return TrafficMap.DIRECTION ? sensor.street : sensor.crossroad;
 		case 1:
-			return ((id == 0) ^ TrafficMap.DIRECTION) ? sensor.crossing : sensor.street;
+			return ((id == 0) ^ TrafficMap.DIRECTION) ? sensor.crossroad : sensor.street;
 		case 2:
 		case 4:
-			return ((id < 2) ^ TrafficMap.DIRECTION) ? sensor.crossing : sensor.street;
+			return ((id < 2) ^ TrafficMap.DIRECTION) ? sensor.crossroad : sensor.street;
 		case 3:
 		case 7:
-			return ((id % 2 == 1) ^ TrafficMap.DIRECTION) ? sensor.crossing : sensor.street;
+			return ((id % 2 == 1) ^ TrafficMap.DIRECTION) ? sensor.crossroad : sensor.street;
 		case 5:
-			return ((id > 1) ^ TrafficMap.DIRECTION) ? sensor.crossing : sensor.street;
+			return ((id > 1) ^ TrafficMap.DIRECTION) ? sensor.crossroad : sensor.street;
 		case 6:
-			return ((id == 0 || id == 3) ^ TrafficMap.DIRECTION) ? sensor.crossing : sensor.street;
+			return ((id == 0 || id == 3) ^ TrafficMap.DIRECTION) ? sensor.crossroad : sensor.street;
 		case 8:
-			return ((id > 0) ^ TrafficMap.DIRECTION) ? sensor.crossing : sensor.street;
+			return ((id > 0) ^ TrafficMap.DIRECTION) ? sensor.crossroad : sensor.street;
 		case 9:
-			return TrafficMap.DIRECTION ? sensor.crossing : sensor.street;
+			return TrafficMap.DIRECTION ? sensor.crossroad : sensor.street;
 		}
 		return null;
 	}

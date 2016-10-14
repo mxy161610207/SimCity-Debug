@@ -35,9 +35,10 @@ import java.util.Queue;
 public class Dashboard extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static Dashboard instance = null;
-    public static final Font bold14dialog = new Font(Font.DIALOG, Font.BOLD, 14);
+    public static final Font bold16dialog = new Font(Font.DIALOG, Font.BOLD, 16);
     public static final Font bold15dialog = new Font(Font.DIALOG, Font.BOLD, 15);
     public static final Font plain15dialog = new Font(Font.DIALOG, Font.PLAIN, 15);
+    public static final Font bold20dialog = new Font(Font.DIALOG, Font.BOLD, 20);
 	private static final TrafficMap trafficMap = new TrafficMap();
 	private static final JPanel leftPanel = new JPanel();
 	private static final JPanel rightPanel = new JPanel();
@@ -64,13 +65,13 @@ public class Dashboard extends JFrame{
 	private static final JButton deliverButton = new JButton("Deliver");
 	private static final JButton canceldButton = new JButton("Cancel");
 	private static final JCheckBox jchkSensor = new JCheckBox("Sensor");
-	private static final JCheckBox jchkSection = new JCheckBox("Section");
+	private static final JCheckBox jchkRoad = new JCheckBox("Road");
 	private static final JCheckBox jchkBalloon = new JCheckBox("Balloon");
 	private static final JCheckBox jchkCrash = new JCheckBox("Crash Sound");
 	private static final JCheckBox jchkError = new JCheckBox("Error Sound");
 	private static final JCheckBox jchkDetection = new JCheckBox("Detection");
 	private static final JCheckBox jchkResolution = new JCheckBox("Resolution");
-	public static boolean showSensor = false, showSection = false, showBalloon = false,
+	public static boolean showSensor = false, showRoad = false, showBalloon = false,
 			playCrashSound = false,	playErrorSound = false;
 
 	private static final JTextField srctf = new JTextField();
@@ -86,17 +87,20 @@ public class Dashboard extends JFrame{
 			//noinspection InfiniteLoopStatement
 			while(true){
 				blink = !blink;
-				for(Section s : TrafficMap.sections.values()){
-					if(s.balloon.duration > 0){
-						if(!s.balloon.isVisible())
-							s.balloon.setVisible(true);
-						s.balloon.duration -= duration;
-					}
-					else if(s.balloon.isVisible())
-						s.balloon.setVisible(false);
+                for(Sensor[] array : Resource.getSensors())
+                    for(Sensor sensor : array) {
+                        if(sensor.balloon.duration > 0){
+                            if(!sensor.balloon.isVisible())
+                                sensor.balloon.setVisible(true);
+                            sensor.balloon.duration -= duration;
+                        }
+                        else if(sensor.balloon.isVisible())
+                            sensor.balloon.setVisible(false);
+                    }
 
-					if (!s.cars.isEmpty() && s.cars.peek().isLoading)
-						s.icon.repaint();
+				for(Road road : Resource.getRoads().values()){
+					if (!road.cars.isEmpty() && road.cars.peek().isLoading)
+						road.icon.repaint();
 				}
 				try {
 					Thread.sleep(duration);
@@ -108,23 +112,23 @@ public class Dashboard extends JFrame{
 	};
 
 	static {
-        carbox.setFont(bold14dialog);
-        resetButton.setFont(bold14dialog);
-        deviceButton.setFont(bold14dialog);
-        startdButton.setFont(bold14dialog);
-        deliverButton.setFont(bold14dialog);
-        canceldButton.setFont(bold14dialog);
-        jchkSensor.setFont(bold14dialog);
-        jchkSection.setFont(bold14dialog);
-        jchkBalloon.setFont(bold14dialog);
-        jchkCrash.setFont(bold14dialog);
-        jchkError.setFont(bold14dialog);
-        jchkDetection.setFont(bold14dialog);
-        jchkResolution.setFont(bold14dialog);
-        srctf.setFont(bold14dialog);
-        desttf.setFont(bold14dialog);
-        console.setFont(bold14dialog);
-        deliveryCountLabel.setFont(bold14dialog);
+        carbox.setFont(bold16dialog);
+        resetButton.setFont(bold16dialog);
+        deviceButton.setFont(bold16dialog);
+        startdButton.setFont(bold16dialog);
+        deliverButton.setFont(bold16dialog);
+        canceldButton.setFont(bold16dialog);
+        jchkSensor.setFont(bold16dialog);
+        jchkRoad.setFont(bold16dialog);
+        jchkBalloon.setFont(bold16dialog);
+        jchkCrash.setFont(bold16dialog);
+        jchkError.setFont(bold16dialog);
+        jchkDetection.setFont(bold16dialog);
+        jchkResolution.setFont(bold16dialog);
+        srctf.setFont(bold16dialog);
+        desttf.setFont(bold16dialog);
+        console.setFont(bold16dialog);
+        deliveryCountLabel.setFont(bold16dialog);
         deliveryCountLabel.setBackground(null);
         deliveryPane.setEditable(false);
         deliveryPane.setBackground(null);
@@ -252,7 +256,7 @@ public class Dashboard extends JFrame{
             gbc.gridy += gbc.gridheight;
             gbc.weightx = gbc.weighty = 0;
             JButton shutDownBtn = new JButton("Shutdown");
-            shutDownBtn.setFont(bold14dialog);
+            shutDownBtn.setFont(bold16dialog);
             checkingPanel.add(shutDownBtn, gbc);
             shutDownBtn.addActionListener(e -> {
                 shutDownBtn.setEnabled(false);
@@ -343,10 +347,10 @@ public class Dashboard extends JFrame{
 		gbc.fill = GridBagConstraints.BOTH;
 //		gbc.anchor = GridBagConstraints.CENTER;
 
-		for(Section s : TrafficMap.sections.values())
-			s.icon.addMouseListener(new SectionIconListener(s));
-		for(Building b : TrafficMap.buildings.values())
-			b.icon.addMouseListener(new BuildingIconListener(b));
+		for(Road road : TrafficMap.roads.values())
+			road.icon.addMouseListener(new RoadIconListener(road));
+		for(Building building : TrafficMap.buildings.values())
+			building.icon.addMouseListener(new BuildingIconListener(building));
 
 		gbc.gridx = gbc.gridy = 0;
 //        gbc.fill = GridBagConstraints.NONE;
@@ -357,7 +361,7 @@ public class Dashboard extends JFrame{
 		gbc.gridx += gbc.gridwidth;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = gbc.weighty = 1;
-//		leftPanel.setPreferredSize(new Dimension(400, 0));
+		leftPanel.setPreferredSize(new Dimension(200, 0));
         controlPanel.add(leftPanel, gbc);
 
         gbc.gridx += gbc.gridwidth;
@@ -511,19 +515,16 @@ public class Dashboard extends JFrame{
         gbc.gridy += gbc.gridheight;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weighty = 1;
-        JPanel VCBorderpanel = new JPanel(new BorderLayout());
-        VCBorderpanel.setBorder(BorderFactory.createTitledBorder("Vehicle conditions"));
-        ((TitledBorder) VCBorderpanel.getBorder()).setTitleFont(bold15dialog);
-        VCBorderpanel.add(VCPanel, BorderLayout.CENTER);
-		leftPanel.add(VCBorderpanel, gbc);
+        VCPanel.setBorder(BorderFactory.createTitledBorder("Vehicle conditions"));
+        ((TitledBorder) VCPanel.getBorder()).setTitleFont(bold16dialog);
+		leftPanel.add(VCPanel, gbc);
 
 		gbc.gridy += gbc.gridheight;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weighty = 1;
-        JPanel RCBorderPanel = new JPanel(new BorderLayout());
-        RCBorderPanel.setBorder(BorderFactory.createTitledBorder("Road condition"));
-        ((TitledBorder) RCBorderPanel.getBorder()).setTitleFont(bold15dialog);
-        RCBorderPanel.add(roadtaScroll, BorderLayout.CENTER);
-		leftPanel.add(RCBorderPanel, gbc);
+        roadtaScroll.setBorder(BorderFactory.createTitledBorder("Road condition"));
+        ((TitledBorder) roadtaScroll.getBorder()).setTitleFont(bold16dialog);
+        leftPanel.add(roadtaScroll, gbc);
 
 		//right panel settings
 		rightPanel.setLayout(new GridBagLayout());
@@ -531,17 +532,11 @@ public class Dashboard extends JFrame{
 		gbc.gridheight = gbc.gridwidth = 1;
 		gbc.weightx = 1;
 		gbc.weighty = 0;
-//		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		rightPanel.add(carbox, gbc);
 
-		gbc.gridy += gbc.gridheight;
-		rightPanel.add(new DPad(), gbc);
-
-		gbc.gridy += gbc.gridheight;
         JPanel miscPanel = new JPanel();
 		rightPanel.add(miscPanel, gbc);
 		miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
-        ((TitledBorder) miscPanel.getBorder()).setTitleFont(bold15dialog);
+        ((TitledBorder) miscPanel.getBorder()).setTitleFont(bold16dialog);
 //		miscPanel.setLayout(new GridLayout(2, 0));
 //		miscPanel.setPreferredSize(new Dimension(240, 90));
 		miscPanel.setLayout(new GridBagLayout());
@@ -550,7 +545,7 @@ public class Dashboard extends JFrame{
 		mgbc.gridx = mgbc.gridy = 0;
 		mgbc.weightx = 1;
 		mgbc.gridwidth = 2;
-		miscPanel.add(jchkSection, mgbc);
+		miscPanel.add(jchkRoad, mgbc);
 		mgbc.gridx += mgbc.gridwidth;
 		miscPanel.add(jchkSensor, mgbc);
 		mgbc.gridx += mgbc.gridwidth;
@@ -563,11 +558,11 @@ public class Dashboard extends JFrame{
 		mgbc.gridx += mgbc.gridwidth;
 		miscPanel.add(jchkError, mgbc);
 
-		jchkSection.addActionListener(e -> {
-            showSection = jchkSection.isSelected();
+		jchkRoad.addActionListener(e -> {
+            showRoad = jchkRoad.isSelected();
             trafficMap.repaint();
         });
-        jchkSection.doClick();
+        jchkRoad.doClick();
 
 		jchkSensor.addActionListener(e -> {
             showSensor = jchkSensor.isSelected();
@@ -589,7 +584,7 @@ public class Dashboard extends JFrame{
         JPanel CCPanel = new JPanel();
 		rightPanel.add(CCPanel, gbc);
 		CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
-        ((TitledBorder) CCPanel.getBorder()).setTitleFont(bold15dialog);
+        ((TitledBorder) CCPanel.getBorder()).setTitleFont(bold16dialog);
 		CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		CCPanel.add(jchkDetection);
 		CCPanel.add(jchkResolution);
@@ -622,11 +617,16 @@ public class Dashboard extends JFrame{
         });
 
 		gbc.gridy += gbc.gridheight;
-//		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		rightPanel.add(carbox, gbc);
+
+		gbc.gridy += gbc.gridheight;
+		rightPanel.add(new DPad(), gbc);
+
+		gbc.gridy += gbc.gridheight;
         JPanel deliveryPanel = new JPanel();
 		rightPanel.add(deliveryPanel, gbc);
 		deliveryPanel.setBorder(BorderFactory.createTitledBorder("Taxi Service"));
-        ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(bold15dialog);
+        ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(bold16dialog);
 		deliveryPanel.setLayout(new GridBagLayout());
 
 		GridBagConstraints dgbc = new GridBagConstraints();
@@ -635,7 +635,7 @@ public class Dashboard extends JFrame{
 		dgbc.gridx = 0;
 		dgbc.gridy = 0;
         JLabel srcLabel = new JLabel("Src");
-        srcLabel.setFont(bold14dialog);
+        srcLabel.setFont(bold16dialog);
 		deliveryPanel.add(srcLabel, dgbc);
 		dgbc.gridx += dgbc.gridwidth;
 		dgbc.weightx = 1;
@@ -646,7 +646,7 @@ public class Dashboard extends JFrame{
 //		dgbc.gridy += dgbc.gridheight;
 		dgbc.weightx = 0;
         JLabel destLabel = new JLabel("Dest");
-        destLabel.setFont(bold14dialog);
+        destLabel.setFont(bold16dialog);
 		deliveryPanel.add(destLabel, dgbc);
 		dgbc.gridx += dgbc.gridwidth;
 		dgbc.weightx = 1;
@@ -707,18 +707,17 @@ public class Dashboard extends JFrame{
         JPanel ongoingDTPanel = new JPanel(new BorderLayout());
         rightPanel.add(ongoingDTPanel, gbc);
         ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Tasks"));
-        ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(bold15dialog);
+        ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(bold16dialog);
         ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
         ongoingDTPanel.add(deliveryPane, BorderLayout.CENTER);
         updateDeliveryTaskPanel();
 
 		gbc.gridy += gbc.gridheight;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1;
-        JPanel logPanel = new JPanel(new BorderLayout());
-        logPanel.setBorder(BorderFactory.createTitledBorder("Logs"));
-        ((TitledBorder) logPanel.getBorder()).setTitleFont(bold15dialog);
-		rightPanel.add(logPanel, gbc);
-        logPanel.add(logPaneScroll, BorderLayout.CENTER);
+        logPaneScroll.setBorder(BorderFactory.createTitledBorder("Logs"));
+        ((TitledBorder) logPaneScroll.getBorder()).setTitleFont(bold16dialog);
+		rightPanel.add(logPaneScroll, gbc);
 
 		new Thread(blinkThread, "Blink Thread").start();
 		jchkResolution.doClick();
@@ -773,48 +772,48 @@ public class Dashboard extends JFrame{
 		deviceDialog.setVisible(false);
 	}
 
-	public static Section getNearestSection(int x, int y){
+	public static Road getNearestRoad(int x, int y){
 		if(x < 0 || x >= trafficMap.getWidth() || y < 0 || y >= trafficMap.getHeight())
 			return null;
 		int min = Integer.MAX_VALUE, tmp;
-		Section section = null;
+		Road road = null;
 //		System.out.println(x+", "+y);
-		for(Section s : TrafficMap.sections.values()){
+		for(Road r : TrafficMap.roads.values()){
 //			System.out.println(s.name+"\t"+s.icon.coord.centerX+", "+s.icon.coord.centerY);
-			tmp = (int) (Math.pow(x-s.icon.coord.centerX, 2) + Math.pow(y-s.icon.coord.centerY, 2));
+			tmp = (int) (Math.pow(x-r.icon.coord.centerX, 2) + Math.pow(y-r.icon.coord.centerY, 2));
 			if(tmp < min){
-				section = s;
+				road = r;
 				min = tmp;
 			}
 		}
-		return section;
+		return road;
 	}
 
-	private static void updateRoadConditionPane(Section s){
-        if(s == null) {
+	private static void updateRoadConditionPane(Road road){
+        if(road == null) {
             roadta.setText("");
             return;
         }
         StringBuilder sb = new StringBuilder();
-		sb.append(s.name).append("\n");
-		if(s.getPermitted() != null){
+		sb.append(road.name).append("\n");
+		if(road.getPermitted() != null){
             sb.append("Permitted Car:\n");
-            sb.append(s.getPermitted().name).append("\n");
+            sb.append(road.getPermitted().name).append("\n");
         }
-		if(!s.cars.isEmpty()){
+		if(!road.cars.isEmpty()){
             sb.append("Cars:\n");
-			for(Car car : s.cars){
+			for(Car car : road.cars){
 				sb.append(car.name).append("\n");
 			}
 		}
-		if(!s.waiting.isEmpty()){
+		if(!road.waiting.isEmpty()){
             sb.append("Waiting Cars:\n");
-			for(Car car : s.waiting)
+			for(Car car : road.waiting)
                 sb.append(car.name).append("\n");
 		}
-		if(!s.realCars.isEmpty()){
+		if(!road.realCars.isEmpty()){
 			sb.append("Real Cars:\n");
-			for(Car car : s.realCars){
+			for(Car car : road.realCars){
 				sb.append(car.name).append("\n");
 			}
 		}
@@ -855,29 +854,29 @@ public class Dashboard extends JFrame{
                 switch (dt.phase) {
                     case Delivery.DeliveryTask.SEARCH_CAR:
                         append2pane(" at ", Color.BLACK, deliveryPane);
-                        append2pane(dt.src.name, Color.GRAY, deliveryPane);
+                        append2pane(dt.src.name, Resource.LIGHT_SKY_BLUE, deliveryPane);
                         append2pane(" needs a taxi to ", Color.BLACK, deliveryPane);
-                        append2pane(dt.dest.name, Color.GRAY, deliveryPane);
+                        append2pane(dt.dest.name, Resource.LIGHT_SKY_BLUE, deliveryPane);
                         break;
                     case Delivery.DeliveryTask.HEAD4SRC:
                         append2pane(" at ", Color.BLACK, deliveryPane);
-                        append2pane(dt.src.name, Color.GRAY, deliveryPane);
+                        append2pane(dt.src.name, Resource.LIGHT_SKY_BLUE, deliveryPane);
                         append2pane(" waits for ", Color.BLACK, deliveryPane);
                         append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
                         break;
                     case Delivery.DeliveryTask.HEAD4DEST:
                         append2pane(" gets on ", Color.BLACK, deliveryPane);
                         append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
-                        append2pane(" at ", Color.BLACK, deliveryPane);
+                        append2pane(" at ", Resource.LIGHT_SKY_BLUE, deliveryPane);
                         append2pane(dt.car.loc.name, Color.GRAY, deliveryPane);
                         append2pane(" and heads for ", Color.BLACK, deliveryPane);
-                        append2pane(dt.dest.name, Color.GRAY, deliveryPane);
+                        append2pane(dt.dest.name, Resource.LIGHT_SKY_BLUE, deliveryPane);
                         break;
                     case Delivery.DeliveryTask.COMPLETED:
                         append2pane(" gets off ", Color.BLACK, deliveryPane);
                         append2pane(dt.car.name, dt.car.icon.color, deliveryPane);
                         append2pane(" at ", Color.BLACK, deliveryPane);
-                        append2pane(dt.car.loc.name, Color.GRAY, deliveryPane);
+                        append2pane(dt.car.loc.name, Resource.LIGHT_SKY_BLUE, deliveryPane);
                         break;
                 }
                 append2pane("\n", Color.BLACK, deliveryPane);
@@ -1010,26 +1009,26 @@ public class Dashboard extends JFrame{
         startdButton.setEnabled(b);
     }
 
-    private class SectionIconListener extends MouseAdapter{
-		Section section = null;
+    private class RoadIconListener extends MouseAdapter{
+		Road road = null;
 
-		SectionIconListener(Section section) {
-			this.section = section;
+		RoadIconListener(Road road) {
+			this.road = road;
 		}
 		public void mousePressed(MouseEvent e) {
-			if (section == null || !section.icon.isEnabled())
+			if (road == null || !road.icon.isEnabled())
 				return;
-//			System.out.println(section.name);
+//			System.out.println(road.name);
 			// for delivery tasks
 			if (delivSelModeOn) {
 				if (src == null) {
-					src = section;
+					src = road;
 					updateDeliverySrcPanel();
 				}
 				else if (dest == null) {
-					if (src instanceof Section && section.sameAs((Section) src))
+					if (src instanceof Road && road.sameAs((Road) src))
 						return;
-					dest = section;
+					dest = road;
 					updateDeliveryDestPanel();
 					deliverButton.setEnabled(true);
 				}
@@ -1041,31 +1040,31 @@ public class Dashboard extends JFrame{
 //					radioButtonGroup.clearSelection();
 //					for (int i = 0; i < 4; i++)
 //						dirButtons[i].setEnabled(false);
-//					if (section.cars.contains(car)) {
+//					if (road.cars.contains(car)) {
 //						car.dir = -1;
-//						car.leave(section);
+//						car.leave(road);
 //					} else {
-//						dirButtons[section.dir[0]].setEnabled(true);
-//						if (section.dir[1] >= 0)
-//							dirButtons[section.dir[1]].setEnabled(true);
+//						dirButtons[road.dir[0]].setEnabled(true);
+//						if (road.dir[1] >= 0)
+//							dirButtons[road.dir[1]].setEnabled(true);
 //
 //						if (car.dir >= 0 && dirButtons[car.dir].isEnabled()) {
 //							dirButtons[car.dir].setSelected(true);
 //							// dirButtons[selectedCar.dir].doClick();
 //						} else {
-//							dirButtons[section.dir[0]].setSelected(true);
-//							car.dir = section.dir[0];
-//							// dirButtons[section.dir[0]].doClick();
+//							dirButtons[road.dir[0]].setSelected(true);
+//							car.dir = road.dir[0];
+//							// dirButtons[road.dir[0]].doClick();
 //						}
-//						car.enter(section);
+//						car.enter(road);
 //					}
-//					PkgHandler.send(new AppPkg().setCar(car.name, car.dir, section.name));
+//					PkgHandler.send(new AppPkg().setCar(car.name, car.dir, road.name));
 //				}
 //			}
 //			else if (e.getButton() == MouseEvent.BUTTON3) {
                 // right click
             else {
-				updateRoadConditionPane(section);
+				updateRoadConditionPane(road);
 			}
 		}
 	}

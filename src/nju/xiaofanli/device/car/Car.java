@@ -1,10 +1,11 @@
 package nju.xiaofanli.device.car;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.city.Citizen;
-import nju.xiaofanli.city.Section;
+import nju.xiaofanli.city.Road;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
@@ -30,10 +31,10 @@ public class Car {
 	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int lastCmd = Command.STOP;
     public int trend = STOPPED; // Only used by suspend and wake!
-    public Section loc = null;
+    public Road loc = null;
 	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
 	public Delivery.DeliveryTask dt = null;
-	public Section dest = null;
+	public Road dest = null;
 	public boolean isLoading = false;//loading or unloading
 	public long lastCmdTime = System.currentTimeMillis();//used for waking cars
 	public long stopTime = System.currentTimeMillis();//used for delivery
@@ -42,7 +43,7 @@ public class Car {
     public boolean isHornOn = false; //only for crash
     public boolean isInCrash = false;
 	
-	public Section realLoc = null;//if this car become a phantom, then this variable stores it's real location 
+	public Road realLoc = null;//if this car become a phantom, then this variable stores it's real location
 	public int realDir;
 
     private final String url;
@@ -64,12 +65,12 @@ public class Car {
 	public static final String ORANGE = "Orange Car";
     public static final String[] allCarNames = { SILVER, GREEN, RED, WHITE, BLACK, ORANGE };
 	
-	public Car(String name, Section loc, String url) {
+	public Car(String name, Road loc, String url, String iconFile) {
 		this.name = name;
 		this.loc = loc;
         this.url = url;
-		this.icon = new CarIcon(name);
-        this.icon.addActionListener(e -> Dashboard.setSelectedCar(this));
+		this.icon = new CarIcon(name, iconFile);
+//        this.icon.addActionListener(e -> Dashboard.setSelectedCar(this));
 	}
 	
 	public void reset(){
@@ -89,14 +90,14 @@ public class Car {
 	}
 
 	public void notifyPolice(int cmd) {
-		Police.add(this, dir, loc, cmd, loc.adjSects.get(dir));
+		Police.add(this, dir, loc, cmd, loc.adjRoads.get(dir));
 	}
 
 	public void notifyPolice(int cmd, boolean fromUser) {
-        Police.add(this, dir, loc, cmd, loc.adjSects.get(dir), fromUser);
+        Police.add(this, dir, loc, cmd, loc.adjRoads.get(dir), fromUser);
     }
 
-	public void notifyPolice(int cmd, Section requested) {
+	public void notifyPolice(int cmd, Road requested) {
 		if(requested == null)
 			return;
 		Police.add(this, dir, loc, cmd, requested);
@@ -116,15 +117,15 @@ public class Car {
         if(sensor == null || !firstEntry)
             return;
         firstEntry = false;
-        loc = sensor.nextSection;
+        loc = sensor.nextRoad;
         if(dir == TrafficMap.UNKNOWN_DIR) {
             dir = loc.dir[1] == TrafficMap.UNKNOWN_DIR ? loc.dir[0] : sensor.dir;
             PkgHandler.send(new AppPkg().setDir(name, dir));
         }
-        sensor.nextSection.cars.add(this);
+        sensor.nextRoad.cars.add(this);
         PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
         Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter",
-                sensor.prevSection.name, sensor.nextSection.name, sensor.nextSensor.nextSection.name,
+                sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
     }
 
@@ -132,7 +133,7 @@ public class Car {
 		if(loc != null && firstEntry){
             Sensor sensor = null;
             for(Sensor s : loc.adjSensors.values())
-                if(s.nextSection.sameAs(loc)) {
+                if(s.nextRoad.sameAs(loc)) {
                     sensor = s;
                     break;
                 }
@@ -214,17 +215,20 @@ public class Car {
         }
     }
 	
-	public void enter(Section section){
-		if(section == null || section.sameAs(loc))
+	public void enter(Road road, int dir){
+		if(road == null || road.sameAs(loc))
 			return;
-		notifyPolice(Police.BEFORE_ENTRY, section);
-		Section prev = loc;
-		loc = section;
-		leave(prev, true);
-		section.cars.add(this);
-		notifyPolice(Police.AFTER_ENTRY, section);
-		section.icon.repaintAll();
-        section.checkRealCrash();
+		notifyPolice(Police.BEFORE_ENTRY, road);
+		leave(loc, true);
+        loc = road;
+		loc.cars.add(this);
+        this.dir = dir;
+		notifyPolice(Police.AFTER_ENTRY, road);
+        if (hasPhantom() && loc.sameAs(realLoc) && dir == realDir) {
+            resetRealInfo();
+        }
+		road.icon.repaintAll();
+        road.checkRealCrash();
 
         //trigger entering event
         if(EventManager.hasListener(Event.Type.CAR_ENTER))
@@ -238,24 +242,24 @@ public class Car {
         }
 	}
 
-//	public void leave(Section section){
-//		leave(section, true);
+//	public void leave(Road road){
+//		leave(road, true);
 //	}
 
-	public void leave(Section section, boolean withEntry){
-		if(section == null)
+	public void leave(Road road, boolean withEntry){
+		if(road == null)
 			return;
-		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, section.adjSects.get(dir));
-		section.cars.remove(this);
-		if(loc == section)
-			loc = null;
-		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, section);
-		section.icon.repaintAll();
-        section.checkRealCrash();
+		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, road.adjRoads.get(dir));
+		road.cars.remove(this);
+//		if(loc == road)
+//			loc = null;
+		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, road);
+		road.icon.repaintAll();
+        road.checkRealCrash();
 
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
-			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, name, section.name));
+			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, name, road.name));
 	}
 	
 	public void setLoading(boolean loading){
@@ -265,6 +269,10 @@ public class Car {
 		loc.icon.repaintAll();
 	}
 
+	public boolean getLoading() {
+        return isLoading;
+    }
+
 	public void saveRealInfo(){
         loc.realCars.add(this);
         realLoc = loc;
@@ -272,15 +280,13 @@ public class Car {
     }
 
     public void loadRealInfo(){
-        Section fakeLoc = loc;
+        leave(loc, false);
         loc = realLoc;
-        leave(fakeLoc, false);
-        realLoc.realCars.remove(this);
         dir = realDir;
         resetRealInfo();
     }
 
-    public void setRealInfo(Section loc, int dir) {
+    public void setRealInfo(Road loc, int dir) {
         realLoc.realCars.remove(this);
         realLoc.icon.repaintAll();
         realLoc.checkRealCrash();
@@ -297,7 +303,10 @@ public class Car {
     }
 
     public void resetRealInfo() {
-        realLoc = null;
+        if(realLoc != null) {
+            realLoc.realCars.remove(this);
+            realLoc = null;
+        }
         realDir = TrafficMap.UNKNOWN_DIR;
     }
 
@@ -357,13 +366,13 @@ public class Car {
             case Car.GREEN:
                 return Color.GREEN;
             case Car.SILVER:
-                return CarIcon.SILVER;
+                return Resource.SILVER;
             default:
                 return null;
         }
     }
 
-    public Section getRealLoc(){
+    public Road getRealLoc(){
 		return !hasPhantom() ? loc : realLoc;
 	}
 
@@ -372,31 +381,31 @@ public class Car {
         return allCarNames[random.nextInt(allCarNames.length)];
     }
 
-	public static class CarIcon extends JButton{
+	public static class CarIcon extends JLabel{
 		private static final long serialVersionUID = 1L;
 		private final String name;
 		public static final int SIZE = (int) (0.8*TrafficMap.SH);
 		public static final int INSET = (int) (0.2*TrafficMap.SH);
-		public static final Color SILVER = new Color(192, 192, 192);
         public final Color color;
-		CarIcon(String name) {
+        private ImageIcon imageIcon;
+		CarIcon(String name, String iconFile) {
 			setOpaque(false);
-			setContentAreaFilled(false);
+//			setContentAreaFilled(false);
 			setPreferredSize(new Dimension(SIZE, SIZE));
+            imageIcon = Resource.loadImage(iconFile, SIZE, SIZE);
+            setIcon(imageIcon);
 //			setBorderPainted(false);
 			this.name = name;
             color = colorOf(name);
-//			setSize(AVATAR_SIZE, AVATAR_SIZE);
-//			setMinimumSize(new Dimension(size, size));
 		}
 		
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			g.setColor(color);
-			g.fillRect(0, 0, SIZE, SIZE);
-			g.setColor(Color.BLACK);
-			g.drawRect(0, 0, SIZE, SIZE);
-		}
+//		protected void paintComponent(Graphics g) {
+//			super.paintComponent(g);
+//			g.setColor(color);
+//			g.fillRect(0, 0, SIZE, SIZE);
+//			g.setColor(Color.BLACK);
+//			g.drawRect(0, 0, SIZE, SIZE);
+//		}
 	}
 }
 

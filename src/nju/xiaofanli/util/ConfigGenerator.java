@@ -25,12 +25,12 @@ public class ConfigGenerator {
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.GREEN);
-		car.addAttribute("loc", "Crossing 6");
+		car.addAttribute("loc", "Crossroad 6");
         car.addAttribute("url", "btspp://000666459D35:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");
 		car.addAttribute("name", Car.ORANGE);
-		car.addAttribute("loc", "Crossing 7");
+		car.addAttribute("loc", "Crossroad 7");
         car.addAttribute("url", "btspp://00066649960C:1;authenticate=true;encrypt=true");
 		
 		car = root.addElement("car");

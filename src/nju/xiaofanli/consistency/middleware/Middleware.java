@@ -106,14 +106,14 @@ public class Middleware {
                     break;
                 case Context.FP:{
                     if (dEnabled)
-                        sensor.nextSection.displayBalloon(Context.FP, sensor.name, car.name, rEnabled);
+                        sensor.displayBalloon(Context.FP, car.name, rEnabled);
                     if (!rEnabled && dEnabled) //if (!rEnabled)
                         BrickHandler.switchState(car, sensor, isRealCar, false);
                 }
                 break;
                 case Context.FN:
                     if (dEnabled)
-                        sensor.nextSection.displayBalloon(Context.FN, sensor.name, car.name, rEnabled);
+                        sensor.displayBalloon(Context.FN, car.name, rEnabled);
                     if (rEnabled || !dEnabled && !rEnabled) //if (rEnabled)
                         BrickHandler.switchState(car, sensor, isRealCar, true);
                     break;
@@ -189,8 +189,8 @@ public class Middleware {
 
 //    private static void addTrueContexts(){
 //        Resource.getConnectedCars().stream().filter(car -> car.loc != null && car.dir != TrafficMap.UNKNOWN_DIR).forEach(car -> {
-//            Section next = car.loc.adjSects.get(car.dir);
-//            Section prev = car.loc.exit2entrance.get(next);
+//            Road next = car.loc.adjRoads.get(car.dir);
+//            Road prev = car.loc.exit2entrance.get(next);
 //            Context context = getContext(car.name, car.dir, Car.MOVING, "movement", "enter", prev.name, car.loc.name,
 //                    System.currentTimeMillis(), null, null);
 //            Map<String, List<ContextChange>> changes = getChanges(context);

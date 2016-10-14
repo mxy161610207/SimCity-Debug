@@ -15,10 +15,10 @@ public class AppMonitor implements EventListener {
 			break;
 		}
 		case DELIVERY_RELEASED:
-			PkgHandler.send(new AppPkg().setDelivery(event.dtask.id, null, event.dtask.src.name, event.dtask.dest.name, event.dtask.phase));
+			PkgHandler.send(new AppPkg().setDelivery(event.dt.id, null, event.dt.src.name, event.dt.dest.name, event.dt.phase));
 			break;
 		case DELIVERY_COMPLETED:
-			PkgHandler.send(new AppPkg().setDelivery(event.dtask.id, event.dtask.car.name, event.dtask.src.name, event.dtask.dest.name, event.dtask.phase));
+			PkgHandler.send(new AppPkg().setDelivery(event.dt.id, event.dt.car.name, event.dt.src.name, event.dt.dest.name, event.dt.phase));
 			break;
 		case CAR_START_LOADING:
 			PkgHandler.send(new AppPkg().setLoading(event.car, true));

@@ -7,13 +7,13 @@ import java.util.Set;
 
 import nju.xiaofanli.application.Delivery;
 
-public class Event implements Cloneable{
+public class Event {
 	public String time = null;
 	public Type type = null;
 	public String car = null;
 	public String location = null;
 	public Set<String> crashedCars = null;// only for CAR_CRASH type
-	public Delivery.DeliveryTask dtask = null;//only for DELIVERY type
+	public Delivery.DeliveryTask dt = null;//only for DELIVERY type
 	public int cmd = -1;//only for REQUEST and RESPONSE type
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS");
 	
@@ -34,6 +34,14 @@ public class Event implements Cloneable{
 		this.location = location;
 	}
 
+	public Event(Type type, String car, String location, Delivery.DeliveryTask dt) {
+		this.time = sdf.format(new Date());
+		this.type = type;
+		this.car = car;
+		this.location = location;
+		this.dt = dt;
+	}
+
 	public Event(Type type, Set<String> crashedCars, String location) {
 		this.time = sdf.format(new Date());
 		this.type = type;
@@ -41,10 +49,10 @@ public class Event implements Cloneable{
 		this.location = location;
 	}
 	
-	public Event(Type type, Delivery.DeliveryTask dtask) {
+	public Event(Type type, Delivery.DeliveryTask dt) {
 		this.time = sdf.format(new Date());
 		this.type = type;
-		this.dtask = dtask;
+		this.dt = dt;
 	}
 
 	public Event(Type type, String car, String location, int cmd) {
@@ -53,16 +61,5 @@ public class Event implements Cloneable{
 		this.car = car;
 		this.location = location;
 		this.cmd = cmd;
-	}
-
-	@Override
-	protected Event clone() throws CloneNotSupportedException {
-		Event event = (Event) super.clone();
-		if(event.crashedCars != null){
-			Set<String> crashedCars = new HashSet<>();
-			crashedCars.addAll(event.crashedCars);
-			event.crashedCars = crashedCars;
-		}
-		return event;
 	}
 }

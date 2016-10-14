@@ -29,7 +29,7 @@ public class AppPkg implements Serializable{
 	public boolean isVisible;
 
 	int ctxType;
-	String sensor, section;
+	String sensor, road;
 	boolean isResolutionEnabled;
 
 	public AppPkg() {
@@ -150,9 +150,8 @@ public class AppPkg implements Serializable{
 		return this;
 	}
 
-	public AppPkg setBalloon(String section, int ctxType, String sensor, String car, boolean isResolutionEnabled){
+	public AppPkg setBalloon(int ctxType, String sensor, String car, boolean isResolutionEnabled){
 		type = 15;
-		this.section = section;
 		this.ctxType = ctxType;
 		this.sensor = sensor;
 		this.car = car;

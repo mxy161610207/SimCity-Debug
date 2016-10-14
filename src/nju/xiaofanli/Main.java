@@ -3,7 +3,7 @@ import nju.xiaofanli.application.*;
 import nju.xiaofanli.application.monitor.AppServer;
 import nju.xiaofanli.city.Building;
 import nju.xiaofanli.city.Citizen;
-import nju.xiaofanli.city.Section;
+import nju.xiaofanli.city.Road;
 import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
@@ -12,6 +12,7 @@ import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.CmdSender;
 import nju.xiaofanli.device.sensor.BrickServer;
+import nju.xiaofanli.device.sensor.RandomDataGenerator;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 import nju.xiaofanli.util.ConfigGenerator;
@@ -41,7 +42,7 @@ public class Main {
 		new Delivery();
 		new AppServer();
 //		new CitizenActivityGenerator();
-//        new RandomDataGenerator();
+        new RandomDataGenerator();
 		initial = false;
         TrafficMap.checkRealCrash();
 	}
@@ -51,7 +52,8 @@ public class Main {
 		EventManager.register(new VehicleConditionMonitor(), Arrays.asList(Event.Type.ADD_CAR, Event.Type.CAR_CRASH,
                 Event.Type.CAR_ENTER, Event.Type.CAR_LEAVE, Event.Type.CAR_LEAVE, Event.Type.CAR_MOVE, Event.Type.CAR_STOP,
                 Event.Type.CAR_START_LOADING, Event.Type.CAR_END_LOADING, Event.Type.CAR_START_UNLOADING, Event.Type.CAR_END_UNLOADING));
-		EventManager.register(new CarLoadingMonitor(), Arrays.asList(Event.Type.CAR_START_LOADING, Event.Type.CAR_START_UNLOADING));
+//		EventManager.register(new CarLoadingMonitor(), Arrays.asList(Event.Type.CAR_START_LOADING, Event.Type.CAR_END_LOADING,
+//				Event.Type.CAR_START_UNLOADING, Event.Type.CAR_END_UNLOADING));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -67,7 +69,8 @@ public class Main {
 		Element root = doc.getRootElement();
 		List<Element> list = root.elements("car");
 		for(Element elm : list){
-			Car car = new Car(elm.attributeValue("name"), Section.sectionOf(elm.attributeValue("loc")), elm.attributeValue("url"));
+			Car car = new Car(elm.attributeValue("name"), Road.roadOf(elm.attributeValue("loc")),
+                    elm.attributeValue("url"), elm.attributeValue("icon"));
 			TrafficMap.cars.put(car.name, car);
             TrafficMap.carList.add(car);
 		}

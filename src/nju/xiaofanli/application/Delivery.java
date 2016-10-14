@@ -23,7 +23,7 @@ public class Delivery {
     public static int completedUserDelivNum = 0, completedSysDelivNum = 0;
 
     public Delivery() {
-        MAX_USER_DELIV_NUM = Resource.getCars().size() > 1 ? 1 : 0;
+        MAX_USER_DELIV_NUM = Resource.getCars().size() >= 1 ? 1 : 0;
         MAX_SYS_DELIV_NUM = Resource.getCars().size() - MAX_USER_DELIV_NUM;
 
 		new Thread(carSearcher, "Car Searcher").start();
@@ -52,10 +52,10 @@ public class Delivery {
 				synchronized (searchTasks) {
 					dt = searchTasks.peek();
 					int minDis = Integer.MAX_VALUE;
-					if(dt.src instanceof Section)
-						res = searchCar((Section) dt.src);
+					if(dt.src instanceof Road)
+						res = searchCar((Road) dt.src);
 					else{
-						for(Section src : ((Building)dt.src).addrs){
+						for(Road src : ((Building)dt.src).addrs){
 							Result tmp = searchCar(src);
 							if(allBusy)
 								break;
@@ -72,13 +72,13 @@ public class Delivery {
 					searchTasks.poll();
 				}
 				car = res.car;
-				car.dest = res.section;
+				car.dest = res.road;
 				car.dt = dt;
 				dt.car = car;
 				dt.phase = DeliveryTask.HEAD4SRC;
 				if(car.hasPhantom())
-					Dashboard.playErrorSound();
-				if(car.dest.sameAs(car.loc) && car.state == Car.STOPPED){
+                    Dashboard.playErrorSound();
+				if(!car.hasPhantom() && car.dest.sameAs(car.loc) && car.state == Car.STOPPED){
                     car.setLoading(true);
                     Command.send(car, Command.WHISTLE2);
                     //trigger start loading event
@@ -103,30 +103,30 @@ public class Delivery {
 			}
 		}
 
-		//search for the nearest car that drives to sect
-		private Result searchCar(Section start){
+		//search for the nearest car that drives to start
+		private Result searchCar(Road start){
 			if(start == null)
 				return null;
 			for(Car car : start.cars)
 			    if(car.dest == null)
 			        return new Result(car, 0, start);
 
-			Queue<Section> queue = new LinkedList<>(start.exit2entrance.values());
-			Section[] prev = {start, start};
+			Queue<Road> queue = new LinkedList<>(start.exit2entrance.values());
+			Road[] prev = {start, start};
 			int dis[] = {0, 0}, i = 0;
 			boolean oneWay = start.exit2entrance.size() == 1;
 			while(!queue.isEmpty()){
-				Section sect = queue.poll();
+				Road road = queue.poll();
 				dis[i]++;
-//				System.out.println(sect.name+"\t"+dis[i]);
-                for(Car car : sect.cars)
-                    if(car.dest == null && sect.adjSects.get(car.dir).sameAs(prev[i])) // the car is empty and its dir is right
+//				System.out.println(road.name+"\t"+dis[i]);
+                for(Car car : road.cars)
+                    if(car.dest == null && road.adjRoads.get(car.dir).sameAs(prev[i])) // the car is empty and its dir is right
                         return new Result(car, dis[i], start);
 
-                Section next = sect.exit2entrance.get(prev[i]);
+                Road next = road.exit2entrance.get(prev[i]);
                 if(next == null) {
-                    for (Section s : prev[i].combined) {
-                        next = sect.exit2entrance.get(s);
+                    for (Road r : prev[i].combined) {
+                        next = road.exit2entrance.get(r);
                         if (next != null)
                             break;
                     }
@@ -135,7 +135,7 @@ public class Delivery {
                     throw new NullPointerException();
                 if(!next.sameAs(start)){
                     queue.add(next);
-                    prev[i] = sect;
+                    prev[i] = road;
                     if(!oneWay)
                         i = 1 - i;
                 }
@@ -151,11 +151,11 @@ public class Delivery {
 		class Result{
 			public Car car;
 			public int dis;
-			public Section section;
-			public Result(Car car, int dis, Section section) {
+			public Road road;
+			public Result(Car car, int dis, Road road) {
 				this.car = car;
 				this.dis = dis;
-				this.section = section;
+				this.road = road;
 			}
 		}
 	};
@@ -199,14 +199,21 @@ public class Delivery {
                         continue;
                     }
                     Car car = dt.car;
-                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED
+                    if (!car.hasPhantom() && car.loc.sameAs(car.dest) && car.state == Car.STOPPED
                             && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
                         //head for the src
                         if(dt.phase == DeliveryTask.HEAD4SRC){
                             dt.phase = DeliveryTask.HEAD4DEST;
-                            car.dest = dt.dest instanceof Section ? (Section)dt.dest : selectNearestSection(car.loc, car.dir, ((Building)dt.dest).addrs);
+                            car.dest = dt.dest instanceof Road ? (Road)dt.dest : selectNearestRoad(car.loc, car.dir, ((Building)dt.dest).addrs);
                             car.setLoading(false);
-//                            Dashboard.log(car.name+" finished loading");
+
+                            if(dt.citizen != null && dt.citizen.state == Citizen.Action.HailATaxi) {
+                                car.passengers.add(dt.citizen);
+                                dt.citizen.car = car;
+                                dt.citizen.setAction(Citizen.Action.TakeATaxi);
+                                Dashboard.log(Arrays.asList(car.name, " picks up ", dt.citizen.name, " at ",  car.loc.name, "\n"),
+                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.LIGHT_SKY_BLUE));
+                            }
                             //trigger end loading event
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
                                 EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
@@ -255,10 +262,17 @@ public class Delivery {
 //                                Location dest = TrafficMap.getALocationExcept(src);
 //                                add(src, dest, false);
 //                            }
-//                            Dashboard.log(car.name+" finished unloading");
+                            if(dt.citizen != null && dt.citizen.state == Citizen.Action.TakeATaxi){
+                                car.passengers.remove(dt.citizen);
+                                dt.citizen.car = null;
+                                dt.citizen.loc = car.loc;
+                                dt.citizen.setAction(Citizen.Action.GetOff);
+                                Dashboard.log(Arrays.asList(car.name, " drops off ", dt.citizen.name, " at ",  car.loc.name, "\n"),
+                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.LIGHT_SKY_BLUE));
+                            }
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
-                                EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name));
+                                EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name, dt));
 //                            //trigger complete event
 //                            if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
 //                                try {
@@ -285,23 +299,23 @@ public class Delivery {
         }
     };
 	
-	private Section selectNearestSection(Section start, int dir, Set<Section> sects){
-		if(sects == null)
+	private Road selectNearestRoad(Road start, int dir, Set<Road> roads){
+		if(roads == null)
 			return null;
-		if(sects.contains(start))
+		if(roads.contains(start))
 			return start;
-		Queue<Section> queue = new LinkedList<>();
-		queue.add(start.adjSects.get(dir));//may be wrong
-		Section prev = start;
+		Queue<Road> queue = new LinkedList<>();
+		queue.add(start.adjRoads.get(dir));//may be wrong
+		Road prev = start;
 		while(!queue.isEmpty()){
-			Section sect = queue.poll();
-			if(sects.contains(sect))
-				return sect;
+			Road road = queue.poll();
+			if(roads.contains(road))
+				return road;
 			
-			Section next = sect.entrance2exit.get(prev);
+			Road next = road.entrance2exit.get(prev);
 			if(next == null) {
-                for (Section s : prev.combined) {
-                    next = sect.entrance2exit.get(s);
+                for (Road r : prev.combined) {
+                    next = road.entrance2exit.get(r);
                     if (next != null)
                         break;
                 }
@@ -310,7 +324,7 @@ public class Delivery {
                 throw new NullPointerException();
 			if(!next.sameAs(start))
 				queue.add(next);
-			prev = sect;
+			prev = road;
 		}
 		return null;
 	}
@@ -324,13 +338,10 @@ public class Delivery {
 		}
 		Dashboard.updateDeliveryTaskPanel();
 		//trigger release event
-		if(EventManager.hasListener(Event.Type.DELIVERY_RELEASED))
-			try {
-				EventManager.trigger(new Event(Event.Type.DELIVERY_RELEASED, dtask.clone()));
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
-			}
-	}
+		if(EventManager.hasListener(Event.Type.DELIVERY_RELEASED)) {
+            EventManager.trigger(new Event(Event.Type.DELIVERY_RELEASED, dtask));
+        }
+    }
 
 	public static void startSysDelivery() {
         for (int i = 0;i < MAX_SYS_DELIV_NUM;i++) {
@@ -394,7 +405,7 @@ public class Delivery {
         completedSysDelivNum = completedUserDelivNum = 0;
     }
 	
-	public static class DeliveryTask implements Cloneable{
+	public static class DeliveryTask {
 		public int id;
 		public Location src = null, dest = null;
 		public Car car;
@@ -416,10 +427,6 @@ public class Delivery {
 			this.startTime = System.currentTimeMillis();
 			this.citizen = citizen;
             this.createdByUser = createdByUser;
-		}
-		
-		protected DeliveryTask clone() throws CloneNotSupportedException {
-			return (DeliveryTask) super.clone();
 		}
 
 		public static final String css = "<style type=\"text/css\">\n" +
