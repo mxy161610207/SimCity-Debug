@@ -1,4 +1,4 @@
-package nju.xiaofanli.city;
+package nju.xiaofanli.dashboard;
 
 import java.awt.*;
 import java.util.*;
@@ -6,23 +6,22 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.Road.Crossroad;
-import nju.xiaofanli.city.Road.Crossroad.CrossroadIcon;
-import nju.xiaofanli.city.Road.Street;
-import nju.xiaofanli.city.Road.Street.StreetIcon;
 import nju.xiaofanli.device.sensor.Sensor;
 
 public class TrafficMap extends JPanel{
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    private static TrafficMap instance = null;
 	public static final boolean DIRECTION = true;
 	public static final ConcurrentMap<String, Car> cars = new ConcurrentHashMap<>();
     public static final List<Car> carList = new ArrayList<>();
 	public static final Set<Car> connectedCars = new HashSet<>();
-	public static final Crossroad[] crossroads = new Crossroad[9];
-	public static final Street[] streets = new Street[32];
+	public static final Road.Crossroad[] crossroads = new Road.Crossroad[9];
+	public static final Road.Street[] streets = new Road.Street[32];
 	public static final Map<String, Road> roads = new HashMap<>();
     public static final Map<String, Location> locations = new HashMap<>();
     public static final List<Location> locationList = new ArrayList<>();
@@ -30,6 +29,8 @@ public class TrafficMap extends JPanel{
 	public static final List<Citizen> citizens = new ArrayList<>();
     public static final List<Citizen> freeCitizens = new ArrayList<>();
 	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
+    private static final JTextArea roadta = new JTextArea();
+    static final JScrollPane roadtaScroll = new JScrollPane(roadta);
 	
 	public static final int SH = 48;//street height
 	private static final int SW = SH * 2;//street width
@@ -52,7 +53,7 @@ public class TrafficMap extends JPanel{
             crossroads[i] = new Road.Crossroad();
         }
         for(int i = 0;i < streets.length;i++) {
-            streets[i] = new Street();
+            streets[i] = new Road.Street();
         }
 
         sensors[0] = new Sensor[2];
@@ -65,9 +66,19 @@ public class TrafficMap extends JPanel{
         sensors[7] = new Sensor[4];
         sensors[8] = new Sensor[3];
         sensors[9] = new Sensor[2];
+
+        //      roadta.setLineWrap(true);
+//		roadta.setWrapStyleWord(true);
+        roadta.setEditable(false);
+        roadta.setBackground(Color.WHITE);
+        roadta.setFont(Resource.plain17dialog);
+        roadtaScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location info",
+                TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
+        ((TitledBorder) roadtaScroll.getBorder()).setTitleFont(Resource.bold16dialog);
+        roadtaScroll.setBackground(Color.LIGHT_GRAY);
     }
 
-	public TrafficMap() {
+	private TrafficMap() {
 		setLayout(null);
 		setSize(new Dimension(SIZE, SIZE));
 		setMinimumSize(new Dimension(SIZE, SIZE));
@@ -80,6 +91,10 @@ public class TrafficMap extends JPanel{
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 add(sensor.icon);
+
+        roadtaScroll.setVisible(false);
+        roadtaScroll.setSize(U3, U3);
+		add(roadtaScroll);
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 add(sensor.balloon);
@@ -106,6 +121,8 @@ public class TrafficMap extends JPanel{
         citizens.forEach(Citizen::reset);
         freeCitizens.clear();
         freeCitizens.addAll(citizens);
+        roadta.setText("");
+        roadtaScroll.setVisible(false);
 	}
 
 	private static Random random = new Random();
@@ -264,7 +281,7 @@ public class TrafficMap extends JPanel{
 			crossroads[i].id = i;
 			crossroads[i].name = "Crossroad " + i;
             roads.put(crossroads[i].name, crossroads[i]);
-			crossroads[i].icon = new CrossroadIcon();
+			crossroads[i].icon = new Road.Crossroad.CrossroadIcon();
 			crossroads[i].icon.id = i;
 			crossroads[i].icon.road = crossroads[i];
 //			crossroads[i].icon.coord.x = (i%3+1)*u;
@@ -282,14 +299,14 @@ public class TrafficMap extends JPanel{
 			streets[i].id = i;
 			streets[i].name = "Street " + i;
             roads.put(streets[i].name, streets[i]);
-			streets[i].icon = new StreetIcon();
+			streets[i].icon = new Road.Street.StreetIcon();
 			streets[i].icon.id = i;
 			streets[i].icon.road = streets[i];
 			int quotient = i / 8;
 			int remainder = i % 8;
 			//vertical streets
 			if(remainder > 1 && remainder < 6){
-				((StreetIcon )streets[i].icon).isVertical = true;
+				((Road.Street.StreetIcon)streets[i].icon).isVertical = true;
 				streets[i].icon.coord.w = SH;
 				streets[i].icon.coord.arcw = AW;
 				streets[i].icon.coord.arch = AW;
@@ -319,7 +336,7 @@ public class TrafficMap extends JPanel{
 			}
 			//horizontal streets
 			else{
-				((StreetIcon )streets[i].icon).isVertical = false;
+				((Road.Street.StreetIcon)streets[i].icon).isVertical = false;
 				streets[i].icon.coord.h = SH;
 				streets[i].icon.coord.arcw = AW;
 				streets[i].icon.coord.arch = AW;
@@ -469,13 +486,13 @@ public class TrafficMap extends JPanel{
 		}
 	}
 
-	private static void setSensor(Sensor sensor, Road.Crossroad crossroad, Street street, int dir){
+	private static void setSensor(Sensor sensor, Road.Crossroad crossroad, Road.Street street, int dir){
 		sensor.dir = TrafficMap.DIRECTION ? dir : oppositeDirOf(dir);
 		sensor.crossroad = crossroad;
 		sensor.street = street;
 		
 		Road road = roadBehind(sensor);
-		if(road instanceof Crossroad){
+		if(road instanceof Road.Crossroad){
 			sensor.isEntrance = true;
 			sensor.nextRoad = sensor.crossroad;
 			sensor.prevRoad = sensor.street;
@@ -492,7 +509,7 @@ public class TrafficMap extends JPanel{
 		}
 		
 		sensor.prevRoad.adjSensors.put(sensor.dir, sensor);
-		if(sensor.nextRoad.isCombined() && sensor.nextRoad instanceof Street)
+		if(sensor.nextRoad.isCombined() && sensor.nextRoad instanceof Road.Street)
 			sensor.nextRoad.adjSensors.put(oppositeDirOf(sensor.nextRoad.dir[0]), sensor);
 		else
 			sensor.nextRoad.adjSensors.put(oppositeDirOf(sensor.dir), sensor);
@@ -621,7 +638,7 @@ public class TrafficMap extends JPanel{
 	
 	private static void setAccess(Road road, int entry, int exit){
 		Road in, out;
-		if(road instanceof Crossroad){
+		if(road instanceof Road.Crossroad){
 			in = streets[entry];
 			out = streets[exit];
 		}
@@ -691,6 +708,51 @@ public class TrafficMap extends JPanel{
             set.remove(road);
             set.removeAll(road.combined);
         }
+    }
+
+    public static void updateRoadInfoPane(Location loc) {
+        if(loc == null) {
+            roadta.setText("");
+            return;
+        }
+        if(loc instanceof Building)
+            TrafficMap.roadta.setText(loc.name);
+        else if(loc instanceof Road) {
+            Road road = (Road) loc;
+            StringBuilder sb = new StringBuilder();
+            sb.append(road.name).append("\n");
+            if(road.getPermitted() != null){
+                sb.append("Permitted Car:\n");
+                sb.append(road.getPermitted().name).append("\n");
+            }
+            if(!road.cars.isEmpty()){
+                sb.append("Cars:\n");
+                for(Car car : road.cars){
+                    sb.append(car.name).append("\n");
+                }
+            }
+            if(!road.waiting.isEmpty()){
+                sb.append("Waiting Cars:\n");
+                for(Car car : road.waiting)
+                    sb.append(car.name).append("\n");
+            }
+            if(!road.realCars.isEmpty()){
+                sb.append("Real Cars:\n");
+                for(Car car : road.realCars){
+                    sb.append(car.name).append("\n");
+                }
+            }
+            TrafficMap.roadta.setText(sb.toString());
+        }
+    }
+
+    public static TrafficMap getInstance(){
+        if(instance == null)
+            synchronized (TrafficMap.class) {
+                if(instance == null)
+                    instance = new TrafficMap();
+            }
+        return instance;
     }
 
 	public static void enableSensorIcons(boolean enable) {

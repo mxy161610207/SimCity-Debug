@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.city.Road;
+import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.dashboard.Dashboard;

@@ -1,4 +1,4 @@
-package nju.xiaofanli.city;
+package nju.xiaofanli.dashboard;
 
 import nju.xiaofanli.Resource;
 

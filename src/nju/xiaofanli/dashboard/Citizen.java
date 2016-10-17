@@ -1,11 +1,10 @@
-package nju.xiaofanli.city;
+package nju.xiaofanli.dashboard;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
-import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Car.CarIcon;
 

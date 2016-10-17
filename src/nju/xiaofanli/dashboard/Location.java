@@ -1,4 +1,4 @@
-package nju.xiaofanli.city;
+package nju.xiaofanli.dashboard;
 
 public abstract class Location {
 	public int id;

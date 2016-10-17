@@ -1,4 +1,4 @@
-package nju.xiaofanli.city;
+package nju.xiaofanli.dashboard;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -18,11 +18,8 @@ import javax.swing.JButton;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Car.CarIcon;
-import nju.xiaofanli.city.Road.Crossroad.CrossroadIcon;
-import nju.xiaofanli.city.Road.Street.StreetIcon;
-import nju.xiaofanli.dashboard.Dashboard;
-import nju.xiaofanli.application.monitor.AppPkg;
-import nju.xiaofanli.application.monitor.PkgHandler;
+import nju.xiaofanli.dashboard.Road.Crossroad.CrossroadIcon;
+import nju.xiaofanli.dashboard.Road.Street.StreetIcon;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.Sensor;
@@ -154,7 +151,7 @@ public abstract class Road extends Location{
 		protected void paintComponent(Graphics g) {
 //			System.out.println(road.name);
 			super.paintComponent(g);
-			g.setFont(Dashboard.bold16dialog);
+			g.setFont(Resource.bold16dialog);
             FontMetrics fm = g.getFontMetrics();
 			int n = road.realCars.size();
 			for(Car car : road.cars)

@@ -1,4 +1,5 @@
 package nju.xiaofanli.dashboard;
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
 
@@ -50,19 +51,19 @@ class DPad extends JPanel{
 //		add(new JPanel());
 //		add(jbb);
 //		add(startB);
-		setLayout(new GridLayout(1, 2, 5, 5));
+		setLayout(new GridLayout(1, 4, 5, 5));
 		JButton jbf = new JButton("Start");
-        jbf.setFont(Dashboard.bold16dialog);
+        jbf.setFont(Resource.bold16dialog);
 		add(jbf);
         JButton jbs = new JButton("Stop");
-        jbs.setFont(Dashboard.bold16dialog);
+        jbs.setFont(Resource.bold16dialog);
         add(jbs);
-        JButton jbl = new JButton("Left");
-        jbl.setEnabled(false);
-        JButton jbr = new JButton("Right");
-        jbr.setEnabled(false);
-        JButton jbb = new JButton("Backward");
-        jbb.setEnabled(false);
+//        JButton jbl = new JButton("Left");
+//        jbl.setEnabled(false);
+//        JButton jbr = new JButton("Right");
+//        jbr.setEnabled(false);
+//        JButton jbb = new JButton("Backward");
+//        jbb.setEnabled(false);
 //		startB.setEnabled(false);
 		jbs.addActionListener(arg -> {
 			Car car = Dashboard.getSelectedCar();

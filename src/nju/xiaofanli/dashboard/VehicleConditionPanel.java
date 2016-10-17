@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.swing.*;
 
 import nju.xiaofanli.Resource;
-import nju.xiaofanli.city.TrafficMap;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Car.CarIcon;
 
@@ -61,7 +60,7 @@ class VehicleConditionPanel extends JPanel{
 //            text.setWrapStyleWord(true);
 			text.setEditable(false);
 			text.setBackground(null);
-            text.setFont(Dashboard.plain15dialog);
+            text.setFont(Resource.plain17dialog);
 
 			setLayout(new GridBagLayout());
 			gbc.insets = new Insets(1, 5, 1, 5);

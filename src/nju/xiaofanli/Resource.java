@@ -17,21 +17,26 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
-import nju.xiaofanli.city.Citizen;
-import nju.xiaofanli.city.Road;
+import nju.xiaofanli.dashboard.Citizen;
+import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.sensor.Sensor;
 
 public class Resource {
+    public static final Font bold16dialog = new Font(Font.DIALOG, Font.BOLD, 16);
+    public static final Font bold15dialog = new Font(Font.DIALOG, Font.BOLD, 15);
+    public static final Font plain17dialog = new Font(Font.DIALOG, Font.PLAIN, 17);
+    public static final Font bold20dialog = new Font(Font.DIALOG, Font.BOLD, 20);
     private static ExecutorService threadPool = Executors.newCachedThreadPool();
 	private static Map<String, String> brickAddr = new HashMap<>();
 	private final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON;
 	private final static ImageIcon BLACK_QUESTION_ICON, GREEN_CHECK_ICON, ORANGE_CHECK_ICON, RED_X_ICON;
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
+	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
     public static final Color SILVER = new Color(192, 192, 192);
     private static Color LIGHT_GREEN = new Color(0, 255, 127);
     public static Color CHOCOLATE = new Color(139, 69, 19);

@@ -2,7 +2,7 @@ package nju.xiaofanli.application;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.city.Citizen;
+import nju.xiaofanli.dashboard.Citizen;
 
 public class CitizenActivityGenerator implements Runnable{
     public CitizenActivityGenerator(){

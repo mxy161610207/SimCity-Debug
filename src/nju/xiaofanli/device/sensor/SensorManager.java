@@ -1,7 +1,7 @@
 package nju.xiaofanli.device.sensor;
 
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.dashboard.TrafficMap;
 
 import java.util.HashSet;
 import java.util.LinkedList;

@@ -2,9 +2,8 @@ package nju.xiaofanli.application;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.city.*;
 import nju.xiaofanli.control.Police;
-import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.dashboard.*;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
@@ -18,14 +17,14 @@ public class Delivery {
 	public static final Set<DeliveryTask> deliveryTasks = new HashSet<>();
 	private static int taskid = 0;
 	public static boolean allBusy = false;
-    private static int MAX_USER_DELIV_NUM, MAX_SYS_DELIV_NUM;
+    public static int MAX_USER_DELIV_NUM, MAX_SYS_DELIV_NUM;
     private static int userDelivNum = 0, sysDelivNum = 0;
     public static int completedUserDelivNum = 0, completedSysDelivNum = 0;
+    public static boolean autoGenTasks = false;
 
     public Delivery() {
-        MAX_USER_DELIV_NUM = Resource.getCars().size() >= 1 ? 1 : 0;
+        MAX_USER_DELIV_NUM = Resource.getCars().size() >= 2 ? 1 : 0;
         MAX_SYS_DELIV_NUM = Resource.getCars().size() - MAX_USER_DELIV_NUM;
-
 		new Thread(carSearcher, "Car Searcher").start();
 		new Thread(carMonitor, "Car Monitor").start();
 	}
@@ -189,9 +188,8 @@ public class Delivery {
                         }
                         else {
                             sysDelivNum--;
-                            Location src = TrafficMap.getALocation();
-                            Location dest = TrafficMap.getALocationExcept(src);
-                            add(src, dest, false);
+                            if(autoGenTasks)
+                                autoGenTasks();
                         }
                         if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
                             EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt));
@@ -212,7 +210,7 @@ public class Delivery {
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
                                 Dashboard.log(Arrays.asList(car.name, " picks up ", dt.citizen.name, " at ",  car.loc.name, "\n"),
-                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.LIGHT_SKY_BLUE));
+                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.DEEP_SKY_BLUE));
                             }
                             //trigger end loading event
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
@@ -268,7 +266,7 @@ public class Delivery {
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
                                 Dashboard.log(Arrays.asList(car.name, " drops off ", dt.citizen.name, " at ",  car.loc.name, "\n"),
-                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.LIGHT_SKY_BLUE));
+                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.DEEP_SKY_BLUE));
                             }
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
@@ -343,7 +341,7 @@ public class Delivery {
         }
     }
 
-	public static void startSysDelivery() {
+	public static void autoGenTasks() {
         for (int i = 0;i < MAX_SYS_DELIV_NUM;i++) {
             Location src = TrafficMap.getALocation();
             Location dest = TrafficMap.getALocationExcept(src);

@@ -7,7 +7,7 @@
 package nju.xiaofanli.consistency.middleware;
 
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.consistency.context.ContextChange;
 import nju.xiaofanli.consistency.context.Pattern;
@@ -218,7 +218,7 @@ public class Middleware {
     }
 
     public static void main(String[] args) {
-    	new TrafficMap();
+    	TrafficMap.getInstance();
 		new Middleware();
         File file = new File("src/nju/xiaofanli/consistency/config/test case.txt");
 

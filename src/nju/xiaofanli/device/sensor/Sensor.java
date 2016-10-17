@@ -3,9 +3,9 @@ package nju.xiaofanli.device.sensor;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
-import nju.xiaofanli.city.Road;
-import nju.xiaofanli.city.Road.Crossroad;
-import nju.xiaofanli.city.Road.Street;
+import nju.xiaofanli.dashboard.Road;
+import nju.xiaofanli.dashboard.Road.Crossroad;
+import nju.xiaofanli.dashboard.Road.Street;
 import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
@@ -14,7 +14,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public class Sensor {
         leaveThreshold = (int) (undetectedReading[bid][sid] * 0.9);//entryThreshold + 1; //11;
 
         icon = new JButton(name);
-        icon.setFont(Dashboard.bold16dialog);
+        icon.setFont(Resource.bold16dialog);
         icon.setVisible(false);
         icon.setMargin(new Insets(0, 0, 0, 0));
         icon.addMouseListener(new SensorIconListener(this));

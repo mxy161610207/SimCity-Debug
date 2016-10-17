@@ -1,10 +1,10 @@
 package nju.xiaofanli;
 import nju.xiaofanli.application.*;
 import nju.xiaofanli.application.monitor.AppServer;
-import nju.xiaofanli.city.Building;
-import nju.xiaofanli.city.Citizen;
-import nju.xiaofanli.city.Road;
-import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.dashboard.Building;
+import nju.xiaofanli.dashboard.Citizen;
+import nju.xiaofanli.dashboard.Road;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
@@ -32,7 +32,6 @@ public class Main {
 		readConfigFile();
 		Dashboard.getInstance().loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready
-		Dashboard.getInstance().loadCtrlUI();
 
 		addModule();
         new BrickServer();
@@ -43,6 +42,7 @@ public class Main {
 		new AppServer();
 //		new CitizenActivityGenerator();
         new RandomDataGenerator();
+		Dashboard.getInstance().loadCtrlUI();
 		initial = false;
         TrafficMap.checkRealCrash();
 	}

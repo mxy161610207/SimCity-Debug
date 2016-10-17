@@ -3,8 +3,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.city.Building;
-import nju.xiaofanli.city.Citizen;
+import nju.xiaofanli.dashboard.Building;
+import nju.xiaofanli.dashboard.Citizen;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;

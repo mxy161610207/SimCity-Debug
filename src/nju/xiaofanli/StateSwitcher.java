@@ -1,8 +1,8 @@
 package nju.xiaofanli;
 
 import nju.xiaofanli.application.Delivery;
-import nju.xiaofanli.city.Road;
-import nju.xiaofanli.city.TrafficMap;
+import nju.xiaofanli.dashboard.Road;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
@@ -239,9 +239,8 @@ public class StateSwitcher {
 			locatedCars.clear();
 			carInfo.clear();
 
-            Dashboard.reset();
 			Dashboard.enableCtrlUI(true);
-            Dashboard.enableDeliveryButton(true);
+			Dashboard.reset();
 			setState(State.NORMAL);
 
             TrafficMap.checkRealCrash();
