@@ -8,6 +8,7 @@ import nju.xiaofanli.consistency.context.ContextChange;
 import nju.xiaofanli.consistency.context.Pattern;
 import nju.xiaofanli.consistency.context.Rule;
 import nju.xiaofanli.consistency.formula.Link;
+import nju.xiaofanli.util.Pair;
 
 class Operation {
 	private static HashMap<String,Pattern> patterns;
@@ -77,7 +78,7 @@ class Operation {
 		return true;
 	}
 	
-	static AbstractMap.SimpleImmutableEntry<Integer, List<Context>> operate(Map<String, List<ContextChange>> changes, String strategy) {
+	static Pair<Integer, List<Context>> operate(Map<String, List<ContextChange>> changes, String strategy) {
 		if(changes.isEmpty())
 			return null;
 		if(strategy.equals("Drop-latest")){
@@ -88,10 +89,10 @@ class Operation {
 					for(int j = i - 1;j >= 0;j--)
 						Resolution.resolve(rules.get(entries.get(j).getKey()), entries.get(j).getValue(), null, strategy);
 					//if an inconsistency is detected, then no need to check the rest (already violated)
-					return new AbstractMap.SimpleImmutableEntry<>(Context.FP, null); //TODO currently only support FP detection
+					return new Pair<>(Context.FP, null); //TODO currently only support FP detection
 				}
 			}
-			return new AbstractMap.SimpleImmutableEntry<>(Context.Normal, null);
+			return new Pair<>(Context.Normal, null);
 		}
 		return null;
 	}

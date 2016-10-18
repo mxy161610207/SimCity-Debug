@@ -12,6 +12,7 @@ import javax.swing.border.TitledBorder;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.Pair;
 
 public class TrafficMap extends JPanel{
     private static final long serialVersionUID = 1L;
@@ -29,8 +30,8 @@ public class TrafficMap extends JPanel{
 	public static final List<Citizen> citizens = new ArrayList<>();
     public static final List<Citizen> freeCitizens = new ArrayList<>();
 	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
-    private static final JTextArea roadta = new JTextArea();
-    static final JScrollPane roadtaScroll = new JScrollPane(roadta);
+    private static final JTextPane roadPane = new JTextPane();
+    static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
 	
 	public static final int SH = 48;//street height
 	private static final int SW = SH * 2;//street width
@@ -67,15 +68,15 @@ public class TrafficMap extends JPanel{
         sensors[8] = new Sensor[3];
         sensors[9] = new Sensor[2];
 
-        //      roadta.setLineWrap(true);
-//		roadta.setWrapStyleWord(true);
-        roadta.setEditable(false);
-        roadta.setBackground(Color.WHITE);
-        roadta.setFont(Resource.plain17dialog);
-        roadtaScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location info",
+        //      roadPane.setLineWrap(true);
+//		roadPane.setWrapStyleWord(true);
+        roadPane.setEditable(false);
+        roadPane.setBackground(Color.WHITE);
+        roadPane.setFont(Resource.plain17dialog);
+        roadPaneScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location info",
                 TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
-        ((TitledBorder) roadtaScroll.getBorder()).setTitleFont(Resource.bold16dialog);
-        roadtaScroll.setBackground(Color.LIGHT_GRAY);
+        ((TitledBorder) roadPaneScroll.getBorder()).setTitleFont(Resource.bold16dialog);
+        roadPaneScroll.setBackground(Color.LIGHT_GRAY);
     }
 
 	private TrafficMap() {
@@ -92,9 +93,9 @@ public class TrafficMap extends JPanel{
             for (Sensor sensor : array)
                 add(sensor.icon);
 
-        roadtaScroll.setVisible(false);
-        roadtaScroll.setSize(U3, U3);
-		add(roadtaScroll);
+        roadPaneScroll.setVisible(false);
+        roadPaneScroll.setSize(U3, U3);
+		add(roadPaneScroll);
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 add(sensor.balloon);
@@ -121,8 +122,8 @@ public class TrafficMap extends JPanel{
         citizens.forEach(Citizen::reset);
         freeCitizens.clear();
         freeCitizens.addAll(citizens);
-        roadta.setText("");
-        roadtaScroll.setVisible(false);
+        roadPane.setText("");
+        roadPaneScroll.setVisible(false);
 	}
 
 	private static Random random = new Random();
@@ -711,38 +712,91 @@ public class TrafficMap extends JPanel{
     }
 
     public static void updateRoadInfoPane(Location loc) {
-        if(loc == null) {
-            roadta.setText("");
-            return;
-        }
-        if(loc instanceof Building)
-            TrafficMap.roadta.setText(loc.name);
-        else if(loc instanceof Road) {
-            Road road = (Road) loc;
-            StringBuilder sb = new StringBuilder();
-            sb.append(road.name).append("\n");
-            if(road.getPermitted() != null){
-                sb.append("Permitted Car:\n");
-                sb.append(road.getPermitted().name).append("\n");
+        synchronized (roadPane) {
+            roadPane.setText("");
+            if (loc == null)
+                return;
+
+            if (loc instanceof Building)
+                Dashboard.append2pane(loc.name, Color.BLACK, roadPane);
+            else if (loc instanceof Road) {
+                List<Pair<String, Color>> strings = new ArrayList<>();
+                strings.add(new Pair<>(loc.name, Color.BLACK));
+
+                Road road = (Road) loc;
+                Set<Car> allCars = new HashSet<>();
+                allCars.addAll(road.cars);
+                allCars.addAll(road.realCars);
+                allCars.addAll(road.waiting);
+                if (road.getPermitted() != null)
+                    allCars.add(road.getPermitted());
+
+                if(!allCars.isEmpty())
+                    strings.add(new Pair<>("\n", null));
+                allCars.forEach(car -> {
+                    boolean hasBracket = false;
+                    strings.add(new Pair<>(car.name, car.icon.color));
+                    StringBuilder sb = new StringBuilder();
+                    if (car.hasPhantom()) {
+                        if (road.cars.contains(car)) {
+                            hasBracket = true;
+                            sb.append(" (Fake");
+                        }
+                        if (road.realCars.contains(car)) {
+                            if (!hasBracket) {
+                                hasBracket = true;
+                                sb.append(" (Real");
+                            }
+                            else
+                                sb.append(", Real");
+                        }
+                    }
+                    if (car == road.getPermitted()) {
+                        if (!hasBracket) {
+                            hasBracket = true;
+                            sb.append(" (Permitted");
+                        }
+                        else
+                            sb.append(", Permitted");
+                    }
+                    if (road.waiting.contains(car)) {
+                        if (!hasBracket) {
+                            hasBracket = true;
+                            sb.append(" (Waiting");
+                        }
+                        else
+                            sb.append(", Waiting");
+                    }
+                    sb.append(hasBracket ? ")\n" : "\n");
+                    strings.add(new Pair<>(sb.toString(), Color.BLACK));
+                });
+                Dashboard.append2pane(strings, roadPane);
+
+//                StringBuilder sb = new StringBuilder();
+//                sb.append(road.name).append("\n");
+//                if (road.getPermitted() != null) {
+//                    sb.append("Permitted Car:\n");
+//                    sb.append(road.getPermitted().name).append("\n");
+//                }
+//                if (!road.cars.isEmpty()) {
+//                    sb.append("Cars:\n");
+//                    for (Car car : road.cars) {
+//                        sb.append(car.name).append("\n");
+//                    }
+//                }
+//                if (!road.waiting.isEmpty()) {
+//                    sb.append("Waiting Cars:\n");
+//                    for (Car car : road.waiting)
+//                        sb.append(car.name).append("\n");
+//                }
+//                if (!road.realCars.isEmpty()) {
+//                    sb.append("Real Cars:\n");
+//                    for (Car car : road.realCars) {
+//                        sb.append(car.name).append("\n");
+//                    }
+//                }
+//                roadPane.setText(sb.toString());
             }
-            if(!road.cars.isEmpty()){
-                sb.append("Cars:\n");
-                for(Car car : road.cars){
-                    sb.append(car.name).append("\n");
-                }
-            }
-            if(!road.waiting.isEmpty()){
-                sb.append("Waiting Cars:\n");
-                for(Car car : road.waiting)
-                    sb.append(car.name).append("\n");
-            }
-            if(!road.realCars.isEmpty()){
-                sb.append("Real Cars:\n");
-                for(Car car : road.realCars){
-                    sb.append(car.name).append("\n");
-                }
-            }
-            TrafficMap.roadta.setText(sb.toString());
         }
     }
 

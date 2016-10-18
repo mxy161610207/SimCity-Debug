@@ -18,6 +18,7 @@ import nju.xiaofanli.consistency.dataLoader.RuleLoader;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -95,12 +96,12 @@ public class Middleware {
 
             Map<String, List<ContextChange>> changes = getChanges(context);
             // check consistency
-            AbstractMap.SimpleImmutableEntry<Integer, List<Context>> res = Operation.operate(changes, resolutionStrategy);
+            Pair<Integer, List<Context>> res = Operation.operate(changes, resolutionStrategy);
             if(res == null)
                 continue;
 
             // update cars' and sensors' states
-            switch (res.getKey()) {
+            switch (res.first) {
                 case Context.Normal:
                     BrickHandler.switchState(car, sensor, isRealCar, true);
                     break;

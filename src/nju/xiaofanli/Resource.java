@@ -32,8 +32,9 @@ public class Resource {
     public static final Font bold20dialog = new Font(Font.DIALOG, Font.BOLD, 20);
     private static ExecutorService threadPool = Executors.newCachedThreadPool();
 	private static Map<String, String> brickAddr = new HashMap<>();
-	private final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON;
-	private final static ImageIcon BLACK_QUESTION_ICON, GREEN_CHECK_ICON, ORANGE_CHECK_ICON, RED_X_ICON;
+	public final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON, BLACK_QUESTION_ICON, GREEN_CHECK_ICON,
+			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,
+            RIGHT_ARROW_ICON, QUESTION_MARK_ICON;
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
@@ -49,6 +50,13 @@ public class Resource {
 		GREEN_CHECK_ICON = loadImage("res/green_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		ORANGE_CHECK_ICON = loadImage("res/orange_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		RED_X_ICON = loadImage("res/red_x_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+        MOVING_ICON = loadImage("res/play_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
+        STOP_ICON = loadImage("res/stop_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
+        UP_ARROW_ICON = loadImage("res/up_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
+        DOWN_ARROW_ICON = loadImage("res/down_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
+        LEFT_ARROW_ICON = loadImage("res/left_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
+        RIGHT_ARROW_ICON = loadImage("res/right_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
+        QUESTION_MARK_ICON = loadImage("res/question_mark_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
 		try {
 			//use ssh-keyscan $IP >> brick/known_hosts
 			JSCH.setKnownHosts("brick/known_hosts");

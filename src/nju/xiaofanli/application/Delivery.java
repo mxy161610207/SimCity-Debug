@@ -8,9 +8,11 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
+import nju.xiaofanli.util.Pair;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Delivery {
 	public static final Queue<DeliveryTask> searchTasks = new LinkedList<>();
@@ -23,7 +25,7 @@ public class Delivery {
     public static boolean autoGenTasks = false;
 
     public Delivery() {
-        MAX_USER_DELIV_NUM = Resource.getCars().size() >= 2 ? 1 : 0;
+        MAX_USER_DELIV_NUM = Resource.getCars().size() >= 1 ? 1 : 0;
         MAX_SYS_DELIV_NUM = Resource.getCars().size() - MAX_USER_DELIV_NUM;
 		new Thread(carSearcher, "Car Searcher").start();
 		new Thread(carMonitor, "Car Monitor").start();
@@ -209,8 +211,14 @@ public class Delivery {
                                 car.passengers.add(dt.citizen);
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
-                                Dashboard.log(Arrays.asList(car.name, " picks up ", dt.citizen.name, " at ",  car.loc.name, "\n"),
-                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.DEEP_SKY_BLUE));
+                                List<Pair<String, Color>> strings = new ArrayList<>();
+                                strings.add(new Pair<>(car.name, car.icon.color));
+                                strings.add(new Pair<>(" picks up ", Color.BLACK));
+                                strings.add(new Pair<>(dt.citizen.name, dt.citizen.icon.color));
+                                strings.add(new Pair<>(" at ", Color.BLACK));
+                                strings.add(new Pair<>(car.loc.name, Resource.DEEP_SKY_BLUE));
+                                strings.add(new Pair<>("\n", null));
+                                Dashboard.log(strings);
                             }
                             //trigger end loading event
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
@@ -265,8 +273,14 @@ public class Delivery {
                                 dt.citizen.car = null;
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
-                                Dashboard.log(Arrays.asList(car.name, " drops off ", dt.citizen.name, " at ",  car.loc.name, "\n"),
-                                        Arrays.asList(car.icon.color, Color.BLACK, dt.citizen.icon.color, Color.BLACK, Resource.DEEP_SKY_BLUE));
+                                List<Pair<String, Color>> strings = new ArrayList<>();
+                                strings.add(new Pair<>(car.name, car.icon.color));
+                                strings.add(new Pair<>(" drops off ", Color.BLACK));
+                                strings.add(new Pair<>(dt.citizen.name, dt.citizen.icon.color));
+                                strings.add(new Pair<>(" at ", Color.BLACK));
+                                strings.add(new Pair<>(car.loc.name, Resource.DEEP_SKY_BLUE));
+                                strings.add(new Pair<>("\n", null));
+                                Dashboard.log(strings);
                             }
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
