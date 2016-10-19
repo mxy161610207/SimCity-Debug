@@ -1,13 +1,13 @@
 package nju.xiaofanli.device.car;
 
+import nju.xiaofanli.Resource;
+import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.event.Event;
+import nju.xiaofanli.event.EventManager;
+
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-
-import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.Resource;
-import nju.xiaofanli.event.Event;
-import nju.xiaofanli.event.EventManager;
 
 public class Command {
 	public Car car = null;
@@ -60,9 +60,9 @@ public class Command {
 			return;
 		CmdSender.send(car, cmd);
 		if(cmd == STOP || cmd == MOVE_FORWARD){
-            boolean isForward = cmd == MOVE_FORWARD;
+            boolean isMoving = cmd == MOVE_FORWARD;
             car.lastCmd = cmd;
-			if(isForward) {
+			if(isMoving) {
                 car.setState(Car.MOVING);
 				//trigger move event
 				if(EventManager.hasListener(Event.Type.CAR_MOVE))

@@ -3,7 +3,7 @@
 
     <!--<car name="Green Car" loc="Crossroad 6" url="btspp://000666459D35:1;authenticate=true;encrypt=true" icon="res/green_car_icon.png"/>-->
     <!--<car name="Red Car" loc="Street 24" url="btspp://000666619F38:1;authenticate=true;encrypt=true" icon="res/red_car_icon.png"/>-->
-    <car name="Silver SUV" loc="Street 23" url="btspp://00066661A901:1;authenticate=true;encrypt=true" icon="res/silver_suv_icon.png"/>
+    <!--<car name="Silver SUV" loc="Street 23" url="btspp://00066661A901:1;authenticate=true;encrypt=true" icon="res/silver_suv_icon.png"/>-->
     <!--<car name="White Car" loc="Street 28" url="btspp://00066661AA61:1;authenticate=true;encrypt=true" icon="res/white_car_icon.png"/>-->
     <!--<car name="Black Car" loc="Street 18" url="btspp://00066649A8C4:1;authenticate=true;encrypt=true" icon="res/black_car_icon.png"/>-->
     <!--<car name="Orange Car" loc="Crossroad 7" url="btspp://00066649960C:1;authenticate=true;encrypt=true" icon="res/orange_car_icon.png"/>-->

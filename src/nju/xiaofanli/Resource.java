@@ -29,12 +29,13 @@ public class Resource {
     public static final Font bold16dialog = new Font(Font.DIALOG, Font.BOLD, 16);
     public static final Font bold15dialog = new Font(Font.DIALOG, Font.BOLD, 15);
     public static final Font plain17dialog = new Font(Font.DIALOG, Font.PLAIN, 17);
+    public static final Font bold17dialog = new Font(Font.DIALOG, Font.BOLD, 17);
     public static final Font bold20dialog = new Font(Font.DIALOG, Font.BOLD, 20);
     private static ExecutorService threadPool = Executors.newCachedThreadPool();
 	private static Map<String, String> brickAddr = new HashMap<>();
 	public final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON, BLACK_QUESTION_ICON, GREEN_CHECK_ICON,
 			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,
-            RIGHT_ARROW_ICON, QUESTION_MARK_ICON;
+            RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON, CAR_ICON, FAKE_CAR_ICON, REAL_CAR_ICON;
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
@@ -57,6 +58,11 @@ public class Resource {
         LEFT_ARROW_ICON = loadImage("res/left_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
         RIGHT_ARROW_ICON = loadImage("res/right_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
         QUESTION_MARK_ICON = loadImage("res/question_mark_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
+		CROSSROAD_ICON = loadImage("res/crossroad_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
+        STREET_ICON = loadImage("res/street_icon.png", TrafficMap.SH, TrafficMap.SH/2);
+        CAR_ICON = loadImage("res/green_car_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
+        FAKE_CAR_ICON = loadImage("res/fake_car_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
+        REAL_CAR_ICON = loadImage("res/real_car_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
 		try {
 			//use ssh-keyscan $IP >> brick/known_hosts
 			JSCH.setKnownHosts("brick/known_hosts");

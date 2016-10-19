@@ -81,10 +81,12 @@ public class Dashboard extends JFrame{
     public static boolean blink = false;
     private static final Runnable blinkThread = new Runnable() {
         private final int duration = 500;
+        private int count = 0;
         public void run() {
             //noinspection InfiniteLoopStatement
             while(true){
                 blink = !blink;
+                count++;
                 for(Sensor[] array : Resource.getSensors())
                     for(Sensor sensor : array) {
                         if(sensor.balloon.duration > 0){
@@ -100,6 +102,26 @@ public class Dashboard extends JFrame{
                     if (!road.cars.isEmpty() && road.cars.peek().isLoading)
                         road.icon.repaint();
                 }
+
+//                if (count % 4 == 0) {
+//                    switch (TrafficMap.fakeCarIconLabel.getText()){
+//                        case "Fake car":
+//                            TrafficMap.fakeCarIconLabel.setText("(caused by"); break;
+//                        case "(caused by":
+//                            TrafficMap.fakeCarIconLabel.setText("inconsistent data)"); break;
+//                        case "inconsistent data)":
+//                            TrafficMap.fakeCarIconLabel.setText("Fake car"); break;
+//                    }
+//
+//                    switch (TrafficMap.realCarIconLabel.getText()){
+//                        case "Real car":
+//                            TrafficMap.realCarIconLabel.setText("(invisible to"); break;
+//                        case "(invisible to":
+//                            TrafficMap.realCarIconLabel.setText("other cars)"); break;
+//                        case "other cars)":
+//                            TrafficMap.realCarIconLabel.setText("Real car"); break;
+//                    }
+//                }
                 try {
                     Thread.sleep(duration);
                 } catch (InterruptedException e) {
@@ -963,7 +985,7 @@ public class Dashboard extends JFrame{
         carbox.setSelectedItem(car.name);
     }
 
-    static Car getSelectedCar(){
+    public static Car getSelectedCar(){
         if(carbox.getItemCount() == 0)
             return null;
         return Car.carOf((String) carbox.getSelectedItem());
@@ -1016,6 +1038,22 @@ public class Dashboard extends JFrame{
 
     public static void enableDeliveryButton(boolean b){
         startdButton.setEnabled(b);
+    }
+
+    public static void enableStartCarButton(boolean b) {
+        startCarButton.setEnabled(b);
+    }
+
+    public static void enableStopCarButton(boolean b) {
+        stopCarButton.setEnabled(b);
+    }
+
+    public static void enableStartAllCarsButton(boolean b) {
+        startAllCarsButton.setEnabled(b);
+    }
+
+    public static void enableStopAllCarsButton(boolean b) {
+        stopAllCarsButton.setEnabled(b);
     }
 
     private class RoadIconListener extends MouseAdapter{

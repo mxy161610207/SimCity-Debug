@@ -79,7 +79,7 @@ public class Delivery {
 				dt.phase = DeliveryTask.HEAD4SRC;
 				if(car.hasPhantom())
                     Dashboard.playErrorSound();
-				if(!car.hasPhantom() && car.dest.sameAs(car.loc) && car.state == Car.STOPPED){
+				if(car.dest.sameAs(car.loc) && car.state == Car.STOPPED){
                     car.setLoading(true);
                     Command.send(car, Command.WHISTLE2);
                     //trigger start loading event
@@ -199,7 +199,7 @@ public class Delivery {
                         continue;
                     }
                     Car car = dt.car;
-                    if (!car.hasPhantom() && car.loc.sameAs(car.dest) && car.state == Car.STOPPED
+                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED
                             && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
                         //head for the src
                         if(dt.phase == DeliveryTask.HEAD4SRC){

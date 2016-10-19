@@ -12,6 +12,7 @@ import javax.swing.border.TitledBorder;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.MarqueeLabel;
 import nju.xiaofanli.util.Pair;
 
 public class TrafficMap extends JPanel{
@@ -32,10 +33,18 @@ public class TrafficMap extends JPanel{
 	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
+    static final JLabel crossroadIconLabel = new JLabel("Crossroad", Resource.CROSSROAD_ICON, SwingConstants.LEADING);
+    static final JLabel streetIconLabel = new JLabel("Street", Resource.STREET_ICON, SwingConstants.LEADING);
+    static final JLabel carIconLabel = new JLabel("Normal car", Resource.CAR_ICON, SwingConstants.LEADING);
+    static final JLabel fakeCarIconLabel = new MarqueeLabel("Fake car (caused by inconsistent context)",
+            Resource.FAKE_CAR_ICON, SwingConstants.LEADING, 26);
+    static final JLabel realCarIconLabel = new MarqueeLabel("Real car (invisible to other cars)",
+            Resource.REAL_CAR_ICON, SwingConstants.LEADING, 26);
+    private static final List<JLabel> iconLabels = Arrays.asList(crossroadIconLabel, streetIconLabel, carIconLabel, fakeCarIconLabel, realCarIconLabel);
 	
 	public static final int SH = 48;//street height
-	private static final int SW = SH * 2;//street width
-	private static final int CW = (int) (SH * 1.5);//crossroad width
+	public static final int SW = SH * 2;//street width
+	public static final int CW = (int) (SH * 1.5);//crossroad width
 	private static final int AW = CW / 2;
 	private static final int U1 = CW + SW;
 	private static final int U2 = (CW-SH)/2;
@@ -77,6 +86,8 @@ public class TrafficMap extends JPanel{
                 TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
         ((TitledBorder) roadPaneScroll.getBorder()).setTitleFont(Resource.bold16dialog);
         roadPaneScroll.setBackground(Color.LIGHT_GRAY);
+
+        iconLabels.forEach(label -> label.setFont(Resource.bold17dialog));
     }
 
 	private TrafficMap() {
@@ -108,9 +119,17 @@ public class TrafficMap extends JPanel{
             add(building.icon);
             locations.put(building.name, building);
 		});
+        locationList.addAll(locations.values());
         roads.values().forEach(road -> add(road.icon));
 
-        locationList.addAll(locations.values());
+        final int[] hOffset = { 5 };
+        iconLabels.forEach(label -> {
+            FontMetrics fm = getFontMetrics(label.getFont());
+            label.setBounds(5, hOffset[0], label.getIcon().getIconWidth()+160,
+                    Math.max(label.getIcon().getIconHeight(), fm.getHeight()));
+            add(label);
+            hOffset[0] += label.getHeight() + 5;
+        });
 	}
 	
 	public static void reset(){

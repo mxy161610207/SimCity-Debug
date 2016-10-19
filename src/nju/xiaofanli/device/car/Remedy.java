@@ -133,14 +133,6 @@ public class Remedy implements Runnable{
 			return;
 
 		synchronized (queue) {
-//			int i;
-//			for(i = 0;i < queue.size();i++)
-//				if(queue.get(i).deadline > cmd.deadline){
-//					queue.add(i, cmd);
-//					break;
-//				}
-//			if(i == queue.size())
-//				queue.add(cmd);
 			int pos = Collections.binarySearch(queue, cmd, comparator);
 			if(pos < 0)
 				pos = -pos - 1;

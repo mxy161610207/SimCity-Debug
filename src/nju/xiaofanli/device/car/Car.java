@@ -31,6 +31,7 @@ public class Car {
 	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int lastCmd = Command.STOP;
     public int trend = STOPPED; // Only used by suspend and wake!
+//    public int lastCmdByUser = Command.STOP; //record the command button user clicked
     public Road loc = null;
 	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
 	public Delivery.DeliveryTask dt = null;
@@ -223,6 +224,12 @@ public class Car {
         loc = road;
 		loc.cars.add(this);
         this.dir = dir;
+        if(getState() != MOVING) {
+            setState(MOVING);
+            //trigger move event
+            if(EventManager.hasListener(Event.Type.CAR_MOVE))
+                EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
+        }
 		notifyPolice(Police.AFTER_ENTRY, road);
         if (hasPhantom() && loc.sameAs(realLoc) && dir == realDir) {
             resetRealInfo();
