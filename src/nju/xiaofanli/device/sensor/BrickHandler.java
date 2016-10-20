@@ -93,7 +93,6 @@ public class BrickHandler extends Thread{
                 Remedy.updateRemedyQWhenDetect(car);
 
                 //do triggered stuff
-//			    System.out.println(TrafficMap.nameOf(car.location)+"\t"+TrafficMap.nameOf(car.dest));
                 if(car.dest != null){
                     if(car.dest.sameAs(car.loc)){
                         car.notifyPolice(Police.REQUEST2STOP);
@@ -104,8 +103,6 @@ public class BrickHandler extends Thread{
                     }
                     else {
                         car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
-                        if(car.getLoading()) //for fake car keeping blinking
-                            car.setLoading(false);
                     }
                 }
                 else

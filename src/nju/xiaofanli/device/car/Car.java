@@ -31,7 +31,7 @@ public class Car {
 	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int lastCmd = Command.STOP;
     public int trend = STOPPED; // Only used by suspend and wake!
-//    public int lastCmdByUser = Command.STOP; //record the command button user clicked
+    private int availCmd = Command.MOVE_FORWARD; // available command
     public Road loc = null;
 	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
 	public Delivery.DeliveryTask dt = null;
@@ -77,8 +77,8 @@ public class Car {
 	public void reset(){
 		state = STOPPED;
 		lastCmd = Command.STOP;
+        availCmd = Command.MOVE_FORWARD;
         trend = STOPPED;
-//		finalState = STOPPED;
         loc = null;
 		dir = TrafficMap.UNKNOWN_DIR;
 		dt = null;
@@ -226,6 +226,8 @@ public class Car {
         this.dir = dir;
         if(getState() != MOVING) {
             setState(MOVING);
+            if(getLoading())
+                setLoading(false);
             //trigger move event
             if(EventManager.hasListener(Event.Type.CAR_MOVE))
                 EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
@@ -315,6 +317,46 @@ public class Car {
             realLoc = null;
         }
         realDir = TrafficMap.UNKNOWN_DIR;
+    }
+
+    public void setAvailCmd(int cmd) {
+        if (cmd != Command.MOVE_FORWARD && cmd != Command.STOP)
+            return;
+        availCmd = cmd;
+        boolean isMoving = cmd == Command.MOVE_FORWARD;
+        if (this == Dashboard.getSelectedCar()) {
+            Dashboard.enableStartCarButton(isMoving);
+            Dashboard.enableStopCarButton(!isMoving);
+        }
+
+        if (isMoving) {
+            Dashboard.enableStartAllCarsButton(true);
+            if (Dashboard.isStopAllCarsButtonEnabled()) {
+                boolean allStart = true;
+                for(Car car : Resource.getConnectedCars())
+                    if(car.availCmd == Command.STOP) {
+                        allStart = false;
+                        break;
+                    }
+                Dashboard.enableStopAllCarsButton(!allStart);
+            }
+        }
+        else {
+            Dashboard.enableStopAllCarsButton(true);
+            if (Dashboard.isStartAllCarsButtonEnabled()) {
+                boolean allStop = true;
+                for(Car car : Resource.getConnectedCars())
+                    if(car.availCmd == Command.MOVE_FORWARD) {
+                        allStop = false;
+                        break;
+                    }
+                Dashboard.enableStartAllCarsButton(!allStop);
+            }
+        }
+    }
+
+    public int getAvailCmd() {
+        return availCmd;
     }
 
 	public String getDirStr(){

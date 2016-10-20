@@ -33,13 +33,11 @@ public class TrafficMap extends JPanel{
 	public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
-    static final JLabel crossroadIconLabel = new JLabel("Crossroad", Resource.CROSSROAD_ICON, SwingConstants.LEADING);
-    static final JLabel streetIconLabel = new JLabel("Street", Resource.STREET_ICON, SwingConstants.LEADING);
-    static final JLabel carIconLabel = new JLabel("Normal car", Resource.CAR_ICON, SwingConstants.LEADING);
-    static final JLabel fakeCarIconLabel = new MarqueeLabel("Fake car (caused by inconsistent context)",
-            Resource.FAKE_CAR_ICON, SwingConstants.LEADING, 26);
-    static final JLabel realCarIconLabel = new MarqueeLabel("Real car (invisible to other cars)",
-            Resource.REAL_CAR_ICON, SwingConstants.LEADING, 26);
+    private static final JLabel crossroadIconLabel = new JLabel("Crossroad", Resource.CROSSROAD_ICON, SwingConstants.LEADING),
+            streetIconLabel = new JLabel("Street", Resource.STREET_ICON, SwingConstants.LEADING),
+            carIconLabel = new JLabel("Normal car", Resource.CAR_ICON, SwingConstants.LEADING),
+            fakeCarIconLabel = new MarqueeLabel("Fake car (caused by inconsistent context)", Resource.FAKE_CAR_ICON, SwingConstants.LEADING, 26),
+            realCarIconLabel = new MarqueeLabel("Real car (invisible to other cars)", Resource.REAL_CAR_ICON, SwingConstants.LEADING, 26);
     private static final List<JLabel> iconLabels = Arrays.asList(crossroadIconLabel, streetIconLabel, carIconLabel, fakeCarIconLabel, realCarIconLabel);
 	
 	public static final int SH = 48;//street height

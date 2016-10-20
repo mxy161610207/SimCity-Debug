@@ -63,6 +63,7 @@ public class Police implements Runnable{
 				switch (r.cmd) {
 					case REQUEST2STOP:
 						Command.send(r.car, Command.STOP);
+                        r.car.setAvailCmd(Command.MOVE_FORWARD);
 //						if(r.car.finalState == Car.STOPPED)
                         r.requested.removeWaitingCar(r.car); // there's not such a scene where finalState == moving
 //						else
@@ -75,6 +76,7 @@ public class Police implements Runnable{
 					case REQUEST2ENTER:
 					    if(r.car.isInCrash && !r.fromUser){
                             Command.send(r.car, Command.STOP);
+                            r.car.setAvailCmd(Command.MOVE_FORWARD);
                             r.requested.removeWaitingCar(r.car);
                             if(r.car == r.requested.getPermitted()){
                                 r.requested.setPermitted(null);
@@ -95,6 +97,7 @@ public class Police implements Runnable{
 							r.requested.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
 							Command.send(r.car, Command.URGE);
+                            r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.STOP));
@@ -104,6 +107,7 @@ public class Police implements Runnable{
 							System.out.println(r.car.name + " need to STOP!!!2");
 							r.requested.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
+                            r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.STOP));
@@ -113,6 +117,7 @@ public class Police implements Runnable{
 							System.out.println(r.car.name + " can ENTER!!!");
 							r.requested.setPermitted(r.car);
 							Command.send(r.car, Command.MOVE_FORWARD);
+                            r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.MOVE_FORWARD));
@@ -214,6 +219,7 @@ public class Police implements Runnable{
                             else if (car.loc.cars.peek() == car) {
                                 loc.setPermitted(car);
                                 Command.send(car, Command.MOVE_FORWARD);
+                                car.setAvailCmd(Command.STOP);
                                 System.out.println(loc.name + " notify " + car.name + " to enter");
                                 //trigger recv response event
                                 if (EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))

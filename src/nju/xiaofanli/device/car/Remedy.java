@@ -45,14 +45,10 @@ public class Remedy implements Runnable{
 				}
 			}
 			
-//			if(StateSwitcher.isResetting()){
-//				if(!StateSwitcher.isThreadReset(thread))
-//					clear();
-//				continue;
-//			}
-			
 			//remedy and update cars' states
 			synchronized (queue) {
+                if (queue.isEmpty())
+                    continue;
 				Command cmd = queue.get(0);
 				boolean donesth = false;
 				while(cmd.deadline < System.currentTimeMillis()){
@@ -101,9 +97,9 @@ public class Remedy implements Runnable{
 	}
 	
 	public static void updateRemedyQWhenDetect(Car car){
-		if(queue.isEmpty())
-			return;
 		synchronized (queue) {
+			if(queue.isEmpty())
+				return;
 			Command newCmd = null;
 			boolean donesth = false;
 			for(Iterator<Command> it = queue.iterator();it.hasNext();){

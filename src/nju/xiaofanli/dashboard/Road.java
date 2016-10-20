@@ -249,7 +249,6 @@ public abstract class Road extends Location{
             // stop all crashed cars to keep the scene intact
             allRealCars.forEach(car -> {
                 car.isInCrash = true;
-//                car.finalState = STOPPED;
                 car.notifyPolice(Police.REQUEST2STOP);
                 if(!car.isHornOn)
                     Command.send(car, Command.HORN_ON);

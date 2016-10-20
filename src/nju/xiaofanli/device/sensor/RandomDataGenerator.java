@@ -2,6 +2,7 @@ package nju.xiaofanli.device.sensor;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.device.car.Car;
@@ -19,8 +20,8 @@ public class RandomDataGenerator implements Runnable{
         new Thread(this, "Random Data Generator").start();
     }
 	public void run() {
-        List<Sensor> enabled = new ArrayList<>();
-        Set<Sensor> disabled = new HashSet<>();
+        Set<Sensor> enabled = new HashSet<>();
+        Map<Sensor, Car> disabled = new HashMap<>();
 		//noinspection InfiniteLoopStatement
 		while(true){
 			if(StateSwitcher.isNormal() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled())) {
@@ -30,21 +31,28 @@ public class RandomDataGenerator implements Runnable{
                     if (car.hasPhantom()) {
                         enabled.add(car.loc.adjSensors.get(car.dir));
                         if (car.getState() != Car.STOPPED)
-                            disabled.add(car.getRealLoc().adjSensors.get(car.getRealDir()));
+                            disabled.put(car.getRealLoc().adjSensors.get(car.getRealDir()), car);
+                        else
+                            enabled.add(car.getRealLoc().adjSensors.get(car.getRealDir()));
                     }
                     else {
                         if (car.getState() == Car.STOPPED)
                             enabled.add(car.loc.adjSensors.get(car.dir));
                         else
-                            disabled.add(car.loc.adjSensors.get(car.dir));
+                            disabled.put(car.loc.adjSensors.get(car.dir), car);
                     }
                 });
-                enabled.removeAll(disabled);
-
-                if(!enabled.isEmpty()) {
-                    Sensor sensor = enabled.get(random.nextInt(enabled.size()));
-                    BrickHandler.add(sensor.bid, sensor.sid, 0, System.currentTimeMillis());
+                enabled.removeAll(disabled.keySet());
+                if (disabled.isEmpty() || !Middleware.isResolutionEnabled() || random.nextInt(enabled.size() + disabled.size()) < enabled.size()) {
+                    if (!enabled.isEmpty()) {
+                        Sensor sensor = (Sensor) enabled.toArray()[random.nextInt(enabled.size())];
+                        BrickHandler.add(sensor.bid, sensor.sid, 0, System.currentTimeMillis());
 //                System.err.println(sensor.name + ": reading: " + reading);
+                    }
+                }
+                else {
+                    Sensor sensor = (Sensor) disabled.keySet().toArray()[random.nextInt(disabled.size())];
+                    sensor.displayBalloon(Context.FP, disabled.get(sensor).name, Middleware.isResolutionEnabled());
                 }
             }
 			try {

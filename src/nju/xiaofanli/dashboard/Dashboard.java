@@ -24,6 +24,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileInputStream;
@@ -133,6 +134,21 @@ public class Dashboard extends JFrame{
 
     static {
         carbox.setFont(Resource.bold16dialog);
+        carbox.addItemListener(e -> {
+            Car car = Car.carOf((String) e.getItem());
+            if (car == null)
+                return;
+            switch (e.getStateChange()) {
+                case ItemEvent.SELECTED:
+                    enableStartCarButton(car.getAvailCmd() == Command.MOVE_FORWARD);
+                    enableStopCarButton(car.getAvailCmd() == Command.STOP);
+                    break;
+                case ItemEvent.DESELECTED:
+                    enableStartCarButton(false);
+                    enableStopCarButton(false);
+                    break;
+            }
+        });
         startCarButton.setFont(Resource.bold16dialog);
         startCarButton.setMargin(new Insets(0, 0, 0, 0));
         stopCarButton.setFont(Resource.bold16dialog);
@@ -1024,16 +1040,11 @@ public class Dashboard extends JFrame{
         updateRemedyCommandPanel();
         updateVehicleConditionPanel();
         logPane.setText("");
-        if(getSelectedCar() == null) {
-            startCarButton.setEnabled(false);
-            stopCarButton.setEnabled(false);
-            startAllCarsButton.setEnabled(false);
-            stopAllCarsButton.setEnabled(false);
-        }
-        else {
-//            stopCarButton.setEnabled(false);
-//            stopAllCarsButton.setEnabled(false);
-        }
+        jchkAutoGen.setSelected(false);
+        enableStartCarButton(getSelectedCar() != null);
+        enableStopCarButton(false);
+        enableStartAllCarsButton(!Resource.getConnectedCars().isEmpty());
+        enableStopAllCarsButton(false);
     }
 
     public static void enableDeliveryButton(boolean b){
@@ -1052,8 +1063,16 @@ public class Dashboard extends JFrame{
         startAllCarsButton.setEnabled(b);
     }
 
+    public static boolean isStartAllCarsButtonEnabled() {
+        return startAllCarsButton.isEnabled();
+    }
+
     public static void enableStopAllCarsButton(boolean b) {
         stopAllCarsButton.setEnabled(b);
+    }
+
+    public static boolean isStopAllCarsButtonEnabled() {
+        return stopAllCarsButton.isEnabled();
     }
 
     private class RoadIconListener extends MouseAdapter{

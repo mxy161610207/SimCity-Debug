@@ -415,6 +415,7 @@ public class Delivery {
         allBusy = false;
         userDelivNum = sysDelivNum = 0;
         completedSysDelivNum = completedUserDelivNum = 0;
+        autoGenTasks = false;
     }
 	
 	public static class DeliveryTask {
