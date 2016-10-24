@@ -258,17 +258,20 @@ public class StateSwitcher {
 		}
 
 		private class CarInfo{
-			private Road loc;
-			private int dir;
+//			private Road loc;
+//			private int dir;
+			private Sensor sensor;
 			private CarInfo(Road loc, int dir){
-				this.loc = loc;
-				this.dir = dir;
+//				this.loc = loc;
+//				this.dir = dir;
+				sensor = loc.adjSensors.get(dir).prevSensor;
 			}
 
 			private void restore(Car car){
-				car.loc = loc;
-				car.dir = dir;
-				loc.cars.add(car);
+//				car.loc = loc;
+//				car.dir = dir;
+//				loc.cars.add(car);
+                car.initLocAndDir(sensor);
 			}
 		}
 	}

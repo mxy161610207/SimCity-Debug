@@ -52,10 +52,10 @@ public class Delivery {
 				Result res = null;
 				synchronized (searchTasks) {
 					dt = searchTasks.peek();
-					int minDis = Integer.MAX_VALUE;
 					if(dt.src instanceof Road)
 						res = searchCar((Road) dt.src);
 					else{
+                        int minDis = Integer.MAX_VALUE;
 						for(Road src : ((Building)dt.src).addrs){
 							Result tmp = searchCar(src);
 							if(allBusy)

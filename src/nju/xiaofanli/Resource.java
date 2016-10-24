@@ -42,6 +42,7 @@ public class Resource {
     public static final Color SILVER = new Color(192, 192, 192);
     private static Color LIGHT_GREEN = new Color(0, 255, 127);
     public static Color CHOCOLATE = new Color(139, 69, 19);
+    public static Color SNOW4 = new Color(139, 137, 137);
 
     //	private static Map<String, Session> sessions = new HashMap<>();
 	static{

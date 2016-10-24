@@ -183,21 +183,21 @@ public class Dashboard extends JFrame{
         deliveryCountLabel.setFont(Resource.bold16dialog);
         deliveryCountLabel.setBackground(null);
         deliveryPane.setEditable(false);
-        deliveryPane.setBackground(null);
+        deliveryPane.setBackground(Resource.SNOW4);
 //        deliveryPane.setContentType("text/html");
         deliveryPane.setFont(Resource.plain17dialog);
         deliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
 //        deliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         deliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
         remedytaScroll.setBorder(BorderFactory.createEmptyBorder());
 //        roadPaneScroll.setBorder(BorderFactory.createEmptyBorder());
         logPaneScroll.setBorder(BorderFactory.createEmptyBorder());
         logPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         logPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+//        logPaneScroll.setBackground(Resource.SNOW4);
         logPane.setFont(Resource.plain17dialog);
         logPane.setEditable(false);
-        logPane.setBackground(null);
+        logPane.setBackground(Resource.SNOW4);
         ((DefaultCaret) logPane.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         remedyta.setFont(Resource.plain17dialog);
@@ -590,29 +590,39 @@ public class Dashboard extends JFrame{
 
         jchkDetection.addActionListener(e -> {
             Middleware.setDetectionEnabled(jchkDetection.isSelected());
-            if(!jchkDetection.isSelected()){
-                if(jchkResolution.isSelected())
-                    jchkResolution.doClick();
-                if(jchkBalloon.isSelected())
-                    jchkBalloon.doClick();
-                if(jchkCrash.isSelected())
-                    jchkCrash.doClick();
-                if(jchkError.isSelected())
-                    jchkError.doClick();
+            if(!jchkDetection.isSelected() && jchkResolution.isSelected())
+                jchkResolution.doClick();
+
+            if (jchkDetection.isSelected() ^ jchkBalloon.isSelected()) {
+                jchkBalloon.setEnabled(true);
+                jchkBalloon.doClick();
+            }
+            if (jchkDetection.isSelected() ^ jchkCrash.isSelected()) {
+                jchkCrash.setEnabled(true);
+                jchkCrash.doClick();
+            }
+            if (jchkDetection.isSelected() ^ jchkError.isSelected()) {
+                jchkError.setEnabled(true);
+                jchkError.doClick();
             }
 
+            jchkDetection.setEnabled(false);
+            jchkResolution.setEnabled(false);
             jchkBalloon.setEnabled(jchkDetection.isSelected());
             jchkCrash.setEnabled(jchkDetection.isSelected());
             jchkError.setEnabled(jchkDetection.isSelected());
         });
-        jchkBalloon.setEnabled(jchkDetection.isSelected());
-        jchkCrash.setEnabled(jchkDetection.isSelected());
-        jchkError.setEnabled(jchkDetection.isSelected());
+//        jchkBalloon.setEnabled(jchkDetection.isSelected());
+//        jchkCrash.setEnabled(jchkDetection.isSelected());
+//        jchkError.setEnabled(jchkDetection.isSelected());
 
         jchkResolution.addActionListener(e -> {
             Middleware.setResolutionEnabled(jchkResolution.isSelected());
             if(!jchkDetection.isSelected() && jchkResolution.isSelected())
                 jchkDetection.doClick();
+
+            jchkDetection.setEnabled(false);
+            jchkResolution.setEnabled(false);
         });
 
         gbc.gridy += gbc.gridheight;
@@ -629,21 +639,29 @@ public class Dashboard extends JFrame{
             Car car = getSelectedCar();
             if(car != null){
                 car.notifyPolice(Police.REQUEST2ENTER, true);
+                disableDetectionAndResolutionCheckBox();
             }
         });
         stopCarButton.addActionListener(e -> {
             Car car = Dashboard.getSelectedCar();
             if(car != null){
                 car.notifyPolice(Police.REQUEST2STOP, true);
+                disableDetectionAndResolutionCheckBox();
             }
         });
         startAllCarsButton.addActionListener(e -> {
-            for (Car car : Resource.getConnectedCars())
-                car.notifyPolice(Police.REQUEST2ENTER, true);
+            if (!Resource.getConnectedCars().isEmpty()) {
+                for (Car car : Resource.getConnectedCars())
+                    car.notifyPolice(Police.REQUEST2ENTER, true);
+                disableDetectionAndResolutionCheckBox();
+            }
         });
         stopAllCarsButton.addActionListener(e -> {
-            for (Car car : Resource.getConnectedCars())
-                car.notifyPolice(Police.REQUEST2STOP, true);
+            if (!Resource.getConnectedCars().isEmpty()) {
+                for (Car car : Resource.getConnectedCars())
+                    car.notifyPolice(Police.REQUEST2STOP, true);
+                disableDetectionAndResolutionCheckBox();
+            }
         });
 
         gbc.gridy += gbc.gridheight;
@@ -661,8 +679,10 @@ public class Dashboard extends JFrame{
         deliveryPanel.add(jchkAutoGen, dgbc);
         jchkAutoGen.addActionListener(e -> {
             Delivery.autoGenTasks = jchkAutoGen.isSelected();
-            if (Delivery.autoGenTasks)
+            if (Delivery.autoGenTasks) {
                 Delivery.autoGenTasks();
+                disableDetectionAndResolutionCheckBox();
+            }
         });
         dgbc.gridy += dgbc.gridheight;
         JPanel srcAndDestPanel = new JPanel(new GridLayout(1, 2));
@@ -691,24 +711,6 @@ public class Dashboard extends JFrame{
         sgbc.gridx += sgbc.gridwidth;
         sgbc.weightx = 1;
         destPanel.add(desttf, sgbc);
-
-//        dgbc.gridy += dgbc.gridheight;
-//        dgbc.gridwidth = 1;
-//        JLabel srcLabel = new JLabel("Src");
-//        srcLabel.setFont(Resource.bold16dialog);
-//		deliveryPanel.add(srcLabel, dgbc);
-//		dgbc.gridx += dgbc.gridwidth;
-//		dgbc.weightx = 1;
-//		deliveryPanel.add(srctf, dgbc);
-//
-//		dgbc.gridx += dgbc.gridwidth;
-//		dgbc.weightx = 0;
-//        JLabel destLabel = new JLabel("Dest");
-//        destLabel.setFont(Resource.bold16dialog);
-//		deliveryPanel.add(destLabel, dgbc);
-//		dgbc.gridx += dgbc.gridwidth;
-//		dgbc.weightx = 1;
-//		deliveryPanel.add(desttf, dgbc);
 
         dgbc.gridx = 0;
         dgbc.gridy += dgbc.gridheight;
@@ -742,6 +744,8 @@ public class Dashboard extends JFrame{
             deliverButton.setVisible(false);
             canceldButton.setVisible(false);
             startdButton.setVisible(true);
+
+            disableDetectionAndResolutionCheckBox();
         });
 
         canceldButton.addActionListener(e -> {
@@ -768,6 +772,7 @@ public class Dashboard extends JFrame{
         bottomPanel.add(ongoingDTPanel, gbc);
         ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Tasks"));
         ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+//        ongoingDTPanel.setBackground(Resource.SNOW4);
         ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
         ongoingDTPanel.add(deliveryPane, BorderLayout.CENTER);
         updateDeliveryTaskPanel();
@@ -1027,6 +1032,14 @@ public class Dashboard extends JFrame{
     }
 
     public static void reset(){
+        jchkDetection.setEnabled(true);
+        jchkResolution.setEnabled(true);
+        if (jchkDetection.isSelected()) {
+            jchkDetection.doClick();
+            jchkDetection.setEnabled(true);
+            jchkResolution.setEnabled(true);
+        }
+
         src = dest = null;
         delivSelModeOn = false;
         deliverButton.setVisible(false);
@@ -1074,6 +1087,14 @@ public class Dashboard extends JFrame{
     public static boolean isStopAllCarsButtonEnabled() {
         return stopAllCarsButton.isEnabled();
     }
+
+    private static void disableDetectionAndResolutionCheckBox() {
+        if (jchkDetection.isEnabled())
+            jchkDetection.setEnabled(false);
+        if (jchkResolution.isEnabled())
+            jchkResolution.setEnabled(false);
+    }
+
 
     private class RoadIconListener extends MouseAdapter{
         Road road = null;

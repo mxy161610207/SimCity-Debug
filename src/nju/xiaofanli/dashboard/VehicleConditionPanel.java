@@ -61,7 +61,7 @@ class VehicleConditionPanel extends JPanel{
 //			text.setLineWrap(true);
 //            text.setWrapStyleWord(true);
 			text.setEditable(false);
-			text.setBackground(Color.WHITE);
+			text.setBackground(null);
             text.setFont(Resource.plain17dialog);
 
 			setLayout(new GridBagLayout());
