@@ -57,17 +57,17 @@ public class Dashboard extends JFrame{
     private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
-    private static final JButton startdButton = new JButton("Enable selection mode");
+    private static final JButton startdButton = new JButton("Manually create a task");
     private static final JButton deliverButton = new JButton("Deliver");
     private static final JButton canceldButton = new JButton("Cancel");
     private static final JCheckBox jchkSensor = new JCheckBox("Sensor number");
     private static final JCheckBox jchkRoad = new JCheckBox("Road number");
-    private static final JCheckBox jchkBalloon = new JCheckBox("Inconsistent context");
+    private static final JCheckBox jchkBalloon = new JCheckBox("False data");
     private static final JCheckBox jchkCrash = new JCheckBox("Crash sound");
     private static final JCheckBox jchkError = new JCheckBox("Error sound");
     private static final JCheckBox jchkDetection = new JCheckBox("Detection");
     private static final JCheckBox jchkResolution = new JCheckBox("Resolution");
-    private static final JCheckBox jchkAutoGen = new JCheckBox("Automatically generate task(s)");
+    private static final JCheckBox jchkAutoGen = new JCheckBox("Automatically generate tasks");
     public static boolean showSensor = false, showRoad = false, showBalloon = false,
             playCrashSound = false,	playErrorSound = false;
 
@@ -840,6 +840,31 @@ public class Dashboard extends JFrame{
 
     public static void closeDeviceDialog(){
         deviceDialog.setVisible(false);
+    }
+
+    private static final JDialog relocationDialog = new JDialog(getInstance(), "Relocation");
+    private static final JTextPane relocationTextPane = new JTextPane();
+    static {
+        relocationTextPane.setEditable(false);
+        relocationTextPane.setFont(Resource.plain17dialog);
+        relocationDialog.add(relocationTextPane, BorderLayout.CENTER);
+        relocationDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        relocationDialog.setLocationRelativeTo(null);
+    }
+    public static void showRelocationDialog(Car car) {
+        relocationTextPane.setText("");
+        List<Pair<String, Color>> strings = new ArrayList<>();
+        strings.add(new Pair<>("Cannot locate ", Color.BLACK));
+        if (car != null)
+            strings.add(new Pair<>(car.name, car.icon.color));
+        strings.add(new Pair<>(".\nTry to relocate it...", Color.BLACK));
+        append2pane(strings, relocationTextPane);
+        relocationDialog.pack();
+        relocationDialog.setVisible(true);
+    }
+
+    public static void closeRelocationDialog(){
+        relocationDialog.setVisible(false);
     }
 
     public static Road getNearestRoad(int x, int y){

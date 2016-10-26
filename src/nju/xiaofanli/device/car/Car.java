@@ -31,6 +31,7 @@ public class Car {
 	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int lastCmd = Command.STOP;
     public int trend = STOPPED; // Only used by suspend and wake!
+    public int lastHornCmd = Command.HORN_OFF;
     private int availCmd = Command.MOVE_FORWARD; // available command
     public Road loc = null;
 	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
@@ -79,6 +80,7 @@ public class Car {
 		lastCmd = Command.STOP;
         availCmd = Command.MOVE_FORWARD;
         trend = STOPPED;
+        lastHornCmd = Command.HORN_OFF;
         loc = null;
 		dir = TrafficMap.UNKNOWN_DIR;
 		dt = null;
@@ -201,15 +203,20 @@ public class Car {
 //        notifySelfCheck();
     }
 
-	void write(byte[] code) {
-        if(isConnected() && code != null){
+	void write(int cmd) {
+        byte[] code = Command.codes.get(cmd);
+        if(isConnected() && code != null) {
 			try {
                 dos.write(code);
                 lastCmdTime = System.currentTimeMillis();
-                if(code == Command.codes.get(Command.MOVE_FORWARD))
-                    trend = Car.MOVING;
-                else if(code == Command.codes.get(Command.STOP))
-                    trend = Car.STOPPED;
+                switch (cmd) {
+                    case Command.MOVE_FORWARD:
+                        trend = Car.MOVING; break;
+                    case Command.STOP:
+                        trend = Car.STOPPED; break;
+                    case Command.HORN_ON: case Command.HORN_OFF:
+                        lastHornCmd = cmd; break;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -38,9 +38,9 @@ public class Sensor {
     public JButton icon = null;
     public BalloonIcon balloon = null;
 
-    final static int INITIAL = 0;
-    final static int DETECTED = 1;
-    final static int UNDETECTED = 2;
+    public final static int INITIAL = 0;
+    public final static int DETECTED = 1;
+    public final static int UNDETECTED = 2;
 
     public Sensor(int bid, int sid) {
         this.bid = bid;

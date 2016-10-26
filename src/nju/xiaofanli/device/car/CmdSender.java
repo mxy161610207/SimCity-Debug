@@ -41,14 +41,14 @@ public class CmdSender implements Runnable{
             }
 
             private void whistle(){
-                car.write(Command.codes.get(Command.HORN_ON));
+                car.write(Command.HORN_ON);
                 try {
                     Thread.sleep(duration);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 if(!car.isHornOn) //if the car crashed and keeps whisting, do not silence it
-                    car.write(Command.codes.get(Command.HORN_OFF));
+                    car.write(Command.HORN_OFF);
             }
         }
 
@@ -92,7 +92,7 @@ public class CmdSender implements Runnable{
                 case Command.WHISTLE3:
                     Resource.execute(new WhistleTask(cmd.car, 200, 200, 3));
                 default:
-                    cmd.car.write(Command.codes.get(cmd.cmd));
+                    cmd.car.write(cmd.cmd);
                     break;
             }
         }

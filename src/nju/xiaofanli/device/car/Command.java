@@ -102,7 +102,7 @@ public class Command {
 	 */
 	public static void drive(Car car){
         if(car != null && car.isConnected())
-            car.write(codes.get(MOVE_FORWARD));
+            car.write(MOVE_FORWARD);
 	}
 	
 	/**
@@ -110,11 +110,19 @@ public class Command {
 	 */
 	public static void stop(Car car){
 		if(car != null && car.isConnected()){
-            car.write(codes.get(STOP));
+            car.write(STOP);
 			if(StateSwitcher.isResetting())
 				StateSwitcher.setLastStopCmdTime(car.lastCmdTime);
 		}
 	}
+
+    /**
+     * Only called by Wake, Reset and Suspend
+     */
+    public static void back(Car car){
+        if(car != null && car.isConnected())
+            car.write(MOVE_BACKWARD);
+    }
 	
 	/**
 	 * Only called by Reset and Suspend
@@ -134,7 +142,7 @@ public class Command {
      */
     public static void silence(Car car){
         if(car != null && car.isConnected())
-            car.write(codes.get(HORN_OFF));
+            car.write(HORN_OFF);
     }
 
     /**
@@ -142,6 +150,6 @@ public class Command {
      */
     public static void whistle(Car car){
         if(car != null && car.isConnected())
-            car.write(codes.get(HORN_ON));
+            car.write(HORN_ON);
     }
 }

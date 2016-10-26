@@ -161,10 +161,36 @@ public class BrickHandler extends Thread{
                             }
                         }
                     }
-                    if(car == null){
-                        System.out.println("[" + sensor.name + "] Cannot find any car!\treading: "+reading + "\t" + System.currentTimeMillis());
-                        sensor.state = Sensor.UNDETECTED;
-                        break;
+                    if(car == null) {
+                        //checking if it's FN
+                        Sensor prevSensor = sensor.prevSensor;
+                        Sensor prevPrevSensor = prevSensor.prevSensor;
+                        for(Car realCar : prevSensor.prevRoad.realCars) {
+                            if(realCar.realDir == prevSensor.dir && realCar.getState() == Car.MOVING
+                                    && (prevPrevSensor.state != Sensor.DETECTED || prevPrevSensor.car != realCar)) {
+                                car = realCar;
+                                break;
+                            }
+                        }
+                        if (car == null) {
+                            for(Car tmp : prevSensor.prevRoad.cars) {
+                                if(!tmp.hasPhantom() && tmp.dir == prevSensor.dir && tmp.getState() == Car.MOVING
+                                        && (prevPrevSensor.state != Sensor.DETECTED || prevPrevSensor.car != tmp)) {
+                                    car = tmp;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (car == null)  {
+                            System.out.println("[" + sensor.name + "] Cannot find any car!\treading: " + reading + "\t" + System.currentTimeMillis());
+                            sensor.state = Sensor.UNDETECTED;
+                            break;
+                        }
+                        else {
+                            StateSwitcher.startRelocating(car, prevSensor, prevPrevSensor);
+                            break;
+                        }
                     }
                     System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + System.currentTimeMillis());
 
@@ -177,9 +203,9 @@ public class BrickHandler extends Thread{
     }
 
     /**
-     * This method is only called in resetting phase and will locate cars
+     * This method is only called in resetting or relocation phase and will locate cars
      */
-    private static void switchStateWhenResetting(Sensor sensor, int reading){
+    private static void switchStateWhenLocating(Sensor sensor, int reading){
         switch(sensor.state){
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading))
@@ -197,8 +223,8 @@ public class BrickHandler extends Thread{
     public static void add(int bid, int sid, int reading, long time){
         Sensor sensor = Resource.getSensors()[bid][sid];
         sensor.reading = reading;
-        if(StateSwitcher.isResetting()){
-            switchStateWhenResetting(sensor, reading);
+        if(StateSwitcher.isResetting() || StateSwitcher.isRelocating()){
+            switchStateWhenLocating(sensor, reading);
             return;
         }
         RawData datum = new RawData(sensor, reading, time);
