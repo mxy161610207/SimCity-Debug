@@ -206,6 +206,7 @@ public class Middleware {
 	}
 	
 	public static void reset() {
+        dEnabled = rEnabled = false;
         patterns.values().forEach(Pattern::reset);
         rules.values().forEach(Rule::reset);
 	}
@@ -256,7 +257,7 @@ public class Middleware {
     }
     
 
-    public static void setDetectionEnabled(boolean detectionEnabled) {
+    public static void enableDetection(boolean detectionEnabled) {
 		dEnabled = detectionEnabled;
 	}
 
@@ -264,7 +265,7 @@ public class Middleware {
         return dEnabled;
     }
 
-    public static void setResolutionEnabled(boolean resolutionEnabled) {
+    public static void enableResolution(boolean resolutionEnabled) {
 		rEnabled = resolutionEnabled;
 	}
 

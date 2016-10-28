@@ -12,7 +12,6 @@ import javax.swing.border.TitledBorder;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.Sensor;
-import nju.xiaofanli.util.MarqueeLabel;
 import nju.xiaofanli.util.Pair;
 
 public class TrafficMap extends JPanel{
@@ -33,12 +32,12 @@ public class TrafficMap extends JPanel{
     public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
-    private static final JLabel crossroadIconLabel = new JLabel("Crossroad", Resource.CROSSROAD_ICON, SwingConstants.LEADING),
-            streetIconLabel = new JLabel("Street", Resource.STREET_ICON, SwingConstants.LEADING),
-            carIconLabel = new JLabel("Normal car", Resource.CAR_ICON, SwingConstants.LEADING),
-            fakeCarIconLabel = new MarqueeLabel("Fake car (caused by inconsistent context)", Resource.FAKE_CAR_ICON, SwingConstants.LEADING, 26),
-            realCarIconLabel = new MarqueeLabel("Real car (invisible to other cars)", Resource.REAL_CAR_ICON, SwingConstants.LEADING, 26);
-    private static final List<JLabel> iconLabels = Arrays.asList(crossroadIconLabel, streetIconLabel, carIconLabel, fakeCarIconLabel, realCarIconLabel);
+    private static final JPanel crossroadIconPanel = createIconPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.bold17dialog),
+            streetIconPanel = createIconPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.bold17dialog),
+            carIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.bold17dialog),
+            fakeCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2, TrafficMap.SH/2,  "Fake location", Resource.bold15dialog),
+            realCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2, TrafficMap.SH/2,  "Real location", Resource.bold15dialog);
+    private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
 
     public static final int SH = 48;//street height
     public static final int SW = SH * 2;//street width
@@ -85,7 +84,8 @@ public class TrafficMap extends JPanel{
         ((TitledBorder) roadPaneScroll.getBorder()).setTitleFont(Resource.bold16dialog);
         roadPaneScroll.setBackground(Color.LIGHT_GRAY);
 
-        iconLabels.forEach(label -> label.setFont(Resource.bold17dialog));
+        fakeCarIconPanel.setVisible(false);
+        realCarIconPanel.setVisible(false);
     }
 
     private TrafficMap() {
@@ -120,14 +120,10 @@ public class TrafficMap extends JPanel{
         locationList.addAll(locations.values());
         roads.values().forEach(road -> add(road.icon));
 
-        final int[] hOffset = { 5 };
-        iconLabels.forEach(label -> {
-            FontMetrics fm = getFontMetrics(label.getFont());
-            label.setBounds(5, hOffset[0], label.getIcon().getIconWidth()+160,
-                    Math.max(label.getIcon().getIconHeight(), fm.getHeight()));
-            add(label);
-            hOffset[0] += label.getHeight() + 5;
-        });
+        JPanel iconPanel = new JPanel(new GridLayout(5, 1));
+        iconPanel.setBounds(5, 0, U3, U3);
+        add(iconPanel);
+        iconPanels.forEach(iconPanel::add);
     }
 
     public static void reset(){
@@ -141,6 +137,8 @@ public class TrafficMap extends JPanel{
         freeCitizens.addAll(citizens);
         roadPane.setText("");
         roadPaneScroll.setVisible(false);
+        fakeCarIconPanel.setVisible(false);
+        realCarIconPanel.setVisible(false);
     }
 
     private static Random random = new Random();
@@ -298,9 +296,7 @@ public class TrafficMap extends JPanel{
             crossroads[i].id = i;
             crossroads[i].name = "Crossroad " + i;
             roads.put(crossroads[i].name, crossroads[i]);
-            crossroads[i].icon = new Road.Crossroad.CrossroadIcon();
-            crossroads[i].icon.id = i;
-            crossroads[i].icon.road = crossroads[i];
+            crossroads[i].icon = new Road.Crossroad.CrossroadIcon(crossroads[i]);
 //			crossroads[i].icon.coord.x = (i%3+1)*u;
 //			crossroads[i].icon.coord.y = (i/3+1)*u;
             crossroads[i].icon.coord.x = (SH+CW)/2 + SW + (i%3) * U1;
@@ -316,9 +312,7 @@ public class TrafficMap extends JPanel{
             streets[i].id = i;
             streets[i].name = "Street " + i;
             roads.put(streets[i].name, streets[i]);
-            streets[i].icon = new Road.Street.StreetIcon();
-            streets[i].icon.id = i;
-            streets[i].icon.road = streets[i];
+            streets[i].icon = new Road.Street.StreetIcon(streets[i]);
             int quotient = i / 8;
             int remainder = i % 8;
             //vertical streets
@@ -823,6 +817,23 @@ public class TrafficMap extends JPanel{
                     instance = new TrafficMap();
             }
         return instance;
+    }
+
+    private static JPanel createIconPanel(ImageIcon icon, int width, int height, String text, Font textFont) {
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(new JLabel(Resource.loadImage(icon, width, height), JLabel.LEADING), BorderLayout.WEST);
+        JLabel textLabel = new JLabel(text, JLabel.TRAILING);
+        textLabel.setFont(textFont);
+        p.add(textLabel, BorderLayout.EAST);
+        return p;
+    }
+
+    public static void showFakeLocIconLabel(boolean b) {
+        fakeCarIconPanel.setVisible(b);
+    }
+
+    public static void showRealLocIconLabel(boolean b) {
+        realCarIconPanel.setVisible(b);
     }
 
     public static void enableSensorIcons(boolean enable) {

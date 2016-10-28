@@ -57,8 +57,7 @@ public class Car {
 	
 	public static final int STOPPED = 0;
 	public static final int MOVING = 1;
-//	public static final int UNCERTAIN = -1;
-	
+
 	public static final String SILVER = "Silver SUV";
 	public static final String GREEN = "Green Car";
 	public static final String RED = "Red Car";
@@ -72,7 +71,6 @@ public class Car {
 		this.loc = loc;
         this.url = url;
 		this.icon = new CarIcon(name, iconFile);
-//        this.icon.addActionListener(e -> Dashboard.setSelectedCar(this));
 	}
 	
 	public void reset(){
@@ -454,14 +452,6 @@ public class Car {
 			this.name = name;
             color = colorOf(name);
 		}
-		
-//		protected void paintComponent(Graphics g) {
-//			super.paintComponent(g);
-//			g.setColor(color);
-//			g.fillRect(0, 0, SIZE, SIZE);
-//			g.setColor(Color.BLACK);
-//			g.drawRect(0, 0, SIZE, SIZE);
-//		}
 	}
 }
 

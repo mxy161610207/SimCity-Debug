@@ -55,6 +55,9 @@ class VehicleConditionPanel extends JPanel{
 		private CarIcon icon = null;
 		private final JTextPane text = new JTextPane();
 		private final GridBagConstraints gbc = new GridBagConstraints();
+        private final Map<Integer, JLabel> stateIcons = new HashMap<>(), dirIcons = new HashMap<>();
+        private final double ASCENT_PIXEL;
+        private final int ICON_SIZE;
 		Entry(Car car) {
 			this.car = car;
 			this.icon = car.icon;
@@ -64,6 +67,17 @@ class VehicleConditionPanel extends JPanel{
 			text.setBackground(null);
             text.setFont(Resource.plain17dialog);
 
+            ASCENT_PIXEL = text.getFont().createGlyphVector(text.getFontMetrics(text.getFont()).getFontRenderContext(), "A").getVisualBounds().getHeight();
+            ICON_SIZE = (int) (ASCENT_PIXEL * 1.5);
+            stateIcons.put(Car.MOVING, new JLabel(Resource.loadImage(Resource.MOVING_ICON, ICON_SIZE, ICON_SIZE)));
+            stateIcons.put(Car.STOPPED, new JLabel(Resource.loadImage(Resource.STOP_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.NORTH, new JLabel(Resource.loadImage(Resource.UP_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.SOUTH, new JLabel(Resource.loadImage(Resource.DOWN_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.WEST, new JLabel(Resource.loadImage(Resource.LEFT_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.EAST, new JLabel(Resource.loadImage(Resource.RIGHT_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.UNKNOWN_DIR, new JLabel(Resource.loadImage(Resource.QUESTION_MARK_ICON, ICON_SIZE, ICON_SIZE)));
+            stateIcons.values().forEach(label -> label.setAlignmentY((float) (ASCENT_PIXEL/ICON_SIZE/2 + 0.5)));
+            dirIcons.values().forEach(label -> label.setAlignmentY((float) (ASCENT_PIXEL/ICON_SIZE/2 + 0.5)));
 			setLayout(new GridBagLayout());
 			gbc.insets = new Insets(1, 5, 1, 5);
 
@@ -87,21 +101,10 @@ class VehicleConditionPanel extends JPanel{
                 try {
                     doc.insertString(doc.getLength(), car.name + " ", null);
                     text.setCaretPosition(doc.getLength());
-                    text.insertIcon(car.getState() == Car.MOVING ? Resource.MOVING_ICON : Resource.STOP_ICON);
+                    text.insertComponent(stateIcons.get(car.getState()));
                     doc.insertString(doc.getLength(), " ", null);
                     text.setCaretPosition(doc.getLength());
-                    switch (car.dir) {
-                        case TrafficMap.NORTH:
-                            text.insertIcon(Resource.UP_ARROW_ICON); break;
-                        case TrafficMap.SOUTH:
-                            text.insertIcon(Resource.DOWN_ARROW_ICON); break;
-                        case TrafficMap.WEST:
-                            text.insertIcon(Resource.LEFT_ARROW_ICON); break;
-                        case TrafficMap.EAST:
-                            text.insertIcon(Resource.RIGHT_ARROW_ICON); break;
-                        default:
-                            text.insertIcon(Resource.QUESTION_MARK_ICON); break;
-                    }
+                    text.insertComponent(dirIcons.get(car.dir));
                     if (car.loc != null)
                         doc.insertString(doc.getLength(), "\nLoc: " + car.loc.name, null);
 //                    if (car.dest != null)

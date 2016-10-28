@@ -47,7 +47,7 @@ public class RandomDataGenerator implements Runnable{
                     if (!enabled.isEmpty()) {
                         Sensor sensor = (Sensor) enabled.toArray()[random.nextInt(enabled.size())];
                         BrickHandler.add(sensor.bid, sensor.sid, 0, System.currentTimeMillis());
-//                System.err.println(sensor.name + ": reading: " + reading);
+                        BrickHandler.add(sensor.bid, sensor.sid, 30, System.currentTimeMillis());
                     }
                 }
                 else {

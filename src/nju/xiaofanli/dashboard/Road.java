@@ -13,7 +13,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.swing.JButton;
+import javax.swing.*;
 
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
@@ -112,18 +112,39 @@ public abstract class Road extends Location{
 		return !cars.isEmpty();
 	}
 
-	public static abstract class RoadIcon extends JButton{
+	public static abstract class RoadIcon extends JPanel {
 		private static final long serialVersionUID = 1L;
 		public final static int cubeSize = CarIcon.SIZE;
 		private final static int cubeInset = CarIcon.INSET;
-		public int id;
-		public Road road = null;
+		private Road road = null;
 		public TrafficMap.Coord coord = new TrafficMap.Coord();
-		
-		public RoadIcon() {
+		private Map<String, JLabel[]> carIcons = new HashMap<>();
+        private JLabel idLabel = null;
+
+		public RoadIcon(Road road) {
+            setLayout(null);
 			setOpaque(false);
-			setContentAreaFilled(false);
+//			setContentAreaFilled(false);
 //			setBorderPainted(false);
+            this.road = road;
+            Resource.getCarIcons().forEach((name, icons) -> carIcons.put(name,
+                    new JLabel[]{ new JLabel(icons[0]), new JLabel(icons[1]), new JLabel(icons[2]) }));
+            for (JLabel[] labels : carIcons.values()) {
+                for (JLabel label : labels)
+                    label.setSize(label.getPreferredSize());
+            }
+
+            idLabel = new JLabel(String.valueOf(road.id));
+            idLabel.setFont(Resource.bold17dialog);
+            idLabel.setSize(idLabel.getPreferredSize());
+            add(idLabel);
+
+            for (JLabel[] labels : carIcons.values()) {
+                for (JLabel label : labels) {
+                    label.setVisible(false);
+                    add(label);
+                }
+            }
 		}
 		
 //		@Override
@@ -131,17 +152,15 @@ public abstract class Road extends Location{
 //			super.setEnabled(b);
 //			System.out.println(road.name);
 //		}
-		
+
+        public boolean isPressed = false, isEntered = false;
 		protected void paintBorder(Graphics g) {
 //			super.paintBorder(g);
+            if (!isPressed && !isEntered)
+                return;
+            g.setColor(isPressed ? Color.BLACK : Color.GRAY);
 			((Graphics2D) g).setStroke(new BasicStroke(2.0f));
-			if(getModel().isPressed())
-				g.setColor(Color.black);
-			else if(getModel().isRollover())
-				g.setColor(Color.gray);
-			else
-				return;
-				
+
 			if(this instanceof CrossroadIcon)
 				g.drawOval(1, 1, coord.w-2, coord.h-2);
 			else if(this instanceof StreetIcon)
@@ -149,11 +168,10 @@ public abstract class Road extends Location{
 		}
 
 		protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
 //			System.out.println(road.name);
-			super.paintComponent(g);
 			g.setFont(Resource.bold16dialog);
-            FontMetrics fm = g.getFontMetrics();
-			int n = road.realCars.size();
+            int n = road.realCars.size();
 			for(Car car : road.cars)
 				if(!car.hasPhantom())
 					n++;
@@ -170,7 +188,8 @@ public abstract class Road extends Location{
 				g.fillOval(0, 0, coord.w, coord.h);
 			else if(this instanceof StreetIcon)
 				g.fillRoundRect(0, 0, coord.w, coord.h, coord.arcw, coord.arch);
-			
+
+            Set<JLabel> visibleLabel = new HashSet<>();
 			n = road.cars.size() + road.realCars.size();
 			if(n > 0){
 				boolean vertical = this instanceof StreetIcon && ((StreetIcon) this).isVertical;
@@ -178,6 +197,7 @@ public abstract class Road extends Location{
 				int y = vertical ? (coord.h-n*cubeSize-(n-1)*cubeInset) / 2 : (coord.h - cubeSize) / 2;
 				
 				for(Car car : road.cars){
+                    JLabel label = carIcons.get(car.name)[car.hasPhantom() ? 1 : 0];
 					if(car.isLoading && !Dashboard.blink){
 						if(vertical)
 							y += cubeSize + cubeInset;
@@ -185,17 +205,12 @@ public abstract class Road extends Location{
 							x += cubeSize + cubeInset;
 						continue;
 					}
-					g.setColor(car.icon.color);
-					g.fillRect(x, y, cubeSize, cubeSize);
-					g.setColor(Color.BLACK);
-					g.drawRect(x, y, cubeSize, cubeSize);
-					if(car.hasPhantom()) {
-                        if(car.icon.color.equals(Color.BLACK))
-                            g.setColor(Color.WHITE);
-                        g.drawString("F", x+2, y+fm.getAscent()-2);
-                        if(car.icon.color.equals(Color.BLACK))
-                            g.setColor(Color.BLACK);
-                    }
+                    label.setLocation(x, y);
+                    label.setVisible(true);
+                    visibleLabel.add(label);
+
+                    g.setColor(Color.BLACK);
+                    g.drawRect(label.getX()-1, label.getY()-1, label.getWidth()+1, label.getHeight()+1);
 					if(vertical)
 						y += cubeSize + cubeInset;
 					else
@@ -203,30 +218,36 @@ public abstract class Road extends Location{
 				}
 				
 				for(Car car : road.realCars){
-					g.setColor(car.icon.color);
-					g.fillRect(x, y, cubeSize, cubeSize);
-					g.setColor(Color.BLACK);
-					g.drawRect(x, y, cubeSize, cubeSize);
-                    if(car.icon.color.equals(Color.BLACK))
-                        g.setColor(Color.WHITE);
-                    g.drawString("R", x+2, y+fm.getAscent()-2);
-                    if(car.icon.color.equals(Color.BLACK))
-                        g.setColor(Color.BLACK);
+                    JLabel label = carIcons.get(car.name)[2];
+                    label.setLocation(x, y);
+                    label.setVisible(true);
+                    visibleLabel.add(label);
+
+                    g.setColor(Color.BLACK);
+                    g.drawRect(label.getX()-1, label.getY()-1, label.getWidth()+1, label.getHeight()+1);
 					if(vertical)
 						y += cubeSize + cubeInset;
 					else
 						x += cubeSize + cubeInset;
 				}
 			}
-			
-			//draw roads
-			if(Dashboard.showRoad){
-//                g.setFont(Dashboard.bold20dialog);
-				g.setColor(Color.BLACK);
-				String str = String.valueOf(id);
-				g.drawString(str, (getWidth()-fm.stringWidth(str))/2, (getHeight()+fm.getAscent())/2);
-			}
+
+			for (JLabel[] labels : carIcons.values()) {
+                for (JLabel label : labels)
+                    if (!visibleLabel.contains(label) && label.isVisible())
+                        label.setVisible(false); // NOTE: this will cause the invocation of paintComponent() again, so be careful of infinite loop
+            }
 		}
+
+        @Override
+        public void setBounds(int x, int y, int width, int height) {
+            super.setBounds(x, y, width, height);
+            idLabel.setLocation((width-idLabel.getWidth())/2, (height-idLabel.getHeight())/2);
+        }
+
+        public void showRoadNumber(boolean b) {
+            idLabel.setVisible(b);
+        }
 
         public void repaintAll(){
             this.repaint();
@@ -268,6 +289,9 @@ public abstract class Road extends Location{
     public static class Crossroad extends Road {
 		public static class CrossroadIcon extends RoadIcon {
 			private static final long serialVersionUID = 1L;
+            public CrossroadIcon (Road road) {
+                super(road);
+            }
 		}
 	}
 	
@@ -275,6 +299,9 @@ public abstract class Road extends Location{
 		public static class StreetIcon extends RoadIcon {
 			private static final long serialVersionUID = 1L;
 			public boolean isVertical;
+            public StreetIcon (Road road) {
+                super(road);
+            }
 		}
 	}
 }

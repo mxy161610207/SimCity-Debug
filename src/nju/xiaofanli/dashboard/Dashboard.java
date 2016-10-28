@@ -62,7 +62,7 @@ public class Dashboard extends JFrame{
     private static final JButton canceldButton = new JButton("Cancel");
     private static final JCheckBox jchkSensor = new JCheckBox("Sensor number");
     private static final JCheckBox jchkRoad = new JCheckBox("Road number");
-    private static final JCheckBox jchkBalloon = new JCheckBox("False data");
+    private static final JCheckBox jchkBalloon = new JCheckBox("Misreading");
     private static final JCheckBox jchkCrash = new JCheckBox("Crash sound");
     private static final JCheckBox jchkError = new JCheckBox("Error sound");
     private static final JCheckBox jchkDetection = new JCheckBox("Detection");
@@ -100,7 +100,14 @@ public class Dashboard extends JFrame{
                     }
 
                 for(Road road : Resource.getRoads().values()){
-                    if (!road.cars.isEmpty() && road.cars.peek().isLoading)
+                    boolean isLoading = false;
+                    for (Car car : road.cars) {
+                        if (car.isLoading) {
+                            isLoading = true;
+                            break;
+                        }
+                    }
+                    if (isLoading)
                         road.icon.repaint();
                 }
 
@@ -545,7 +552,7 @@ public class Dashboard extends JFrame{
         gbc.gridy += gbc.gridheight;
         JPanel miscPanel = new JPanel();
         rightPanel.add(miscPanel, gbc);
-        miscPanel.setBorder(BorderFactory.createTitledBorder("Display & Sound Options"));
+        miscPanel.setBorder(BorderFactory.createTitledBorder("Display & sound options"));
         ((TitledBorder) miscPanel.getBorder()).setTitleFont(Resource.bold16dialog);
         miscPanel.setLayout(new GridLayout(2, 1));
         JPanel topMiscPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)),
@@ -560,7 +567,7 @@ public class Dashboard extends JFrame{
 
         jchkRoad.addActionListener(e -> {
             showRoad = jchkRoad.isSelected();
-            trafficMap.repaint();
+            Resource.getRoads().values().forEach(road -> road.icon.showRoadNumber(showRoad));
         });
         jchkRoad.doClick();
 
@@ -582,15 +589,18 @@ public class Dashboard extends JFrame{
         gbc.gridy += gbc.gridheight;
         JPanel CCPanel = new JPanel();
         rightPanel.add(CCPanel, gbc);
-        CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency Checking"));
+        CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency checking"));
         ((TitledBorder) CCPanel.getBorder()).setTitleFont(Resource.bold16dialog);
         CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         CCPanel.add(jchkDetection);
         CCPanel.add(jchkResolution);
 
         jchkDetection.addActionListener(e -> {
-            Middleware.setDetectionEnabled(jchkDetection.isSelected());
-            if(!jchkDetection.isSelected() && jchkResolution.isSelected())
+            Middleware.enableDetection(jchkDetection.isSelected());
+            TrafficMap.showFakeLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
+            TrafficMap.showRealLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
+
+            if (!jchkDetection.isSelected() && jchkResolution.isSelected())
                 jchkResolution.doClick();
 
             if (jchkDetection.isSelected() ^ jchkBalloon.isSelected()) {
@@ -612,12 +622,12 @@ public class Dashboard extends JFrame{
             jchkCrash.setEnabled(jchkDetection.isSelected());
             jchkError.setEnabled(jchkDetection.isSelected());
         });
-//        jchkBalloon.setEnabled(jchkDetection.isSelected());
-//        jchkCrash.setEnabled(jchkDetection.isSelected());
-//        jchkError.setEnabled(jchkDetection.isSelected());
 
         jchkResolution.addActionListener(e -> {
-            Middleware.setResolutionEnabled(jchkResolution.isSelected());
+            Middleware.enableResolution(jchkResolution.isSelected());
+            TrafficMap.showFakeLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
+            TrafficMap.showRealLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
+
             if(!jchkDetection.isSelected() && jchkResolution.isSelected())
                 jchkDetection.doClick();
 
@@ -667,7 +677,7 @@ public class Dashboard extends JFrame{
         gbc.gridy += gbc.gridheight;
         JPanel deliveryPanel = new JPanel();
         rightPanel.add(deliveryPanel, gbc);
-        deliveryPanel.setBorder(BorderFactory.createTitledBorder("Taxi Service"));
+        deliveryPanel.setBorder(BorderFactory.createTitledBorder("Taxi service"));
         ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(Resource.bold16dialog);
         deliveryPanel.setLayout(new GridBagLayout());
 
@@ -797,22 +807,26 @@ public class Dashboard extends JFrame{
         setLocationRelativeTo(null);
     }
 
+    private static final Class ComponentView$Invalidator = ComponentView.class.getDeclaredClasses()[0];
     private static final Map<Component, Boolean> compoEnable = new HashMap<>();
-    private static void setEnabledRecurse(Component root, boolean enabled){
+    private static void setEnabledRecurse(final Component root, final boolean enabled){
         if(root == null)
             return;
         Queue<Component> queue = new LinkedList<>();
         queue.add(root);
         while(!queue.isEmpty()){
             Component compo = queue.poll();
-            if(compo instanceof Container)
-                Collections.addAll(queue, ((Container) compo).getComponents());
+            if(compo instanceof Container) {
+                for (Component c : ((Container) compo).getComponents())
+                    if (!c.getClass().equals(ComponentView$Invalidator))
+                        queue.add(c);
+            }
             if(enabled){
                 Boolean b = compoEnable.get(compo);
                 if(b != null)
                     compo.setEnabled(b);
             }
-            else{
+            else if (compo.isVisible()) {
                 compoEnable.put(compo, compo.isEnabled());
                 compo.setEnabled(false);
             }
@@ -1057,14 +1071,6 @@ public class Dashboard extends JFrame{
     }
 
     public static void reset(){
-        jchkDetection.setEnabled(true);
-        jchkResolution.setEnabled(true);
-        if (jchkDetection.isSelected()) {
-            jchkDetection.doClick();
-            jchkDetection.setEnabled(true);
-            jchkResolution.setEnabled(true);
-        }
-
         src = dest = null;
         delivSelModeOn = false;
         deliverButton.setVisible(false);
@@ -1083,6 +1089,23 @@ public class Dashboard extends JFrame{
         enableStopCarButton(false);
         enableStartAllCarsButton(!Resource.getConnectedCars().isEmpty());
         enableStopAllCarsButton(false);
+
+        jchkDetection.setEnabled(true);
+        jchkDetection.setSelected(false);
+        jchkResolution.setEnabled(true);
+        jchkResolution.setSelected(false);
+        jchkBalloon.setEnabled(true);
+        jchkBalloon.setSelected(false);
+        showBalloon = false;
+        jchkBalloon.setEnabled(false);
+        jchkError.setEnabled(true);
+        jchkError.setSelected(false);
+        playErrorSound = false;
+        jchkError.setEnabled(false);
+        jchkCrash.setEnabled(true);
+        jchkCrash.setSelected(false);
+        playCrashSound = false;
+        jchkCrash.setEnabled(false);
     }
 
     public static void enableDeliveryButton(boolean b){
@@ -1120,8 +1143,7 @@ public class Dashboard extends JFrame{
             jchkResolution.setEnabled(false);
     }
 
-
-    private class RoadIconListener extends MouseAdapter{
+    private class RoadIconListener extends MouseAdapter {
         Road road = null;
 
         RoadIconListener(Road road) {
@@ -1132,6 +1154,8 @@ public class Dashboard extends JFrame{
         public void mousePressed(MouseEvent e) {
             if (road == null || !road.icon.isEnabled())
                 return;
+            road.icon.isPressed = true;
+            road.icon.repaint();
 //			System.out.println(road.name);
             // for delivery tasks
             if (delivSelModeOn) {
@@ -1213,7 +1237,29 @@ public class Dashboard extends JFrame{
         @Override
         public void mouseExited(MouseEvent e) {
 //            super.mouseExited(e);
+            if (road == null || !road.icon.isEnabled())
+                return;
+            road.icon.isEntered = false;
+            road.icon.repaint();
             TrafficMap.roadPaneScroll.setVisible(false);
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+//            super.mouseEntered(e);
+            if (road == null || !road.icon.isEnabled())
+                return;
+            road.icon.isEntered = true;
+            road.icon.repaint();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+//            super.mouseReleased(e);
+            if (road == null || !road.icon.isEnabled())
+                return;
+            road.icon.isPressed = false;
+            road.icon.repaint();
         }
     }
 

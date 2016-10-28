@@ -35,7 +35,8 @@ public class Resource {
 	private static Map<String, String> brickAddr = new HashMap<>();
 	public final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON, BLACK_QUESTION_ICON, GREEN_CHECK_ICON,
 			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,
-            RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON, CAR_ICON, FAKE_CAR_ICON, REAL_CAR_ICON;
+            RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON;
+    public final static Map<String, ImageIcon[]> CAR_ICONS = new HashMap<>();
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
@@ -52,18 +53,47 @@ public class Resource {
 		GREEN_CHECK_ICON = loadImage("res/green_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		ORANGE_CHECK_ICON = loadImage("res/orange_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
 		RED_X_ICON = loadImage("res/red_x_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-        MOVING_ICON = loadImage("res/play_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
-        STOP_ICON = loadImage("res/stop_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
-        UP_ARROW_ICON = loadImage("res/up_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
-        DOWN_ARROW_ICON = loadImage("res/down_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
-        LEFT_ARROW_ICON = loadImage("res/left_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
-        RIGHT_ARROW_ICON = loadImage("res/right_arrow.png", plain17dialog.getSize(), plain17dialog.getSize());
-        QUESTION_MARK_ICON = loadImage("res/question_mark_icon.png", plain17dialog.getSize(), plain17dialog.getSize());
-		CROSSROAD_ICON = loadImage("res/crossroad_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
-        STREET_ICON = loadImage("res/street_icon.png", TrafficMap.SH, TrafficMap.SH/2);
-        CAR_ICON = loadImage("res/green_car_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
-        FAKE_CAR_ICON = loadImage("res/fake_car_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
-        REAL_CAR_ICON = loadImage("res/real_car_icon.png", TrafficMap.SH/2, TrafficMap.SH/2);
+        MOVING_ICON = new ImageIcon("res/play_icon.png");
+        STOP_ICON = new ImageIcon("res/stop_icon.png");
+        UP_ARROW_ICON = new ImageIcon("res/up_arrow.png");
+        DOWN_ARROW_ICON = new ImageIcon("res/down_arrow.png");
+        LEFT_ARROW_ICON = new ImageIcon("res/left_arrow.png");
+        RIGHT_ARROW_ICON = new ImageIcon("res/right_arrow.png");
+        QUESTION_MARK_ICON = new ImageIcon("res/question_mark_icon.png");
+		CROSSROAD_ICON = new ImageIcon("res/crossroad_icon.png");
+        STREET_ICON = new ImageIcon("res/street_icon.png");
+
+        CAR_ICONS.put(Car.BLACK, new ImageIcon[]{
+                loadImage("res/black_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/black_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/black_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+        });
+        CAR_ICONS.put(Car.GREEN, new ImageIcon[]{
+                loadImage("res/green_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/green_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/green_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+        });
+        CAR_ICONS.put(Car.ORANGE, new ImageIcon[]{
+                loadImage("res/orange_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/orange_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/orange_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+        });
+        CAR_ICONS.put(Car.RED, new ImageIcon[]{
+                loadImage("res/red_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/red_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+        });
+        CAR_ICONS.put(Car.SILVER, new ImageIcon[]{
+                loadImage("res/silver_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/silver_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/silver_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+        });
+        CAR_ICONS.put(Car.WHITE, new ImageIcon[]{
+                loadImage("res/white_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/white_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/white_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+        });
+
 		try {
 			//use ssh-keyscan $IP >> brick/known_hosts
 			JSCH.setKnownHosts("brick/known_hosts");
@@ -186,14 +216,25 @@ public class Resource {
 	public static ImageIcon getRedXImageIcon(){
 		return RED_X_ICON;
 	}
+
+	public static Map<String, ImageIcon[]> getCarIcons() {
+        return CAR_ICONS;
+    }
+
+    public static ImageIcon[] getCarIcons(String name) {
+        return CAR_ICONS.get(name);
+    }
 	
-	public static ImageIcon loadImage(String filename, int width, int height){
-		ImageIcon imageIcon = new ImageIcon(filename);
-		Image image = imageIcon.getImage();
-		if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
-			image = image.getScaledInstance(width, -1, Image.SCALE_SMOOTH);
-		else
-			image = image.getScaledInstance(-1, height, Image.SCALE_SMOOTH);
-		return new ImageIcon(image);
+	public static ImageIcon loadImage(String filename, int width, int height) {
+		return loadImage(new ImageIcon(filename), width, height);
 	}
+
+    public static ImageIcon loadImage(ImageIcon imageIcon, int width, int height) {
+        Image image = imageIcon.getImage();
+        if(imageIcon.getIconWidth() > imageIcon.getIconHeight())
+            image = image.getScaledInstance(width, -1, Image.SCALE_SMOOTH);
+        else
+            image = image.getScaledInstance(-1, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(image);
+    }
 }

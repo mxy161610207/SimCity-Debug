@@ -106,7 +106,7 @@ public class Sensor {
                             str += "UNDETECTED";
                             break;
                     }
-                    str += ", entryThreshold=" + sensor.entryThreshold + ", leaveThreshold=" + sensor.leaveThreshold;
+                    str += ", entryThreshold="+sensor.entryThreshold+", leaveThreshold="+sensor.leaveThreshold+", reading="+sensor.reading;
                     System.out.println(str);
                 }
                 break;
