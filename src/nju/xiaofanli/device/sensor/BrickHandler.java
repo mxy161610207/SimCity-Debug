@@ -15,11 +15,10 @@ import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class BrickHandler extends Thread{
-    private static final Queue<RawData> rawData = new LinkedList<>();
+    private static final List<RawData> rawData = new LinkedList<>();
 
     BrickHandler(String name) {
         super(name);
@@ -45,10 +44,10 @@ public class BrickHandler extends Thread{
 
             RawData data;
             synchronized (rawData) {
-                data = rawData.poll();
+                data = rawData.remove(0);
             }
-            SensorManager.trigger(data.sensor, data.reading);
             switchState(data.sensor, data.reading, data.time);
+            SensorManager.trigger(data.sensor, data.reading);
         }
     }
 
@@ -86,7 +85,7 @@ public class BrickHandler extends Thread{
 //    				break;
 //    			}
 
-                System.out.println(sensor.name+" detects "+car.name);
+                System.out.println("["+sensor.name+"] DETECT "+car.name);
 
                 car.enter(sensor.nextRoad, sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
 
@@ -129,12 +128,12 @@ public class BrickHandler extends Thread{
                     if(sensor.car != null && !sensor.car.hasPhantom()
                             && sensor.car.loc.sameAs(sensor.nextRoad)
                             && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
-                        System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading + "\t" + System.currentTimeMillis());
+                        System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading + "\t" + time);
                         break;
                     }
                     sensor.state = Sensor.UNDETECTED;
                     sensor.car = null;
-                    System.out.println("[" + sensor.name + "] LEAVING!!!" + "\treading: " + reading + "\t" + System.currentTimeMillis());
+                    System.out.println("[" + sensor.name + "] LEAVING!!!" + "\treading: " + reading + "\t" + time);
                 }
                 break;
             case Sensor.UNDETECTED:
@@ -183,20 +182,20 @@ public class BrickHandler extends Thread{
                         }
 
                         if (car == null)  {
-                            System.out.println("[" + sensor.name + "] Cannot find any car!\treading: " + reading + "\t" + System.currentTimeMillis());
+                            System.out.println("[" + sensor.name + "] Cannot find any car!\treading: " + reading + "\t" + time);
                             sensor.state = Sensor.UNDETECTED;
                             break;
                         }
                         else {
+                            System.out.println("[" + sensor.name + "] Relocate " + car.name + "\t" + time);
                             StateSwitcher.startRelocating(car, prevSensor, prevPrevSensor);
                             break;
                         }
                     }
-                    System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + System.currentTimeMillis());
+                    System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + time);
 
-                    Middleware.add(car.name, dir, car.state, "movement", "enter",
-                            sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
-                            time, car, sensor, isRealCar);
+                    Middleware.checkConsistency(car.name, dir, car.state, "movement", "enter", sensor.prevRoad.name,
+                            sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, time, car, sensor, isRealCar);
                 }
                 break;
         }
@@ -220,8 +219,28 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void add(int bid, int sid, int reading, long time){
-        Sensor sensor = Resource.getSensors()[bid][sid];
+//    public static void add(int bid, int sid, int reading, long time){
+//        Sensor sensor = Resource.getSensors()[bid][sid];
+//        sensor.reading = reading;
+//        if(StateSwitcher.isResetting() || StateSwitcher.isRelocating()){
+//            switchStateWhenLocating(sensor, reading);
+//            return;
+//        }
+//        RawData datum = new RawData(sensor, reading, time);
+//        synchronized (rawData) {
+//            rawData.add(datum);
+//            rawData.notify();
+//        }
+//    }
+
+    private static Comparator<RawData> comparator = (o1, o2) -> (int) (o1.time - o2.time);
+    public static void insert(int bid, int sid, int reading, long time){
+        insert(Resource.getSensors()[bid][sid], reading, time);
+    }
+
+    public static void insert(Sensor sensor, int reading, long time) {
+        if (sensor == null)
+            return;
         sensor.reading = reading;
         if(StateSwitcher.isResetting() || StateSwitcher.isRelocating()){
             switchStateWhenLocating(sensor, reading);
@@ -229,7 +248,10 @@ public class BrickHandler extends Thread{
         }
         RawData datum = new RawData(sensor, reading, time);
         synchronized (rawData) {
-            rawData.add(datum);
+            int pos = Collections.binarySearch(rawData, datum, comparator);
+            if(pos < 0)
+                pos = -pos - 1;
+            rawData.add(pos, datum);
             rawData.notify();
         }
     }

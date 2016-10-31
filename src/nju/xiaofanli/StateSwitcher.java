@@ -93,7 +93,7 @@ public class StateSwitcher {
 		threadStatus.keySet().forEach(Thread::interrupt);
 	}
 
-	private static void wakeUp(Object obj){
+	private static void wakeUp(final Object obj){
 		synchronized (obj) {
             obj.notify();
 		}
@@ -341,6 +341,10 @@ public class StateSwitcher {
     }
 
     public static void startRelocating(Car car, Sensor prevSensor, Sensor prevPrevSensor) {
+        if (isResetting())
+            return;
+		else if (isNormal())
+			setState(State.RELOCATE); // make sure only one relocation task is running
         relocateTask.car2locate = car;
         relocateTask.prevSensor = prevSensor;
         relocateTask.prevPrevSensor = prevPrevSensor;
@@ -350,17 +354,17 @@ public class StateSwitcher {
 	private static RelocateTask relocateTask = new RelocateTask();
     private static class RelocateTask implements Runnable {
         private static final Object OBJ = new Object();
-        private static final Lock LOCK = new ReentrantLock();
+//        private static final Lock LOCK = new ReentrantLock();
         private Car car2locate = null;
         private Sensor sensor = null, prevSensor = null, prevPrevSensor = null;
-        private static Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
+        private Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
 
         private RelocateTask(){}
         @Override
         public void run() {
             if (car2locate == null)
                 return;
-            LOCK.lock();
+//            LOCK.lock();
             checkIfSuspended();
             setState(State.RELOCATE);
             for(Car car : Resource.getConnectedCars()){
@@ -400,14 +404,14 @@ public class StateSwitcher {
             setState(State.NORMAL);
             if (sensor == prevSensor) {
                 sensor.state = Sensor.UNDETECTED;
-                BrickHandler.add(sensor.bid, sensor.sid, 0, System.currentTimeMillis());
+                BrickHandler.insert(sensor, 0, System.currentTimeMillis());
             }
             sensor = prevSensor = prevPrevSensor = null;
             interruptAll();
             movingCars.clear();
             whistlingCars.clear();
             car2locate = null;
-            LOCK.unlock();
+//            LOCK.unlock();
         }
     }
 }

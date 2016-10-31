@@ -86,11 +86,11 @@ public class Sensor {
             switch (e.getButton()) {
                 case MouseEvent.BUTTON1:
 //				System.out.println("left click");
-                    BrickHandler.add(sensor.bid, sensor.sid, 0, System.currentTimeMillis());
+                    BrickHandler.insert(sensor, 0, System.currentTimeMillis());
                     break;
                 case MouseEvent.BUTTON3:
 //				System.out.println("right click");
-                    BrickHandler.add(sensor.bid, sensor.sid, 30, System.currentTimeMillis());
+                    BrickHandler.insert(sensor, 30, System.currentTimeMillis());
                     break;
                 case MouseEvent.BUTTON2: {
                     BrickServer.showingSensor = BrickServer.showingSensor != sensor ? sensor : null;

@@ -86,50 +86,54 @@ public class Middleware {
             synchronized (queue) {
                 context = queue.poll();
             }
-            Car car = (Car) context.getFields().get("car");
-            Sensor sensor = (Sensor) context.getFields().get("sensor");
-            boolean isRealCar = (boolean) context.getFields().get("real");
-//    			if(!dEnabled){
-//                    BrickHandler.switchState(car, sensor, true);
-//    				continue;
-//    			}
-
-            Map<String, List<ContextChange>> changes = getChanges(context);
-            // check consistency
-            Pair<Integer, List<Context>> res = Operation.operate(changes, resolutionStrategy);
-            if(res == null)
-                continue;
-
-            // update cars' and sensors' states
-            switch (res.first) {
-                case Context.Normal:
-                    BrickHandler.switchState(car, sensor, isRealCar, true);
-                    break;
-                case Context.FP:{
-                    if (dEnabled)
-                        sensor.displayBalloon(Context.FP, car.name, rEnabled);
-                    if (!rEnabled && dEnabled) //if (!rEnabled)
-                        BrickHandler.switchState(car, sensor, isRealCar, false);
-                }
-                break;
-                case Context.FN:
-                    if (dEnabled)
-                        sensor.displayBalloon(Context.FN, car.name, rEnabled);
-                    if (rEnabled || !dEnabled && !rEnabled) //if (rEnabled)
-                        BrickHandler.switchState(car, sensor, isRealCar, true);
-                    break;
-            }
-//            display();
+            checkConsistency(context);
         }
     };
-    
+
     public Middleware() {
         //code application logic here
         new Thread(handler, "MiddleWare Handler").start();
-	}
+    }
 
-	public static Context getContext(Object subject, Object direction, Object state, Object category, Object predicate,
-                                          Object prev, Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+    public static void checkConsistency(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
+                                        Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+        checkConsistency(getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar));
+    }
+
+    public static void checkConsistency(Context context) {
+        Car car = (Car) context.getFields().get("car");
+        Sensor sensor = (Sensor) context.getFields().get("sensor");
+        boolean isRealCar = (boolean) context.getFields().get("real");
+
+        Map<String, List<ContextChange>> changes = getChanges(context);
+        // check consistency
+        Pair<Integer, List<Context>> res = Operation.operate(changes, resolutionStrategy);
+        if(res == null)
+            return;
+
+        // update cars' and sensors' states
+        switch (res.first) {
+            case Context.Normal:
+                BrickHandler.switchState(car, sensor, isRealCar, true);
+                break;
+            case Context.FP:
+                if (dEnabled)
+                    sensor.displayBalloon(Context.FP, car.name, rEnabled);
+                if (!rEnabled && dEnabled) //if (!rEnabled)
+                    BrickHandler.switchState(car, sensor, isRealCar, false);
+                break;
+            case Context.FN:
+                if (dEnabled)
+                    sensor.displayBalloon(Context.FN, car.name, rEnabled);
+                if (rEnabled || !dEnabled && !rEnabled) //if (rEnabled)
+                    BrickHandler.switchState(car, sensor, isRealCar, true);
+                break;
+        }
+//            display();
+    }
+
+    public static Context getContext(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
+                                     Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
         Context context = new Context();
         context.addField("subject", subject);
         context.addField("direction", direction);
@@ -150,7 +154,7 @@ public class Middleware {
      * @param context used to generate changes (addition or deletion)
      * @return context changes derived from the context, which are separated by rules
      */
-	private static Map<String, List<ContextChange>> getChanges(Context context) {
+    private static Map<String, List<ContextChange>> getChanges(Context context) {
         Map<String, List<ContextChange>> changes = new HashMap<>();
         patterns.values().stream().filter(context::matches).forEach(pattern -> {
             if (!changes.containsKey(pattern.getRule()))
@@ -166,16 +170,16 @@ public class Middleware {
         return changes;
     }
 
-	public static void add(Object subject, Object direction, Object state, Object category, Object predicate,
-                           Object prev, Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
-		if(StateSwitcher.isResetting())
-			return;
+    public static void add(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
+                           Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+        if(StateSwitcher.isResetting())
+            return;
         Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar);
-		synchronized (queue) {
-			queue.add(context);
-			queue.notify();
-		}
-	}
+        synchronized (queue) {
+            queue.add(context);
+            queue.notify();
+        }
+    }
 
     /**
      * Only called in the initial phase, directly add true contexts to patterns
@@ -188,40 +192,29 @@ public class Middleware {
 //        display();
     }
 
-//    private static void addTrueContexts(){
-//        Resource.getConnectedCars().stream().filter(car -> car.loc != null && car.dir != TrafficMap.UNKNOWN_DIR).forEach(car -> {
-//            Road next = car.loc.adjRoads.get(car.dir);
-//            Road prev = car.loc.exit2entrance.get(next);
-//            Context context = getContext(car.name, car.dir, Car.MOVING, "movement", "enter", prev.name, car.loc.name,
-//                    System.currentTimeMillis(), null, null);
-//            Map<String, List<ContextChange>> changes = getChanges(context);
-//        });
-//        display();
-//    }
-	
-	public static void clear(){
-		synchronized (queue) {
-			queue.clear();
-		}
-	}
-	
-	public static void reset() {
+    public static void clear(){
+        synchronized (queue) {
+            queue.clear();
+        }
+    }
+
+    public static void reset() {
         dEnabled = rEnabled = false;
         patterns.values().forEach(Pattern::reset);
         rules.values().forEach(Rule::reset);
-	}
-    
-    public static HashMap<String,Pattern> getPatterns() {
-    	return patterns;
     }
-    
+
+    public static HashMap<String,Pattern> getPatterns() {
+        return patterns;
+    }
+
     public static HashMap<String, Rule> getRules() {
-    	return rules;
+        return rules;
     }
 
     public static void main(String[] args) {
-    	TrafficMap.getInstance();
-		new Middleware();
+        TrafficMap.getInstance();
+        new Middleware();
         File file = new File("src/nju/xiaofanli/consistency/config/test case.txt");
 
         Queue<String> list = new LinkedList<>();
@@ -239,11 +232,11 @@ public class Middleware {
         }
 
         while(!list.isEmpty()){
-        	String testCase = list.poll();
-        	String[] s = testCase.split(", ");
-        	add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], s[7], Long.parseLong(s[8]), null, null, false);
+            String testCase = list.poll();
+            String[] s = testCase.split(", ");
+            add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], s[7], Long.parseLong(s[8]), null, null, false);
         }
-	}
+    }
 
     private static void display() {
         for (Map.Entry<String, Pattern> entry : patterns.entrySet()) {
@@ -255,19 +248,19 @@ public class Middleware {
             pat.getContexts().forEach(Context::print);
         }
     }
-    
+
 
     public static void enableDetection(boolean detectionEnabled) {
-		dEnabled = detectionEnabled;
-	}
+        dEnabled = detectionEnabled;
+    }
 
-	public static boolean isDetectionEnabled(){
+    public static boolean isDetectionEnabled(){
         return dEnabled;
     }
 
     public static void enableResolution(boolean resolutionEnabled) {
-		rEnabled = resolutionEnabled;
-	}
+        rEnabled = resolutionEnabled;
+    }
 
     public static boolean isResolutionEnabled(){
         return rEnabled;

@@ -26,18 +26,16 @@ public class BrickServer implements Runnable{
 			e.printStackTrace();
 		}
 		new BrickHandler("Brick Handler").start();
-		byte[] buf = new byte[4];//new byte[1024];
+		byte[] buf = new byte[20];//new byte[1024];
 		DatagramPacket packet = new DatagramPacket(buf, buf.length);
 		//noinspection InfiniteLoopStatement
 		while(true){
 			try {
 				server.receive(packet);
 				String data = new String(packet.getData());
-//				byte[] b = packet.getData();
 				int bid = data.charAt(0) - '0';//byte2int(b, 0);
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
-//				System.out.println(data.substring(2));
-				int d = Integer.parseInt(data.substring(2));//byte2int(b, 8);
+				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
                 if(showingSensor != null && Resource.getSensors()[bid][sid] == showingSensor)
                     System.out.println("["+showingSensor.name+"] reading: "+d);
 //				if(((pre[bid][sid] + 1) % 100) != d)
@@ -46,11 +44,16 @@ public class BrickServer implements Runnable{
 //				recvTime[bid] = System.currentTimeMillis();
 //				for(int i = 0;i < 10;i++)
 //					System.out.print(i+":"+(System.currentTimeMillis() - recvTime[i])/1000+"\t");
-//				System.out.println();
-//				if(sensor2print > 0 && sensor2print/10 == bid && sensor2print%10 == sid)
-//					System.out.println("B"+bid+"S"+(sid+1)+":"+d);
-				if(d != Integer.MAX_VALUE && d != 99)
-					BrickHandler.add(bid, sid, d, System.currentTimeMillis());
+				if (d == 99) { // clock synchronization
+                    byte[] buffer = data.substring(0, 2).concat(String.valueOf(System.currentTimeMillis())).getBytes();
+//                    System.out.println(packet.getAddress()+"\t"+packet.getPort()+"\t"+System.currentTimeMillis());
+                    server.send(new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort()));
+				}
+				else if(d != Integer.MAX_VALUE && d != 98) {
+                    long time = Long.parseLong(data.substring(4, 17));
+//                    System.out.println("[B"+bid+"S"+(sid+1)+"] "+(System.currentTimeMillis()-time)*0.001);
+                    BrickHandler.insert(bid, sid, d, time);
+                }
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

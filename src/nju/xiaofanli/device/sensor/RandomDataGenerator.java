@@ -46,8 +46,8 @@ public class RandomDataGenerator implements Runnable{
                 if (disabled.isEmpty() || !Middleware.isResolutionEnabled() || random.nextInt(enabled.size() + disabled.size()) < enabled.size()) {
                     if (!enabled.isEmpty()) {
                         Sensor sensor = (Sensor) enabled.toArray()[random.nextInt(enabled.size())];
-                        BrickHandler.add(sensor.bid, sensor.sid, 0, System.currentTimeMillis());
-                        BrickHandler.add(sensor.bid, sensor.sid, 30, System.currentTimeMillis());
+                        BrickHandler.insert(sensor, 0, System.currentTimeMillis());
+                        BrickHandler.insert(sensor, 30, System.currentTimeMillis()+100);
                     }
                 }
                 else {

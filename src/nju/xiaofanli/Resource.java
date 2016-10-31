@@ -84,9 +84,9 @@ public class Resource {
                 loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
         });
         CAR_ICONS.put(Car.SILVER, new ImageIcon[]{
-                loadImage("res/silver_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/silver_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/silver_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/silver_suv_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/silver_suv_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("res/silver_suv_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
         });
         CAR_ICONS.put(Car.WHITE, new ImageIcon[]{
                 loadImage("res/white_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),

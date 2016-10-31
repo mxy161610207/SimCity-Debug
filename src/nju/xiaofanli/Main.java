@@ -36,7 +36,7 @@ public class Main {
 		addModule();
         new BrickServer();
 		new CmdSender();
-		new Middleware();
+//		new Middleware();
 		new Police();
 		new Delivery();
 		new AppServer();
