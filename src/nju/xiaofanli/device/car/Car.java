@@ -231,12 +231,12 @@ public class Car {
         this.dir = dir;
         if(getState() != MOVING) {
             setState(MOVING);
-            if(getLoading())
-                setLoading(false);
             //trigger move event
             if(EventManager.hasListener(Event.Type.CAR_MOVE))
                 EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
         }
+        if(getLoading())
+            setLoading(false);
 		notifyPolice(Police.AFTER_ENTRY, road);
         if (hasPhantom() && loc.sameAs(realLoc) && dir == realDir) {
             resetRealInfo();

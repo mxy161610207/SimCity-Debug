@@ -5,6 +5,7 @@ import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.BrickHandler;
@@ -117,19 +118,15 @@ public class StateSwitcher {
             if (car != null && car.loc == null) {//still not located, then locate it
                 resetTask.car2locate = null;
                 Command.stop(car);
-//            car.loc = sensor.nextRoad;
-//			if(car.dir == TrafficMap.UNKNOWN_DIR)
-//            	car.dir = car.loc.dir[1] == TrafficMap.UNKNOWN_DIR ? car.loc.dir[0] : sensor.dir;
-//            sensor.nextRoad.cars.add(car);
                 car.initLocAndDir(sensor);
                 resetTask.locatedCars.add(car);
                 wakeUp(ResetTask.OBJ);
             }
         }
         else if (isRelocating()) {
-            if (relocateTask.sensor == null && (sensor == relocateTask.prevSensor || sensor == relocateTask.prevPrevSensor)) {
+            if (relocateTask.locatedSensor == null && isInterestedSensor(sensor)) {
                 Command.stop(relocateTask.car2locate);
-                relocateTask.sensor = sensor;
+                relocateTask.locatedSensor = sensor;
                 wakeUp(RelocateTask.OBJ);
             }
         }
@@ -210,7 +207,6 @@ public class StateSwitcher {
 			Middleware.reset();
             Delivery.reset();
 
-
 			//third step: resolve the inconsistency
 			checkIfSuspended();
 			//for false inconsistency, just restore its loc and dir
@@ -261,19 +257,12 @@ public class StateSwitcher {
 		}
 
 		private class CarInfo{
-//			private Road loc;
-//			private int dir;
 			private Sensor sensor;
 			private CarInfo(Road loc, int dir){
-//				this.loc = loc;
-//				this.dir = dir;
 				sensor = loc.adjSensors.get(dir).prevSensor;
 			}
 
 			private void restore(Car car){
-//				car.loc = loc;
-//				car.dir = dir;
-//				loc.cars.add(car);
                 car.initLocAndDir(sensor);
 			}
 		}
@@ -283,49 +272,56 @@ public class StateSwitcher {
 	private static final Lock SUSPEND_LOCK = new ReentrantLock();
 	private static final Object SUSPEND_OBJ = new Object();
 	private static Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
+    private static boolean isSuspended = false;
 	public static void suspend(){
-		if(prevState != null)//already called this method before
-			return;
-		SUSPEND_LOCK.lock();
-		prevState = state;
-		setState(State.SUSPEND);
-		for(Car car : Resource.getConnectedCars()){
-            if(car.trend == Car.MOVING)
-                movingCars.add(car);
-			Command.stop(car);
-			if(car.isHornOn && car.lastHornCmd == Command.HORN_ON)
-				whistlingCars.add(car);
-			Command.silence(car);
-		}
-		if(prevState == State.NORMAL)
-			Dashboard.enableCtrlUI(false);
-		Dashboard.showDeviceDialog(false);
-		SUSPEND_LOCK.unlock();
+		if(!isSuspended && !SelfCheck.allReady()) {
+            SUSPEND_LOCK.lock();
+            if (!isSuspended && !SelfCheck.allReady()) {
+                System.out.println("*** SUSPEND ***");
+                isSuspended = true;
+                prevState = state;
+                setState(State.SUSPEND);
+                for (Car car : Resource.getConnectedCars()) {
+                    if (car.trend == Car.MOVING)
+                        movingCars.add(car);
+                    Command.stop(car);
+                    if (car.isHornOn && car.lastHornCmd == Command.HORN_ON)
+                        whistlingCars.add(car);
+                    Command.silence(car);
+                }
+                if (prevState == State.NORMAL)
+                    Dashboard.enableCtrlUI(false);
+                Dashboard.showDeviceDialog(false);
+            }
+            SUSPEND_LOCK.unlock();
+        }
 	}
 
 	public static void resume(){
-		if(prevState == null)//suspend() not called in advance
-			return;
-		SUSPEND_LOCK.lock();
-		Dashboard.closeDeviceDialog();
-        movingCars.forEach(Command::drive);
-		whistlingCars.forEach(Command::whistle);
+        if(isSuspended && SelfCheck.allReady()) {
+            SUSPEND_LOCK.lock();
+            if (isSuspended && SelfCheck.allReady()) {
+                System.out.println("*** RESUME ***");
+                isSuspended = false;
+                Dashboard.closeDeviceDialog();
+                if (prevState == State.NORMAL)
+                    Dashboard.enableCtrlUI(true);
 
-        if(prevState == State.NORMAL)
-			Dashboard.enableCtrlUI(true);
-
-		setState(prevState);
-		//must invoked after state changed back
-        interruptAll();//drive all threads away from safe points
-		if(prevState == State.RESET || prevState == State.RELOCATE) {
-			synchronized (SUSPEND_OBJ) {
-				SUSPEND_OBJ.notify();
-			}
-		}
-        movingCars.clear();
-		whistlingCars.clear();
-		prevState = null;
-		SUSPEND_LOCK.unlock();
+                movingCars.forEach(Command::drive);
+                whistlingCars.forEach(Command::whistle);
+                setState(prevState);
+                interruptAll(); //must invoked after state changed back, drive all threads away from safe points
+                if (prevState == State.RESET || prevState == State.RELOCATE) {
+                    synchronized (SUSPEND_OBJ) {
+                        SUSPEND_OBJ.notify();
+                    }
+                }
+                movingCars.clear();
+                whistlingCars.clear();
+                prevState = null;
+            }
+            SUSPEND_LOCK.unlock();
+        }
 	}
 
     private static void checkIfSuspended(){
@@ -340,23 +336,29 @@ public class StateSwitcher {
         }
     }
 
-    public static void startRelocating(Car car, Sensor prevSensor, Sensor prevPrevSensor) {
+    public static void startRelocating(Car car, Sensor reportedSensor) {
         if (isResetting())
             return;
 		else if (isNormal())
 			setState(State.RELOCATE); // make sure only one relocation task is running
         relocateTask.car2locate = car;
-        relocateTask.prevSensor = prevSensor;
-        relocateTask.prevPrevSensor = prevPrevSensor;
+        relocateTask.reportedSensor = reportedSensor;
         Resource.execute(relocateTask);
+    }
+
+    public static boolean isReportedSensor(Sensor sensor) {
+        return isRelocating() && sensor == relocateTask.reportedSensor;
+    }
+
+    public static boolean isInterestedSensor(Sensor sensor) {
+        return isRelocating() && (sensor == relocateTask.reportedSensor.prevSensor || sensor == relocateTask.reportedSensor.prevSensor.prevSensor);
     }
 
 	private static RelocateTask relocateTask = new RelocateTask();
     private static class RelocateTask implements Runnable {
         private static final Object OBJ = new Object();
-//        private static final Lock LOCK = new ReentrantLock();
         private Car car2locate = null;
-        private Sensor sensor = null, prevSensor = null, prevPrevSensor = null;
+        private Sensor locatedSensor = null, reportedSensor = null;
         private Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
 
         private RelocateTask(){}
@@ -364,7 +366,6 @@ public class StateSwitcher {
         public void run() {
             if (car2locate == null)
                 return;
-//            LOCK.lock();
             checkIfSuspended();
             setState(State.RELOCATE);
             for(Car car : Resource.getConnectedCars()){
@@ -385,7 +386,7 @@ public class StateSwitcher {
             }
 
             Command.back(car2locate);
-            while(sensor == null) {
+            while(locatedSensor == null) {
                 try {
                     synchronized (OBJ) {
                         OBJ.wait();// wait for any readings from sensors
@@ -401,17 +402,17 @@ public class StateSwitcher {
             Dashboard.closeRelocationDialog();
             Dashboard.enableCtrlUI(true);
 
-            setState(State.NORMAL);
-            if (sensor == prevSensor) {
-                sensor.state = Sensor.UNDETECTED;
-                BrickHandler.insert(sensor, 0, System.currentTimeMillis());
-            }
-            sensor = prevSensor = prevPrevSensor = null;
-            interruptAll();
             movingCars.clear();
             whistlingCars.clear();
             car2locate = null;
-//            LOCK.unlock();
+            Sensor s = locatedSensor == reportedSensor.prevSensor ? locatedSensor : null;
+            reportedSensor = locatedSensor = null;
+            setState(State.NORMAL); // make sure every variable is reset before set state back to normal
+            if (s != null && s.state == Sensor.DETECTED) {
+                s.state = Sensor.UNDETECTED;
+                BrickHandler.insert(s, 0, System.currentTimeMillis());
+            }
+            interruptAll();
         }
     }
 }

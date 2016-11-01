@@ -67,10 +67,6 @@ public class BrickHandler extends Thread{
                                 sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
                         break;
                     }
-//                    else if(car.hasPhantom()){
-//                        car.loadRealInfo();
-//                        PkgHandler.send(new AppPkg().setCarRealLoc(car.name, null));//TODO bug here
-//                    }
                 }
                 else {
                     if (isRealCar) //abandon false context triggered by real (invisible) car
@@ -80,10 +76,6 @@ public class BrickHandler extends Thread{
                         PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.getRealLoc().name));
                     }
                 }
-//    			else if(car.loc.sameAs(sensor.nextRoad)){
-//    				//the phantom already in this road
-//    				break;
-//    			}
 
                 System.out.println("["+sensor.name+"] DETECT "+car.name);
 
@@ -117,12 +109,6 @@ public class BrickHandler extends Thread{
 
     private static void switchState(Sensor sensor, int reading, long time){
         switch(sensor.state){
-//            case Sensor.INITIAL:
-//                if(sensor.entryDetected(reading))
-//                    sensor.state = Sensor.DETECTED;
-//                else if(sensor.leaveDetected(reading))
-//                    sensor.state = Sensor.UNDETECTED;
-//                break;
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
                     if(sensor.car != null && !sensor.car.hasPhantom()
@@ -188,7 +174,14 @@ public class BrickHandler extends Thread{
                         }
                         else {
                             System.out.println("[" + sensor.name + "] Relocate " + car.name + "\t" + time);
-                            StateSwitcher.startRelocating(car, prevSensor, prevPrevSensor);
+                            synchronized (rawData) {
+                                for (ListIterator<RawData> iter = rawData.listIterator();iter.hasNext();) {
+                                    RawData data = iter.next();
+                                    if (data.sensor == sensor)
+                                        iter.remove(); // remove all raw data of the same sensor, make sure not trigger relocation repeatedly
+                                }
+                            }
+                            StateSwitcher.startRelocating(car, sensor);
                             break;
                         }
                     }
@@ -219,20 +212,6 @@ public class BrickHandler extends Thread{
         }
     }
 
-//    public static void add(int bid, int sid, int reading, long time){
-//        Sensor sensor = Resource.getSensors()[bid][sid];
-//        sensor.reading = reading;
-//        if(StateSwitcher.isResetting() || StateSwitcher.isRelocating()){
-//            switchStateWhenLocating(sensor, reading);
-//            return;
-//        }
-//        RawData datum = new RawData(sensor, reading, time);
-//        synchronized (rawData) {
-//            rawData.add(datum);
-//            rawData.notify();
-//        }
-//    }
-
     private static Comparator<RawData> comparator = (o1, o2) -> (int) (o1.time - o2.time);
     public static void insert(int bid, int sid, int reading, long time){
         insert(Resource.getSensors()[bid][sid], reading, time);
@@ -242,9 +221,17 @@ public class BrickHandler extends Thread{
         if (sensor == null)
             return;
         sensor.reading = reading;
-        if(StateSwitcher.isResetting() || StateSwitcher.isRelocating()){
+        if(StateSwitcher.isResetting()){
             switchStateWhenLocating(sensor, reading);
             return;
+        }
+        else if (StateSwitcher.isRelocating()) {
+            if (StateSwitcher.isInterestedSensor(sensor)) {
+                switchStateWhenLocating(sensor, reading);
+                return;
+            }
+            else if (StateSwitcher.isReportedSensor(sensor)) // abandon any reading from reported sensor in case of repeated relocation
+                return;
         }
         RawData datum = new RawData(sensor, reading, time);
         synchronized (rawData) {

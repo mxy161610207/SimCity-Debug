@@ -36,7 +36,7 @@ public class BrickServer implements Runnable{
 				int bid = data.charAt(0) - '0';//byte2int(b, 0);
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
 				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
-                if(showingSensor != null && Resource.getSensors()[bid][sid] == showingSensor)
+                if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
                     System.out.println("["+showingSensor.name+"] reading: "+d);
 //				if(((pre[bid][sid] + 1) % 100) != d)
 //					System.err.println("B"+bid+"S"+(sid+1)+":"+pre[bid][sid]+" "+d);

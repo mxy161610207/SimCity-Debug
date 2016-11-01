@@ -9,7 +9,6 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.device.sensor.BrickHandler;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -19,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 public class SelfCheck{
-	private	final Object OBJ = new Object();
-	private final Map<String, Boolean> deviceStatus = new HashMap<>();
+	private	static final Object OBJ = new Object();
+	private static final Map<String, Boolean> deviceStatus = new HashMap<>();
 	
 	/**
 	 * This method will block until all devices are ready
@@ -78,7 +77,7 @@ public class SelfCheck{
         }
 	}
 	
-	private boolean allReady(){
+	public static boolean allReady() {
 		for(boolean b : deviceStatus.values())
 			if(!b)	return false;
 		return true;

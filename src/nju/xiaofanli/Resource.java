@@ -149,6 +149,12 @@ public class Resource {
 	public static Sensor[][] getSensors(){
 		return TrafficMap.sensors;
 	}
+
+	public static Sensor getSensor(int bid, int sid) {
+		if (TrafficMap.sensors == null || TrafficMap.sensors.length < bid || TrafficMap.sensors[bid].length < sid)
+			return null;
+		return TrafficMap.sensors[bid][sid];
+	}
 	
 	public static Road.Crossroad[] getCrossroads(){
 		return TrafficMap.crossroads;
