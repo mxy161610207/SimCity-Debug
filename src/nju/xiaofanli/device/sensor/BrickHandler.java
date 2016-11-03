@@ -30,7 +30,7 @@ public class BrickHandler extends Thread{
         StateSwitcher.register(thread);
         //noinspection InfiniteLoopStatement
         while(true){
-            while(rawData.isEmpty() || !StateSwitcher.isNormal()){
+            while(rawData.isEmpty() || StateSwitcher.isResetting()){ // in suspension and relocation phase, this handler still runs to exhaust rawdata queue
                 try {
                     synchronized (rawData) {
                         rawData.wait();
@@ -63,8 +63,7 @@ public class BrickHandler extends Thread{
                     }
 
                     if (isRealCar) { //real car entered
-                        car.setRealInfo(sensor.nextRoad,
-                                sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
+                        car.setRealInfo(sensor.nextRoad, sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
                         break;
                     }
                 }
@@ -87,7 +86,6 @@ public class BrickHandler extends Thread{
                 if(car.dest != null){
                     if(car.dest.sameAs(car.loc)){
                         car.notifyPolice(Police.REQUEST2STOP);
-//                        Dashboard.log(car.name+" reached destination");
                         //trigger reach dest event
                         if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
                             EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
@@ -107,7 +105,7 @@ public class BrickHandler extends Thread{
         }
     }
 
-    private static void switchState(Sensor sensor, int reading, long time){
+    public static void switchState(Sensor sensor, int reading, long time){
         switch(sensor.state){
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
@@ -129,10 +127,10 @@ public class BrickHandler extends Thread{
                     boolean isRealCar = false;
                     //check real cars first
                     for(Car realCar : sensor.prevRoad.realCars){
-                        if(realCar.realDir == sensor.dir){
+                        if(realCar.getRealDir() == sensor.dir){
                             isRealCar = true;
                             car = realCar;
-                            dir = realCar.realDir;
+                            dir = realCar.getRealDir();
                             break;
                         }
                     }
@@ -151,7 +149,7 @@ public class BrickHandler extends Thread{
                         Sensor prevSensor = sensor.prevSensor;
                         Sensor prevPrevSensor = prevSensor.prevSensor;
                         for(Car realCar : prevSensor.prevRoad.realCars) {
-                            if(realCar.realDir == prevSensor.dir && realCar.getState() == Car.MOVING
+                            if(realCar.getRealDir() == prevSensor.dir && realCar.getState() == Car.MOVING
                                     && (prevPrevSensor.state != Sensor.DETECTED || prevPrevSensor.car != realCar)) {
                                 car = realCar;
                                 break;
@@ -181,7 +179,8 @@ public class BrickHandler extends Thread{
                                         iter.remove(); // remove all raw data of the same sensor, make sure not trigger relocation repeatedly
                                 }
                             }
-                            StateSwitcher.startRelocating(car, sensor);
+//                            StateSwitcher.startRelocating(car, sensor);
+                            StateSwitcher.startRelocating(car, prevPrevSensor, prevSensor);
                             break;
                         }
                     }
@@ -217,29 +216,30 @@ public class BrickHandler extends Thread{
         insert(Resource.getSensors()[bid][sid], reading, time);
     }
 
+    /**
+     * In suspension phase, all readings will be discarded.
+     * In relocation phase, all readings except those from interested sensors will also be discarded.
+     */
     public static void insert(Sensor sensor, int reading, long time) {
         if (sensor == null)
             return;
         sensor.reading = reading;
-        if(StateSwitcher.isResetting()){
+        if (StateSwitcher.isNormal()) {
+            RawData datum = new RawData(sensor, reading, time);
+            synchronized (rawData) {
+                int pos = Collections.binarySearch(rawData, datum, comparator);
+                if(pos < 0)
+                    pos = -pos - 1;
+                rawData.add(pos, datum);
+                rawData.notify();
+            }
+        }
+        else if(StateSwitcher.isResetting()) {
             switchStateWhenLocating(sensor, reading);
-            return;
         }
         else if (StateSwitcher.isRelocating()) {
-            if (StateSwitcher.isInterestedSensor(sensor)) {
+            if (StateSwitcher.Relocation.isInterestedSensor(sensor))
                 switchStateWhenLocating(sensor, reading);
-                return;
-            }
-            else if (StateSwitcher.isReportedSensor(sensor)) // abandon any reading from reported sensor in case of repeated relocation
-                return;
-        }
-        RawData datum = new RawData(sensor, reading, time);
-        synchronized (rawData) {
-            int pos = Collections.binarySearch(rawData, datum, comparator);
-            if(pos < 0)
-                pos = -pos - 1;
-            rawData.add(pos, datum);
-            rawData.notify();
         }
     }
 

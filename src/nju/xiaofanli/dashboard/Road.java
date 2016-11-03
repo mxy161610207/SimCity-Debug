@@ -2,7 +2,6 @@ package nju.xiaofanli.dashboard;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.HashMap;
@@ -36,9 +35,9 @@ public abstract class Road extends Location{
 	public Set<Road> combined = new HashSet<>();
 //	public Object mutex = new Object();//used by police thread and its notifier
 	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
+	public Map<Integer, Map<String, Integer>> remainingTimes = new HashMap<>(); //<car dir , car name> -> remaining time
 	public RoadIcon icon = null;
-	public Sensor.BalloonIcon balloon = null;
-	
+
 	public static Road roadOf(String name){
 //		System.out.println(name);
 		if(name == null)
@@ -78,6 +77,7 @@ public abstract class Road extends Location{
 					other.entrance2exit = road.entrance2exit;
 					other.exit2entrance = road.exit2entrance;
 					other.dir = road.dir;
+                    other.remainingTimes = road.remainingTimes;
 				}
 		}
 	}

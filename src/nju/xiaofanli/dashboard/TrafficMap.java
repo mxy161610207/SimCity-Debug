@@ -98,9 +98,17 @@ public class TrafficMap extends JPanel{
         initSensors();
         initBuildings();
 
-        for (Sensor[] array : sensors)
-            for (Sensor sensor : array)
+        for (Sensor[] array : sensors) {
+            for (Sensor sensor : array) {
                 add(sensor.icon);
+                Resource.remainingTimes.get(sensor.name).forEach((car, time) -> {
+                    int direction = sensor.nextRoad.dir[1] == UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir;
+                    if (!sensor.nextRoad.remainingTimes.containsKey(direction))
+                        sensor.nextRoad.remainingTimes.put(direction, new HashMap<>());
+                    sensor.nextRoad.remainingTimes.get(direction).put(car, (int) (time * 1.5));
+                });
+            }
+        }
 
         roadPaneScroll.setVisible(false);
         roadPaneScroll.setSize(U3, U3);
@@ -109,10 +117,7 @@ public class TrafficMap extends JPanel{
             for (Sensor sensor : array)
                 add(sensor.balloon);
         citizens.forEach(citizen -> add(citizen.icon));
-        roads.values().forEach(road -> {
-//            add(road.balloon);
-            locations.put(road.name, road);
-        });
+        roads.values().forEach(road -> locations.put(road.name, road));
         buildings.values().forEach(building -> {
             add(building.icon);
             locations.put(building.name, building);

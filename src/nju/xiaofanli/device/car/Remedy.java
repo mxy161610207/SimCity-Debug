@@ -4,6 +4,7 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
@@ -14,12 +15,10 @@ public class Remedy implements Runnable{
 
     Remedy() {
         Runnable wakeThread = () -> {
-            final boolean[] left = { true };
             //noinspection InfiniteLoopStatement
             while (true) {
                 Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
 //                Resource.getConnectedCars().forEach(car -> car.write(Command.codes.get(left[0] ? Command.LEFT : Command.RIGHT)));
-                left[0] = !left[0];
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -27,7 +26,38 @@ public class Remedy implements Runnable{
                 }
             }
         };
+
+        Runnable countdownThread = () -> {
+			long start = System.currentTimeMillis();
+			//noinspection InfiniteLoopStatement
+			while (true) {
+				if (StateSwitcher.isNormal()) {
+					int elapsed = (int) (System.currentTimeMillis() - start);
+					start = System.currentTimeMillis();
+					Resource.getConnectedCars().forEach(car -> {
+						if (car.trend == Car.MOVING) {
+							car.remainingTime -= elapsed;
+							if (car.remainingTime < 0) {
+								car.remainingTime = Integer.MAX_VALUE; //avoid relocating this repeatedly
+								Sensor nextSensor = car.getRealLoc().adjSensors.get(car.getRealDir());
+								StateSwitcher.startRelocating(car, nextSensor.prevSensor, nextSensor);
+							}
+						}
+					});
+				}
+				else
+					start = System.currentTimeMillis();
+
+				try {
+					Thread.sleep(30);
+				} catch (InterruptedException e) {
+//					e.printStackTrace();
+				}
+			}
+		};
+
         new Thread(wakeThread, "Wake Thread").start();
+		new Thread(countdownThread, "Countdown Thread").start();
 	}
 	
 	public void run() {

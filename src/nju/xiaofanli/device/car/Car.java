@@ -44,9 +44,10 @@ public class Car {
 	public Set<Citizen> passengers = new HashSet<>();
     public boolean isHornOn = false; //only for crash
     public boolean isInCrash = false;
+    public int remainingTime = Integer.MAX_VALUE;
 	
-	public Road realLoc = null;//if this car become a phantom, then this variable stores it's real location
-	public int realDir;
+	private Road realLoc = null;//if this car become a phantom, then this variable stores it's real location
+	private int realDir;
 
     private final String url;
     private StreamConnection conn = null;
@@ -88,6 +89,7 @@ public class Car {
 		resetRealInfo();
         isInCrash = isHornOn = false;
         firstEntry = true;
+        remainingTime = Integer.MAX_VALUE;
 	}
 
 	public void notifyPolice(int cmd) {
@@ -124,6 +126,7 @@ public class Car {
             PkgHandler.send(new AppPkg().setDir(name, dir));
         }
         sensor.nextRoad.cars.add(this);
+        remainingTime = loc.remainingTimes.get(dir).get(name);
         PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
         Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter",
                 sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
@@ -229,6 +232,8 @@ public class Car {
         loc = road;
 		loc.cars.add(this);
         this.dir = dir;
+        if (!hasPhantom())
+            remainingTime = loc.remainingTimes.get(dir).get(name); //setting remaining time to phantoms is meaningless
         if(getState() != MOVING) {
             setState(MOVING);
             //trigger move event
@@ -314,6 +319,7 @@ public class Car {
         }
         loc.icon.repaintAll();
         loc.checkRealCrash();
+        remainingTime = loc.remainingTimes.get(dir).get(name);
     }
 
     public void resetRealInfo() {

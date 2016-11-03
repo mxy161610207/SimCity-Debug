@@ -48,7 +48,7 @@ public class SelfCheck{
                 for(CarChecking thread : carCheckingThreads)
                     if(thread.car.isConnected() && curTime - thread.lastRecvTime > 1500) {
                         thread.lastRecvTime = Long.MAX_VALUE;
-                        thread.car.disconnect();
+//                        thread.car.disconnect(); //TODO when debugging, disable this.
                     }
 
                 for(BrickChecking thread : brickCheckingThreads){

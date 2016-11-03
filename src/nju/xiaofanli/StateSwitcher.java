@@ -11,19 +11,16 @@ import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
- * NORMAL -> RESET, SUSPEND
+ * NORMAL <-> RESET, RELOCATE, SUSPEND
  * <p>
- * RESET  -> SUSPEND
+ * RESET, RELOCATE <-> SUSPEND
  * @author leslie
  *
  */
@@ -113,29 +110,16 @@ public class StateSwitcher {
     }
 
     public static void detectedBy(Sensor sensor) {
-        if (isResetting()) {
-            Car car = resetTask.car2locate;
-            if (car != null && car.loc == null) {//still not located, then locate it
-                resetTask.car2locate = null;
-                Command.stop(car);
-                car.initLocAndDir(sensor);
-                resetTask.locatedCars.add(car);
-                wakeUp(ResetTask.OBJ);
-            }
-        }
-        else if (isRelocating()) {
-            if (relocateTask.locatedSensor == null && isInterestedSensor(sensor)) {
-                Command.stop(relocateTask.car2locate);
-                relocateTask.locatedSensor = sensor;
-                wakeUp(RelocateTask.OBJ);
-            }
-        }
+        if (isResetting())
+            ResetTask.detectedBy(sensor);
+        else if (isRelocating())
+            Relocation.detectedBy(sensor);
     }
 
 	private static ResetTask resetTask = new ResetTask();
 	private static class ResetTask implements Runnable {
         private static final Object OBJ = new Object();
-        private final long maxWaitingTime = 1500;
+        private final long maxWaitingTime = 1000;
 		private Set<Car> cars2locate = new HashSet<>();
 		private Map<Car, CarInfo> carInfo = new HashMap<>();
 		boolean isRealInconsistency;//real inconsistency
@@ -256,6 +240,19 @@ public class StateSwitcher {
             TrafficMap.checkRealCrash();
 		}
 
+        public static void detectedBy(Sensor sensor) {
+            if (isResetting()) {
+                Car car = resetTask.car2locate;
+                if (car != null && car.loc == null) {//still not located, then locate it
+                    resetTask.car2locate = null;
+                    Command.stop(car);
+                    car.initLocAndDir(sensor);
+                    resetTask.locatedCars.add(car);
+                    wakeUp(ResetTask.OBJ);
+                }
+            }
+        }
+
 		private class CarInfo{
 			private Sensor sensor;
 			private CarInfo(Road loc, int dir){
@@ -336,83 +333,168 @@ public class StateSwitcher {
         }
     }
 
-    public static void startRelocating(Car car, Sensor reportedSensor) {
+//    public static void startRelocating(Car car, Sensor reportedSensor) {
+//        if (isResetting())
+//            return;
+//		else if (isNormal())
+//			setState(State.RELOCATE); // make sure only one relocation task is running
+//        relocation.car2relocate = car;
+//        relocation.reportedSensor = reportedSensor;
+//        Resource.execute(relocation);
+//    }
+
+    /**
+     * @param car2relocate the car needed to relocate
+     * @param prevSensor the sensor behind the car's known location
+     * @param nextSensor the sensor in font of the car's known location
+     */
+    public static void startRelocating(Car car2relocate, Sensor prevSensor, Sensor nextSensor) {
         if (isResetting())
             return;
-		else if (isNormal())
-			setState(State.RELOCATE); // make sure only one relocation task is running
-        relocateTask.car2locate = car;
-        relocateTask.reportedSensor = reportedSensor;
-        Resource.execute(relocateTask);
+        Relocation.add(car2relocate, prevSensor, nextSensor);
     }
 
-    public static boolean isReportedSensor(Sensor sensor) {
-        return isRelocating() && sensor == relocateTask.reportedSensor;
-    }
+//    public static boolean isReportedSensor(Sensor sensor) {
+//        return isRelocating() && sensor == relocation.reportedSensor;
+//    }
 
-    public static boolean isInterestedSensor(Sensor sensor) {
-        return isRelocating() && (sensor == relocateTask.reportedSensor.prevSensor || sensor == relocateTask.reportedSensor.prevSensor.prevSensor);
-    }
+//    public static boolean isInterestedSensor(Sensor sensor) {
+//        return isRelocating() && (sensor == relocation.reportedSensor.prevSensor || sensor == relocation.reportedSensor.prevSensor.prevSensor);
+//    }
 
-	private static RelocateTask relocateTask = new RelocateTask();
-    private static class RelocateTask implements Runnable {
+	private static Relocation relocation = new Relocation();
+    public static class Relocation extends Thread {
         private static final Object OBJ = new Object();
-        private Car car2locate = null;
-        private Sensor locatedSensor = null, reportedSensor = null;
-        private Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
+        private static final Queue<Request> queue = new LinkedList<>();
+        private static Car car2relocate = null;
+        private static Sensor locatedSensor = null, prevSensor = null, nextSensor = null;
+        private static Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
+        private static boolean isPreserved = false, isInterested = false;
 
-        private RelocateTask(){}
+        private Relocation(){}
         @Override
         public void run() {
-            if (car2locate == null)
-                return;
-            checkIfSuspended();
-            setState(State.RELOCATE);
-            for(Car car : Resource.getConnectedCars()){
-                if(car != car2locate && car.trend == Car.MOVING)
-                    movingCars.add(car);
-                Command.stop(car);
-                if(car.isHornOn && car.lastHornCmd == Command.HORN_ON)
-                    whistlingCars.add(car);
-                Command.silence(car);
-            }
-            Dashboard.enableCtrlUI(false);
-            Dashboard.showRelocationDialog(car2locate);
-
-            try {
-                Thread.sleep(2000); // wait for all cars to stop
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            Command.back(car2locate);
-            while(locatedSensor == null) {
-                try {
-                    synchronized (OBJ) {
-                        OBJ.wait();// wait for any readings from sensors
+            setName("Relocation Thread");
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                while (queue.isEmpty() || isSuspending()) {
+                    if (queue.isEmpty() && isPreserved) {
+                        isPreserved = false;
+                        movingCars.forEach(Command::drive);
+                        whistlingCars.forEach(Command::whistle);
+//                        Dashboard.closeRelocationDialog();
+                        Dashboard.enableCtrlUI(true);
+                        movingCars.clear();
+                        whistlingCars.clear();
+                        setState(StateSwitcher.State.NORMAL);
+                        interruptAll();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    try {
+                        synchronized (queue) {
+                            queue.wait();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
+                checkIfSuspended();
 
-            Command.drive(car2locate);
-            movingCars.forEach(Command::drive);
-            whistlingCars.forEach(Command::whistle);
-            Dashboard.closeRelocationDialog();
-            Dashboard.enableCtrlUI(true);
+                Request r;
+                synchronized (queue) {
+                    r = queue.poll();
+                    if (r == null || r.car2relocate == null || r.prevSensor == null || r.nextSensor == null)
+                        continue;
+                    car2relocate = r.car2relocate;
+                    prevSensor = r.prevSensor;
+                    nextSensor = r.nextSensor;
+                }
 
-            movingCars.clear();
-            whistlingCars.clear();
-            car2locate = null;
-            Sensor s = locatedSensor == reportedSensor.prevSensor ? locatedSensor : null;
-            reportedSensor = locatedSensor = null;
-            setState(State.NORMAL); // make sure every variable is reset before set state back to normal
-            if (s != null && s.state == Sensor.DETECTED) {
-                s.state = Sensor.UNDETECTED;
-                BrickHandler.insert(s, 0, System.currentTimeMillis());
+                if (!isPreserved) {
+                    isPreserved = true;
+                    setState(StateSwitcher.State.RELOCATE);
+                    for (Car car : Resource.getConnectedCars()) {
+                        if (car.trend == Car.MOVING)
+                            movingCars.add(car);
+                        Command.stop(car);
+                        if (car.isHornOn && car.lastHornCmd == Command.HORN_ON)
+                            whistlingCars.add(car);
+                        Command.silence(car);
+                    }
+                    Dashboard.enableCtrlUI(false);
+                    try {
+                        Thread.sleep(1000); // wait for all cars to stop
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    checkIfSuspended();
+                }
+
+                Dashboard.showRelocationDialog(car2relocate);
+                isInterested = true;
+                Command.back(car2relocate);
+                while (locatedSensor == null) {
+                    try {
+                        synchronized (OBJ) {
+                            OBJ.wait();// wait for any readings from sensors
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                checkIfSuspended();
+
+                if (locatedSensor == nextSensor) {
+                    locatedSensor.state = Sensor.UNDETECTED;
+                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
+                }
+                else
+                    car2relocate.remainingTime = locatedSensor.nextRoad.remainingTimes.get(car2relocate.getRealDir()).get(car2relocate.name); // reset its remaining time
+
+                Dashboard.closeRelocationDialog();
+                car2relocate = null;
+                locatedSensor = prevSensor = nextSensor = null;
             }
-            interruptAll();
+        }
+
+        public static void detectedBy(Sensor sensor) {
+            if (isInterestedSensor(sensor)) {
+                isInterested = false;
+                Command.stop(Relocation.car2relocate);
+                Relocation.locatedSensor = sensor;
+                wakeUp(Relocation.OBJ);
+            }
+        }
+
+        public static boolean isInterestedSensor(Sensor sensor) {
+            return isRelocating() && isInterested && (sensor == Relocation.prevSensor || sensor == Relocation.nextSensor);
+        }
+
+        public static void add(Car car2relocate, Sensor prevSensor, Sensor nextSensor) {
+            if (!relocation.isAlive()) {
+                relocation.start();
+//                System.out.println("!!!start relocation thread!!!");
+            }
+            Request req = new Request(car2relocate, prevSensor, nextSensor);
+            synchronized (queue) {
+                if (Relocation.car2relocate == car2relocate)
+                    return;
+                for (Request r : queue) {
+                    if (r.car2relocate == car2relocate)
+                        return;
+                }
+                queue.add(req);
+                queue.notify();
+            }
+        }
+
+        private static class Request {
+            private Car car2relocate;
+            private Sensor prevSensor, nextSensor;
+            Request(Car car2relocate, Sensor prevSensor, Sensor nextSensor) {
+                this.car2relocate = car2relocate;
+                this.prevSensor = prevSensor;
+                this.nextSensor = nextSensor;
+            }
         }
     }
 }

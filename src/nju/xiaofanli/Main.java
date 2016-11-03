@@ -5,7 +5,6 @@ import nju.xiaofanli.dashboard.Building;
 import nju.xiaofanli.dashboard.Citizen;
 import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.dashboard.TrafficMap;
-import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.SelfCheck;
@@ -21,9 +20,9 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Main {
@@ -40,7 +39,6 @@ public class Main {
 		new Police();
 		new Delivery();
 		new AppServer();
-//		new CitizenActivityGenerator();
         new RandomDataGenerator();
 		Dashboard.getInstance().loadCtrlUI();
 		initial = false;
@@ -77,27 +75,48 @@ public class Main {
 		
 		list = root.elements("building");
 		for(Element elm : list){
-			Building b = new Building(elm.attributeValue("name"),
-					Building.typeOf(elm.attributeValue("type")),
-					Integer.parseInt(elm.attributeValue("loc")),
-                    elm.attributeValue("icon"));
+			Building b = new Building(elm.attributeValue("name"), Building.typeOf(elm.attributeValue("type")),
+					Integer.parseInt(elm.attributeValue("loc")), elm.attributeValue("icon"));
 			TrafficMap.buildings.put(b.type, b);
 		}
 		
 		list = root.elements("citizen");
 		for(Element elm : list){
-			Citizen citizen = new Citizen(elm.attributeValue("name"),
-					Citizen.genderOf(elm.attributeValue("gender")),
-					Citizen.jobOf(elm.attributeValue("job")),
-					elm.attributeValue("icon"), Integer.parseInt(elm.attributeValue("color"), 16));
+			Citizen citizen = new Citizen(elm.attributeValue("name"), Citizen.genderOf(elm.attributeValue("gender")),
+					Citizen.jobOf(elm.attributeValue("job")), elm.attributeValue("icon"), Integer.parseInt(elm.attributeValue("color"), 16));
 			TrafficMap.citizens.add(citizen);
             TrafficMap.freeCitizens.add(citizen);
 		}
 
 		list = root.elements("brick");
 		for(Element e : list){
-			Resource.setBrickAddr(e.attributeValue("name"),
-					e.attributeValue("address"));
+			Resource.setBrickAddr(e.attributeValue("name"), e.attributeValue("address"));
 		}
+
+        readRemainingTime("remaining time.txt");
 	}
+
+	private static void readRemainingTime(String file) {
+        BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(file));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+            return;
+		}
+
+		String line;
+        try {
+            while((line = br.readLine()) != null) {
+                String[] strs = line.split("\t");
+                String car = strs[0], sensor = strs[1];
+                int deadline = Integer.parseInt(strs[2]);
+                if (!Resource.remainingTimes.containsKey(sensor))
+                    Resource.remainingTimes.put(sensor, new HashMap<>());
+                Resource.remainingTimes.get(sensor).put(car, deadline);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

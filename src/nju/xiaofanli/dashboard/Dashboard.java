@@ -861,12 +861,14 @@ public class Dashboard extends JFrame{
     static {
         relocationTextPane.setEditable(false);
         relocationTextPane.setFont(Resource.plain17dialog);
-        relocationDialog.add(relocationTextPane, BorderLayout.CENTER);
+        relocationDialog.add(relocationTextPane);
         relocationDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         relocationDialog.setLocationRelativeTo(null);
     }
     public static void showRelocationDialog(Car car) {
-        relocationTextPane.setText("");
+        synchronized (relocationTextPane) {
+            relocationTextPane.setText("");
+        }
         List<Pair<String, Color>> strings = new ArrayList<>();
         strings.add(new Pair<>("Cannot locate ", Color.BLACK));
         if (car != null)
@@ -1012,7 +1014,7 @@ public class Dashboard extends JFrame{
             StyledDocument doc = pane.getStyledDocument();
             try {
                 doc.insertString(doc.getLength(), str, style);
-                pane.setCaretPosition(doc.getLength());
+//                pane.setCaretPosition(doc.getLength());
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }

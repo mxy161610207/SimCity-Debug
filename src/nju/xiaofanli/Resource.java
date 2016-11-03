@@ -41,9 +41,10 @@ public class Resource {
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
     public static final Color SILVER = new Color(192, 192, 192);
-    private static Color LIGHT_GREEN = new Color(0, 255, 127);
-    public static Color CHOCOLATE = new Color(139, 69, 19);
-    public static Color SNOW4 = new Color(139, 137, 137);
+    private static final Color LIGHT_GREEN = new Color(0, 255, 127);
+    public static final Color CHOCOLATE = new Color(139, 69, 19);
+    public static final Color SNOW4 = new Color(139, 137, 137);
+    public static final Map<String, Map<String, Integer>> remainingTimes = new HashMap<>();
 
     //	private static Map<String, Session> sessions = new HashMap<>();
 	static{
