@@ -35,7 +35,7 @@ public abstract class Road extends Location{
 	public Set<Road> combined = new HashSet<>();
 //	public Object mutex = new Object();//used by police thread and its notifier
 	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
-	public Map<Integer, Map<String, Integer>> remainingTimes = new HashMap<>(); //<car dir , car name> -> remaining time
+	public Map<Integer, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
 	public RoadIcon icon = null;
 
 	public static Road roadOf(String name){
@@ -77,7 +77,7 @@ public abstract class Road extends Location{
 					other.entrance2exit = road.entrance2exit;
 					other.exit2entrance = road.exit2entrance;
 					other.dir = road.dir;
-                    other.remainingTimes = road.remainingTimes;
+                    other.timeouts = road.timeouts;
 				}
 		}
 	}

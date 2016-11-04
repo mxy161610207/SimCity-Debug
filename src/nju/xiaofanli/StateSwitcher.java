@@ -378,11 +378,11 @@ public class StateSwitcher {
             //noinspection InfiniteLoopStatement
             while (true) {
                 while (queue.isEmpty() || isSuspending()) {
-                    if (queue.isEmpty() && isPreserved) {
+                    if (queue.isEmpty() && isPreserved && !isSuspending()) {
                         isPreserved = false;
                         movingCars.forEach(Command::drive);
                         whistlingCars.forEach(Command::whistle);
-//                        Dashboard.closeRelocationDialog();
+                        Dashboard.closeRelocationDialog();
                         Dashboard.enableCtrlUI(true);
                         movingCars.clear();
                         whistlingCars.clear();
@@ -429,30 +429,68 @@ public class StateSwitcher {
                     checkIfSuspended();
                 }
 
+                int prevRoadDir = prevSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? prevSensor.nextRoad.dir[0] : prevSensor.dir;
+                int nextRoadDir = nextSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? nextSensor.nextRoad.dir[0] : nextSensor.dir;
+                // car moves slower when moving backward, so better multiply by a factor
+                long timeout = (long) ((prevSensor.nextRoad.timeouts.get(prevRoadDir).get(car2relocate.name)
+                                        + nextSensor.nextRoad.timeouts.get(nextRoadDir).get(car2relocate.name)) * 1.2);
                 Dashboard.showRelocationDialog(car2relocate);
                 isInterested = true;
                 Command.back(car2relocate);
-                while (locatedSensor == null) {
+//                while (locatedSensor == null) {
+//                    try {
+//                        synchronized (OBJ) {
+//                            OBJ.wait();// wait for any readings from sensors
+//                        }
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+                if (locatedSensor == null) {
                     try {
-                        synchronized (OBJ) {
-                            OBJ.wait();// wait for any readings from sensors
-                        }
+                        Thread.sleep(timeout);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+//                        e.printStackTrace();
                     }
                 }
+                Command.stop(car2relocate);
+                isInterested = false;
                 checkIfSuspended();
 
-                if (locatedSensor == nextSensor) {
-                    locatedSensor.state = Sensor.UNDETECTED;
-                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
+                if (locatedSensor == null) { // timeout reached, relocation failed
+                    Dashboard.showRelocationDialog(car2relocate, false, prevSensor.nextRoad);
+                    synchronized (OBJ) {
+                        try {
+                            OBJ.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    checkIfSuspended();
+                    // the car is manually relocated
+                    int dir = prevSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? prevSensor.nextRoad.dir[0] : prevSensor.dir;
+                    car2relocate.timeout = prevSensor.nextRoad.timeouts.get(dir).get(car2relocate.name); // reset its timeout
                 }
-                else
-                    car2relocate.remainingTime = locatedSensor.nextRoad.remainingTimes.get(car2relocate.getRealDir()).get(car2relocate.name); // reset its remaining time
-
-                Dashboard.closeRelocationDialog();
+                else {
+                    Dashboard.showRelocationDialog(car2relocate, true, null);
+                    if (locatedSensor == nextSensor) {
+                        locatedSensor.state = Sensor.UNDETECTED;
+                        BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
+                    }
+                    else {
+                        int dir = locatedSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? locatedSensor.nextRoad.dir[0] : locatedSensor.dir;
+                        car2relocate.timeout = locatedSensor.nextRoad.timeouts.get(dir).get(car2relocate.name); // reset its timeout
+                    }
+                }
+//                Dashboard.closeRelocationDialog();
                 car2relocate = null;
                 locatedSensor = prevSensor = nextSensor = null;
+            }
+        }
+
+        public static void manuallyRelocated() {
+            synchronized (OBJ) {
+                OBJ.notify();
             }
         }
 
@@ -461,7 +499,8 @@ public class StateSwitcher {
                 isInterested = false;
                 Command.stop(Relocation.car2relocate);
                 Relocation.locatedSensor = sensor;
-                wakeUp(Relocation.OBJ);
+//                wakeUp(Relocation.OBJ);
+                relocation.interrupt();
             }
         }
 

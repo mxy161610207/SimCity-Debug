@@ -36,9 +36,9 @@ public class Remedy implements Runnable{
 					start = System.currentTimeMillis();
 					Resource.getConnectedCars().forEach(car -> {
 						if (car.trend == Car.MOVING) {
-							car.remainingTime -= elapsed;
-							if (car.remainingTime < 0) {
-								car.remainingTime = Integer.MAX_VALUE; //avoid relocating this repeatedly
+							car.timeout -= elapsed;
+							if (car.timeout < 0) {
+								car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
 								Sensor nextSensor = car.getRealLoc().adjSensors.get(car.getRealDir());
 								StateSwitcher.startRelocating(car, nextSensor.prevSensor, nextSensor);
 							}

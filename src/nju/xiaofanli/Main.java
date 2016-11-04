@@ -43,6 +43,7 @@ public class Main {
 		Dashboard.getInstance().loadCtrlUI();
 		initial = false;
         TrafficMap.checkRealCrash();
+		Dashboard.showRelocationDialog(null);
 	}
 
 	private static void addModule(){
@@ -93,10 +94,10 @@ public class Main {
 			Resource.setBrickAddr(e.attributeValue("name"), e.attributeValue("address"));
 		}
 
-        readRemainingTime("remaining time.txt");
+        readTimeout("timeout.txt");
 	}
 
-	private static void readRemainingTime(String file) {
+	private static void readTimeout(String file) {
         BufferedReader br;
 		try {
 			br = new BufferedReader(new FileReader(file));
@@ -111,9 +112,9 @@ public class Main {
                 String[] strs = line.split("\t");
                 String car = strs[0], sensor = strs[1];
                 int deadline = Integer.parseInt(strs[2]);
-                if (!Resource.remainingTimes.containsKey(sensor))
-                    Resource.remainingTimes.put(sensor, new HashMap<>());
-                Resource.remainingTimes.get(sensor).put(car, deadline);
+                if (!Resource.timeouts.containsKey(sensor))
+                    Resource.timeouts.put(sensor, new HashMap<>());
+                Resource.timeouts.get(sensor).put(car, deadline);
             }
         } catch (IOException e) {
             e.printStackTrace();

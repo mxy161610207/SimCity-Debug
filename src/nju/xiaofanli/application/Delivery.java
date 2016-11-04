@@ -10,6 +10,7 @@ import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 import nju.xiaofanli.util.Pair;
 
+import javax.swing.text.Style;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -67,7 +68,7 @@ public class Delivery {
 						}
 					}
 					if(allBusy || res == null){
-						Dashboard.log("All cars are busy!\n", Color.RED);
+						Dashboard.log("All cars are busy!\n", Resource.getTextStyle(Color.RED));
 						continue;
 					}
 					searchTasks.poll();
@@ -211,12 +212,12 @@ public class Delivery {
                                 car.passengers.add(dt.citizen);
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
-                                List<Pair<String, Color>> strings = new ArrayList<>();
-                                strings.add(new Pair<>(car.name, car.icon.color));
-                                strings.add(new Pair<>(" picks up ", Color.BLACK));
-                                strings.add(new Pair<>(dt.citizen.name, dt.citizen.icon.color));
-                                strings.add(new Pair<>(" at ", Color.BLACK));
-                                strings.add(new Pair<>(car.loc.name, Resource.DEEP_SKY_BLUE));
+                                List<Pair<String, Style>> strings = new ArrayList<>();
+                                strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+                                strings.add(new Pair<>(" picks up ", null));
+                                strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
+                                strings.add(new Pair<>(" at ", null));
+                                strings.add(new Pair<>(car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
                                 strings.add(new Pair<>("\n", null));
                                 Dashboard.log(strings);
                             }
@@ -273,12 +274,12 @@ public class Delivery {
                                 dt.citizen.car = null;
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
-                                List<Pair<String, Color>> strings = new ArrayList<>();
-                                strings.add(new Pair<>(car.name, car.icon.color));
-                                strings.add(new Pair<>(" drops off ", Color.BLACK));
-                                strings.add(new Pair<>(dt.citizen.name, dt.citizen.icon.color));
-                                strings.add(new Pair<>(" at ", Color.BLACK));
-                                strings.add(new Pair<>(car.loc.name, Resource.DEEP_SKY_BLUE));
+                                List<Pair<String, Style>> strings = new ArrayList<>();
+                                strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+                                strings.add(new Pair<>(" drops off ", null));
+                                strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
+                                strings.add(new Pair<>(" at ", null));
+                                strings.add(new Pair<>(car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
                                 strings.add(new Pair<>("\n", null));
                                 Dashboard.log(strings);
                             }

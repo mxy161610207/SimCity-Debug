@@ -12,6 +12,9 @@ import java.util.concurrent.Executors;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -44,7 +47,7 @@ public class Resource {
     private static final Color LIGHT_GREEN = new Color(0, 255, 127);
     public static final Color CHOCOLATE = new Color(139, 69, 19);
     public static final Color SNOW4 = new Color(139, 137, 137);
-    public static final Map<String, Map<String, Integer>> remainingTimes = new HashMap<>();
+    public static final Map<String, Map<String, Integer>> timeouts = new HashMap<>();
 
     //	private static Map<String, Session> sessions = new HashMap<>();
 	static{
@@ -244,4 +247,37 @@ public class Resource {
             image = image.getScaledInstance(-1, height, Image.SCALE_SMOOTH);
         return new ImageIcon(image);
     }
+
+    public static Style getTextStyle(Color color) {
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		Style style = sc.getStyle(color.toString());
+		if (style == null) {
+			style = sc.addStyle(color.toString(), null);
+			StyleConstants.setForeground(style, color);
+		}
+		return style;
+	}
+
+	public static Style getTextStyle(boolean bold) {
+		String name = bold ? "bold" : "not bold";
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		Style style = sc.getStyle(name);
+		if (style == null) {
+			style = sc.addStyle(name, null);
+			StyleConstants.setBold(style, bold);
+		}
+		return style;
+	}
+
+	public static Style getTextStyle(Color color, boolean bold) {
+		String name = color.toString() + (bold ? "bold" : "not bold");
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		Style style = sc.getStyle(name);
+		if (style == null) {
+			style = sc.addStyle(name, null);
+			StyleConstants.setForeground(style, color);
+			StyleConstants.setBold(style, bold);
+		}
+		return style;
+	}
 }
