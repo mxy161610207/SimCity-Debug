@@ -430,10 +430,9 @@ public class StateSwitcher {
                 }
 
                 int prevRoadDir = prevSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? prevSensor.nextRoad.dir[0] : prevSensor.dir;
-                int nextRoadDir = nextSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? nextSensor.nextRoad.dir[0] : nextSensor.dir;
                 // car moves slower when moving backward, so better multiply by a factor
-                long timeout = (long) ((prevSensor.nextRoad.timeouts.get(prevRoadDir).get(car2relocate.name)
-                                        + nextSensor.nextRoad.timeouts.get(nextRoadDir).get(car2relocate.name)) * 1.2);
+                long timeout = (long) (prevSensor.nextRoad.timeouts.get(prevRoadDir).get(car2relocate.name) * 1.2);
+                Dashboard.clearRelocationDialog();
                 Dashboard.showRelocationDialog(car2relocate);
                 isInterested = true;
                 Command.back(car2relocate);

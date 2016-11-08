@@ -577,6 +577,7 @@ public class Dashboard extends JFrame{
                 for(Sensor s : array)
                     s.icon.setVisible(showSensor);
         });
+        jchkSensor.doClick();
 
         jchkBalloon.addActionListener(e -> {
             showBalloon = jchkBalloon.isSelected();
@@ -867,9 +868,11 @@ public class Dashboard extends JFrame{
         relocationDoneButton.setMargin(new Insets(2, 5, 2, 5));
         relocationDoneButton.setVisible(false);
         relocationDoneButton.addActionListener(e -> {
-            relocationDoneButton.setVisible(false);
-            relocationDialog.pack();
-            StateSwitcher.Relocation.manuallyRelocated();
+            if (StateSwitcher.isRelocating()) {
+                relocationDoneButton.setVisible(false);
+                relocationDialog.pack();
+                StateSwitcher.Relocation.manuallyRelocated();
+            }
         });
         relocationDialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -891,9 +894,6 @@ public class Dashboard extends JFrame{
 
     public static void showRelocationDialog(Car car) {
         List<Pair<String, Style>> strings = new ArrayList<>();
-//        strings.add(new Pair<>("Cannot locate ", Color.BLACK));
-//        if (car != null)
-//            strings.add(new Pair<>(car.name, car.icon.color));
         strings.add(new Pair<>("Relocating ", null));
         if (car != null)
             strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
@@ -906,7 +906,7 @@ public class Dashboard extends JFrame{
     public static void showRelocationDialog(Car car, boolean successful, Road road) {
         List<Pair<String, Style>> strings = new ArrayList<>();
         if (successful) {
-            strings.add(new Pair<>("Successful\n", Resource.getTextStyle(Color.GREEN)));
+            strings.add(new Pair<>("Successful", Resource.getTextStyle(Color.GREEN)));
         }
         else {
             strings.add(new Pair<>("Failed\n", Resource.getTextStyle(Color.RED)));
@@ -914,16 +914,22 @@ public class Dashboard extends JFrame{
             strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
             strings.add(new Pair<>(" at ", null));
             strings.add(new Pair<>(road.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-            strings.add(new Pair<>(". ", null));
-            strings.add(new Pair<>("After", Resource.getTextStyle(Color.RED, true)));
+            strings.add(new Pair<>(".\n", null));
+            strings.add(new Pair<>("After", Resource.getTextStyle(true)));
             strings.add(new Pair<>(" that, click ", null));
             strings.add(new Pair<>("Done", Resource.getTextStyle(true)));
-            strings.add(new Pair<>(" button.\n", null));
+            strings.add(new Pair<>(" button.", null));
             relocationDoneButton.setVisible(true);
         }
         append2pane(strings, relocationTextPane);
         relocationDialog.pack();
         relocationDialog.setVisible(true);
+    }
+
+    public static void clearRelocationDialog() {
+        synchronized (relocationTextPane) {
+            relocationTextPane.setText("");
+        }
     }
 
     public static void closeRelocationDialog(){

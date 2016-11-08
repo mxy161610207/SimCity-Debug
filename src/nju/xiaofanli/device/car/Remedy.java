@@ -38,9 +38,15 @@ public class Remedy implements Runnable{
 						if (car.trend == Car.MOVING) {
 							car.timeout -= elapsed;
 							if (car.timeout < 0) {
-								car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
 								Sensor nextSensor = car.getRealLoc().adjSensors.get(car.getRealDir());
-								StateSwitcher.startRelocating(car, nextSensor.prevSensor, nextSensor);
+								Sensor prevSensor = nextSensor.prevSensor;
+								if (prevSensor.state == Sensor.DETECTED && prevSensor.car == car) {
+									car.timeout = car.getRealLoc().timeouts.get(car.getRealDir()).get(car.name); // reset timeout
+								}
+								else {
+									car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
+									StateSwitcher.startRelocating(car, prevSensor, nextSensor);
+								}
 							}
 						}
 					});

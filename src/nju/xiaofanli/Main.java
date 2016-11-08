@@ -43,7 +43,7 @@ public class Main {
 		Dashboard.getInstance().loadCtrlUI();
 		initial = false;
         TrafficMap.checkRealCrash();
-		Dashboard.showRelocationDialog(null);
+//		Dashboard.showRelocationDialog(null);
 	}
 
 	private static void addModule(){

@@ -150,7 +150,7 @@ public class Car {
         Dashboard.addCar(this);
         //calibrate
 //        if(name.equals(Car.BLACK) || name.equals(Car.RED))
-//            write(Command.codes.get(Command.LEFT));
+        write(Command.RIGHT);
 
         synchronized (Delivery.searchTasks) {
             if(Delivery.allBusy){

@@ -129,7 +129,7 @@ public class Middleware {
                     BrickHandler.switchState(car, sensor, isRealCar, true);
                 break;
         }
-            display();
+//        display();
     }
 
     public static Context getContext(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
