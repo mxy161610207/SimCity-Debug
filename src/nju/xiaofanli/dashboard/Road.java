@@ -36,7 +36,7 @@ public abstract class Road extends Location{
 //	public Object mutex = new Object();//used by police thread and its notifier
 	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public Map<Integer, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
-	public RoadIcon icon = null;
+	public RoadIconPanel icon = new RoadIconPanel(this);
 
 	public static Road roadOf(String name){
 //		System.out.println(name);
@@ -112,16 +112,72 @@ public abstract class Road extends Location{
 		return !cars.isEmpty();
 	}
 
+	public static class RoadIconPanel extends JPanel {
+		public Road road = null;
+		public TrafficMap.Coord coord = new TrafficMap.Coord();
+		public final Set<RoadIcon> icons = new HashSet<>();
+
+		private RoadIconPanel(Road road) {
+			this.road = road;
+			setLayout(null);
+			setOpaque(false);
+			setBackground(null);
+		}
+
+		public void addCrossroadIcon(int x, int y, int w, int h) {
+			CrossroadIcon icon = new CrossroadIcon(road);
+			add(icon);
+			icons.add(icon);
+			icon.coord.x = x;
+			icon.coord.y = y;
+			icon.coord.w = w;
+			icon.coord.h = h;
+			icon.coord.centerX = icon.coord.x + icon.coord.w/2;
+			icon.coord.centerY = icon.coord.y + icon.coord.h/2;
+			icon.setBounds(icon.coord.x, icon.coord.y, icon.coord.w, icon.coord.h);
+		}
+
+		public void addCrossroadIcon(TrafficMap.Coord coord) {
+			addCrossroadIcon(0, 0, coord.w, coord.h);
+		}
+
+		public void addStreetIcon(int x, int y, int w, int h, int arcw, int arch, boolean isVertical) {
+			StreetIcon icon = new StreetIcon(road);
+			add(icon);
+			icons.add(icon);
+			icon.coord.x = x;
+			icon.coord.y = y;
+			icon.coord.w = w;
+			icon.coord.h = h;
+			icon.coord.arcw = arcw;
+			icon.coord.arch = arch;
+			icon.isVertical = isVertical;
+			icon.coord.centerX = icon.coord.x + icon.coord.w/2;
+			icon.coord.centerY = icon.coord.y + icon.coord.h/2;
+			icon.setBounds(icon.coord.x, icon.coord.y, icon.coord.w, icon.coord.h);
+		}
+
+		public void addStreetIcon(TrafficMap.Coord coord, boolean isVertical) {
+			addStreetIcon(0, 0, coord.w, coord.h, coord.arcw, coord.arch, isVertical);
+		}
+	}
+
 	public static abstract class RoadIcon extends JPanel {
 		private static final long serialVersionUID = 1L;
 		public final static int cubeSize = CarIcon.SIZE;
 		private final static int cubeInset = CarIcon.INSET;
-		private Road road = null;
+		public Road road = null;
 		public TrafficMap.Coord coord = new TrafficMap.Coord();
 		private Map<String, JLabel[]> carIcons = new HashMap<>();
         private JLabel idLabel = null;
 
-		public RoadIcon(Road road) {
+		private RoadIcon() {
+			setLayout(null);
+			setOpaque(false);
+			setBackground(null);
+		}
+
+		private RoadIcon(Road road) {
             setLayout(null);
 			setOpaque(false);
 //			setContentAreaFilled(false);
@@ -242,11 +298,13 @@ public abstract class Road extends Location{
         @Override
         public void setBounds(int x, int y, int width, int height) {
             super.setBounds(x, y, width, height);
-            idLabel.setLocation((width-idLabel.getWidth())/2, (height-idLabel.getHeight())/2);
+			if (idLabel != null)
+            	idLabel.setLocation((width-idLabel.getWidth())/2, (height-idLabel.getHeight())/2);
         }
 
         public void showRoadNumber(boolean b) {
-            idLabel.setVisible(b);
+			if (idLabel != null)
+            	idLabel.setVisible(b);
         }
 
         public void repaintAll(){
@@ -285,6 +343,19 @@ public abstract class Road extends Location{
             });
         }
     }
+
+//    public static class CombinedRoadIcon extends RoadIcon {
+//		public final Set<RoadIcon> subIcons = new HashSet<>();
+//		public CombinedRoadIcon(Road road) {
+//			super.road = road;
+//		}
+//
+//		@Override
+//		protected void paintComponent(Graphics g) {}
+//
+//		@Override
+//		protected void paintBorder(Graphics g) {}
+//	}
 
     public static class Crossroad extends Road {
 		public static class CrossroadIcon extends RoadIcon {

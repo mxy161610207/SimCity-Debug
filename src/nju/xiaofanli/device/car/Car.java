@@ -246,7 +246,7 @@ public class Car {
         if (hasPhantom() && loc.sameAs(realLoc) && dir == realDir) {
             resetRealInfo();
         }
-		road.icon.repaintAll();
+		road.icon.repaint();
         road.checkRealCrash();
 
         //trigger entering event
@@ -273,7 +273,7 @@ public class Car {
 //		if(loc == road)
 //			loc = null;
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, road);
-		road.icon.repaintAll();
+		road.icon.repaint();
         road.checkRealCrash();
 
 		//trigger leaving event
@@ -285,7 +285,7 @@ public class Car {
 		isLoading = loading;
 		if(loc == null)
 			return;
-		loc.icon.repaintAll();
+		loc.icon.repaint();
 	}
 
 	public boolean getLoading() {
@@ -307,7 +307,7 @@ public class Car {
 
     public void setRealInfo(Road loc, int dir) {
         realLoc.realCars.remove(this);
-        realLoc.icon.repaintAll();
+        realLoc.icon.repaint();
         realLoc.checkRealCrash();
         if (this.loc.sameAs(loc) && this.dir == dir) {
             resetRealInfo();
@@ -317,7 +317,7 @@ public class Car {
             realLoc = loc;
             realDir = dir;
         }
-        loc.icon.repaintAll();
+        loc.icon.repaint();
         loc.checkRealCrash();
         timeout = loc.timeouts.get(dir).get(name);
     }

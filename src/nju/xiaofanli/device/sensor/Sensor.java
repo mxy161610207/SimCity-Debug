@@ -33,7 +33,6 @@ public class Sensor {
     public Sensor prevSensor = null;
     public int dir;
     public boolean isEntrance;
-    public int showPos = -1;//4 types in total
     public int px, py;
     public JButton icon = null;
     public BalloonIcon balloon = null;

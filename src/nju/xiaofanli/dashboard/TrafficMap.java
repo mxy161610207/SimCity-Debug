@@ -36,8 +36,8 @@ public class TrafficMap extends JPanel{
     private static final JPanel crossroadIconPanel = createIconPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.bold17dialog),
             streetIconPanel = createIconPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.bold17dialog),
             carIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.bold17dialog),
-            fakeCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2, TrafficMap.SH/2,  "Fake location", Resource.bold15dialog),
-            realCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2, TrafficMap.SH/2,  "Real location", Resource.bold15dialog);
+            fakeCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.bold15dialog),
+            realCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.bold15dialog);
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
 
     public static final int SH = 48;//street height
@@ -45,10 +45,11 @@ public class TrafficMap extends JPanel{
     public static final int CW = (int) (SH * 1.5);//crossroad width
     private static final int AW = CW / 2;
     private static final int U1 = CW + SW;
-    private static final int U2 = (CW-SH)/2;
+    private static final int U2 = (CW+SH)/2;
     private static final int U3 = SW+(CW+SH)/2;
     private static final int U4 = U1+SH;
-    public static final int SIZE = 4*(SW+CW)+SH;
+    private static final int U5 = U3 + CW;
+    public static final int SIZE = U3 + 2*U1 + U5;
 
     public static final int UNKNOWN_DIR = -1;
     public static final int NORTH = 0;
@@ -86,7 +87,9 @@ public class TrafficMap extends JPanel{
         roadPaneScroll.setBackground(Color.LIGHT_GRAY);
 
         fakeCarIconPanel.setVisible(false);
+        fakeCarIconPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
         realCarIconPanel.setVisible(false);
+        realCarIconPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
     }
 
     private TrafficMap() {
@@ -124,7 +127,10 @@ public class TrafficMap extends JPanel{
             locations.put(building.name, building);
         });
         locationList.addAll(locations.values());
-        roads.values().forEach(road -> add(road.icon));
+        roads.values().forEach(road -> {
+//            if (road.id != 2 && road.id != 3)
+                add(road.icon);
+        });
 
         JPanel iconPanel = new JPanel(new GridLayout(5, 1));
         iconPanel.setBounds(5, 0, U3, U3);
@@ -302,104 +308,301 @@ public class TrafficMap extends JPanel{
             crossroads[i].id = i;
             crossroads[i].name = "Crossroad " + i;
             roads.put(crossroads[i].name, crossroads[i]);
-            crossroads[i].icon = new Road.Crossroad.CrossroadIcon(crossroads[i]);
-//			crossroads[i].icon.coord.x = (i%3+1)*u;
-//			crossroads[i].icon.coord.y = (i/3+1)*u;
-            crossroads[i].icon.coord.x = (SH+CW)/2 + SW + (i%3) * U1;
-            crossroads[i].icon.coord.y = (SH+CW)/2 + SW + (i/3) * U1;
-            crossroads[i].icon.coord.w = CW;
-            crossroads[i].icon.coord.h = CW;
+            switch (i) {
+                case 0:
+                    crossroads[i].icon.coord.x = U2 + SW;
+                    crossroads[i].icon.coord.y = U2 + SW;
+                    break;
+                case 1:
+                    crossroads[i].icon.coord.x = U2 + SW + U1;
+                    crossroads[i].icon.coord.y = U2 + SW;
+                    break;
+                case 2:
+                    crossroads[i].icon.coord.x = U2 + SW + 2*U1;
+                    crossroads[i].icon.coord.y = U2 + SW;
+                    break;
+                case 3:
+                    crossroads[i].icon.coord.x = U2 + SW;
+                    crossroads[i].icon.coord.y = U2 + SW + U1;
+                    break;
+                case 4:
+                    crossroads[i].icon.coord.x = U2 + SW + U1;
+                    crossroads[i].icon.coord.y = U2 + SW + U1;
+                    break;
+                case 5:
+                    crossroads[i].icon.coord.x = U2 + SW + 2*U1;
+                    crossroads[i].icon.coord.y = U2 + SW + U1;
+                    break;
+                case 6:
+                    crossroads[i].icon.coord.x = U2 + SW;
+                    crossroads[i].icon.coord.y = U2 + SW + 2*U1;
+                    break;
+                case 7:
+                    crossroads[i].icon.coord.x = U2 + SW + U1;
+                    crossroads[i].icon.coord.y = U2 + SW + 2*U1;
+                    break;
+                case 8:
+                    crossroads[i].icon.coord.x = U2 + SW + 2*U1;
+                    crossroads[i].icon.coord.y = U2 + SW + 2*U1;
+                    break;
+            }
+
+            crossroads[i].icon.coord.w = crossroads[i].icon.coord.h = CW;
+            crossroads[i].icon.addCrossroadIcon(crossroads[i].icon.coord);
             crossroads[i].icon.coord.centerX = crossroads[i].icon.coord.x + crossroads[i].icon.coord.w/2;
             crossroads[i].icon.coord.centerY = crossroads[i].icon.coord.y + crossroads[i].icon.coord.h/2;
-            crossroads[i].icon.setBounds(crossroads[i].icon.coord.x, crossroads[i].icon.coord.y,
-                    crossroads[i].icon.coord.w, crossroads[i].icon.coord.h);
+            crossroads[i].icon.setBounds(crossroads[i].icon.coord.x, crossroads[i].icon.coord.y, crossroads[i].icon.coord.w, crossroads[i].icon.coord.h);
         }
         for(int i = 0;i < streets.length;i++){
             streets[i].id = i;
             streets[i].name = "Street " + i;
             roads.put(streets[i].name, streets[i]);
-            streets[i].icon = new Road.Street.StreetIcon(streets[i]);
-            int quotient = i / 8;
-            int remainder = i % 8;
-            //vertical streets
-            if(remainder > 1 && remainder < 6){
-                ((Road.Street.StreetIcon)streets[i].icon).isVertical = true;
-                streets[i].icon.coord.w = SH;
-                streets[i].icon.coord.arcw = AW;
-                streets[i].icon.coord.arch = AW;
-                switch (quotient) {
-                    case 0:case 2:
-                        streets[i].icon.coord.x = (remainder-1) * U1;
-                        streets[i].icon.coord.y = (quotient==0) ? 0 : U1*2+(SH+CW)/2;
-                        if(streets[i].id == 21)
-                            streets[i].icon.coord.y -= (SH+CW)/2;
-                        break;
-                    case 1:case 3:
-                        streets[i].icon.coord.x = (remainder-2) * U1;
-                        streets[i].icon.coord.y = quotient*U1+(SH+CW)/2;
-                        if(streets[i].id == 10 || streets[i].id == 26)
-                            streets[i].icon.coord.y -=(SH+CW)/2;
-                        break;
-                }
-
-                if(quotient == 0)
-                    streets[i].icon.coord.h = remainder != 5 ? U3 : U4;
-                else if(quotient == 3)
-                    streets[i].icon.coord.h = remainder != 2 ? U3 : U4;
-                else if(i == 10 || i ==21)
+            streets[i].icon.coord.arcw = AW;
+            streets[i].icon.coord.arch = AW;
+            switch (i) {
+                case 0:
+                    streets[i].icon.coord.x = U1;
+                    streets[i].icon.coord.y = 0;
+                    streets[i].icon.coord.w = U4;
+                    streets[i].icon.coord.h = U3;
+                    streets[i].icon.addStreetIcon(0, 0, U4, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(0, 0, SH, U3, AW, AW, true);
+                    streets[i].icon.addStreetIcon(U1, 0, SH, U3, AW, AW, true);
+                    break;
+                case 1:
+                    streets[i].icon.coord.x = U3 + 2*U1;
+                    streets[i].icon.coord.y = 0;
+                    streets[i].icon.coord.w = U5;
+                    streets[i].icon.coord.h = U5;
+                    streets[i].icon.addStreetIcon(U5-U4, 0, U4, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(U5-U4, 0, SH, U5, AW, AW, true);
+                    streets[i].icon.addStreetIcon(0, U1, U5, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(U5-SH, 0, SH, U4, AW, AW, true);
+                    break;
+//                case 2:
+//                    streets[i].icon.coord.x = U1;
+//                    streets[i].icon.coord.y = 0;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U3;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+//                case 3:
+//                    streets[i].icon.coord.x = 2 * U1;
+//                    streets[i].icon.coord.y = 0;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U3;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+//                case 4:
+//                    streets[i].icon.coord.x = 3 * U1;
+//                    streets[i].icon.coord.y = 0;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U3;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+//                case 5:
+//                    streets[i].icon.coord.x = 4 * U1;
+//                    streets[i].icon.coord.y = 0;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U4;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+                case 6:
+                    streets[i].icon.coord.x = 0;
+                    streets[i].icon.coord.y = U1;
+                    streets[i].icon.coord.w = U3;
                     streets[i].icon.coord.h = U4;
-                else
+                    streets[i].icon.addStreetIcon(0, 0, U3, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(0, 0, SH, U4, AW, AW, true);
+                    streets[i].icon.addStreetIcon(0, U1, U3, SH, AW, AW, false);
+                    break;
+                case 7:
+                    streets[i].icon.coord.x = U1+U2;
+                    streets[i].icon.coord.y = U1;
+                    streets[i].icon.coord.w = SW;
+                    streets[i].icon.coord.h = SH;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, false);
+                    break;
+                case 8:
+                    streets[i].icon.coord.x = 2*U1+U2;
+                    streets[i].icon.coord.y = U1;
+                    streets[i].icon.coord.w = SW;
+                    streets[i].icon.coord.h = SH;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, false);
+                    break;
+//                case 9:
+//                    streets[i].icon.coord.x = 3*U1+(SH+CW)/2;
+//                    streets[i].icon.coord.y = U1;
+//                    streets[i].icon.coord.w = U3;
+//                    streets[i].icon.coord.h = SH;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = false;
+//                    break;
+//                case 10:
+//                    streets[i].icon.coord.x = 0;
+//                    streets[i].icon.coord.y = U1;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U4;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+                case 11:
+                    streets[i].icon.coord.x = U1;
+                    streets[i].icon.coord.y = U1 + U2;
+                    streets[i].icon.coord.w = SH;
                     streets[i].icon.coord.h = SW;
-            }
-            //horizontal streets
-            else{
-                ((Road.Street.StreetIcon)streets[i].icon).isVertical = false;
-                streets[i].icon.coord.h = SH;
-                streets[i].icon.coord.arcw = AW;
-                streets[i].icon.coord.arch = AW;
-                switch(remainder){
-                    case 6:
-                        streets[i].icon.coord.x = 0;
-                        streets[i].icon.coord.y = (quotient+1) * U1;
-                        break;
-                    case 7:
-                        streets[i].icon.coord.x = (remainder-6)*U1+(SH+CW)/2;
-                        streets[i].icon.coord.y = (quotient+1) * U1;
-                        if(streets[i].id == 31)
-                            streets[i].icon.coord.x += SW+(CW-SH)/2;
-                        break;
-                    case 0:case 1:
-                        if(streets[i].id > 1){
-                            streets[i].icon.coord.x = (remainder+2)*U1+(SH+CW)/2;
-                            streets[i].icon.coord.y = quotient * U1;
-                        }
-                        else{
-                            streets[i].icon.coord.x = (remainder*2+1)*U1;
-                            streets[i].icon.coord.y = 0;
-                        }
-                        break;
-                }
-
-                switch(remainder){
-                    case 6:
-                        streets[i].icon.coord.w = quotient != 3 ? U1-U2 : U4;
-                        break;
-                    case 7:
-                        streets[i].icon.coord.w = i != 31 ? SW : U4;
-                        break;
-                    case 0:
-                        streets[i].icon.coord.w = i != 0 ? SW : U4;
-                        break;
-                    case 1:
-                        streets[i].icon.coord.w = quotient != 0 ? U3 : U4;
-                        break;
-                }
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, true);
+                    break;
+                case 12:
+                    streets[i].icon.coord.x = 2 * U1;
+                    streets[i].icon.coord.y = U1 + U2;
+                    streets[i].icon.coord.w = SH;
+                    streets[i].icon.coord.h = SW;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, true);
+                    break;
+                case 13:
+                    streets[i].icon.coord.x = 3 * U1;
+                    streets[i].icon.coord.y = U1 + U2;
+                    streets[i].icon.coord.w = SH;
+                    streets[i].icon.coord.h = SW;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, true);
+                    break;
+//                case 14:
+//                    streets[i].icon.coord.x = 0;
+//                    streets[i].icon.coord.y = 2 * U1;
+//                    streets[i].icon.coord.w = U3;
+//                    streets[i].icon.coord.h = SH;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = false;
+//                    break;
+                case 15:
+                    streets[i].icon.coord.x = U1 + U2;
+                    streets[i].icon.coord.y = 2 * U1;
+                    streets[i].icon.coord.w = SW;
+                    streets[i].icon.coord.h = SH;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, false);
+                    break;
+                case 16:
+                    streets[i].icon.coord.x = 2*U1 + U2;
+                    streets[i].icon.coord.y = 2 * U1;
+                    streets[i].icon.coord.w = SW;
+                    streets[i].icon.coord.h = SH;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, false);
+                    break;
+                case 17:
+                    streets[i].icon.coord.x = 3*U1 + U2;
+                    streets[i].icon.coord.y = 2 * U1;
+                    streets[i].icon.coord.w = U3;
+                    streets[i].icon.coord.h = U4;
+                    streets[i].icon.addStreetIcon(0, 0, U3, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(0, U1, U3, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(U3-SH, 0, SH, U4, AW, AW, true);
+                    break;
+                case 18:
+                    streets[i].icon.coord.x = U1;
+                    streets[i].icon.coord.y = 2*U1+(SH+CW)/2;
+                    streets[i].icon.coord.w = SH;
+                    streets[i].icon.coord.h = SW;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, true);
+                    break;
+                case 19:
+                    streets[i].icon.coord.x = 2 * U1;
+                    streets[i].icon.coord.y = 2*U1+(SH+CW)/2;
+                    streets[i].icon.coord.w = SH;
+                    streets[i].icon.coord.h = SW;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, true);
+                    break;
+                case 20:
+                    streets[i].icon.coord.x = 3 * U1;
+                    streets[i].icon.coord.y = 2*U1+(SH+CW)/2;
+                    streets[i].icon.coord.w = SH;
+                    streets[i].icon.coord.h = SW;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, true);
+                    break;
+//                case 21:
+//                    streets[i].icon.coord.x = 4 * U1;
+//                    streets[i].icon.coord.y = 2 * U1;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U4;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+                case 22:
+                    streets[i].icon.coord.x = 0;
+                    streets[i].icon.coord.y = U3 + 2*U1;
+                    streets[i].icon.coord.w = U5;
+                    streets[i].icon.coord.h = U5;
+                    streets[i].icon.addStreetIcon(0, U5-U4, U5, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(0, U5-U4, SH, U4, AW, AW, true);
+                    streets[i].icon.addStreetIcon(0, U5-SH, U4, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(U1, 0, SH, U5, AW, AW, true);
+                    break;
+                case 23:
+                    streets[i].icon.coord.x = U1+(SH+CW)/2;
+                    streets[i].icon.coord.y = 3 * U1;
+                    streets[i].icon.coord.w = SW;
+                    streets[i].icon.coord.h = SH;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, false);
+                    break;
+                case 24:
+                    streets[i].icon.coord.x = 2*U1+(SH+CW)/2;
+                    streets[i].icon.coord.y = 3 * U1;
+                    streets[i].icon.coord.w = SW;
+                    streets[i].icon.coord.h = SH;
+                    streets[i].icon.addStreetIcon(streets[i].icon.coord, false);
+                    break;
+//                case 25:
+//                    streets[i].icon.coord.x = 3*U1+(SH+CW)/2;
+//                    streets[i].icon.coord.y = 3 * U1;
+//                    streets[i].icon.coord.w = U3;
+//                    streets[i].icon.coord.h = SH;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = false;
+//                    break;
+//                case 26:
+//                    streets[i].icon.coord.x = 0;
+//                    streets[i].icon.coord.y = 3 * U1;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U4;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+//                case 27:
+//                    streets[i].icon.coord.x = U1;
+//                    streets[i].icon.coord.y = 3*U1+(SH+CW)/2;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U3;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+                case 28:
+                    streets[i].icon.coord.x = 2 * U1;
+                    streets[i].icon.coord.y = 3*U1+U2;
+                    streets[i].icon.coord.w = U4;
+                    streets[i].icon.coord.h = U3;
+                    streets[i].icon.addStreetIcon(0, 0, SH, U3, AW, AW, true);
+                    streets[i].icon.addStreetIcon(0, U3-SH, U4, SH, AW, AW, false);
+                    streets[i].icon.addStreetIcon(U1, 0, SH, U3, AW, AW, true);
+                    break;
+//                case 29:
+//                    streets[i].icon.coord.x = 3 * U1;
+//                    streets[i].icon.coord.y = 3*U1+(SH+CW)/2;
+//                    streets[i].icon.coord.w = SH;
+//                    streets[i].icon.coord.h = U3;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = true;
+//                    break;
+//                case 30:
+//                    streets[i].icon.coord.x = 0;
+//                    streets[i].icon.coord.y = 4 * U1;
+//                    streets[i].icon.coord.w = U4;
+//                    streets[i].icon.coord.h = SH;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = false;
+//                    break;
+//                case 31:
+//                    streets[i].icon.coord.x = 2 * U1;
+//                    streets[i].icon.coord.y = 4 * U1;
+//                    streets[i].icon.coord.w = U4;
+//                    streets[i].icon.coord.h = SH;
+//                    ((Road.Street.StreetIcon) streets[i].icon).isVertical = false;
+//                    break;
             }
 
             streets[i].icon.coord.centerX = streets[i].icon.coord.x + streets[i].icon.coord.w/2;
             streets[i].icon.coord.centerY = streets[i].icon.coord.y + streets[i].icon.coord.h/2;
-            streets[i].icon.setBounds(streets[i].icon.coord.x, streets[i].icon.coord.y,
-                    streets[i].icon.coord.w, streets[i].icon.coord.h);
+            streets[i].icon.setBounds(streets[i].icon.coord.x, streets[i].icon.coord.y, streets[i].icon.coord.w, streets[i].icon.coord.h);
         }
 
         combineRoads();
@@ -532,22 +735,18 @@ public class TrafficMap extends JPanel{
             sensor.nextRoad.adjSensors.put(oppositeDirOf(sensor.dir), sensor);
 
         if(sensor.crossroad.icon.coord.x-sensor.street.icon.coord.x == sensor.street.icon.coord.w){
-            sensor.showPos = 0;
             sensor.px = sensor.crossroad.icon.coord.x;
             sensor.py = sensor.crossroad.icon.coord.y + sensor.crossroad.icon.coord.h/2;
         }
         else if(sensor.crossroad.icon.coord.y-sensor.street.icon.coord.y == sensor.street.icon.coord.h){
-            sensor.showPos = 1;
             sensor.px = sensor.crossroad.icon.coord.x + sensor.crossroad.icon.coord.w/2;
             sensor.py = sensor.crossroad.icon.coord.y;
         }
         else if(sensor.street.icon.coord.x-sensor.crossroad.icon.coord.x == sensor.crossroad.icon.coord.w){
-            sensor.showPos = 2;
             sensor.px = sensor.street.icon.coord.x;
             sensor.py = sensor.crossroad.icon.coord.y + sensor.crossroad.icon.coord.h/2;
         }
         else if(sensor.street.icon.coord.y-sensor.crossroad.icon.coord.y == sensor.crossroad.icon.coord.h){
-            sensor.showPos = 3;
             sensor.px = sensor.crossroad.icon.coord.x + sensor.crossroad.icon.coord.w/2;
             sensor.py = sensor.street.icon.coord.y;
         }
@@ -880,7 +1079,7 @@ public class TrafficMap extends JPanel{
 
     public static Road roadBehind(Sensor sensor){
         int bid = sensor.bid, id = sensor.sid;
-        switch(bid){
+        switch(bid) {
             case 0:
                 return TrafficMap.DIRECTION ? sensor.street : sensor.crossroad;
             case 1:
