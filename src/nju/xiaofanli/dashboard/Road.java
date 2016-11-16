@@ -344,19 +344,6 @@ public abstract class Road extends Location{
         }
     }
 
-//    public static class CombinedRoadIcon extends RoadIcon {
-//		public final Set<RoadIcon> subIcons = new HashSet<>();
-//		public CombinedRoadIcon(Road road) {
-//			super.road = road;
-//		}
-//
-//		@Override
-//		protected void paintComponent(Graphics g) {}
-//
-//		@Override
-//		protected void paintBorder(Graphics g) {}
-//	}
-
     public static class Crossroad extends Road {
 		public static class CrossroadIcon extends RoadIcon {
 			private static final long serialVersionUID = 1L;

@@ -47,7 +47,7 @@ public class CmdSender implements Runnable{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if(!car.isHornOn) //if the car crashed and keeps whisting, do not silence it
+                if(car.lastHornCmd != Command.HORN_ON) //if the car crashed and keeps whistling, do not silence it
                     car.write(Command.HORN_OFF);
             }
         }

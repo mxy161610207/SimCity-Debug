@@ -590,7 +590,21 @@ public class Dashboard extends JFrame{
             trafficMap.repaint();
         });
 
-        jchkCrash.addActionListener(e -> playCrashSound = jchkCrash.isSelected());
+        jchkCrash.addActionListener(e -> {
+            playCrashSound = jchkCrash.isSelected();
+            if (playCrashSound) {
+                Resource.getConnectedCars().forEach(car -> {
+                    if (car.lastHornCmd == Command.HORN_ON && !car.isHornOn)
+                        Command.whistle(car);
+                });
+            }
+            else {
+                Resource.getConnectedCars().forEach(car -> {
+                    if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
+                        Command.silence(car);
+                });
+            }
+        });
         jchkError.addActionListener(e -> playErrorSound = jchkError.isSelected());
 
         gbc.gridy += gbc.gridheight;

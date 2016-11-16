@@ -73,7 +73,7 @@ public class Command {
 				Remedy.addRemedyCommand(car, cmd);
 		}
 		else if(cmd == HORN_ON || cmd == HORN_OFF)
-		    car.isHornOn = cmd == HORN_ON;
+			car.lastHornCmd = cmd;
 	}
 	
 	public static void send(Command cmd, boolean remedy) {

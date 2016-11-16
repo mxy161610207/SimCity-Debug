@@ -282,7 +282,7 @@ public class StateSwitcher {
                     if (car.trend == Car.MOVING)
                         movingCars.add(car);
                     Command.stop(car);
-                    if (car.isHornOn && car.lastHornCmd == Command.HORN_ON)
+                    if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
                         whistlingCars.add(car);
                     Command.silence(car);
                 }
@@ -416,7 +416,7 @@ public class StateSwitcher {
                         if (car.trend == Car.MOVING)
                             movingCars.add(car);
                         Command.stop(car);
-                        if (car.isHornOn && car.lastHornCmd == Command.HORN_ON)
+                        if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
                             whistlingCars.add(car);
                         Command.silence(car);
                     }

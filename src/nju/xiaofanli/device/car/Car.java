@@ -206,7 +206,7 @@ public class Car {
 
 	void write(int cmd) {
         byte[] code = Command.codes.get(cmd);
-        if(isConnected() && code != null) {
+        if(isConnected() && code != null && (cmd != Command.HORN_ON || Dashboard.playCrashSound)) {
 			try {
                 dos.write(code);
                 lastCmdTime = System.currentTimeMillis();
@@ -215,8 +215,10 @@ public class Car {
                         trend = Car.MOVING; break;
                     case Command.STOP:
                         trend = Car.STOPPED; break;
-                    case Command.HORN_ON: case Command.HORN_OFF:
-                        lastHornCmd = cmd; break;
+                    case Command.HORN_ON:
+                        isHornOn = true; break;
+                    case Command.HORN_OFF:
+                        isHornOn = false; break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
