@@ -36,6 +36,7 @@ public class Remedy implements Runnable{
 					start = System.currentTimeMillis();
 					Resource.getConnectedCars().forEach(car -> {
 						if (car.trend == Car.MOVING) {
+//							System.out.println(car.name + " " + car.timeout);
 							car.timeout -= elapsed;
 							if (car.timeout < 0) {
 								Sensor nextSensor = car.getRealLoc().adjSensors.get(car.getRealDir());
@@ -95,7 +96,7 @@ public class Remedy implements Runnable{
 					if (cmd.cmd == Command.STOP) {
 						cmd.car.setState(Car.STOPPED);
 						cmd.car.stopTime = System.currentTimeMillis();
-						if(cmd.car.dest != null && cmd.car.dest.sameAs(cmd.car.loc) && cmd.car.dt != null){
+						if(cmd.car.dest != null && cmd.car.dest == cmd.car.loc && cmd.car.dt != null){
 							cmd.car.setLoading(true);
 							//trigger start loading event
 							if(cmd.car.dt.phase == Delivery.DeliveryTask.HEAD4SRC) {

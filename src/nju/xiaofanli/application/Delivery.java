@@ -80,7 +80,7 @@ public class Delivery {
 				dt.phase = DeliveryTask.HEAD4SRC;
 				if(car.hasPhantom())
                     Dashboard.playErrorSound();
-				if(car.dest.sameAs(car.loc) && car.state == Car.STOPPED){
+				if(car.dest == car.loc && car.state == Car.STOPPED){
                     car.setLoading(true);
                     Command.send(car, Command.WHISTLE2);
                     //trigger start loading event
@@ -122,20 +122,13 @@ public class Delivery {
 				dis[i]++;
 //				System.out.println(road.name+"\t"+dis[i]);
                 for(Car car : road.cars)
-                    if(car.dest == null && road.adjRoads.get(car.dir).sameAs(prev[i])) // the car is empty and its dir is right
+                    if(car.dest == null && road.adjRoads.get(car.dir) == prev[i]) // the car is empty and its dir is right
                         return new Result(car, dis[i], start);
 
                 Road next = road.exit2entrance.get(prev[i]);
-                if(next == null) {
-                    for (Road r : prev[i].combined) {
-                        next = road.exit2entrance.get(r);
-                        if (next != null)
-                            break;
-                    }
-                }
                 if(next == null)
                     throw new NullPointerException();
-                if(!next.sameAs(start)){
+                if(next != start){
                     queue.add(next);
                     prev[i] = road;
                     if(!oneWay)
@@ -200,7 +193,7 @@ public class Delivery {
                         continue;
                     }
                     Car car = dt.car;
-                    if (car.loc.sameAs(car.dest) && car.state == Car.STOPPED
+                    if (car.loc == car.dest && car.state == Car.STOPPED
                             && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
                         //head for the src
                         if(dt.phase == DeliveryTask.HEAD4SRC){
@@ -225,7 +218,7 @@ public class Delivery {
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
                                 EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
 
-                            if(car.dest.sameAs(car.loc)){
+                            if(car.dest == car.loc){
                                 car.setLoading(true);
                                 dt.startTime = System.currentTimeMillis();
 //									car.loc.icon.repaint();
@@ -326,16 +319,9 @@ public class Delivery {
 				return road;
 			
 			Road next = road.entrance2exit.get(prev);
-			if(next == null) {
-                for (Road r : prev.combined) {
-                    next = road.entrance2exit.get(r);
-                    if (next != null)
-                        break;
-                }
-            }
             if(next == null)
                 throw new NullPointerException();
-			if(!next.sameAs(start))
+			if(next != start)
 				queue.add(next);
 			prev = road;
 		}

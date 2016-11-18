@@ -1237,14 +1237,13 @@ public class Dashboard extends JFrame{
                     updateDeliveryDestPanel("Click any loc");
                 }
                 else if (dest == null) {
-                    if (src instanceof Road && icon.road.sameAs((Road) src))
+                    if (src instanceof Road && icon.road == src)
                         return;
                     dest = icon.road;
                     updateDeliveryDestPanel(dest.name);
                     deliverButton.setEnabled(true);
                 }
             }
-            // right click
             else {
                 if(TrafficMap.roadPaneScroll.isVisible()) {
                     TrafficMap.roadPaneScroll.setVisible(false);
@@ -1252,28 +1251,28 @@ public class Dashboard extends JFrame{
                 }
 
                 if (icon instanceof Road.Crossroad.CrossroadIcon) {
-                    TrafficMap.roadPaneScroll.setLocation(icon.getX()+icon.getWidth(),
-                            icon.getY()+(icon.getHeight()- TrafficMap.roadPaneScroll.getHeight())/2);
+                    TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+icon.getWidth(),
+                            icon.road.icon.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
                     updateRoadInfoPane(icon.road);
                     TrafficMap.roadPaneScroll.setVisible(true);
                 }
                 else if (icon instanceof Road.Street.StreetIcon) {
                     if (((Road.Street.StreetIcon) icon).isVertical) {
-                        int rightmost = icon.getX() + icon.getWidth() + TrafficMap.roadPaneScroll.getWidth();
+                        int rightmost = icon.road.icon.getX() + icon.getX() + icon.getWidth() + TrafficMap.roadPaneScroll.getWidth();
                         if (rightmost < trafficMap.getWidth())
-                            TrafficMap.roadPaneScroll.setLocation(icon.getX() + icon.getWidth(),
-                                    icon.getY() + (icon.getHeight() - TrafficMap.roadPaneScroll.getHeight()) / 2);
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+icon.getWidth(),
+                                    icon.road.icon.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
                         else
-                            TrafficMap.roadPaneScroll.setLocation(icon.getX() - TrafficMap.roadPaneScroll.getWidth(),
-                                    icon.getY() + (icon.getHeight() - TrafficMap.roadPaneScroll.getHeight()) / 2);
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()-TrafficMap.roadPaneScroll.getWidth(),
+                                    icon.road.icon.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
                     }
                     else {
-                        int topmost = icon.getY() - TrafficMap.roadPaneScroll.getHeight();
+                        int topmost = icon.road.icon.getY() + icon.getY() - TrafficMap.roadPaneScroll.getHeight();
                         if (topmost >= 0)
-                            TrafficMap.roadPaneScroll.setLocation(icon.getX() + (icon.getWidth() - TrafficMap.roadPaneScroll.getWidth()) / 2, topmost);
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+(icon.getWidth()-TrafficMap.roadPaneScroll.getWidth())/2, topmost);
                         else
-                            TrafficMap.roadPaneScroll.setLocation(icon.getX() + (icon.getWidth() - TrafficMap.roadPaneScroll.getWidth()) / 2,
-                                    icon.getY() + icon.getHeight());
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+(icon.getWidth()-TrafficMap.roadPaneScroll.getWidth())/2,
+                                    icon.road.icon.getY()+icon.getY()+icon.getHeight());
                     }
                     updateRoadInfoPane(icon.road);
                     TrafficMap.roadPaneScroll.setVisible(true);

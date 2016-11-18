@@ -31,9 +31,8 @@ public abstract class Road extends Location{
 	public int[] dir = {TrafficMap.UNKNOWN_DIR, TrafficMap.UNKNOWN_DIR};
 	public Queue<Car> cars = new LinkedList<>();//may contain phantoms
 	public Queue<Car> realCars = new LinkedList<>();
-	public Car[] permitted = {null};//let its type be an array to share its value among the combined
-	public Set<Road> combined = new HashSet<>();
-//	public Object mutex = new Object();//used by police thread and its notifier
+	public Car permitted = null;
+	public int numSections;
 	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public Map<Integer, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
 	public RoadIconPanel icon = new RoadIconPanel(this);
@@ -53,41 +52,13 @@ public abstract class Road extends Location{
 				return null;
 		}
 	}
-	
-	public boolean sameAs(Road road){
-		return this == road || combined.contains(road);
-	}
-	
-	public boolean isCombined(){
-		return !combined.isEmpty();
-	}
-	
-	public static void combine(Set<Road> roads){
-		for(Road road : roads){
-			for(Road other : roads)
-				if(other != road){
-					road.combined.add(other);
-					other.cars = road.cars;
-					other.realCars = road.realCars;
-//					other.mutex = road.mutex;
-					other.permitted = road.permitted;
-					other.waiting = road.waiting;
-					other.adjRoads = road.adjRoads;
-					other.adjSensors = road.adjSensors;
-					other.entrance2exit = road.entrance2exit;
-					other.exit2entrance = road.exit2entrance;
-					other.dir = road.dir;
-                    other.timeouts = road.timeouts;
-				}
-		}
-	}
-	
+
 	public void setPermitted(Car car){
-		permitted[0] = car;
+		permitted = car;
 	}
 	
 	public Car getPermitted(){
-		return permitted[0];
+		return permitted;
 	}
 	
 	public void addWaitingCar(Car car){
@@ -119,12 +90,14 @@ public abstract class Road extends Location{
 
 		private RoadIconPanel(Road road) {
 			this.road = road;
+			road.numSections = 0;
 			setLayout(null);
 			setOpaque(false);
 			setBackground(null);
 		}
 
 		public void addCrossroadIcon(int x, int y, int w, int h) {
+			road.numSections++;
 			CrossroadIcon icon = new CrossroadIcon(road);
 			add(icon);
 			icons.add(icon);
@@ -142,6 +115,7 @@ public abstract class Road extends Location{
 		}
 
 		public void addStreetIcon(int x, int y, int w, int h, int arcw, int arch, boolean isVertical) {
+			road.numSections++;
 			StreetIcon icon = new StreetIcon(road);
 			add(icon);
 			icons.add(icon);
@@ -307,11 +281,6 @@ public abstract class Road extends Location{
             	idLabel.setVisible(b);
         }
 
-        public void repaintAll(){
-            this.repaint();
-            if (road.isCombined())
-                road.combined.forEach(r -> r.icon.repaint());
-        }
 	}
 	
 	public void reset() {

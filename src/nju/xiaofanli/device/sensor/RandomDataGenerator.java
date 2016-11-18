@@ -32,8 +32,8 @@ public class RandomDataGenerator implements Runnable{
                         enabled.add(car.loc.adjSensors.get(car.dir));
                         if (car.getState() != Car.STOPPED)
                             disabled.put(car.getRealLoc().adjSensors.get(car.getRealDir()), car);
-                        else
-                            enabled.add(car.getRealLoc().adjSensors.get(car.getRealDir()));
+//                        else
+//                            enabled.add(car.getRealLoc().adjSensors.get(car.getRealDir()));
                     }
                     else {
                         if (car.getState() == Car.STOPPED)

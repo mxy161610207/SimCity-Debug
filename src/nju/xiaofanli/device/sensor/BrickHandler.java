@@ -84,7 +84,7 @@ public class BrickHandler extends Thread{
 
                 //do triggered stuff
                 if(car.dest != null){
-                    if(car.dest.sameAs(car.loc)){
+                    if(car.dest == car.loc){
                         car.notifyPolice(Police.REQUEST2STOP);
                         //trigger reach dest event
                         if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
@@ -110,7 +110,7 @@ public class BrickHandler extends Thread{
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
                     if(sensor.car != null && !sensor.car.hasPhantom()
-                            && sensor.car.loc.sameAs(sensor.nextRoad)
+                            && sensor.car.loc == sensor.nextRoad
                             && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
                         System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading + "\t" + time);
                         break;

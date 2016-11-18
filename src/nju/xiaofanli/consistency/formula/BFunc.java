@@ -108,7 +108,7 @@ public class BFunc extends Formula {
     	if (v1 == null || v2 == null)
     		return false;
 
-		return Resource.getRoad(v1).sameAs(Resource.getRoad(v2));
+		return Resource.getRoad(v1) == Resource.getRoad(v2);
 	}
     
     @Override

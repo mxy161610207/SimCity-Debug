@@ -137,7 +137,7 @@ public class Car {
 		if(loc != null && firstEntry){
             Sensor sensor = null;
             for(Sensor s : loc.adjSensors.values())
-                if(s.nextRoad.sameAs(loc)) {
+                if(s.nextRoad == loc) {
                     sensor = s;
                     break;
                 }
@@ -227,7 +227,7 @@ public class Car {
     }
 	
 	public void enter(Road road, int dir){
-		if(road == null || road.sameAs(loc))
+		if(road == null || road == loc)
 			return;
 		notifyPolice(Police.BEFORE_ENTRY, road);
 		leave(loc, true);
@@ -245,7 +245,7 @@ public class Car {
         if(getLoading())
             setLoading(false);
 		notifyPolice(Police.AFTER_ENTRY, road);
-        if (hasPhantom() && loc.sameAs(realLoc) && dir == realDir) {
+        if (hasPhantom() && loc == realLoc && dir == realDir) {
             resetRealInfo();
         }
 		road.icon.repaint();
@@ -272,8 +272,6 @@ public class Car {
 			return;
 		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, road.adjRoads.get(dir));
 		road.cars.remove(this);
-//		if(loc == road)
-//			loc = null;
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, road);
 		road.icon.repaint();
         road.checkRealCrash();
@@ -311,7 +309,7 @@ public class Car {
         realLoc.realCars.remove(this);
         realLoc.icon.repaint();
         realLoc.checkRealCrash();
-        if (this.loc.sameAs(loc) && this.dir == dir) {
+        if (this.loc == loc && this.dir == dir) {
             resetRealInfo();
         }
         else {

@@ -24,15 +24,12 @@ public class Sensor {
     public int state;
     public int reading = 30;
     public int entryThreshold, leaveThreshold;
-    public Crossroad crossroad;
-    public Street street;
     public Car car = null;
     public Road nextRoad = null;
     public Road prevRoad = null;
     public Sensor nextSensor = null;
     public Sensor prevSensor = null;
     public int dir;
-    public boolean isEntrance;
     public int px, py;
     public JButton icon = null;
     public BalloonIcon balloon = null;
