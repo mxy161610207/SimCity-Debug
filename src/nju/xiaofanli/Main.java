@@ -51,8 +51,6 @@ public class Main {
 		EventManager.register(new VehicleConditionMonitor(), Arrays.asList(Event.Type.ADD_CAR, Event.Type.CAR_CRASH,
                 Event.Type.CAR_ENTER, Event.Type.CAR_LEAVE, Event.Type.CAR_LEAVE, Event.Type.CAR_MOVE, Event.Type.CAR_STOP,
                 Event.Type.CAR_START_LOADING, Event.Type.CAR_END_LOADING, Event.Type.CAR_START_UNLOADING, Event.Type.CAR_END_UNLOADING));
-//		EventManager.register(new CarLoadingMonitor(), Arrays.asList(Event.Type.CAR_START_LOADING, Event.Type.CAR_END_LOADING,
-//				Event.Type.CAR_START_UNLOADING, Event.Type.CAR_END_UNLOADING));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -88,6 +86,7 @@ public class Main {
 			TrafficMap.citizens.add(citizen);
             TrafficMap.freeCitizens.add(citizen);
 		}
+		Resource.setCitizenIcons();
 
 		list = root.elements("brick");
 		for(Element e : list){

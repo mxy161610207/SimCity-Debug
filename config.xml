@@ -21,17 +21,17 @@
     <building name="School" type="School" loc="5" icon="res/nju.png"/>
     <building name="Police Station" type="PoliceStation" loc="10" icon="res/shield.png"/>
     <building name="Restaurant" type="Restaurant" loc="13" icon="res/java.png"/>
-    <citizen name="Tony Stark" gender="Male" job="SuperHero" icon="res/ironman.png" color="f39c11"/>
-    <citizen name="Steven Rogers" gender="Male" job="SuperHero" icon="res/captain_america.png" color="2881b9"/>
-    <citizen name="Natasha Romanoff" gender="Female" job="SuperHero" icon="res/black_widow.png" color="323232"/>
-    <citizen name="Bruce Banner" gender="Male" job="SuperHero" icon="res/hulk.png" color="00ff00"/>
-    <citizen name="Wade Wilson" gender="Male" job="SuperHero" icon="res/deadpool.png" color="922522"/>
-    <citizen name="Scott Lang" gender="Male" job="SuperHero" icon="res/antman.png" color="c0c0c0"/>
-    <citizen name="Peter Parker" gender="Male" job="SuperHero" icon="res/spiderman.png" color="505050"/>
-    <citizen name="Clark Kent" gender="Male" job="SuperHero" icon="res/superman.png" color="c03629"/>
-    <citizen name="Bruce Wayne" gender="Male" job="SuperHero" icon="res/batman.png" color="282828"/>
+    <citizen name="Tony" gender="Male" job="SuperHero" icon="res/ironman.png" color="f39c11"/>
+    <citizen name="Steven" gender="Male" job="SuperHero" icon="res/captain_america.png" color="2881b9"/>
+    <citizen name="Natasha" gender="Female" job="SuperHero" icon="res/black_widow.png" color="323232"/>
+    <citizen name="Hulk" gender="Male" job="SuperHero" icon="res/hulk.png" color="00ff00"/>
+    <citizen name="Wade" gender="Male" job="SuperHero" icon="res/deadpool.png" color="922522"/>
+    <citizen name="Scott" gender="Male" job="SuperHero" icon="res/antman.png" color="c0c0c0"/>
+    <citizen name="Peter" gender="Male" job="SuperHero" icon="res/spiderman.png" color="505050"/>
+    <citizen name="Clark" gender="Male" job="SuperHero" icon="res/superman.png" color="c03629"/>
+    <citizen name="Bruce" gender="Male" job="SuperHero" icon="res/batman.png" color="282828"/>
     <citizen name="Tintin" gender="Male" job="Reporter" icon="res/tintin.png" color="e3a840"/>
-    <citizen name="Harry Potter" gender="Male" job="Student" icon="res/harry_potter.png" color="ae0001"/>
-    <citizen name="Anakin Skywalker" gender="Male" job="Student" icon="res/darth_vader.png" color="000000"/>
+    <citizen name="Harry" gender="Male" job="Student" icon="res/harry_potter.png" color="ae0001"/>
+    <citizen name="Anakin" gender="Male" job="Student" icon="res/darth_vader.png" color="000000"/>
     <citizen name="Frankenstein" gender="Male" job="Doctor" icon="res/frankenstein.png" color="42650b"/>
 </config>

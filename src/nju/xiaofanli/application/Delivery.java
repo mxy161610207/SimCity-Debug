@@ -202,7 +202,7 @@ public class Delivery {
                             car.setLoading(false);
 
                             if(dt.citizen != null && dt.citizen.state == Citizen.Action.HailATaxi) {
-                                car.passengers.add(dt.citizen);
+                                car.passenger = dt.citizen;
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
                                 List<Pair<String, Style>> strings = new ArrayList<>();
@@ -221,7 +221,6 @@ public class Delivery {
                             if(car.dest == car.loc){
                                 car.setLoading(true);
                                 dt.startTime = System.currentTimeMillis();
-//									car.loc.icon.repaint();
 								Command.send(car, Command.WHISTLE3);
                                 //trigger start unloading event
                                 if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
@@ -232,9 +231,7 @@ public class Delivery {
                                     EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
                             }
                             else{
-//                                car.finalState = Car.MOVING;
                                 car.notifyPolice(Police.REQUEST2ENTER);
-//                                Dashboard.log(car.name+" heads for dest "+car.dest.name);
                             }
                         }
                         //head for the dest
@@ -244,26 +241,12 @@ public class Delivery {
                             dt.startTime = System.currentTimeMillis();
                             car.dt = null;
                             car.dest = null;
-//                            car.finalState = Car.MOVING;
                             car.setLoading(false);
-                            car.loc.icon.repaint();
+
                             car.notifyPolice(Police.REQUEST2ENTER);
-//                            allBusy = false;
-//
-//                            if(dt.createdByUser) {
-//                                userDelivNum--;
-//                                completedUserDelivNum++;
-//                                Dashboard.enableDeliveryButton(true);
-//                            }
-//                            else {
-//                                sysDelivNum--;
-//                                completedSysDelivNum++;
-//                                Location src = TrafficMap.getALocation();
-//                                Location dest = TrafficMap.getALocationExcept(src);
-//                                add(src, dest, false);
-//                            }
+
                             if(dt.citizen != null && dt.citizen.state == Citizen.Action.TakeATaxi){
-                                car.passengers.remove(dt.citizen);
+                                car.passenger = null;
                                 dt.citizen.car = null;
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
@@ -279,15 +262,9 @@ public class Delivery {
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
                                 EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name, dt));
-//                            //trigger complete event
-//                            if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
-//                                try {
-//                                    EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt.clone()));
-//                                } catch (CloneNotSupportedException e) {
-//                                    e.printStackTrace();
-//                                }
                         }
                         Dashboard.updateDeliveryTaskPanel();
+                        car.loc.icon.repaint();
                     }
                 }
             }

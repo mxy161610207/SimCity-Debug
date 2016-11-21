@@ -41,7 +41,7 @@ public class Car {
 	public long lastCmdTime = System.currentTimeMillis();//used for waking cars
 	public long stopTime = System.currentTimeMillis();//used for delivery
 	public CarIcon icon = null;
-	public Set<Citizen> passengers = new HashSet<>();
+	public Citizen passenger = null;
     public boolean isHornOn = false; //only for crash
     public boolean isInCrash = false;
     public int timeout = Integer.MAX_VALUE;
@@ -85,7 +85,7 @@ public class Car {
 		dt = null;
 		dest = null;
 		isLoading = false;
-		passengers.clear();
+		passenger = null;
 		resetRealInfo();
         isInCrash = isHornOn = false;
         firstEntry = true;

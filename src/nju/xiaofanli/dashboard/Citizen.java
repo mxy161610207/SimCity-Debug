@@ -180,9 +180,10 @@ public class Citizen implements Runnable {
                     action = null;
                     if(!icon.isVisible()){
                         int x, y;
-                        if(loc instanceof Road){
-                            x = ((Road) loc).icon.coord.centerX;
-                            y = ((Road) loc).icon.coord.centerY;
+                        if(loc instanceof Road) {
+                            Road.RoadIcon icon = ((Road) loc).icon.getARoadIcon();
+                            x = icon.road.icon.coord.x + icon.coord.centerX;
+                            y = icon.road.icon.coord.y + icon.coord.centerY;
                         }
                         else{
                             x = ((Building) loc).icon.coord.centerX;
@@ -202,8 +203,9 @@ public class Citizen implements Runnable {
                     if(loc != null){
                         int x, y;
                         if(loc instanceof Road){
-                            x = ((Road) loc).icon.coord.centerX;
-                            y = ((Road) loc).icon.coord.centerY;
+                            Road.RoadIcon icon = ((Road) loc).icon.getARoadIcon();
+                            x = icon.road.icon.coord.x + icon.coord.centerX;
+                            y = icon.road.icon.coord.y + icon.coord.centerY;
                         }
                         else{
                             x = ((Building) loc).icon.coord.centerX;
@@ -356,10 +358,8 @@ public class Citizen implements Runnable {
     public static class CitizenIcon extends JLabel{
         private static final long serialVersionUID = 1L;
         private final Citizen citizen;
-        private ImageIcon imageIcon;
+        public ImageIcon imageIcon;
         public final Color color;
-        private boolean showName = false;
-        private boolean showState = false;
         public boolean blink = false;
         final Dimension dimension;
         static final int AVATAR_SIZE = CarIcon.SIZE;//(int) (0.8*CarIcon.AVATAR_SIZE);

@@ -40,6 +40,7 @@ public class Resource {
 			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,
             RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON;
     public final static Map<String, ImageIcon[]> CAR_ICONS = new HashMap<>();
+	public final static Map<String, ImageIcon> CITIZEN_ICONS = new HashMap<>();
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
@@ -234,7 +235,15 @@ public class Resource {
     public static ImageIcon[] getCarIcons(String name) {
         return CAR_ICONS.get(name);
     }
-	
+
+    static void setCitizenIcons() {
+		TrafficMap.citizens.forEach(citizen -> CITIZEN_ICONS.put(citizen.name, loadImage(citizen.icon.imageIcon, TrafficMap.SH/2, TrafficMap.SH/2)));
+	}
+
+	public static Map<String, ImageIcon> getCitizenIcons() {
+		return CITIZEN_ICONS;
+	}
+
 	public static ImageIcon loadImage(String filename, int width, int height) {
 		return loadImage(new ImageIcon(filename), width, height);
 	}
