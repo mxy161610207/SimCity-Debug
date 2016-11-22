@@ -26,6 +26,7 @@ public abstract class Road extends Location{
 	public int[] dir = {TrafficMap.UNKNOWN_DIR, TrafficMap.UNKNOWN_DIR};
 	public Queue<Car> cars = new LinkedList<>();//may contain phantoms
 	public Queue<Car> realCars = new LinkedList<>();
+	public Queue<Car> allRealCars = new LinkedList<>();
 	public Car permitted = null;
 	public int numSections;
 	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
@@ -300,13 +301,14 @@ public abstract class Road extends Location{
 	public void reset() {
 		cars.clear();
 		realCars.clear();
+		allRealCars.clear();
 		setPermitted(null);
 		waiting.clear();
 	}
 
 	public void checkRealCrash() {
-        Set<Car> allRealCars = new HashSet<>(realCars);
-        allRealCars.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
+//        Set<Car> allRealCars = new HashSet<>(realCars);
+//        allRealCars.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
         if(allRealCars.size() > 1) {
             // stop all crashed cars to keep the scene intact
             allRealCars.forEach(car -> {
@@ -316,7 +318,16 @@ public abstract class Road extends Location{
                     Command.send(car, Command.HORN_ON);
             });
 
+			Dashboard.showCrashEffect(this);
             Dashboard.playCrashSound();
+
+			List<Car> frontCars = new ArrayList<>();
+			Set<Integer> dirs = new HashSet<>();
+			allRealCars.stream().filter(car -> !dirs.contains(car.dir)).forEach(car -> {
+				dirs.add(car.dir);
+				frontCars.add(car);
+			});
+			Dashboard.showCrashDialog(frontCars);
         }
         else{
             allRealCars.forEach(car -> {

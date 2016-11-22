@@ -1,12 +1,10 @@
 package nju.xiaofanli;
-import nju.xiaofanli.application.*;
+import nju.xiaofanli.application.AppMonitor;
+import nju.xiaofanli.application.Delivery;
+import nju.xiaofanli.application.VehicleConditionMonitor;
 import nju.xiaofanli.application.monitor.AppServer;
-import nju.xiaofanli.dashboard.Building;
-import nju.xiaofanli.dashboard.Citizen;
-import nju.xiaofanli.dashboard.Road;
-import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.control.Police;
-import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.dashboard.*;
 import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.CmdSender;
@@ -43,7 +41,6 @@ public class Main {
 		Dashboard.getInstance().loadCtrlUI();
 		initial = false;
         TrafficMap.checkRealCrash();
-//		Dashboard.showRelocationDialog(null);
 	}
 
 	private static void addModule(){

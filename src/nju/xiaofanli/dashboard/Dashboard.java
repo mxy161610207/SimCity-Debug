@@ -80,61 +80,42 @@ public class Dashboard extends JFrame{
     private static final JPanel leftPanel = new JPanel(), rightPanel = new JPanel(), bottomPanel = new JPanel();
 
     public static boolean blink = false;
-    private static final Runnable blinkThread = new Runnable() {
-        private final int duration = 500;
-        private int count = 0;
-        public void run() {
-            //noinspection InfiniteLoopStatement
-            while(true){
-                blink = !blink;
-                count++;
-                for(Sensor[] array : Resource.getSensors())
-                    for(Sensor sensor : array) {
-                        if(sensor.balloon.duration > 0){
-                            if(!sensor.balloon.isVisible())
-                                sensor.balloon.setVisible(true);
-                            sensor.balloon.duration -= duration;
-                        }
-                        else if(sensor.balloon.isVisible())
+    private static final Runnable blinkThread = () -> {
+        long start = System.currentTimeMillis();
+        //noinspection InfiniteLoopStatement
+        while(true){
+            blink = !blink;
+            int elapsed = (int) (System.currentTimeMillis() - start);
+            start = System.currentTimeMillis();
+
+            for(Sensor[] array : Resource.getSensors()) {
+                for (Sensor sensor : array) {
+                    if (sensor.balloon.isVisible()) {
+                        sensor.balloon.duration -= elapsed;
+                        if (sensor.balloon.duration <= 0)
                             sensor.balloon.setVisible(false);
                     }
+                }
+            }
 
-                for(Road road : Resource.getRoads().values()){
-                    boolean isLoading = false;
-                    for (Car car : road.cars) {
-                        if (car.isLoading) {
-                            isLoading = true;
-                            break;
-                        }
+            TrafficMap.checkCrashEffectExpiration(elapsed);
+
+            for(Road road : Resource.getRoads().values()){
+                boolean isLoading = false;
+                for (Car car : road.cars) {
+                    if (car.isLoading) {
+                        isLoading = true;
+                        break;
                     }
-                    if (isLoading)
-                        road.icon.repaint();
                 }
+                if (isLoading)
+                    road.icon.repaint();
+            }
 
-//                if (count % 4 == 0) {
-//                    switch (TrafficMap.fakeCarIconLabel.getText()){
-//                        case "Fake car":
-//                            TrafficMap.fakeCarIconLabel.setText("(caused by"); break;
-//                        case "(caused by":
-//                            TrafficMap.fakeCarIconLabel.setText("inconsistent data)"); break;
-//                        case "inconsistent data)":
-//                            TrafficMap.fakeCarIconLabel.setText("Fake car"); break;
-//                    }
-//
-//                    switch (TrafficMap.realCarIconLabel.getText()){
-//                        case "Real car":
-//                            TrafficMap.realCarIconLabel.setText("(invisible to"); break;
-//                        case "(invisible to":
-//                            TrafficMap.realCarIconLabel.setText("other cars)"); break;
-//                        case "other cars)":
-//                            TrafficMap.realCarIconLabel.setText("Real car"); break;
-//                    }
-//                }
-                try {
-                    Thread.sleep(duration);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     };
@@ -541,7 +522,7 @@ public class Dashboard extends JFrame{
                 strings.add(new Pair<>(citizen.name, Resource.getTextStyle(citizen.icon.color)));
                 strings.add(new Pair<>(" at ", null));
                 strings.add(new Pair<>(loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                strings.add(new Pair<>("\n", null));
+                strings.add(new Pair<>(".\n", null));
                 Dashboard.log(strings);
             }
             else if(cmd.equals("wander")) {
@@ -959,6 +940,30 @@ public class Dashboard extends JFrame{
         }
     }
 
+    public static void showCrashDialog(List<Car> cars) {
+        if (cars == null || cars.isEmpty())
+            return;
+
+        List<Pair<String, Style>> strings = new ArrayList<>();
+        strings.add(new Pair<>("Please select ", null));
+        strings.add(new Pair<>(cars.get(0).name, Resource.getTextStyle(cars.get(0).icon.color)));
+        for (int i = 1;i < cars.size();i++) {
+            strings.add(new Pair<>(", or ", null));
+            strings.add(new Pair<>(cars.get(i).name, Resource.getTextStyle(cars.get(i).icon.color)));
+        }
+        strings.add(new Pair<>(", and click ", null));
+        strings.add(new Pair<>("Start", Resource.getTextStyle(true)));
+        strings.add(new Pair<>(" button to recover from the crash.\n", null));
+
+//        JTextPane pane = new JTextPane();
+//        pane.setBackground(null);
+//        pane.setEditable(false);
+//        pane.setFont(Resource.plain17dialog);
+//        Dashboard.append2pane(strings, pane);
+//        JOptionPane.showMessageDialog(Dashboard.getInstance(), pane, "Recover from the crash", JOptionPane.PLAIN_MESSAGE, null);
+        Dashboard.log(strings);
+    }
+
     public static Road getNearestRoad(int x, int y){
         if(x < 0 || x >= trafficMap.getWidth() || y < 0 || y >= trafficMap.getHeight())
             return null;
@@ -977,7 +982,7 @@ public class Dashboard extends JFrame{
     }
 
     private static void updateRoadInfoPane(Location loc){
-        TrafficMap.updateRoadInfoPane(loc);
+        trafficMap.updateRoadInfoPane(loc);
     }
 
     private static void updateDeliverySrcPanel(){
@@ -1131,6 +1136,10 @@ public class Dashboard extends JFrame{
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void showCrashEffect(Road road) {
+        trafficMap.showCrashEffect(road);
     }
 
     public static void playErrorSound(){

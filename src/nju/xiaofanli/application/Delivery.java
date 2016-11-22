@@ -211,7 +211,7 @@ public class Delivery {
                                 strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
                                 strings.add(new Pair<>(" at ", null));
                                 strings.add(new Pair<>(car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                                strings.add(new Pair<>("\n", null));
+                                strings.add(new Pair<>(".\n", null));
                                 Dashboard.log(strings);
                             }
                             //trigger end loading event
@@ -256,7 +256,7 @@ public class Delivery {
                                 strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
                                 strings.add(new Pair<>(" at ", null));
                                 strings.add(new Pair<>(car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                                strings.add(new Pair<>("\n", null));
+                                strings.add(new Pair<>(".\n", null));
                                 Dashboard.log(strings);
                             }
                             //trigger end unloading event

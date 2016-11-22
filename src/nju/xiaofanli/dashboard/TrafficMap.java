@@ -39,6 +39,7 @@ public class TrafficMap extends JPanel{
             fakeCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.bold15dialog),
             realCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.bold15dialog);
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
+    private static final Map<JLabel, Integer> crashLettersLabels = new HashMap<>();
 
     public static final int SH = 48;//street height
     public static final int SW = SH * 2;//street width
@@ -46,7 +47,7 @@ public class TrafficMap extends JPanel{
     private static final int AW = CW / 2;
     private static final int U1 = CW + SW;
     private static final int U2 = (CW+SH)/2;
-    private static final int U3 = SW+(CW+SH)/2;
+    public static final int U3 = SW+(CW+SH)/2;
     private static final int U4 = U1+SH;
     private static final int U5 = U3 + CW;
     public static final int SIZE = U3 + 2*U1 + U5;
@@ -78,6 +79,8 @@ public class TrafficMap extends JPanel{
 
         //      roadPane.setLineWrap(true);
 //		roadPane.setWrapStyleWord(true);
+        roadPaneScroll.setVisible(false);
+        roadPaneScroll.setSize(U3, U3);
         roadPane.setEditable(false);
         roadPane.setBackground(Color.WHITE);
         roadPane.setFont(Resource.plain17dialog);
@@ -90,6 +93,13 @@ public class TrafficMap extends JPanel{
         fakeCarIconPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
         realCarIconPanel.setVisible(false);
         realCarIconPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
+
+        for (int i = 0;i < 5;i++) {
+            JLabel label = new JLabel(Resource.CRASH_LETTERS);
+            crashLettersLabels.put(label, 0);
+            label.setVisible(false);
+            label.setSize(label.getPreferredSize());
+        }
     }
 
     private TrafficMap() {
@@ -114,9 +124,8 @@ public class TrafficMap extends JPanel{
             }
         }
 
-        roadPaneScroll.setVisible(false);
-        roadPaneScroll.setSize(U3, U3);
         add(roadPaneScroll);
+        crashLettersLabels.keySet().forEach(this::add);
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 add(sensor.balloon);
@@ -726,7 +735,7 @@ public class TrafficMap extends JPanel{
         streets[13].adjRoads.put(SOUTH, crossroads[6]);
         streets[14].adjRoads.put(NORTH, streets[11]);
         streets[14].adjRoads.put(EAST, streets[15]);
-        streets[15].adjRoads.put(WEST, streets[2]);
+        streets[15].adjRoads.put(WEST, streets[14]);
         streets[15].adjRoads.put(EAST, crossroads[5]);
         streets[16].adjRoads.put(WEST, crossroads[5]);
         streets[16].adjRoads.put(EAST, crossroads[6]);
@@ -778,7 +787,7 @@ public class TrafficMap extends JPanel{
         roads.values().forEach(Road::checkRealCrash);
     }
 
-    public static void updateRoadInfoPane(Location loc) {
+    void updateRoadInfoPane(Location loc) {
         synchronized (roadPane) {
             roadPane.setText("");
             if (loc == null)
@@ -837,6 +846,7 @@ public class TrafficMap extends JPanel{
                     sb.append(hasBracket ? ")\n" : "\n");
                     strings.add(new Pair<>(sb.toString(), null));
                 });
+
                 Dashboard.append2pane(strings, roadPane);
 //
 //                StringBuilder sb = new StringBuilder();
@@ -844,6 +854,35 @@ public class TrafficMap extends JPanel{
 //                if (road.dir[1] != UNKNOWN_DIR)
 //                    sb.append("\n" + dirOf(road.dir[1]) + " " + road.timeouts.get(road.dir[1]).get(Car.RED));
 //                roadPane.setText(sb.toString());
+            }
+        }
+    }
+
+    void showCrashEffect(Road road) {
+        synchronized (crashLettersLabels) {
+            for (Map.Entry<JLabel, Integer> entry : crashLettersLabels.entrySet()) {
+                JLabel label = entry.getKey();
+                if (!label.isVisible()) {
+                    int x = road.icon.getX() + road.icon.getWidth() / 2 - label.getWidth() / 2;
+                    int y = road.icon.getY() + road.icon.getHeight() / 2 - label.getHeight() / 2;
+                    label.setLocation(x, y);
+                    entry.setValue(2000);
+                    label.setVisible(true);
+                    break;
+                }
+            }
+        }
+    }
+
+    static void checkCrashEffectExpiration(int elapsed) {
+        synchronized (crashLettersLabels) {
+            for (Map.Entry<JLabel, Integer> entry : crashLettersLabels.entrySet()) {
+                JLabel label = entry.getKey();
+                if (label.isVisible()) {
+                    entry.setValue(entry.getValue() - elapsed);
+                    if (entry.getValue() <= 0)
+                        label.setVisible(false);
+                }
             }
         }
     }

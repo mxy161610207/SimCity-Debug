@@ -41,6 +41,7 @@ public class Resource {
             RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON;
     public final static Map<String, ImageIcon[]> CAR_ICONS = new HashMap<>();
 	public final static Map<String, ImageIcon> CITIZEN_ICONS = new HashMap<>();
+	public final static ImageIcon CRASH_LETTERS;
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
@@ -67,6 +68,7 @@ public class Resource {
         QUESTION_MARK_ICON = new ImageIcon("res/question_mark_icon.png");
 		CROSSROAD_ICON = new ImageIcon("res/crossroad_icon.png");
         STREET_ICON = new ImageIcon("res/street_icon.png");
+		CRASH_LETTERS = loadImage("res/crash_letters.png", TrafficMap.U3, TrafficMap.U3);
 
         CAR_ICONS.put(Car.BLACK, new ImageIcon[]{
                 loadImage("res/black_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
