@@ -323,8 +323,8 @@ public abstract class Road extends Location{
 
 			List<Car> frontCars = new ArrayList<>();
 			Set<Integer> dirs = new HashSet<>();
-			allRealCars.stream().filter(car -> !dirs.contains(car.dir)).forEach(car -> {
-				dirs.add(car.dir);
+			allRealCars.stream().filter(car -> !dirs.contains(car.getRealDir())).forEach(car -> {
+				dirs.add(car.getRealDir());
 				frontCars.add(car);
 			});
 			Dashboard.showCrashDialog(frontCars);

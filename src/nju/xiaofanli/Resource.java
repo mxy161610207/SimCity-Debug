@@ -158,7 +158,7 @@ public class Resource {
 	}
 
 	public static Sensor getSensor(int bid, int sid) {
-		if (TrafficMap.sensors == null || TrafficMap.sensors.length < bid || TrafficMap.sensors[bid].length < sid)
+		if (TrafficMap.sensors == null || TrafficMap.sensors.length <= bid || TrafficMap.sensors[bid].length <= sid)
 			return null;
 		return TrafficMap.sensors[bid][sid];
 	}
