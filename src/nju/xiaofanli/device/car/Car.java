@@ -207,7 +207,7 @@ public class Car {
 
 	void write(int cmd) {
         byte[] code = Command.codes.get(cmd);
-        if(isConnected() && code != null && (cmd != Command.HORN_ON || Dashboard.playCrashSound)) {
+        if(isConnected() && code != null) {
 			try {
                 dos.write(code);
                 lastCmdTime = System.currentTimeMillis();

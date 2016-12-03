@@ -78,8 +78,6 @@ public class Delivery {
 				car.dt = dt;
 				dt.car = car;
 				dt.phase = DeliveryTask.HEAD4SRC;
-				if(car.hasPhantom())
-                    Dashboard.playErrorSound();
 				if(car.dest == car.loc && car.state == Car.STOPPED){
                     car.setLoading(true);
                     Command.send(car, Command.WHISTLE2);

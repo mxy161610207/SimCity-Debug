@@ -29,7 +29,7 @@ public abstract class Road extends Location{
 	public Queue<Car> allRealCars = new LinkedList<>();
 	public Car permitted = null;
 	public int numSections;
-	public Queue<Car> waiting = new LinkedList<>();//can replace mutex
+	public final Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public Map<Integer, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
 	public RoadIconPanel icon = new RoadIconPanel(this);
 
@@ -47,14 +47,6 @@ public abstract class Road extends Location{
 			default:
 				return null;
 		}
-	}
-
-	public void setPermitted(Car car){
-		permitted = car;
-	}
-	
-	public Car getPermitted(){
-		return permitted;
 	}
 	
 	public void addWaitingCar(Car car){
@@ -302,20 +294,26 @@ public abstract class Road extends Location{
 		cars.clear();
 		realCars.clear();
 		allRealCars.clear();
-		setPermitted(null);
 		waiting.clear();
+		permitted = null;
 	}
 
 	public void checkRealCrash() {
 //        Set<Car> allRealCars = new HashSet<>(realCars);
 //        allRealCars.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
         if(allRealCars.size() > 1) {
-            // stop all crashed cars to keep the scene intact
+            // stop all cars to keep the scene intact
+			if (!TrafficMap.crashOccurred) {
+				TrafficMap.crashOccurred = true;
+				Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP));
+			}
+
             allRealCars.forEach(car -> {
-                car.isInCrash = true;
-                car.notifyPolice(Police.REQUEST2STOP);
-                if(!car.isHornOn)
-                    Command.send(car, Command.HORN_ON);
+            	if (!car.isInCrash) {
+					car.isInCrash = true;
+					if (Dashboard.playCrashSound)
+						Command.send(car, Command.HORN_ON);
+				}
             });
 
 			Dashboard.showCrashEffect(this);
@@ -331,9 +329,22 @@ public abstract class Road extends Location{
         }
         else{
             allRealCars.forEach(car -> {
-                car.isInCrash = false;
-                if(car.isHornOn)
-                    Command.send(car, Command.HORN_OFF);
+            	if (car.isInCrash) {
+					car.isInCrash = false;
+					if (Dashboard.playCrashSound)
+						Command.send(car, Command.HORN_OFF);
+
+					if (TrafficMap.crashOccurred) {
+						boolean crash = false;
+						for (Car car2 : Resource.getConnectedCars()) {
+							if (car2.isInCrash) {
+								crash = true;
+								break;
+							}
+						}
+						TrafficMap.crashOccurred = crash;
+					}
+				}
             });
         }
     }

@@ -1,6 +1,7 @@
 package nju.xiaofanli.dashboard;
 
 import java.awt.*;
+import java.text.BreakIterator;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +12,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.Style;
 
 import nju.xiaofanli.Resource;
+import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.util.Pair;
@@ -40,6 +42,7 @@ public class TrafficMap extends JPanel{
             realCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.bold15dialog);
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
     private static final Map<JLabel, Integer> crashLettersLabels = new HashMap<>();
+    public static boolean crashOccurred = false;
 
     public static final int SH = 48;//street height
     public static final int SW = SH * 2;//street width
@@ -88,6 +91,7 @@ public class TrafficMap extends JPanel{
                 TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
         ((TitledBorder) roadPaneScroll.getBorder()).setTitleFont(Resource.bold16dialog);
         roadPaneScroll.setBackground(Color.LIGHT_GRAY);
+        roadPane.setBackground(Resource.SNOW4);
 
         fakeCarIconPanel.setVisible(false);
         fakeCarIconPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
@@ -160,6 +164,7 @@ public class TrafficMap extends JPanel{
         roadPaneScroll.setVisible(false);
         fakeCarIconPanel.setVisible(false);
         realCarIconPanel.setVisible(false);
+        crashOccurred = false;
     }
 
     private static Random random = new Random();
@@ -804,8 +809,8 @@ public class TrafficMap extends JPanel{
                 allCars.addAll(road.cars);
                 allCars.addAll(road.realCars);
                 allCars.addAll(road.waiting);
-                if (road.getPermitted() != null)
-                    allCars.add(road.getPermitted());
+                if (road.permitted != null)
+                    allCars.add(road.permitted);
 
                 if(!allCars.isEmpty())
                     strings.add(new Pair<>("\n", null));
@@ -827,7 +832,7 @@ public class TrafficMap extends JPanel{
                                 sb.append(", Real");
                         }
                     }
-                    if (car == road.getPermitted()) {
+                    if (car == road.permitted) {
                         if (!hasBracket) {
                             hasBracket = true;
                             sb.append(" (Permitted");

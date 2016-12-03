@@ -64,7 +64,7 @@ public class Remedy implements Runnable{
 		};
 
         new Thread(wakeThread, "Wake Thread").start();
-		new Thread(countdownThread, "Countdown Thread").start();
+//		new Thread(countdownThread, "Countdown Thread").start(); //TODO disable timeout
 	}
 	
 	public void run() {

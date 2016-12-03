@@ -1,21 +1,19 @@
 package nju.xiaofanli.control;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Road;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
-import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Police implements Runnable{
 	private static final Queue<Request> req = new LinkedList<>();
-	private static Notifier notifier = new Notifier();
 	public Police() {
-		new Thread(notifier, "Traffic Notifier").start();
 		new Thread(this, "Police").start();
 	}
 
@@ -45,11 +43,7 @@ public class Police implements Runnable{
 					}
 				}
 			}
-//			if(StateSwitcher.isResetting()){
-//				if(!StateSwitcher.isThreadReset(thread))
-//					clear();
-//				continue;
-//			}
+
 //			System.out.println("Traffic Police awake!!!");
 			Request r;
 			synchronized (req) {
@@ -64,34 +58,23 @@ public class Police implements Runnable{
 					case REQUEST2STOP:
 						Command.send(r.car, Command.STOP);
                         r.car.setAvailCmd(Command.MOVE_FORWARD);
-//						if(r.car.finalState == Car.STOPPED)
-                        r.requested.removeWaitingCar(r.car); // there's not such a scene where finalState == moving
-//						else
-//							r.requested.addWaitingCar(r.car);
-						if(r.car == r.requested.getPermitted()){
-							r.requested.setPermitted(null);
-							sendNotice(r.requested);
+                        r.requested.removeWaitingCar(r.car);
+						if(r.car == r.requested.permitted) {
+							r.requested.permitted = null;
+							processingAfterLeave(r.requested);
 						}
 						break;
 					case REQUEST2ENTER:
-					    if(r.car.isInCrash && !r.fromUser){
+					    if(TrafficMap.crashOccurred && !r.fromUser) {
                             Command.send(r.car, Command.STOP);
                             r.car.setAvailCmd(Command.MOVE_FORWARD);
                             r.requested.removeWaitingCar(r.car);
-                            if(r.car == r.requested.getPermitted()){
-                                r.requested.setPermitted(null);
-                                sendNotice(r.requested);
-                            }
+                            if(r.car == r.requested.permitted){
+								r.requested.permitted = null;
+								processingAfterLeave(r.requested);
+							}
                         }
 						else if(r.requested.isOccupied()){
-							boolean real = false;
-							for(Car car : r.requested.cars)
-								if(!car.hasPhantom()){
-									real = true;
-									break;
-								}
-							if(!real)
-								Dashboard.playErrorSound();
 							//tell the car to stop
 							System.out.println(r.car.name + " need to STOP!!!");
 							r.requested.addWaitingCar(r.car);
@@ -102,7 +85,7 @@ public class Police implements Runnable{
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.STOP));
 						}
-						else if(r.requested.getPermitted() != null && r.car != r.requested.getPermitted()){
+						else if(r.requested.permitted != null && r.requested.permitted != r.car){
 							//tell the car to stop
 							System.out.println(r.car.name + " need to STOP!!!2");
 							r.requested.addWaitingCar(r.car);
@@ -115,7 +98,7 @@ public class Police implements Runnable{
 						else{
 							//tell the car to enter
 							System.out.println(r.car.name + " can ENTER!!!");
-							r.requested.setPermitted(r.car);
+							r.requested.permitted = r.car;
 							Command.send(r.car, Command.MOVE_FORWARD);
                             r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
@@ -133,18 +116,48 @@ public class Police implements Runnable{
 						r.requested.removeWaitingCar(r.car);
 						break;
 					case AFTER_LEAVE:
-						sendNotice(r.requested);
+						if(r.requested.permitted == r.car)
+							r.requested.permitted = null;
+						processingAfterLeave(r.requested);
 						break;
 					case BEFORE_VANISH:
 						r.requested.removeWaitingCar(r.car);
-						if(r.requested.getPermitted() == r.car){
-							r.requested.setPermitted(null);
-							sendNotice(r.requested);
+						if(r.requested.permitted == r.car) {
+							r.requested.permitted = null;
+							processingAfterLeave(r.requested);
 						}
 						break;
 					case AFTER_VANISH:
-						sendNotice(r.requested);
+						if(r.requested.permitted == r.car)
+							r.requested.permitted = null;
+						processingAfterLeave(r.requested);
 						break;
+				}
+			}
+		}
+	}
+
+	private void processingAfterLeave(Road road) {
+		if(road == null || road.isOccupied())
+			return;
+
+		synchronized (road.waiting) {
+			if(road.waiting.isEmpty())
+				road.permitted = null;
+			else if (road.permitted == null) {
+				for(Car car : road.waiting) {
+					if (car.isInCrash)
+						road.removeWaitingCar(car);
+					else if (car.loc.cars.peek() == car && !TrafficMap.crashOccurred) {
+						road.permitted = car;
+						Command.send(car, Command.MOVE_FORWARD);
+						car.setAvailCmd(Command.STOP);
+						System.out.println(road.name + " notify " + car.name + " to enter");
+						//trigger recv response event
+						if (EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
+							EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, car.name, car.loc.name, Command.MOVE_FORWARD));
+						break;
+					}
 				}
 			}
 		}
@@ -171,82 +184,11 @@ public class Police implements Runnable{
         add(new Request(car, dir, loc, cmd, requested, fromUser));
     }
 
-    private static void sendNotice(Road loc){
-        notifier.add(loc);
-    }
-
-    public static void clear(){
+	public static void clear(){
         synchronized (req) {
             req.clear();
         }
     }
-
-	private static class Notifier implements Runnable {
-		final Queue<Request> req = new LinkedList<>();
-
-		public void run() {
-			Thread thread = Thread.currentThread();
-			StateSwitcher.register(thread);
-			//noinspection InfiniteLoopStatement
-			while(true){
-				while(req.isEmpty() || !StateSwitcher.isNormal()){
-					synchronized (req) {
-						try {
-							req.wait();
-						} catch (InterruptedException e) {
-//							e.printStackTrace();
-							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
-								clear();
-						}
-					}
-				}
-
-				Road loc;
-				synchronized (req) {
-					loc = req.poll().loc;
-				}
-				if(loc == null || loc.isOccupied())
-					continue;
-				//noinspection SynchronizeOnNonFinalField
-				synchronized (loc.waiting) {
-					if(loc.waiting.isEmpty())
-						loc.setPermitted(null);
-					else{
-                        for(Car car : loc.waiting) {
-                            if (car.isInCrash) {
-                                loc.removeWaitingCar(car);
-                            }
-                            else if (car.loc.cars.peek() == car) {
-                                loc.setPermitted(car);
-                                Command.send(car, Command.MOVE_FORWARD);
-                                car.setAvailCmd(Command.STOP);
-                                System.out.println(loc.name + " notify " + car.name + " to enter");
-                                //trigger recv response event
-                                if (EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
-                                    EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, car.name, car.loc.name, Command.MOVE_FORWARD));
-                                break;
-                            }
-                        }
-					}
-				}
-			}
-		}
-
-		public void add(Road loc){
-			if(StateSwitcher.isResetting())
-				return;
-			synchronized (req) {
-				req.add(new Request(loc));
-				req.notify();
-			}
-		}
-
-		public void clear(){
-			synchronized (req) {
-				req.clear();
-			}
-		}
-	}
 
 	private static class Request{
 		Car car;
@@ -254,9 +196,7 @@ public class Police implements Runnable{
 		Road loc, requested;
 		int cmd;
         boolean fromUser = false; // whether this request is sent by user
-		/**
-		 * for requests that police handles
-		 */
+
 		Request(Car car, int dir, Road loc, int cmd, Road requested) {
 			this.car = car;
 			this.dir = dir;
@@ -269,12 +209,5 @@ public class Police implements Runnable{
             this(car, dir, loc, cmd, requested);
             this.fromUser = fromUser;
         }
-
-		/**
-		 * for requests that notifier handles
-		 */
-		Request(Road loc) {
-			this.loc = loc;
-		}
 	}
 }

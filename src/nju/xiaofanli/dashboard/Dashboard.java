@@ -48,28 +48,24 @@ public class Dashboard extends JFrame{
     private static final JScrollPane remedytaScroll = new JScrollPane(remedyta);
     private static final JTextPane logPane = new JTextPane();
     private static final JScrollPane logPaneScroll = new JScrollPane(logPane);
-    //    private static final JLabel completedUserDeliveryCountLabel = new JLabel();
-//    private static final JTextPane completedUserDeliveryPane = new JTextPane();
-//    private static final JScrollPane completedUserDeliveryPaneScroll = new JScrollPane(completedUserDeliveryPane);
-//    private static final JLabel completedSysDeliveryCountLabel = new JLabel();
-//    private static final JTextPane completedSysDeliveryPane = new JTextPane();
-//    private static final JScrollPane completedSysDeliveryPaneScroll = new JScrollPane(completedSysDeliveryPane);
     private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
     private static final JButton startdButton = new JButton("Manually create a task");
     private static final JButton deliverButton = new JButton("Deliver");
     private static final JButton canceldButton = new JButton("Cancel");
-    private static final JCheckBox jchkSensor = new JCheckBox("Sensor number");
-    private static final JCheckBox jchkRoad = new JCheckBox("Road number");
-    private static final JCheckBox jchkBalloon = new JCheckBox("Sensor error");
-    private static final JCheckBox jchkCrash = new JCheckBox("Crash sound");
-    private static final JCheckBox jchkError = new JCheckBox("Error sound");
-    private static final JCheckBox jchkDetection = new JCheckBox("Detection");
-    private static final JCheckBox jchkResolution = new JCheckBox("Resolution");
+    private static final JCheckBox jchkSensor = new JCheckBox("Show sensors");
+    private static final JCheckBox jchkRoad = new JCheckBox("Show roads");
+    private static final JCheckBox jchkBalloon = new JCheckBox("Show error");
+    private static final JCheckBox jchkCrash = new JCheckBox("Play crash");
+    private static final JRadioButton idealRadioButton = new JRadioButton("Ideal");
+    private static final JRadioButton noisyRadioButton = new JRadioButton("Noisy");
+    private static final JRadioButton fixedRadioButton = new JRadioButton("Fixed");
     private static final JCheckBox jchkAutoGen = new JCheckBox("Automatically generate tasks");
-    public static boolean showSensor = false, showRoad = false, showBalloon = false,
-            playCrashSound = false,	playErrorSound = false;
+    public static boolean showSensor = false;
+    public static boolean showRoad = false;
+    public static boolean showBalloon = false;
+    public static boolean playCrashSound = false;
 
     private static final JTextField srctf = new JTextField();
     private static final JTextField desttf = new JTextField();
@@ -160,9 +156,9 @@ public class Dashboard extends JFrame{
         jchkRoad.setFont(Resource.bold16dialog);
         jchkBalloon.setFont(Resource.bold16dialog);
         jchkCrash.setFont(Resource.bold16dialog);
-        jchkError.setFont(Resource.bold16dialog);
-        jchkDetection.setFont(Resource.bold16dialog);
-        jchkResolution.setFont(Resource.bold16dialog);
+        idealRadioButton.setFont(Resource.bold16dialog);
+        noisyRadioButton.setFont(Resource.bold16dialog);
+        fixedRadioButton.setFont(Resource.bold16dialog);
         jchkAutoGen.setFont(Resource.bold16dialog);
         srctf.setFont(Resource.bold16dialog);
         srctf.setEditable(false);
@@ -564,7 +560,7 @@ public class Dashboard extends JFrame{
                 for(Sensor s : array)
                     s.icon.setVisible(showSensor);
         });
-        jchkSensor.doClick();
+//        jchkSensor.doClick();
 
         jchkBalloon.addActionListener(e -> {
             showBalloon = jchkBalloon.isSelected();
@@ -575,66 +571,93 @@ public class Dashboard extends JFrame{
             playCrashSound = jchkCrash.isSelected();
             if (playCrashSound) {
                 Resource.getConnectedCars().forEach(car -> {
-                    if (car.lastHornCmd == Command.HORN_ON && !car.isHornOn)
-                        Command.whistle(car);
+                    if (car.isInCrash)
+                        Command.send(car, Command.HORN_ON);
                 });
             }
             else {
                 Resource.getConnectedCars().forEach(car -> {
-                    if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
-                        Command.silence(car);
+                    if (car.isInCrash)
+                        Command.send(car, Command.HORN_OFF);
                 });
             }
         });
-        jchkError.addActionListener(e -> playErrorSound = jchkError.isSelected());
 
         gbc.gridy += gbc.gridheight;
         JPanel CCPanel = new JPanel();
         rightPanel.add(CCPanel, gbc);
-        CCPanel.setBorder(BorderFactory.createTitledBorder("Consistency checking"));
+        CCPanel.setBorder(BorderFactory.createTitledBorder("Scenario selection"));
         ((TitledBorder) CCPanel.getBorder()).setTitleFont(Resource.bold16dialog);
         CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        CCPanel.add(jchkDetection);
-        CCPanel.add(jchkResolution);
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(idealRadioButton);
+        bg.add(noisyRadioButton);
+        bg.add(fixedRadioButton);
+        CCPanel.add(idealRadioButton);
+        CCPanel.add(noisyRadioButton);
+        CCPanel.add(fixedRadioButton);
 
-        jchkDetection.addActionListener(e -> {
-            Middleware.enableDetection(jchkDetection.isSelected());
-            TrafficMap.showFakeLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
-            TrafficMap.showRealLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
+        idealRadioButton.addActionListener(e -> {
+            Middleware.enableDetection(false);
+            Middleware.enableResolution(false);
 
-            if (!jchkDetection.isSelected() && jchkResolution.isSelected())
-                jchkResolution.doClick();
-
-            if (jchkDetection.isSelected() ^ jchkBalloon.isSelected()) {
+            if (jchkBalloon.isSelected()) {
                 jchkBalloon.setEnabled(true);
                 jchkBalloon.doClick();
             }
-            if (jchkDetection.isSelected() ^ jchkCrash.isSelected()) {
+
+            if (jchkCrash.isSelected()) {
                 jchkCrash.setEnabled(true);
                 jchkCrash.doClick();
             }
-            if (jchkDetection.isSelected() ^ jchkError.isSelected()) {
-                jchkError.setEnabled(true);
-                jchkError.doClick();
-            }
 
-            jchkDetection.setEnabled(false);
-            jchkResolution.setEnabled(false);
-            jchkBalloon.setEnabled(jchkDetection.isSelected());
-            jchkCrash.setEnabled(jchkDetection.isSelected());
-            jchkError.setEnabled(jchkDetection.isSelected());
+            idealRadioButton.setEnabled(false);
+            noisyRadioButton.setEnabled(false);
+            fixedRadioButton.setEnabled(false);
+            jchkBalloon.setEnabled(false);
+            jchkCrash.setEnabled(false);
+            TrafficMap.showFakeLocIconLabel(false);
+            TrafficMap.showRealLocIconLabel(false);
+        });
+        idealRadioButton.doClick();
+        enableScenarioSelection(true);
+
+        noisyRadioButton.addActionListener(e -> {
+            Middleware.enableDetection(true);
+            Middleware.enableResolution(false);
+            jchkBalloon.setEnabled(true);
+            jchkCrash.setEnabled(true);
+
+            if (!jchkBalloon.isSelected())
+                jchkBalloon.doClick();
+
+            if (!jchkCrash.isSelected())
+                jchkCrash.doClick();
+
+            idealRadioButton.setEnabled(false);
+            noisyRadioButton.setEnabled(false);
+            fixedRadioButton.setEnabled(false);
+            TrafficMap.showFakeLocIconLabel(true);
+            TrafficMap.showRealLocIconLabel(true);
         });
 
-        jchkResolution.addActionListener(e -> {
-            Middleware.enableResolution(jchkResolution.isSelected());
-            TrafficMap.showFakeLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
-            TrafficMap.showRealLocIconLabel(jchkDetection.isSelected() && !jchkResolution.isSelected());
+        fixedRadioButton.addActionListener(e -> {
+            Middleware.enableDetection(true);
+            Middleware.enableResolution(true);
+            jchkBalloon.setEnabled(true);
+            jchkCrash.setEnabled(true);
 
-            if(!jchkDetection.isSelected() && jchkResolution.isSelected())
-                jchkDetection.doClick();
+            if (!jchkBalloon.isSelected())
+                jchkBalloon.doClick();
 
-            jchkDetection.setEnabled(false);
-            jchkResolution.setEnabled(false);
+            if (!jchkCrash.isSelected())
+                jchkCrash.doClick();
+
+            idealRadioButton.setEnabled(false);
+            noisyRadioButton.setEnabled(false);
+            fixedRadioButton.setEnabled(false);
+            TrafficMap.showFakeLocIconLabel(false);
+            TrafficMap.showRealLocIconLabel(false);
         });
 
         gbc.gridy += gbc.gridheight;
@@ -651,28 +674,28 @@ public class Dashboard extends JFrame{
             Car car = getSelectedCar();
             if(car != null){
                 car.notifyPolice(Police.REQUEST2ENTER, true);
-                disableDetectionAndResolutionCheckBox();
+                enableScenarioSelection(false);
             }
         });
         stopCarButton.addActionListener(e -> {
             Car car = Dashboard.getSelectedCar();
             if(car != null){
                 car.notifyPolice(Police.REQUEST2STOP, true);
-                disableDetectionAndResolutionCheckBox();
+                enableScenarioSelection(false);
             }
         });
         startAllCarsButton.addActionListener(e -> {
             if (!Resource.getConnectedCars().isEmpty()) {
                 for (Car car : Resource.getConnectedCars())
                     car.notifyPolice(Police.REQUEST2ENTER, true);
-                disableDetectionAndResolutionCheckBox();
+                enableScenarioSelection(false);
             }
         });
         stopAllCarsButton.addActionListener(e -> {
             if (!Resource.getConnectedCars().isEmpty()) {
                 for (Car car : Resource.getConnectedCars())
                     car.notifyPolice(Police.REQUEST2STOP, true);
-                disableDetectionAndResolutionCheckBox();
+                enableScenarioSelection(false);
             }
         });
 
@@ -693,7 +716,7 @@ public class Dashboard extends JFrame{
             Delivery.autoGenTasks = jchkAutoGen.isSelected();
             if (Delivery.autoGenTasks) {
                 Delivery.autoGenTasks();
-                disableDetectionAndResolutionCheckBox();
+                enableScenarioSelection(false);
             }
         });
         dgbc.gridy += dgbc.gridheight;
@@ -757,7 +780,7 @@ public class Dashboard extends JFrame{
             canceldButton.setVisible(false);
             startdButton.setVisible(true);
 
-            disableDetectionAndResolutionCheckBox();
+            enableScenarioSelection(false);
         });
 
         canceldButton.addActionListener(e -> {
@@ -797,10 +820,6 @@ public class Dashboard extends JFrame{
         bottomPanel.add(logPaneScroll, gbc);
         new Thread(blinkThread, "Blink Thread").start();
 
-//		jchkResolution.doClick();
-//		jchkBalloon.doClick();
-//		jchkCrash.doClick();
-//		jchkError.doClick();
         reset();
 
         setTitle("Dashboard");
@@ -1142,15 +1161,6 @@ public class Dashboard extends JFrame{
         trafficMap.showCrashEffect(road);
     }
 
-    public static void playErrorSound(){
-        if(playErrorSound)
-            try {
-                AudioPlayer.player.start(new AudioStream(new FileInputStream("res/oh_no.wav")));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
-
     public static void reset(){
         src = dest = null;
         delivSelModeOn = false;
@@ -1171,22 +1181,21 @@ public class Dashboard extends JFrame{
         enableStartAllCarsButton(!Resource.getConnectedCars().isEmpty());
         enableStopAllCarsButton(false);
 
-        jchkDetection.setEnabled(true);
-        jchkDetection.setSelected(false);
-        jchkResolution.setEnabled(true);
-        jchkResolution.setSelected(false);
-        jchkBalloon.setEnabled(true);
-        jchkBalloon.setSelected(false);
-        showBalloon = false;
-        jchkBalloon.setEnabled(false);
-        jchkError.setEnabled(true);
-        jchkError.setSelected(false);
-        playErrorSound = false;
-        jchkError.setEnabled(false);
-        jchkCrash.setEnabled(true);
-        jchkCrash.setSelected(false);
-        playCrashSound = false;
-        jchkCrash.setEnabled(false);
+        enableScenarioSelection(true);
+        idealRadioButton.doClick();
+        enableScenarioSelection(true);
+//        jchkDetection.setEnabled(true);
+//        jchkDetection.setSelected(false);
+//        jchkResolution.setEnabled(true);
+//        jchkResolution.setSelected(false);
+//        jchkBalloon.setEnabled(true);
+//        jchkBalloon.setSelected(false);
+//        showBalloon = false;
+//        jchkBalloon.setEnabled(false);
+//        jchkCrash.setEnabled(true);
+//        jchkCrash.setSelected(false);
+//        playCrashSound = false;
+//        jchkCrash.setEnabled(false);
     }
 
     public static void enableDeliveryButton(boolean b){
@@ -1217,11 +1226,10 @@ public class Dashboard extends JFrame{
         return stopAllCarsButton.isEnabled();
     }
 
-    private static void disableDetectionAndResolutionCheckBox() {
-        if (jchkDetection.isEnabled())
-            jchkDetection.setEnabled(false);
-        if (jchkResolution.isEnabled())
-            jchkResolution.setEnabled(false);
+    private static void enableScenarioSelection(boolean b) {
+        idealRadioButton.setEnabled(b);
+        noisyRadioButton.setEnabled(b);
+        fixedRadioButton.setEnabled(b);
     }
 
     private class RoadIconListener extends MouseAdapter {
