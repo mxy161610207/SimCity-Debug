@@ -73,32 +73,50 @@ public class Resource {
         CAR_ICONS.put(Car.BLACK, new ImageIcon[]{
                 loadImage("res/black_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
                 loadImage("res/black_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/black_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/black_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("res/black_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/black_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/black_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.GREEN, new ImageIcon[]{
                 loadImage("res/green_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
                 loadImage("res/green_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/green_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/green_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("res/green_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/green_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/green_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.ORANGE, new ImageIcon[]{
                 loadImage("res/orange_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
                 loadImage("res/orange_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/orange_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/orange_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("res/orange_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/orange_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/orange_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.RED, new ImageIcon[]{
                 loadImage("res/red_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
                 loadImage("res/red_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("res/red_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/red_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.SILVER, new ImageIcon[]{
                 loadImage("res/silver_suv_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
                 loadImage("res/silver_suv_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/silver_suv_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/silver_suv_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("res/silver_suv_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/silver_suv_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/silver_suv_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.WHITE, new ImageIcon[]{
                 loadImage("res/white_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
                 loadImage("res/white_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/white_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE)
+                loadImage("res/white_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("res/white_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/white_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("res/white_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
 
 		try {

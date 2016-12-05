@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <!--<car name="Red Car" loc="Street 16" url="btspp://000666619F38:1;authenticate=true;encrypt=true" icon="res/red_car_icon.png"/>-->
-    <!--<car name="Silver SUV" loc="Street 15" url="btspp://00066661A901:1;authenticate=true;encrypt=true" icon="res/silver_suv_icon.png"/>-->
-    <!--<car name="White Car" loc="Street 17" url="btspp://00066661AA61:1;authenticate=true;encrypt=true" icon="res/white_car_icon.png"/>-->
-    <!--<car name="Green Car" loc="Street 14" url="btspp://000666459D35:1;authenticate=true;encrypt=true" icon="res/green_car_icon.png"/>-->
-    <!--<car name="Black Car" loc="Street 11" url="btspp://00066649A8C4:1;authenticate=true;encrypt=true" icon="res/black_car_icon.png"/>-->
-    <!--<car name="Orange Car" loc="Crossroad 2" url="btspp://00066649960C:1;authenticate=true;encrypt=true" icon="res/orange_car_icon.png"/>-->
+    <!--<car name="Red Car" loc="Street 5" url="btspp://000666619F38:1;authenticate=true;encrypt=true" iconPanel="res/red_car_icon.png"/>-->
+    <!--<car name="Silver SUV" loc="Street 11" url="btspp://00066661A901:1;authenticate=true;encrypt=true" iconPanel="res/silver_suv_icon.png"/>-->
+    <!--<car name="White Car" loc="Street 8" url="btspp://00066661AA61:1;authenticate=true;encrypt=true" iconPanel="res/white_car_icon.png"/>-->
+    <!--<car name="Green Car" loc="Street 15" url="btspp://000666459D35:1;authenticate=true;encrypt=true" iconPanel="res/green_car_icon.png"/>-->
+    <!--<car name="Black Car" loc="Street 16" url="btspp://00066649A8C4:1;authenticate=true;encrypt=true" iconPanel="res/black_car_icon.png"/>-->
+    <!--<car name="Orange Car" loc="Street 17" url="btspp://00066649960C:1;authenticate=true;encrypt=true" iconPanel="res/orange_car_icon.png"/>-->
     <!--<brick name="0" address="192.168.1.110"/>-->
     <!--<brick name="1" address="192.168.1.111"/>-->
     <!--<brick name="2" address="192.168.1.112"/>-->

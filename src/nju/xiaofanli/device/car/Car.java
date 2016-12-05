@@ -21,7 +21,6 @@ import java.awt.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,10 +127,11 @@ public class Car {
         sensor.nextRoad.cars.add(this);
         sensor.nextRoad.allRealCars.add(this);
         timeout = loc.timeouts.get(dir).get(name);
-        PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
+        sensor.nextRoad.iconPanel.repaint();
         Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter",
                 sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
+        PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
     }
 
 	public void init() {
@@ -251,7 +251,7 @@ public class Car {
         if (hasPhantom() && loc == realLoc && dir == realDir) {
             resetRealInfo();
         }
-		road.icon.repaint();
+		road.iconPanel.repaint();
         road.checkRealCrash();
 
         //trigger entering event
@@ -278,7 +278,7 @@ public class Car {
         if (!hasPhantom())
             road.allRealCars.remove(this);
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, road);
-		road.icon.repaint();
+		road.iconPanel.repaint();
         road.checkRealCrash();
 
 		//trigger leaving event
@@ -290,7 +290,7 @@ public class Car {
 		isLoading = loading;
 		if(loc == null)
 			return;
-		loc.icon.repaint();
+		loc.iconPanel.repaint();
 	}
 
 	public boolean getLoading() {
@@ -313,7 +313,7 @@ public class Car {
     public void setRealInfo(Road loc, int dir) {
         realLoc.realCars.remove(this);
         realLoc.allRealCars.remove(this);
-        realLoc.icon.repaint();
+        realLoc.iconPanel.repaint();
         realLoc.checkRealCrash();
         if (this.loc == loc && this.dir == dir) {
             resetRealInfo();
@@ -324,7 +324,7 @@ public class Car {
             realDir = dir;
         }
         loc.allRealCars.add(this);
-        loc.icon.repaint();
+        loc.iconPanel.repaint();
         loc.checkRealCrash();
         timeout = loc.timeouts.get(dir).get(name);
     }
@@ -451,8 +451,10 @@ public class Car {
 	public static class CarIcon extends JLabel{
 		private static final long serialVersionUID = 1L;
 		private final String name;
-		public static final int SIZE = (int) (0.8*TrafficMap.SH);
-		public static final int INSET = (int) (0.2*TrafficMap.SH);
+        public static final int INSET = TrafficMap.CW / 13; // INSET : SIZE = 1 : 6
+		public static final int SIZE = (TrafficMap.CW-INSET)/2 - 2;
+        public static final int INSET2 = TrafficMap.CW / 23; // INSET2 : SIZE2 = 1 : 5
+        public static final int SIZE2 = (TrafficMap.CW-3*INSET2)/4 - 2;
         public final Color color;
         private ImageIcon imageIcon;
 		CarIcon(String name, String iconFile) {

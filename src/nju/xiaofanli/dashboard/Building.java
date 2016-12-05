@@ -65,12 +65,6 @@ public class Building extends Location{
 			g.drawRect(1, 1, getWidth()-2, getHeight()-2);
 		}
 		
-//		@Override
-//		protected void paintComponent(Graphics g) {
-//			super.paintComponent(g);
-//			g.drawString("test", 10, 10);
-//		}
-		
 		void setIcon(){
 			imageIcon = Resource.loadImage(iconFile, coord.w, coord.h);
 			setIcon(imageIcon);

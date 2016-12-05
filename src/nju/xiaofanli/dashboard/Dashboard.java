@@ -61,6 +61,7 @@ public class Dashboard extends JFrame{
     private static final JRadioButton idealRadioButton = new JRadioButton("Ideal");
     private static final JRadioButton noisyRadioButton = new JRadioButton("Noisy");
     private static final JRadioButton fixedRadioButton = new JRadioButton("Fixed");
+    private static JRadioButton selectedScenario = null;
     private static final JCheckBox jchkAutoGen = new JCheckBox("Automatically generate tasks");
     public static boolean showSensor = false;
     public static boolean showRoad = false;
@@ -105,7 +106,7 @@ public class Dashboard extends JFrame{
                     }
                 }
                 if (isLoading)
-                    road.icon.repaint();
+                    road.iconPanel.repaint();
             }
 
             try {
@@ -125,8 +126,9 @@ public class Dashboard extends JFrame{
                 return;
             switch (e.getStateChange()) {
                 case ItemEvent.SELECTED:
-                    enableStartCarButton(car.getAvailCmd() == Command.MOVE_FORWARD);
-                    enableStopCarButton(car.getAvailCmd() == Command.STOP);
+                    car.setAvailCmd(car.getAvailCmd());
+//                    enableStartCarButton(car.getAvailCmd() == Command.MOVE_FORWARD);
+//                    enableStopCarButton(car.getAvailCmd() == Command.STOP);
                     break;
                 case ItemEvent.DESELECTED:
                     enableStartCarButton(false);
@@ -364,7 +366,7 @@ public class Dashboard extends JFrame{
 //		gbc.anchor = GridBagConstraints.CENTER;
 
         for (Road road : TrafficMap.roads.values()) {
-            for (Road.RoadIcon icon : road.icon.icons)
+            for (Road.RoadIcon icon : road.iconPanel.icons)
                 icon.addMouseListener(new RoadIconListener(icon));
         }
         for(Building building : TrafficMap.buildings.values())
@@ -438,27 +440,50 @@ public class Dashboard extends JFrame{
         console.addActionListener(e -> {
             String cmd = console.getText();
             if(cmd.startsWith("add car ")){
-                String car = cmd.substring("add car ".length()).toLowerCase();
-                switch(car){
+                String suffix = cmd.substring("add car ".length()).toLowerCase();
+                String name = null;
+                switch(suffix){
                     case "r":case "red":case "red car":
-                        Car.carOf(Car.RED).init(); break;
+                        name = Car.RED; break;
                     case "b":case "black":case "black car":
-                        Car.carOf(Car.BLACK).init(); break;
+                        name = Car.BLACK; break;
                     case "w":case "white":case "white car":
-                        Car.carOf(Car.WHITE).init(); break;
+                        name = Car.WHITE; break;
                     case "o":case "orange":case "orange car":
-                        Car.carOf(Car.ORANGE).init(); break;
+                        name = Car.ORANGE; break;
                     case "g":case "green":case "green car":
-                        Car.carOf(Car.GREEN).init(); break;
+                        name = Car.GREEN; break;
                     case "s":case "silver":case "suv":case "silver suv":
-                        Car.carOf(Car.SILVER).init(); break;
+                        name = Car.SILVER; break;
+                }
+                if (name != null) {
+                    Car car = Car.carOf(name);
+                    if (car == null) {
+                        switch (name) {
+                            case Car.RED:
+                                car = new Car(name, Road.roadOf("Street 5"), null, "res/red_car_icon.png"); break;
+                            case Car.BLACK:
+                                car = new Car(name, Road.roadOf("Street 16"), null, "res/black_car_icon.png"); break;
+                            case Car.WHITE:
+                                car = new Car(name, Road.roadOf("Street 8"), null, "res/white_car_icon.png"); break;
+                            case Car.ORANGE:
+                                car = new Car(name, Road.roadOf("Street 17"), null, "res/orange_car_icon.png"); break;
+                            case Car.GREEN:
+                                car = new Car(name, Road.roadOf("Street 15"), null, "res/green_car_icon.png"); break;
+                            case Car.SILVER:
+                                car = new Car(name, Road.roadOf("Street 11"), null, "res/silver_suv_icon.png"); break;
+                        }
+                        TrafficMap.cars.put(car.name, car);
+                        TrafficMap.carList.add(car);
+                    }
+                    car.init();
                 }
             }
             else if(cmd.startsWith("connect car ") || cmd.startsWith("disconnect car ")){
                 String name1 = cmd.substring(
                         cmd.charAt(0) == 'c' ? "connect car ".length()
                                 : "disconnect car ".length()).toLowerCase();
-                String s = "";
+                String s;
                 switch(name1){
                     case "r":case "red":case "red car":
                         s = Car.RED;	break;
@@ -548,7 +573,7 @@ public class Dashboard extends JFrame{
         jchkRoad.addActionListener(e -> {
             showRoad = jchkRoad.isSelected();
             for (Road road : Resource.getRoads().values()) {
-                for (Road.RoadIcon icon : road.icon.icons)
+                for (Road.RoadIcon icon : road.iconPanel.icons)
                     icon.showRoadNumber(showRoad);
             }
         });
@@ -598,6 +623,9 @@ public class Dashboard extends JFrame{
         CCPanel.add(fixedRadioButton);
 
         idealRadioButton.addActionListener(e -> {
+            if (selectedScenario == idealRadioButton)
+                return;
+            selectedScenario = idealRadioButton;
             Middleware.enableDetection(false);
             Middleware.enableResolution(false);
 
@@ -623,6 +651,9 @@ public class Dashboard extends JFrame{
         enableScenarioSelection(true);
 
         noisyRadioButton.addActionListener(e -> {
+            if (selectedScenario == noisyRadioButton)
+                return;
+            selectedScenario = noisyRadioButton;
             Middleware.enableDetection(true);
             Middleware.enableResolution(false);
             jchkBalloon.setEnabled(true);
@@ -642,6 +673,9 @@ public class Dashboard extends JFrame{
         });
 
         fixedRadioButton.addActionListener(e -> {
+            if (selectedScenario == fixedRadioButton)
+                return;
+            selectedScenario = fixedRadioButton;
             Middleware.enableDetection(true);
             Middleware.enableResolution(true);
             jchkBalloon.setEnabled(true);
@@ -990,8 +1024,8 @@ public class Dashboard extends JFrame{
         Road road = null;
 //		System.out.println(x+", "+y);
         for(Road r : TrafficMap.roads.values()){
-//			System.out.println(s.name+"\t"+s.icon.coord.centerX+", "+s.icon.coord.centerY);
-            tmp = (int) (Math.pow(x-r.icon.coord.centerX, 2) + Math.pow(y-r.icon.coord.centerY, 2));
+//			System.out.println(s.name+"\t"+s.iconPanel.coord.centerX+", "+s.iconPanel.coord.centerY);
+            tmp = (int) (Math.pow(x-r.iconPanel.coord.centerX, 2) + Math.pow(y-r.iconPanel.coord.centerY, 2));
             if(tmp < min){
                 road = r;
                 min = tmp;
@@ -1268,28 +1302,28 @@ public class Dashboard extends JFrame{
                 }
 
                 if (icon instanceof Road.Crossroad.CrossroadIcon) {
-                    TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+icon.getWidth(),
-                            icon.road.icon.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
+                    TrafficMap.roadPaneScroll.setLocation(icon.road.iconPanel.getX()+icon.getX()+icon.getWidth(),
+                            icon.road.iconPanel.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
                     updateRoadInfoPane(icon.road);
                     TrafficMap.roadPaneScroll.setVisible(true);
                 }
                 else if (icon instanceof Road.Street.StreetIcon) {
                     if (((Road.Street.StreetIcon) icon).isVertical) {
-                        int rightmost = icon.road.icon.getX() + icon.getX() + icon.getWidth() + TrafficMap.roadPaneScroll.getWidth();
+                        int rightmost = icon.road.iconPanel.getX() + icon.getX() + icon.getWidth() + TrafficMap.roadPaneScroll.getWidth();
                         if (rightmost < trafficMap.getWidth())
-                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+icon.getWidth(),
-                                    icon.road.icon.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.iconPanel.getX()+icon.getX()+icon.getWidth(),
+                                    icon.road.iconPanel.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
                         else
-                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()-TrafficMap.roadPaneScroll.getWidth(),
-                                    icon.road.icon.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.iconPanel.getX()+icon.getX()-TrafficMap.roadPaneScroll.getWidth(),
+                                    icon.road.iconPanel.getY()+icon.getY()+(icon.getHeight()-TrafficMap.roadPaneScroll.getHeight())/2);
                     }
                     else {
-                        int topmost = icon.road.icon.getY() + icon.getY() - TrafficMap.roadPaneScroll.getHeight();
+                        int topmost = icon.road.iconPanel.getY() + icon.getY() - TrafficMap.roadPaneScroll.getHeight();
                         if (topmost >= 0)
-                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+(icon.getWidth()-TrafficMap.roadPaneScroll.getWidth())/2, topmost);
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.iconPanel.getX()+icon.getX()+(icon.getWidth()-TrafficMap.roadPaneScroll.getWidth())/2, topmost);
                         else
-                            TrafficMap.roadPaneScroll.setLocation(icon.road.icon.getX()+icon.getX()+(icon.getWidth()-TrafficMap.roadPaneScroll.getWidth())/2,
-                                    icon.road.icon.getY()+icon.getY()+icon.getHeight());
+                            TrafficMap.roadPaneScroll.setLocation(icon.road.iconPanel.getX()+icon.getX()+(icon.getWidth()-TrafficMap.roadPaneScroll.getWidth())/2,
+                                    icon.road.iconPanel.getY()+icon.getY()+icon.getHeight());
                     }
                     updateRoadInfoPane(icon.road);
                     TrafficMap.roadPaneScroll.setVisible(true);

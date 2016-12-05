@@ -31,7 +31,7 @@ public abstract class Road extends Location{
 	public int numSections;
 	public final Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public Map<Integer, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
-	public RoadIconPanel icon = new RoadIconPanel(this);
+	public RoadIconPanel iconPanel = new RoadIconPanel(this);
 
 	public static Road roadOf(String name){
 //		System.out.println(name);
@@ -48,7 +48,7 @@ public abstract class Road extends Location{
 				return null;
 		}
 	}
-	
+
 	public void addWaitingCar(Car car){
 		//noinspection SynchronizeOnNonFinalField
 		synchronized (waiting) {
@@ -57,7 +57,7 @@ public abstract class Road extends Location{
 			}
 		}
 	}
-	
+
 	public void removeWaitingCar(Car car){
 		//noinspection SynchronizeOnNonFinalField
 		synchronized (waiting) {
@@ -131,33 +131,34 @@ public abstract class Road extends Location{
 
 	public static abstract class RoadIcon extends JPanel {
 		private static final long serialVersionUID = 1L;
-		public final static int cubeSize = CarIcon.SIZE;
-		private final static int cubeInset = CarIcon.INSET;
 		public Road road = null;
 		public TrafficMap.Coord coord = new TrafficMap.Coord();
 		private Map<String, JLabel[]> carIcons = new HashMap<>();
 		private Map<String, JLabel> citizenIcons = new HashMap<>();
-        private JLabel idLabel = null;
+		private JLabel idLabel = null;
 
 		private RoadIcon(Road road) {
-            setLayout(null);
+			setLayout(null);
 			setOpaque(false);
 //			setContentAreaFilled(false);
 //			setBorderPainted(false);
-            this.road = road;
-            Resource.getCarIcons().forEach((name, icons) -> carIcons.put(name, new JLabel[]{new JLabel(icons[0]), new JLabel(icons[1]), new JLabel(icons[2])}));
-            for (JLabel[] labels : carIcons.values()) {
-                for (JLabel label : labels)
-                    label.setSize(label.getPreferredSize());
-            }
+			this.road = road;
+			Resource.getCarIcons().forEach((name, icons) -> {
+				JLabel[] labels = new JLabel[icons.length];
+				for (int i = 0;i < icons.length;i++) {
+					labels[i] = new JLabel(icons[i]);
+					labels[i].setSize(labels[i].getPreferredSize());
+				}
+				carIcons.put(name, labels);
+			});
 
-            Resource.getCitizenIcons().forEach((name, icon) -> citizenIcons.put(name, new JLabel(icon)));
+			Resource.getCitizenIcons().forEach((name, icon) -> citizenIcons.put(name, new JLabel(icon)));
 			citizenIcons.values().forEach(label -> label.setSize(label.getPreferredSize()));
 
-            idLabel = new JLabel(String.valueOf(road.id));
-            idLabel.setFont(Resource.bold17dialog);
-            idLabel.setSize(idLabel.getPreferredSize());
-            add(idLabel);
+			idLabel = new JLabel(String.valueOf(road.id));
+			idLabel.setFont(Resource.bold17dialog);
+			idLabel.setSize(idLabel.getPreferredSize());
+			add(idLabel);
 
 			citizenIcons.values().forEach(label -> {
 				label.setVisible(false);
@@ -165,25 +166,25 @@ public abstract class Road extends Location{
 			});
 
 			for (JLabel[] labels : carIcons.values()) {
-                for (JLabel label : labels) {
-                    label.setVisible(false);
-                    add(label);
-                }
-            }
+				for (JLabel label : labels) {
+					label.setVisible(false);
+					add(label);
+				}
+			}
 		}
-		
+
 //		@Override
 //		public void setEnabled(boolean b) {
 //			super.setEnabled(b);
 //			System.out.println(road.name);
 //		}
 
-        public boolean isPressed = false, isEntered = false;
+		public boolean isPressed = false, isEntered = false;
 		protected void paintBorder(Graphics g) {
 //			super.paintBorder(g);
-            if (!isPressed && !isEntered)
-                return;
-            g.setColor(isPressed ? Color.BLACK : Color.GRAY);
+			if (!isPressed && !isEntered)
+				return;
+			g.setColor(isPressed ? Color.BLACK : Color.GRAY);
 			((Graphics2D) g).setStroke(new BasicStroke(2.0f));
 
 			if(this instanceof CrossroadIcon)
@@ -193,103 +194,116 @@ public abstract class Road extends Location{
 		}
 
 		protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+			super.paintComponent(g);
 //			System.out.println(road.name);
 			g.setFont(Resource.bold16dialog);
-            int n = road.realCars.size();
-			for(Car car : road.cars)
-				if(!car.hasPhantom())
-					n++;
-			switch(n){
-			case 0:
-				g.setColor(Resource.LIGHT_SKY_BLUE); break;
-			case 1:
-				g.setColor(Color.YELLOW); break;
-			default:
-				g.setColor(Resource.CHOCOLATE); break;
+			switch(road.allRealCars.size()){
+				case 0:
+					g.setColor(Resource.LIGHT_SKY_BLUE); break;
+				case 1:
+					g.setColor(Color.YELLOW); break;
+				default:
+					g.setColor(Resource.CHOCOLATE); break;
 			}
-			
+
 			if(this instanceof CrossroadIcon)
 				g.fillOval(0, 0, coord.w, coord.h);
 			else if(this instanceof StreetIcon)
 				g.fillRoundRect(0, 0, coord.w, coord.h, coord.arcw, coord.arch);
 
-            Set<JLabel> visibleLabel = new HashSet<>();
-			n = road.cars.size() + road.realCars.size();
+			Set<JLabel> visibleLabel = new HashSet<>();
+			int n = road.cars.size() + road.realCars.size();
+			int iconId = 0;
 			if(n > 0){
-				boolean vertical = this instanceof StreetIcon && ((StreetIcon) this).isVertical;
-				int x = vertical ? (coord.w-cubeSize)/2 : (coord.w-n*cubeSize-(n-1)*cubeInset)/2;
-				int y = vertical ? (coord.h-n*cubeSize-(n-1)*cubeInset)/2 : (coord.h-cubeSize)/2;
-				
-				for(Car car : road.cars){
-                    JLabel carIcon = carIcons.get(car.name)[car.hasPhantom() ? 1 : 0];
-					if(car.isLoading && !Dashboard.blink){
-						if(vertical)
-							y += cubeSize + cubeInset;
-						else
-							x += cubeSize + cubeInset;
-						continue;
-					}
-                    carIcon.setLocation(x, y);
-                    carIcon.setVisible(true);
-                    visibleLabel.add(carIcon);
-
-                    g.setColor(Color.BLACK);
-                    g.drawRect(carIcon.getX()-1, carIcon.getY()-1, carIcon.getWidth()+1, carIcon.getHeight()+1);
-
-					if (car.passenger != null) {
-						JLabel citizenIcon = citizenIcons.get(car.passenger.name);
-						citizenIcon.setLocation(carIcon.getX()+carIcon.getWidth()/2, carIcon.getY()+carIcon.getHeight()/2);
-						citizenIcon.setVisible(true);
-						visibleLabel.add(citizenIcon);
-					}
-
-					if(vertical)
-						y += cubeSize + cubeInset;
-					else
-						x += cubeSize + cubeInset;
+				boolean isVertical = this instanceof StreetIcon && ((StreetIcon) this).isVertical;
+				boolean showThumbnail = n > 2;
+				int iconSize = showThumbnail ? CarIcon.SIZE2 : CarIcon.SIZE;
+				int iconInset = showThumbnail ? CarIcon.INSET2 : CarIcon.INSET;
+				int iconOffset = iconSize + iconInset;
+				int x;
+				int y;
+				if (showThumbnail) {
+					x = isVertical ? (coord.w-2*iconSize-iconInset)/2 : (coord.w-4*iconSize-3*iconInset)/2;
+					y = isVertical ? (coord.h-4*iconSize-3*iconInset)/2 : (coord.h-2*iconSize-iconInset)/2;
 				}
-				
-				for(Car car : road.realCars){
-                    JLabel label = carIcons.get(car.name)[2];
-                    label.setLocation(x, y);
-                    label.setVisible(true);
-                    visibleLabel.add(label);
+				else {
+					x = isVertical ? (coord.w-iconSize)/2 : (coord.w-n*iconSize-(n-1)*iconInset)/2;
+					y = isVertical ? (coord.h-n*iconSize-(n-1)*iconInset)/2 : (coord.h-iconSize)/2;
+				}
 
-                    g.setColor(Color.BLACK);
-                    g.drawRect(label.getX()-1, label.getY()-1, label.getWidth()+1, label.getHeight()+1);
-					if(vertical)
-						y += cubeSize + cubeInset;
-					else
-						x += cubeSize + cubeInset;
+				for(Car car : road.cars){
+					int iconIdx = 0;
+					if (showThumbnail) iconIdx += 3;
+					if (car.hasPhantom()) iconIdx++;
+					JLabel carIcon = carIcons.get(car.name)[iconIdx];
+					if(!car.isLoading || Dashboard.blink) {
+						carIcon.setLocation(x, y);
+						carIcon.setVisible(true);
+						visibleLabel.add(carIcon);
+
+						g.setColor(Color.BLACK);
+						g.drawRect(carIcon.getX() - 1, carIcon.getY() - 1, carIcon.getWidth() + 1, carIcon.getHeight() + 1);
+
+						if (!showThumbnail && car.passenger != null) {
+							JLabel citizenIcon = citizenIcons.get(car.passenger.name);
+							citizenIcon.setLocation(carIcon.getX() + carIcon.getWidth() / 2, carIcon.getY() + carIcon.getHeight() / 2);
+							citizenIcon.setVisible(true);
+							visibleLabel.add(citizenIcon);
+						}
+					}
+
+					if (showThumbnail && iconId == 3) {
+						if (isVertical) { x += iconOffset; y -= 3 * iconOffset; } else { x -= 3 * iconOffset; y += iconOffset; }
+					}
+					else {
+						if (isVertical) y += iconOffset; else x += iconOffset;
+					}
+					iconId++;
+				}
+
+				for(Car car : road.realCars){
+					JLabel label = carIcons.get(car.name)[showThumbnail ? 5 : 2];
+					label.setLocation(x, y);
+					label.setVisible(true);
+					visibleLabel.add(label);
+
+					g.setColor(Color.BLACK);
+					g.drawRect(label.getX()-1, label.getY()-1, label.getWidth()+1, label.getHeight()+1);
+					if (showThumbnail && iconId == 3) {
+						if (isVertical) { x += iconOffset; y -= 3 * iconOffset; } else { x -= 3 * iconOffset; y += iconOffset; }
+					}
+					else {
+						if (isVertical) y += iconOffset; else x += iconOffset;
+					}
+					iconId++;
 				}
 			}
 
 			for (JLabel[] labels : carIcons.values()) {
-                for (JLabel label : labels)
-                    if (!visibleLabel.contains(label) && label.isVisible())
-                        label.setVisible(false); // NOTE: this will cause the invocation of paintComponent() again, so be careful of infinite loop
-            }
-            citizenIcons.values().forEach(label -> {
+				for (JLabel label : labels)
+					if (!visibleLabel.contains(label) && label.isVisible())
+						label.setVisible(false); // CAUTION: this will invoke paintComponent() again, so be careful of infinite loop
+			}
+			citizenIcons.values().forEach(label -> {
 				if (!visibleLabel.contains(label) && label.isVisible())
-					label.setVisible(false); // NOTE: this will cause the invocation of paintComponent() again, so be careful of infinite loop
+					label.setVisible(false); // CAUTION: this will invoke paintComponent() again, so be careful of infinite loop
 			});
 		}
 
-        @Override
-        public void setBounds(int x, int y, int width, int height) {
-            super.setBounds(x, y, width, height);
+		@Override
+		public void setBounds(int x, int y, int width, int height) {
+			super.setBounds(x, y, width, height);
 			if (idLabel != null)
-            	idLabel.setLocation((width-idLabel.getWidth())/2, (height-idLabel.getHeight())/2);
-        }
+				idLabel.setLocation((width-idLabel.getWidth())/2, (height-idLabel.getHeight())/2);
+		}
 
-        public void showRoadNumber(boolean b) {
+		public void showRoadNumber(boolean b) {
 			if (idLabel != null)
-            	idLabel.setVisible(b);
-        }
+				idLabel.setVisible(b);
+		}
 
 	}
-	
+
 	public void reset() {
 		cars.clear();
 		realCars.clear();
@@ -301,23 +315,23 @@ public abstract class Road extends Location{
 	public void checkRealCrash() {
 //        Set<Car> allRealCars = new HashSet<>(realCars);
 //        allRealCars.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
-        if(allRealCars.size() > 1) {
-            // stop all cars to keep the scene intact
+		if(allRealCars.size() > 1) {
+			// stop all cars to keep the scene intact
 			if (!TrafficMap.crashOccurred) {
 				TrafficMap.crashOccurred = true;
 				Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP));
 			}
 
-            allRealCars.forEach(car -> {
-            	if (!car.isInCrash) {
+			allRealCars.forEach(car -> {
+				if (!car.isInCrash) {
 					car.isInCrash = true;
 					if (Dashboard.playCrashSound)
 						Command.send(car, Command.HORN_ON);
 				}
-            });
+			});
 
 			Dashboard.showCrashEffect(this);
-            Dashboard.playCrashSound();
+			Dashboard.playCrashSound();
 
 			List<Car> frontCars = new ArrayList<>();
 			Set<Integer> dirs = new HashSet<>();
@@ -326,10 +340,10 @@ public abstract class Road extends Location{
 				frontCars.add(car);
 			});
 			Dashboard.showCrashDialog(frontCars);
-        }
-        else{
-            allRealCars.forEach(car -> {
-            	if (car.isInCrash) {
+		}
+		else{
+			allRealCars.forEach(car -> {
+				if (car.isInCrash) {
 					car.isInCrash = false;
 					if (Dashboard.playCrashSound)
 						Command.send(car, Command.HORN_OFF);
@@ -345,26 +359,26 @@ public abstract class Road extends Location{
 						TrafficMap.crashOccurred = crash;
 					}
 				}
-            });
-        }
-    }
-
-    public static class Crossroad extends Road {
-		public static class CrossroadIcon extends RoadIcon {
-			private static final long serialVersionUID = 1L;
-            public CrossroadIcon (Road road) {
-                super(road);
-            }
+			});
 		}
 	}
-	
+
+	public static class Crossroad extends Road {
+		public static class CrossroadIcon extends RoadIcon {
+			private static final long serialVersionUID = 1L;
+			public CrossroadIcon (Road road) {
+				super(road);
+			}
+		}
+	}
+
 	public static class Street extends Road {
 		public static class StreetIcon extends RoadIcon {
 			private static final long serialVersionUID = 1L;
 			public boolean isVertical;
-            public StreetIcon (Road road) {
-                super(road);
-            }
+			public StreetIcon (Road road) {
+				super(road);
+			}
 		}
 	}
 }

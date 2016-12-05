@@ -262,7 +262,7 @@ public class Delivery {
                                 EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name, dt));
                         }
                         Dashboard.updateDeliveryTaskPanel();
-                        car.loc.icon.repaint();
+                        car.loc.iconPanel.repaint();
                     }
                 }
             }

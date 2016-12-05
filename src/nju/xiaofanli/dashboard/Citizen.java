@@ -142,8 +142,8 @@ public class Citizen implements Runnable {
                         if (!icon.isVisible()) {
                             int x = (int) (Math.random() * xmax);
                             int y = (int) (Math.random() * ymax);
-//						x = TrafficMap.streets[23].icon.coord.x;
-//						y = TrafficMap.streets[23].icon.coord.y;
+//						x = TrafficMap.streets[23].iconPanel.coord.x;
+//						y = TrafficMap.streets[23].iconPanel.coord.y;
                             icon.setLocation(x, y);
                             icon.setVisible(true);
                             loc = Dashboard.getNearestRoad(icon.getCenterX(), icon.getCenterY());
@@ -181,15 +181,16 @@ public class Citizen implements Runnable {
                     if(!icon.isVisible()){
                         int x, y;
                         if(loc instanceof Road) {
-                            Road.RoadIcon icon = ((Road) loc).icon.getARoadIcon();
-                            x = icon.road.icon.coord.x + icon.coord.centerX;
-                            y = icon.road.icon.coord.y + icon.coord.centerY;
+                            Road.RoadIcon icon = ((Road) loc).iconPanel.getARoadIcon();
+                            x = icon.road.iconPanel.coord.x + icon.coord.centerX;
+                            y = icon.road.iconPanel.coord.y + icon.coord.centerY;
                         }
                         else{
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
                         icon.setLocation(x-icon.getWidth()/8, y);
+                        icon.setVisible(true);
                         icon.setVisible(true);
                     }
                     Delivery.add(loc, dest, this, createdByUser);
@@ -203,9 +204,9 @@ public class Citizen implements Runnable {
                     if(loc != null){
                         int x, y;
                         if(loc instanceof Road){
-                            Road.RoadIcon icon = ((Road) loc).icon.getARoadIcon();
-                            x = icon.road.icon.coord.x + icon.coord.centerX;
-                            y = icon.road.icon.coord.y + icon.coord.centerY;
+                            Road.RoadIcon icon = ((Road) loc).iconPanel.getARoadIcon();
+                            x = icon.road.iconPanel.coord.x + icon.coord.centerX;
+                            y = icon.road.iconPanel.coord.y + icon.coord.centerY;
                         }
                         else{
                             x = ((Building) loc).icon.coord.centerX;
