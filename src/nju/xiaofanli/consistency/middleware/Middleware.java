@@ -6,7 +6,9 @@
 
 package nju.xiaofanli.consistency.middleware;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.consistency.context.ContextChange;
@@ -20,6 +22,7 @@ import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.util.Pair;
 
+import javax.swing.text.Style;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -36,7 +39,7 @@ public class Middleware {
     private static String resolutionStrategy;
     static int changeNum = 0;
     private static final Queue<Context> queue = new LinkedList<>();
-    private static boolean dEnabled = false, rEnabled = false;
+    private static boolean detectionEnabled = false, resolutionEnabled = false;
     static {
         Configuration.init("/nju/xiaofanli/consistency/config/System.properties");
         Set<Pattern> patternSet = PatternLoader.parserXml("src/nju/xiaofanli/consistency/config/patterns.xml");
@@ -117,15 +120,25 @@ public class Middleware {
                 BrickHandler.switchState(car, sensor, isRealCar, true);
                 break;
             case Context.FP:
-                if (dEnabled)
-                    sensor.displayBalloon(Context.FP, car.name, rEnabled);
-                if (!rEnabled && dEnabled) //if (!rEnabled)
+                if (detectionEnabled) {
+                    sensor.showBalloon(Context.FP, car.name, resolutionEnabled);
+                    if (resolutionEnabled) {
+                        List<Pair<String, Style>> strings = new ArrayList<>();
+                        strings.add(new Pair<>("False positive resolved: ", null));
+                        strings.add(new Pair<>(sensor.name, Resource.getTextStyle(Resource.LIGHT_SKY_BLUE)));
+                        strings.add(new Pair<>(" detects ", null));
+                        strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+                        strings.add(new Pair<>(".\n", null));
+                        Dashboard.log(strings);
+                    }
+                }
+                if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)
                     BrickHandler.switchState(car, sensor, isRealCar, false);
                 break;
             case Context.FN:
-                if (dEnabled)
-                    sensor.displayBalloon(Context.FN, car.name, rEnabled);
-                if (rEnabled || !dEnabled && !rEnabled) //if (rEnabled)
+                if (detectionEnabled)
+                    sensor.showBalloon(Context.FN, car.name, resolutionEnabled);
+                if (resolutionEnabled || !detectionEnabled && !resolutionEnabled) //if (resolutionEnabled)
                     BrickHandler.switchState(car, sensor, isRealCar, true);
                 break;
         }
@@ -199,7 +212,7 @@ public class Middleware {
     }
 
     public static void reset() {
-        dEnabled = rEnabled = false;
+        detectionEnabled = resolutionEnabled = false;
         patterns.values().forEach(Pattern::reset);
         rules.values().forEach(Rule::reset);
     }
@@ -251,18 +264,18 @@ public class Middleware {
 
 
     public static void enableDetection(boolean detectionEnabled) {
-        dEnabled = detectionEnabled;
+        Middleware.detectionEnabled = detectionEnabled;
     }
 
     public static boolean isDetectionEnabled(){
-        return dEnabled;
+        return detectionEnabled;
     }
 
     public static void enableResolution(boolean resolutionEnabled) {
-        rEnabled = resolutionEnabled;
+        Middleware.resolutionEnabled = resolutionEnabled;
     }
 
     public static boolean isResolutionEnabled(){
-        return rEnabled;
+        return resolutionEnabled;
     }
 }

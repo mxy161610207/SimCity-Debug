@@ -52,7 +52,7 @@ public class RandomDataGenerator implements Runnable{
                 }
                 else {
                     Sensor sensor = (Sensor) disabled.keySet().toArray()[random.nextInt(disabled.size())];
-                    sensor.displayBalloon(Context.FP, disabled.get(sensor).name, Middleware.isResolutionEnabled());
+                    sensor.showBalloon(Context.FP, disabled.get(sensor).name, Middleware.isResolutionEnabled());
                 }
             }
 			try {

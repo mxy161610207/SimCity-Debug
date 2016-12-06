@@ -65,7 +65,7 @@ public class Dashboard extends JFrame{
     private static final JCheckBox jchkAutoGen = new JCheckBox("Automatically generate tasks");
     public static boolean showSensor = false;
     public static boolean showRoad = false;
-    public static boolean showBalloon = false;
+    public static boolean showError = false;
     public static boolean playCrashSound = false;
 
     private static final JTextField srctf = new JTextField();
@@ -227,12 +227,12 @@ public class Dashboard extends JFrame{
 
     private static JPanel checkingPanel = null;
     public static final int MARK_SIZE = 30;
-    public void loadCheckUI(){
+    public static void loadCheckUI(){
         if(checkingPanel != null){
-            setTitle("Self Checking");
-            setContentPane(checkingPanel);
-            pack();
-            setLocationRelativeTo(null);
+            getInstance().setTitle("Self Checking");
+            getInstance().setContentPane(checkingPanel);
+            getInstance().pack();
+            getInstance().setLocationRelativeTo(null);
             return;
         }
         checkingPanel = new JPanel(new GridBagLayout());
@@ -341,21 +341,19 @@ public class Dashboard extends JFrame{
         }
 
 
-        setTitle("Self Checking");
-//		cards.show(getContentPane(), "Check");
-        setContentPane(checkingPanel);
-        pack();
-        setLocationRelativeTo(null);
+        getInstance().setTitle("Self Checking");
+        getInstance().setContentPane(checkingPanel);
+        getInstance().pack();
+        getInstance().setLocationRelativeTo(null);
     }
 
     private static JPanel controlPanel = null;
     private static int controlPanelWidth = 1280, controlPanelHeight = 720;
-    public void loadCtrlUI(){
+    public static void loadCtrlUI(){
         if(controlPanel != null){
-            setTitle("Dashboard");
-            setContentPane(controlPanel);
-//			pack();
-            setLocationRelativeTo(null);
+            getInstance().setTitle("Dashboard");
+            getInstance().setContentPane(controlPanel);
+            getInstance().setLocationRelativeTo(null);
             return;
         }
         controlPanel = new JPanel(new GridBagLayout());
@@ -426,11 +424,19 @@ public class Dashboard extends JFrame{
         tmpPanel.add(resetButton);
         resetButton.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                if(!resetButton.isEnabled())
+                if(!resetButton.isEnabled() || e.getButton() != MouseEvent.BUTTON3) // only focus on right click
                     return;
-                StateSwitcher.setInconsistencyType(e.getButton() == MouseEvent.BUTTON1);
+//                System.out.println("mouse listener");
+                StateSwitcher.setInconsistencyType(false);
                 StateSwitcher.startResetting();
             }
+        });
+        resetButton.addActionListener(e -> {
+            if(!resetButton.isEnabled())
+                return;
+//            System.out.println("action listener");
+            StateSwitcher.setInconsistencyType(true);
+            StateSwitcher.startResetting();
         });
 
         tmpPanel.add(deviceButton);
@@ -588,7 +594,7 @@ public class Dashboard extends JFrame{
 //        jchkSensor.doClick();
 
         jchkBalloon.addActionListener(e -> {
-            showBalloon = jchkBalloon.isSelected();
+            showError = jchkBalloon.isSelected();
             trafficMap.repaint();
         });
 
@@ -856,10 +862,10 @@ public class Dashboard extends JFrame{
 
         reset();
 
-        setTitle("Dashboard");
-        setContentPane(controlPanel);
-        pack();
-        setLocationRelativeTo(null);
+        getInstance().setTitle("Dashboard");
+        getInstance().setContentPane(controlPanel);
+        getInstance().pack();
+        getInstance().setLocationRelativeTo(null);
     }
 
     private static final Class ComponentView$Invalidator = ComponentView.class.getDeclaredClasses()[0];
@@ -958,9 +964,12 @@ public class Dashboard extends JFrame{
     }
 
     public static void showRelocationDialog(Car car, boolean successful, Road road) {
-        List<Pair<String, Style>> strings = new ArrayList<>();
+        List<Pair<String, Style>> strings = new ArrayList<>(), strings2log = new ArrayList<>();
         if (successful) {
             strings.add(new Pair<>("Successful", Resource.getTextStyle(Color.GREEN)));
+
+            strings2log.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+            strings2log.add(new Pair<>(" is relocated successfully.\n", null));
         }
         else {
             strings.add(new Pair<>("Failed\n", Resource.getTextStyle(Color.RED)));
@@ -974,10 +983,16 @@ public class Dashboard extends JFrame{
             strings.add(new Pair<>("Done", Resource.getTextStyle(true)));
             strings.add(new Pair<>(" button.", null));
             relocationDoneButton.setVisible(true);
+
+            strings2log.add(new Pair<>("Fail", Resource.getTextStyle(Color.RED)));
+            strings2log.add(new Pair<>(" to relocate ", null));
+            strings2log.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+            strings2log.add(new Pair<>(".\n", null));
         }
         append2pane(strings, relocationTextPane);
         relocationDialog.pack();
         relocationDialog.setVisible(true);
+        log(strings2log);
     }
 
     public static void clearRelocationDialog() {
@@ -992,6 +1007,59 @@ public class Dashboard extends JFrame{
             relocationTextPane.setText("");
         }
     }
+
+    public static void showInitDialog() {
+        if (Resource.getConnectedCars().isEmpty())
+            return;
+        JDialog dialog = new JDialog(getInstance(), "Initialization");
+        JButton button = new JButton("Reset");
+        button.setFont(Resource.bold16dialog);
+        button.setMargin(new Insets(2, 5, 2, 5));
+        button.addActionListener(e -> {
+            dialog.dispose();
+            resetButton.doClick();
+        });
+        JTextPane pane = new JTextPane();
+        pane.setBackground(null);
+        pane.setEditable(false);
+        pane.setFont(Resource.plain17dialog);
+        List<Car> cars = new ArrayList<>(Resource.getConnectedCars());
+        List<Pair<String, Style>> strings = new ArrayList<>();
+        strings.add(new Pair<>("Please put ", null));
+        strings.add(new Pair<>(cars.get(0).name, Resource.getTextStyle(cars.get(0).icon.color)));
+        strings.add(new Pair<>(" at ", null));
+        strings.add(new Pair<>(cars.get(0).loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
+        for (int i = 1;i < cars.size();i++) {
+            strings.add(new Pair<>(", ", null));
+            strings.add(new Pair<>(cars.get(i).name, Resource.getTextStyle(cars.get(i).icon.color)));
+            strings.add(new Pair<>(" at ", null));
+            strings.add(new Pair<>(cars.get(i).loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
+        }
+        strings.add(new Pair<>(".\n", null));
+        strings.add(new Pair<>("After", Resource.getTextStyle(true)));
+        strings.add(new Pair<>(" that, click ", null));
+        strings.add(new Pair<>("Reset", Resource.getTextStyle(true)));
+        strings.add(new Pair<>(" button.", null));
+        append2pane(strings, pane);
+
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = gbc.weighty = 1;
+        dialog.add(pane, gbc);
+        gbc.gridy++;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(5, 0, 5, 0);
+        gbc.weightx = gbc.weighty = 0;
+        dialog.add(button, gbc);
+        dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(null);
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
 
     public static void showCrashDialog(List<Car> cars) {
         if (cars == null || cars.isEmpty())
@@ -1224,7 +1292,7 @@ public class Dashboard extends JFrame{
 //        jchkResolution.setSelected(false);
 //        jchkBalloon.setEnabled(true);
 //        jchkBalloon.setSelected(false);
-//        showBalloon = false;
+//        showError = false;
 //        jchkBalloon.setEnabled(false);
 //        jchkCrash.setEnabled(true);
 //        jchkCrash.setSelected(false);
@@ -1266,7 +1334,7 @@ public class Dashboard extends JFrame{
         fixedRadioButton.setEnabled(b);
     }
 
-    private class RoadIconListener extends MouseAdapter {
+    private static class RoadIconListener extends MouseAdapter {
         Road.RoadIcon icon = null;
 
         RoadIconListener(Road.RoadIcon icon) {
@@ -1360,7 +1428,7 @@ public class Dashboard extends JFrame{
         }
     }
 
-    private class BuildingIconListener extends MouseAdapter{
+    private static class BuildingIconListener extends MouseAdapter{
         Building building = null;
 
         BuildingIconListener(Building building) {

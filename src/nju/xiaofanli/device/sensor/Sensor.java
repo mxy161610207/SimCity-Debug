@@ -4,8 +4,6 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.dashboard.Road;
-import nju.xiaofanli.dashboard.Road.Crossroad;
-import nju.xiaofanli.dashboard.Road.Street;
 import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
@@ -146,8 +144,8 @@ public class Sensor {
         undetectedReading[9][1] = 18;
     }
 
-    public void displayBalloon(int type, String car, boolean isResolutionEnabled) {
-        if(!Dashboard.showBalloon)
+    public void showBalloon(int type, String car, boolean isResolutionEnabled) {
+        if(!Dashboard.showError)
             return;
         balloon.type = type;
         balloon.sensor = name;

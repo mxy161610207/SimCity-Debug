@@ -27,7 +27,7 @@ public class Main {
 	public static boolean initial = true;
 	public static void main(String[] args) throws IOException {
 		readConfigFile();
-		Dashboard.getInstance().loadCheckUI();
+		Dashboard.loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready
 
 		addModule();
@@ -38,9 +38,10 @@ public class Main {
 		new Delivery();
 		new AppServer();
         new RandomDataGenerator();
-		Dashboard.getInstance().loadCtrlUI();
+		Dashboard.loadCtrlUI();
 		initial = false;
-        TrafficMap.checkRealCrash();
+		Dashboard.showInitDialog();
+        TrafficMap.checkRealCrash(); // should never trigger crash, otherwise change cars' initial locations
 	}
 
 	private static void addModule(){
