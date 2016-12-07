@@ -19,19 +19,20 @@ import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.Sensor;
 
 public abstract class Road extends Location{
-	public Map<Integer, Road> adjRoads = new HashMap<>(); //adjacent roads
-	public Map<Integer, Sensor> adjSensors = new HashMap<>(); //adjacent sensors
-	public Map<Road, Road> entrance2exit = new HashMap<>(); //entrance -> exit
-	public Map<Road, Road> exit2entrance = new HashMap<>(); //exit -> entrance
-	public int[] dir = {TrafficMap.UNKNOWN_DIR, TrafficMap.UNKNOWN_DIR};
-	public Queue<Car> cars = new LinkedList<>();//may contain phantoms
-	public Queue<Car> realCars = new LinkedList<>();
-	public Queue<Car> allRealCars = new LinkedList<>();
+	public final Map<TrafficMap.Direction, Road> adjRoads = new HashMap<>(); //adjacent roads
+	public final Map<TrafficMap.Direction, Sensor> adjSensors = new HashMap<>(); //adjacent sensors
+	public final Map<Road, Road> entrance2exit = new HashMap<>(); //entrance -> exit
+	public final Map<Road, Road> exit2entrance = new HashMap<>(); //exit -> entrance
+	public final TrafficMap.Direction[] dir = {TrafficMap.Direction.UNKNOWN, TrafficMap.Direction.UNKNOWN};
+	public final Queue<Car> cars = new LinkedList<>();//may contain phantoms
+	public final Queue<Car> realCars = new LinkedList<>();
+	public final Queue<Car> allRealCars = new LinkedList<>();
 	public Car permitted = null;
 	public int numSections;
 	public final Queue<Car> waiting = new LinkedList<>();//can replace mutex
-	public Map<Integer, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
-	public RoadIconPanel iconPanel = new RoadIconPanel(this);
+	public final Map<TrafficMap.Direction, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
+	public final Map<TrafficMap.Direction, Boolean> isStraight = new HashMap<>(); // whether this road is straight or curved in the physical world
+	public final RoadIconPanel iconPanel = new RoadIconPanel(this);
 
 	public static Road roadOf(String name){
 //		System.out.println(name);
@@ -334,7 +335,7 @@ public abstract class Road extends Location{
 			Dashboard.playCrashSound();
 
 			List<Car> frontCars = new ArrayList<>();
-			Set<Integer> dirs = new HashSet<>();
+			Set<TrafficMap.Direction> dirs = new HashSet<>();
 			allRealCars.stream().filter(car -> !dirs.contains(car.getRealDir())).forEach(car -> {
 				dirs.add(car.getRealDir());
 				frontCars.add(car);

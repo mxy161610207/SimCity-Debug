@@ -176,11 +176,11 @@ public class Police implements Runnable{
             EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, request.car.name, request.loc.name, request.cmd));
     }
 
-    public static void add(Car car, int dir, Road loc, int cmd, Road requested) {
+    public static void add(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested) {
         add(new Request(car, dir, loc, cmd, requested));
     }
 
-    public static void add(Car car, int dir, Road loc, int cmd, Road requested, boolean fromUser) {
+    public static void add(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, boolean fromUser) {
         add(new Request(car, dir, loc, cmd, requested, fromUser));
     }
 
@@ -192,12 +192,12 @@ public class Police implements Runnable{
 
 	private static class Request{
 		Car car;
-		int dir;
+		TrafficMap.Direction dir;
 		Road loc, requested;
 		int cmd;
         boolean fromUser = false; // whether this request is sent by user
 
-		Request(Car car, int dir, Road loc, int cmd, Road requested) {
+		Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested) {
 			this.car = car;
 			this.dir = dir;
 			this.loc = loc;
@@ -205,7 +205,7 @@ public class Police implements Runnable{
 			this.requested = requested;
 		}
 
-        Request(Car car, int dir, Road loc, int cmd, Road requested, boolean fromUser) {
+        Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, boolean fromUser) {
             this(car, dir, loc, cmd, requested);
             this.fromUser = fromUser;
         }

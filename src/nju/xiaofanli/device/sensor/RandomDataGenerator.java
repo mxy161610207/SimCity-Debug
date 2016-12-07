@@ -27,7 +27,7 @@ public class RandomDataGenerator implements Runnable{
 			if(StateSwitcher.isNormal() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled())) {
                 enabled.clear();
                 disabled.clear();
-                Resource.getConnectedCars().stream().filter(car -> car.loc != null && car.dir != TrafficMap.UNKNOWN_DIR).forEach(car -> {
+                Resource.getConnectedCars().stream().filter(car -> car.loc != null && car.dir != TrafficMap.Direction.UNKNOWN).forEach(car -> {
                     if (car.hasPhantom()) {
                         enabled.add(car.loc.adjSensors.get(car.dir));
                         if (car.getState() != Car.STOPPED)

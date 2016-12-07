@@ -255,7 +255,7 @@ public class StateSwitcher {
 
 		private class CarInfo{
 			private Sensor sensor;
-			private CarInfo(Road loc, int dir){
+			private CarInfo(Road loc, TrafficMap.Direction dir){
 				sensor = loc.adjSensors.get(dir).prevSensor;
 			}
 
@@ -345,13 +345,13 @@ public class StateSwitcher {
 
     /**
      * @param car2relocate the car needed to relocate
-     * @param prevSensor the sensor behind the car's known location
-     * @param nextSensor the sensor in font of the car's known location
+     * @param sensor the sensor in font of the car's known location
+     * @param detected whether car2relocate is detected by the next one of sensor
      */
-    public static void startRelocating(Car car2relocate, Sensor prevSensor, Sensor nextSensor) {
+    public static void startRelocating(Car car2relocate, Sensor sensor, boolean detected) {
         if (isResetting())
             return;
-        Relocation.add(car2relocate, prevSensor, nextSensor);
+        Relocation.add(car2relocate, sensor, detected);
     }
 
 //    public static boolean isReportedSensor(Sensor sensor) {
@@ -402,11 +402,11 @@ public class StateSwitcher {
                 Request r;
                 synchronized (queue) {
                     r = queue.poll();
-                    if (r == null || r.car2relocate == null || r.prevSensor == null || r.nextSensor == null)
+                    if (r == null || r.car2relocate == null || r.sensor == null)
                         continue;
                     car2relocate = r.car2relocate;
-                    prevSensor = r.prevSensor;
-                    nextSensor = r.nextSensor;
+                    prevSensor = r.sensor.prevSensor;
+                    nextSensor = r.sensor;
                 }
 
                 if (!isPreserved) {
@@ -429,9 +429,8 @@ public class StateSwitcher {
                     checkIfSuspended();
                 }
 
-                int prevRoadDir = prevSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? prevSensor.nextRoad.dir[0] : prevSensor.dir;
                 // car moves slower when moving backward, so better multiply by a factor
-                long timeout = (long) (prevSensor.nextRoad.timeouts.get(prevRoadDir).get(car2relocate.name) * 1.2);
+                long timeout = (long) (prevSensor.nextRoad.timeouts.get(prevSensor.getNextRoadDir()).get(car2relocate.name) * 1.2);
                 Dashboard.clearRelocationDialog();
                 Dashboard.showRelocationDialog(car2relocate);
                 isInterested = true;
@@ -467,8 +466,7 @@ public class StateSwitcher {
                     }
                     checkIfSuspended();
                     // the car is manually relocated
-                    int dir = prevSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? prevSensor.nextRoad.dir[0] : prevSensor.dir;
-                    car2relocate.timeout = prevSensor.nextRoad.timeouts.get(dir).get(car2relocate.name); // reset its timeout
+                    car2relocate.timeout = prevSensor.nextRoad.timeouts.get(prevSensor.getNextRoadDir()).get(car2relocate.name); // reset its timeout
                 }
                 else {
                     Dashboard.showRelocationDialog(car2relocate, true, null);
@@ -477,8 +475,7 @@ public class StateSwitcher {
                         BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
                     }
                     else {
-                        int dir = locatedSensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? locatedSensor.nextRoad.dir[0] : locatedSensor.dir;
-                        car2relocate.timeout = locatedSensor.nextRoad.timeouts.get(dir).get(car2relocate.name); // reset its timeout
+                        car2relocate.timeout = locatedSensor.nextRoad.timeouts.get(locatedSensor.getNextRoadDir()).get(car2relocate.name); // reset its timeout
                     }
                 }
 //                Dashboard.closeRelocationDialog();
@@ -507,12 +504,11 @@ public class StateSwitcher {
             return isRelocating() && isInterested && (sensor == Relocation.prevSensor || sensor == Relocation.nextSensor);
         }
 
-        public static void add(Car car2relocate, Sensor prevSensor, Sensor nextSensor) {
+        public static void add(Car car2relocate, Sensor sensor, boolean detected) {
             if (!relocation.isAlive()) {
                 relocation.start();
-//                System.out.println("!!!start relocation thread!!!");
             }
-            Request req = new Request(car2relocate, prevSensor, nextSensor);
+            Request req = new Request(car2relocate, sensor, detected);
             synchronized (queue) {
                 if (Relocation.car2relocate == car2relocate)
                     return;
@@ -527,11 +523,12 @@ public class StateSwitcher {
 
         private static class Request {
             private Car car2relocate;
-            private Sensor prevSensor, nextSensor;
-            Request(Car car2relocate, Sensor prevSensor, Sensor nextSensor) {
+            private Sensor sensor;
+            private boolean detected;
+            Request(Car car2relocate, Sensor sensor, boolean detected) {
                 this.car2relocate = car2relocate;
-                this.prevSensor = prevSensor;
-                this.nextSensor = nextSensor;
+                this.sensor = sensor;
+                this.detected = detected;
             }
         }
     }

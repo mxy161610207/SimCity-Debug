@@ -1231,7 +1231,7 @@ public class Dashboard extends JFrame{
                 return;
         carbox.addItem(car.name);
         VCPanel.addCar(car);
-        PkgHandler.send(new AppPkg().setCar(car.name, -1, null));
+        PkgHandler.send(new AppPkg().setCar(car.name, TrafficMap.Direction.UNKNOWN, null));
     }
 
     public static synchronized void removeCar(Car car){

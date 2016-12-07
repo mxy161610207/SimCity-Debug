@@ -55,7 +55,8 @@ class VehicleConditionPanel extends JPanel{
 		private CarIcon icon = null;
 		private final JTextPane text = new JTextPane();
 		private final GridBagConstraints gbc = new GridBagConstraints();
-        private final Map<Integer, JLabel> stateIcons = new HashMap<>(), dirIcons = new HashMap<>();
+        private final Map<Integer, JLabel> stateIcons = new HashMap<>();
+		private final Map<TrafficMap.Direction, JLabel> dirIcons = new HashMap<>();
         private final double ASCENT_PIXEL;
         private final int ICON_SIZE;
 		Entry(Car car) {
@@ -71,11 +72,11 @@ class VehicleConditionPanel extends JPanel{
             ICON_SIZE = (int) (ASCENT_PIXEL * 1.5);
             stateIcons.put(Car.MOVING, new JLabel(Resource.loadImage(Resource.MOVING_ICON, ICON_SIZE, ICON_SIZE)));
             stateIcons.put(Car.STOPPED, new JLabel(Resource.loadImage(Resource.STOP_ICON, ICON_SIZE, ICON_SIZE)));
-            dirIcons.put(TrafficMap.NORTH, new JLabel(Resource.loadImage(Resource.UP_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
-            dirIcons.put(TrafficMap.SOUTH, new JLabel(Resource.loadImage(Resource.DOWN_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
-            dirIcons.put(TrafficMap.WEST, new JLabel(Resource.loadImage(Resource.LEFT_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
-            dirIcons.put(TrafficMap.EAST, new JLabel(Resource.loadImage(Resource.RIGHT_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
-            dirIcons.put(TrafficMap.UNKNOWN_DIR, new JLabel(Resource.loadImage(Resource.QUESTION_MARK_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.Direction.NORTH, new JLabel(Resource.loadImage(Resource.UP_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.Direction.SOUTH, new JLabel(Resource.loadImage(Resource.DOWN_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.Direction.WEST, new JLabel(Resource.loadImage(Resource.LEFT_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.Direction.EAST, new JLabel(Resource.loadImage(Resource.RIGHT_ARROW_ICON, ICON_SIZE, ICON_SIZE)));
+            dirIcons.put(TrafficMap.Direction.UNKNOWN, new JLabel(Resource.loadImage(Resource.QUESTION_MARK_ICON, ICON_SIZE, ICON_SIZE)));
             stateIcons.values().forEach(label -> label.setAlignmentY((float) (ASCENT_PIXEL/ICON_SIZE/2 + 0.5)));
             dirIcons.values().forEach(label -> label.setAlignmentY((float) (ASCENT_PIXEL/ICON_SIZE/2 + 0.5)));
 			setLayout(new GridBagLayout());

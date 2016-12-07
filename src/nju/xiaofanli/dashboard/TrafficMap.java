@@ -53,6 +53,9 @@ public class TrafficMap extends JPanel{
     private static final int U5 = U3 + CW;
     public static final int SIZE = U3 + 2*U1 + U5;
 
+    public enum Direction {
+        NORTH, SOUTH, WEST, EAST, UNKNOWN
+    }
     public static final int UNKNOWN_DIR = -1;
     public static final int NORTH = 0;
     public static final int SOUTH = 1;
@@ -118,7 +121,7 @@ public class TrafficMap extends JPanel{
             for (Sensor sensor : array) {
                 add(sensor.icon);
                 Resource.timeouts.get(sensor.name).forEach((car, time) -> {
-                    int direction = sensor.nextRoad.dir[1] == UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir;
+                    Direction direction = sensor.nextRoad.dir[1] == Direction.UNKNOWN ? sensor.nextRoad.dir[0] : sensor.dir;
                     if (!sensor.nextRoad.timeouts.containsKey(direction))
                         sensor.nextRoad.timeouts.put(direction, new HashMap<>());
                     sensor.nextRoad.timeouts.get(direction).put(car, (int) (time * 1.5));
@@ -510,38 +513,38 @@ public class TrafficMap extends JPanel{
             for(int j = 0;j < sensors[i].length;j++)
                 sensors[i][j] = new Sensor(i, j);
 
-        setSensor(sensors[0][0], crossroads[0], streets[0], NORTH);
-        setSensor(sensors[0][1], crossroads[0], streets[2], WEST);
-        setSensor(sensors[1][0], streets[1], streets[4], WEST);
-        setSensor(sensors[1][1], streets[0], crossroads[1], SOUTH);
-        setSensor(sensors[1][2], streets[4], crossroads[1], WEST);
-        setSensor(sensors[2][0], crossroads[1], streets[3], WEST);
-        setSensor(sensors[2][1], crossroads[2], streets[5], NORTH);
-        setSensor(sensors[2][2], streets[5], crossroads[0], NORTH);
-        setSensor(sensors[2][3], streets[3], crossroads[0], WEST);
-        setSensor(sensors[3][0], streets[9], crossroads[4], EAST);
-        setSensor(sensors[3][1], crossroads[1], streets[6], SOUTH);
-        setSensor(sensors[3][2], streets[6], crossroads[3], SOUTH);
-        setSensor(sensors[3][3], crossroads[3], streets[9], EAST);
-        setSensor(sensors[4][0], crossroads[4], streets[7], NORTH);
-        setSensor(sensors[4][1], crossroads[4], streets[10], EAST);
-        setSensor(sensors[4][2], streets[7], streets[1], NORTH);
-        setSensor(sensors[5][0], streets[11], crossroads[2], NORTH);
-        setSensor(sensors[5][1], streets[2], crossroads[2], EAST);
-        setSensor(sensors[5][2], streets[14], streets[11], NORTH);
-        setSensor(sensors[6][0], crossroads[2], streets[8], EAST);
-        setSensor(sensors[6][1], streets[12], crossroads[5], SOUTH);
-        setSensor(sensors[6][2], streets[8], crossroads[3], EAST);
-        setSensor(sensors[6][3], crossroads[3], streets[12], SOUTH);
-        setSensor(sensors[7][0], streets[16], crossroads[5], WEST);
-        setSensor(sensors[7][1], crossroads[6], streets[13], NORTH);
-        setSensor(sensors[7][2], streets[13], crossroads[4], NORTH);
-        setSensor(sensors[7][3], crossroads[6], streets[16], WEST);
-        setSensor(sensors[8][0], streets[15], streets[14], WEST);
-        setSensor(sensors[8][1], crossroads[5], streets[17], SOUTH);
-        setSensor(sensors[8][2], crossroads[5], streets[15], WEST);
-        setSensor(sensors[9][0], streets[17], crossroads[6], NORTH);
-        setSensor(sensors[9][1], streets[10], crossroads[6], WEST);
+        setSensor(sensors[0][0], crossroads[0], streets[0], Direction.NORTH);
+        setSensor(sensors[0][1], crossroads[0], streets[2], Direction.WEST);
+        setSensor(sensors[1][0], streets[1], streets[4], Direction.WEST);
+        setSensor(sensors[1][1], streets[0], crossroads[1], Direction.SOUTH);
+        setSensor(sensors[1][2], streets[4], crossroads[1], Direction.WEST);
+        setSensor(sensors[2][0], crossroads[1], streets[3], Direction.WEST);
+        setSensor(sensors[2][1], crossroads[2], streets[5], Direction.NORTH);
+        setSensor(sensors[2][2], streets[5], crossroads[0], Direction.NORTH);
+        setSensor(sensors[2][3], streets[3], crossroads[0], Direction.WEST);
+        setSensor(sensors[3][0], streets[9], crossroads[4], Direction.EAST);
+        setSensor(sensors[3][1], crossroads[1], streets[6], Direction.SOUTH);
+        setSensor(sensors[3][2], streets[6], crossroads[3], Direction.SOUTH);
+        setSensor(sensors[3][3], crossroads[3], streets[9], Direction.EAST);
+        setSensor(sensors[4][0], crossroads[4], streets[7], Direction.NORTH);
+        setSensor(sensors[4][1], crossroads[4], streets[10], Direction.EAST);
+        setSensor(sensors[4][2], streets[7], streets[1], Direction.NORTH);
+        setSensor(sensors[5][0], streets[11], crossroads[2], Direction.NORTH);
+        setSensor(sensors[5][1], streets[2], crossroads[2], Direction.EAST);
+        setSensor(sensors[5][2], streets[14], streets[11], Direction.NORTH);
+        setSensor(sensors[6][0], crossroads[2], streets[8], Direction.EAST);
+        setSensor(sensors[6][1], streets[12], crossroads[5], Direction.SOUTH);
+        setSensor(sensors[6][2], streets[8], crossroads[3], Direction.EAST);
+        setSensor(sensors[6][3], crossroads[3], streets[12], Direction.SOUTH);
+        setSensor(sensors[7][0], streets[16], crossroads[5], Direction.WEST);
+        setSensor(sensors[7][1], crossroads[6], streets[13], Direction.NORTH);
+        setSensor(sensors[7][2], streets[13], crossroads[4], Direction.NORTH);
+        setSensor(sensors[7][3], crossroads[6], streets[16], Direction.WEST);
+        setSensor(sensors[8][0], streets[15], streets[14], Direction.WEST);
+        setSensor(sensors[8][1], crossroads[5], streets[17], Direction.SOUTH);
+        setSensor(sensors[8][2], crossroads[5], streets[15], Direction.WEST);
+        setSensor(sensors[9][0], streets[17], crossroads[6], Direction.NORTH);
+        setSensor(sensors[9][1], streets[10], crossroads[6], Direction.WEST);
 
         Queue<Sensor> orders = new LinkedList<>();
         orders.add(sensors[0][0]);
@@ -602,11 +605,11 @@ public class TrafficMap extends JPanel{
         }
     }
 
-    private static void setSensor(Sensor sensor, Road prevRoad, Road nextRoad, int dir){
+    private static void setSensor(Sensor sensor, Road prevRoad, Road nextRoad, Direction dir){
         sensor.dir = TrafficMap.DIRECTION ? dir : oppositeDirOf(dir);
         sensor.prevRoad = prevRoad;
         sensor.nextRoad = nextRoad;
-        sensor.prevRoad.dir[sensor.prevRoad.dir[0] == UNKNOWN_DIR ? 0 : 1] = sensor.dir;
+        sensor.prevRoad.dir[sensor.prevRoad.dir[0] == Direction.UNKNOWN ? 0 : 1] = sensor.dir;
 
         sensor.prevRoad.adjSensors.put(sensor.dir, sensor);
         sensor.nextRoad.adjSensors.put(oppositeDirOf(sensor.nextRoad.numSections == 3 ? sensor.nextRoad.dir[0] : sensor.dir), sensor);
@@ -658,90 +661,90 @@ public class TrafficMap extends JPanel{
     }
 
     private static void setAdjRoads(){
-        crossroads[0].adjRoads.put(NORTH, streets[0]);
-        crossroads[0].adjRoads.put(SOUTH, streets[5]);
-        crossroads[0].adjRoads.put(WEST, streets[2]);
-        crossroads[0].adjRoads.put(EAST, streets[3]);
+        crossroads[0].adjRoads.put(Direction.NORTH, streets[0]);
+        crossroads[0].adjRoads.put(Direction.SOUTH, streets[5]);
+        crossroads[0].adjRoads.put(Direction.WEST, streets[2]);
+        crossroads[0].adjRoads.put(Direction.EAST, streets[3]);
 
-        crossroads[1].adjRoads.put(NORTH, streets[0]);
-        crossroads[1].adjRoads.put(SOUTH, streets[6]);
-        crossroads[1].adjRoads.put(WEST, streets[3]);
-        crossroads[1].adjRoads.put(EAST, streets[4]);
+        crossroads[1].adjRoads.put(Direction.NORTH, streets[0]);
+        crossroads[1].adjRoads.put(Direction.SOUTH, streets[6]);
+        crossroads[1].adjRoads.put(Direction.WEST, streets[3]);
+        crossroads[1].adjRoads.put(Direction.EAST, streets[4]);
 
-        crossroads[2].adjRoads.put(NORTH, streets[5]);
-        crossroads[2].adjRoads.put(SOUTH, streets[11]);
-        crossroads[2].adjRoads.put(WEST, streets[2]);
-        crossroads[2].adjRoads.put(EAST, streets[8]);
+        crossroads[2].adjRoads.put(Direction.NORTH, streets[5]);
+        crossroads[2].adjRoads.put(Direction.SOUTH, streets[11]);
+        crossroads[2].adjRoads.put(Direction.WEST, streets[2]);
+        crossroads[2].adjRoads.put(Direction.EAST, streets[8]);
 
-        crossroads[3].adjRoads.put(NORTH, streets[6]);
-        crossroads[3].adjRoads.put(SOUTH, streets[12]);
-        crossroads[3].adjRoads.put(WEST, streets[8]);
-        crossroads[3].adjRoads.put(EAST, streets[9]);
+        crossroads[3].adjRoads.put(Direction.NORTH, streets[6]);
+        crossroads[3].adjRoads.put(Direction.SOUTH, streets[12]);
+        crossroads[3].adjRoads.put(Direction.WEST, streets[8]);
+        crossroads[3].adjRoads.put(Direction.EAST, streets[9]);
 
-        crossroads[4].adjRoads.put(NORTH, streets[7]);
-        crossroads[4].adjRoads.put(SOUTH, streets[13]);
-        crossroads[4].adjRoads.put(WEST, streets[9]);
-        crossroads[4].adjRoads.put(EAST, streets[10]);
+        crossroads[4].adjRoads.put(Direction.NORTH, streets[7]);
+        crossroads[4].adjRoads.put(Direction.SOUTH, streets[13]);
+        crossroads[4].adjRoads.put(Direction.WEST, streets[9]);
+        crossroads[4].adjRoads.put(Direction.EAST, streets[10]);
 
-        crossroads[5].adjRoads.put(NORTH, streets[12]);
-        crossroads[5].adjRoads.put(SOUTH, streets[17]);
-        crossroads[5].adjRoads.put(WEST, streets[15]);
-        crossroads[5].adjRoads.put(EAST, streets[16]);
+        crossroads[5].adjRoads.put(Direction.NORTH, streets[12]);
+        crossroads[5].adjRoads.put(Direction.SOUTH, streets[17]);
+        crossroads[5].adjRoads.put(Direction.WEST, streets[15]);
+        crossroads[5].adjRoads.put(Direction.EAST, streets[16]);
 
-        crossroads[6].adjRoads.put(NORTH, streets[13]);
-        crossroads[6].adjRoads.put(SOUTH, streets[17]);
-        crossroads[6].adjRoads.put(WEST, streets[16]);
-        crossroads[6].adjRoads.put(EAST, streets[10]);
+        crossroads[6].adjRoads.put(Direction.NORTH, streets[13]);
+        crossroads[6].adjRoads.put(Direction.SOUTH, streets[17]);
+        crossroads[6].adjRoads.put(Direction.WEST, streets[16]);
+        crossroads[6].adjRoads.put(Direction.EAST, streets[10]);
 
         if(TrafficMap.DIRECTION){
-            streets[0].adjRoads.put(SOUTH, crossroads[1]);
-            streets[0].adjRoads.put(NORTH, crossroads[0]);
-            streets[2].adjRoads.put(EAST, crossroads[2]);
-            streets[2].adjRoads.put(WEST, crossroads[0]);
-            streets[10].adjRoads.put(WEST, crossroads[6]);
-            streets[10].adjRoads.put(EAST, crossroads[4]);
-            streets[17].adjRoads.put(NORTH, crossroads[6]);
-            streets[17].adjRoads.put(SOUTH, crossroads[5]);
+            streets[0].adjRoads.put(Direction.SOUTH, crossroads[1]);
+            streets[0].adjRoads.put(Direction.NORTH, crossroads[0]);
+            streets[2].adjRoads.put(Direction.EAST, crossroads[2]);
+            streets[2].adjRoads.put(Direction.WEST, crossroads[0]);
+            streets[10].adjRoads.put(Direction.WEST, crossroads[6]);
+            streets[10].adjRoads.put(Direction.EAST, crossroads[4]);
+            streets[17].adjRoads.put(Direction.NORTH, crossroads[6]);
+            streets[17].adjRoads.put(Direction.SOUTH, crossroads[5]);
         }
         else{
-            streets[0].adjRoads.put(SOUTH, crossroads[0]);
-            streets[0].adjRoads.put(NORTH, crossroads[1]);
-            streets[2].adjRoads.put(EAST, crossroads[0]);
-            streets[2].adjRoads.put(WEST, crossroads[2]);
-            streets[10].adjRoads.put(WEST, crossroads[4]);
-            streets[10].adjRoads.put(EAST, crossroads[6]);
-            streets[17].adjRoads.put(NORTH, crossroads[5]);
-            streets[17].adjRoads.put(SOUTH, crossroads[6]);
+            streets[0].adjRoads.put(Direction.SOUTH, crossroads[0]);
+            streets[0].adjRoads.put(Direction.NORTH, crossroads[1]);
+            streets[2].adjRoads.put(Direction.EAST, crossroads[0]);
+            streets[2].adjRoads.put(Direction.WEST, crossroads[2]);
+            streets[10].adjRoads.put(Direction.WEST, crossroads[4]);
+            streets[10].adjRoads.put(Direction.EAST, crossroads[6]);
+            streets[17].adjRoads.put(Direction.NORTH, crossroads[5]);
+            streets[17].adjRoads.put(Direction.SOUTH, crossroads[6]);
         }
 
-        streets[1].adjRoads.put(WEST, streets[4]);
-        streets[1].adjRoads.put(SOUTH, streets[7]);
-        streets[3].adjRoads.put(WEST, crossroads[0]);
-        streets[3].adjRoads.put(EAST, crossroads[1]);
-        streets[4].adjRoads.put(WEST, crossroads[1]);
-        streets[4].adjRoads.put(EAST, streets[1]);
-        streets[5].adjRoads.put(NORTH, crossroads[0]);
-        streets[5].adjRoads.put(SOUTH, crossroads[2]);
-        streets[6].adjRoads.put(NORTH, crossroads[1]);
-        streets[6].adjRoads.put(SOUTH, crossroads[3]);
-        streets[7].adjRoads.put(NORTH, streets[1]);
-        streets[7].adjRoads.put(SOUTH, crossroads[4]);
-        streets[8].adjRoads.put(WEST, crossroads[2]);
-        streets[8].adjRoads.put(EAST, crossroads[3]);
-        streets[9].adjRoads.put(WEST, crossroads[3]);
-        streets[9].adjRoads.put(EAST, crossroads[4]);
-        streets[11].adjRoads.put(NORTH, crossroads[2]);
-        streets[11].adjRoads.put(SOUTH, streets[14]);
-        streets[12].adjRoads.put(NORTH, crossroads[3]);
-        streets[12].adjRoads.put(SOUTH, crossroads[5]);
-        streets[13].adjRoads.put(NORTH, crossroads[4]);
-        streets[13].adjRoads.put(SOUTH, crossroads[6]);
-        streets[14].adjRoads.put(NORTH, streets[11]);
-        streets[14].adjRoads.put(EAST, streets[15]);
-        streets[15].adjRoads.put(WEST, streets[14]);
-        streets[15].adjRoads.put(EAST, crossroads[5]);
-        streets[16].adjRoads.put(WEST, crossroads[5]);
-        streets[16].adjRoads.put(EAST, crossroads[6]);
+        streets[1].adjRoads.put(Direction.WEST, streets[4]);
+        streets[1].adjRoads.put(Direction.SOUTH, streets[7]);
+        streets[3].adjRoads.put(Direction.WEST, crossroads[0]);
+        streets[3].adjRoads.put(Direction.EAST, crossroads[1]);
+        streets[4].adjRoads.put(Direction.WEST, crossroads[1]);
+        streets[4].adjRoads.put(Direction.EAST, streets[1]);
+        streets[5].adjRoads.put(Direction.NORTH, crossroads[0]);
+        streets[5].adjRoads.put(Direction.SOUTH, crossroads[2]);
+        streets[6].adjRoads.put(Direction.NORTH, crossroads[1]);
+        streets[6].adjRoads.put(Direction.SOUTH, crossroads[3]);
+        streets[7].adjRoads.put(Direction.NORTH, streets[1]);
+        streets[7].adjRoads.put(Direction.SOUTH, crossroads[4]);
+        streets[8].adjRoads.put(Direction.WEST, crossroads[2]);
+        streets[8].adjRoads.put(Direction.EAST, crossroads[3]);
+        streets[9].adjRoads.put(Direction.WEST, crossroads[3]);
+        streets[9].adjRoads.put(Direction.EAST, crossroads[4]);
+        streets[11].adjRoads.put(Direction.NORTH, crossroads[2]);
+        streets[11].adjRoads.put(Direction.SOUTH, streets[14]);
+        streets[12].adjRoads.put(Direction.NORTH, crossroads[3]);
+        streets[12].adjRoads.put(Direction.SOUTH, crossroads[5]);
+        streets[13].adjRoads.put(Direction.NORTH, crossroads[4]);
+        streets[13].adjRoads.put(Direction.SOUTH, crossroads[6]);
+        streets[14].adjRoads.put(Direction.NORTH, streets[11]);
+        streets[14].adjRoads.put(Direction.EAST, streets[15]);
+        streets[15].adjRoads.put(Direction.WEST, streets[14]);
+        streets[15].adjRoads.put(Direction.EAST, crossroads[5]);
+        streets[16].adjRoads.put(Direction.WEST, crossroads[5]);
+        streets[16].adjRoads.put(Direction.EAST, crossroads[6]);
 
         setAccess(crossroads[0], streets[3], streets[2], streets[5], streets[0]);
         setAccess(crossroads[1], streets[4], streets[3], streets[0], streets[6]);
@@ -922,22 +925,22 @@ public class TrafficMap extends JPanel{
                 sensor.icon.setEnabled(enable);
     }
 
-    public static int oppositeDirOf(int dir){
+    public static Direction oppositeDirOf(Direction dir){
         switch (dir) {
             case NORTH:
-                return SOUTH;
+                return Direction.SOUTH;
             case SOUTH:
-                return NORTH;
+                return Direction.NORTH;
             case WEST:
-                return EAST;
+                return Direction.EAST;
             case EAST:
-                return WEST;
+                return Direction.WEST;
             default:
-                return UNKNOWN_DIR;
+                return Direction.UNKNOWN;
         }
     }
 
-    public static String dirOf(int dir){
+    public static String dirOf(Direction dir){
         switch(dir){
             case NORTH:
                 return "North";
@@ -949,6 +952,21 @@ public class TrafficMap extends JPanel{
                 return "East";
             default:
                 return "Unknown";
+        }
+    }
+
+    public static Direction dirOf(int dir){
+        switch(dir){
+            case 0:
+                return Direction.NORTH;
+            case 1:
+                return Direction.SOUTH;
+            case 2:
+                return Direction.WEST;
+            case 3:
+                return Direction.EAST;
+            default:
+                return Direction.UNKNOWN;
         }
     }
 

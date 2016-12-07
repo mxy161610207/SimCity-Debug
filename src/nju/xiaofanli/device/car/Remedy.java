@@ -46,7 +46,7 @@ public class Remedy implements Runnable{
 								}
 								else {
 									car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
-									StateSwitcher.startRelocating(car, prevSensor, nextSensor);
+									StateSwitcher.startRelocating(car, nextSensor, false);
 								}
 							}
 						}

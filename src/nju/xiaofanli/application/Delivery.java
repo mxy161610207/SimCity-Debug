@@ -280,7 +280,7 @@ public class Delivery {
         }
     };
 	
-	private Road selectNearestRoad(Road start, int dir, Set<Road> roads){
+	private Road selectNearestRoad(Road start, TrafficMap.Direction dir, Set<Road> roads){
 		if(roads == null)
 			return null;
 		if(roads.contains(start))

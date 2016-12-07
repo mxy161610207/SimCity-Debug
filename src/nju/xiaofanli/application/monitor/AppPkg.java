@@ -1,5 +1,7 @@
 package nju.xiaofanli.application.monitor;
 
+import nju.xiaofanli.dashboard.TrafficMap;
+
 import java.io.Serializable;
 
 public class AppPkg implements Serializable{
@@ -42,10 +44,10 @@ public class AppPkg implements Serializable{
 	}
 
 	//car settings
-	public AppPkg setDir(String car, int dir) {
+	public AppPkg setDir(String car, TrafficMap.Direction dir) {
 		type = 1;
 		this.car = car;
-		this.dir = dir;
+		this.dir = dir.ordinal();
 		return this;
 	}
 
@@ -56,18 +58,18 @@ public class AppPkg implements Serializable{
 		return this;
 	}
 
-	public AppPkg setCar(String car, int dir, String loc) {
+	public AppPkg setCar(String car, TrafficMap.Direction dir, String loc) {
 		type = 3;
 		this.car = car;
-		this.dir = dir;
+		this.dir = dir.ordinal();
 		this.loc = loc;
 		return this;
 	}
 
-	public AppPkg setCar(String car, int dir, String loc, String dst) {
+	public AppPkg setCar(String car, TrafficMap.Direction dir, String loc, String dst) {
 		type = 4;
 		this.car = car;
-		this.dir = dir;
+		this.dir = dir.ordinal();
 		this.loc = loc;
 		this.dest = dst;
 		return this;

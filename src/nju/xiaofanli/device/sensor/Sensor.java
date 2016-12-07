@@ -6,6 +6,7 @@ import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.device.car.Car;
 
 import javax.swing.*;
@@ -27,7 +28,7 @@ public class Sensor {
     public Road prevRoad = null;
     public Sensor nextSensor = null;
     public Sensor prevSensor = null;
-    public int dir;
+    public TrafficMap.Direction dir;
     public int px, py;
     public JButton icon = null;
     public BalloonIcon balloon = null;
@@ -69,6 +70,10 @@ public class Sensor {
         else
 //			state = Sensor.INITIAL;
             state = UNDETECTED;
+    }
+
+    public TrafficMap.Direction getNextRoadDir() {
+        return nextRoad.dir[1] == TrafficMap.Direction.UNKNOWN ? nextRoad.dir[0] : dir;
     }
 
     private static class SensorIconListener extends MouseAdapter{

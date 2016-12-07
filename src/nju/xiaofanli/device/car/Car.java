@@ -33,7 +33,7 @@ public class Car {
     public int lastHornCmd = Command.HORN_OFF;
     private int availCmd = Command.MOVE_FORWARD; // available command
     public Road loc = null;
-	public int dir = TrafficMap.UNKNOWN_DIR;//0: N	1: S	2: W	3: E
+	public TrafficMap.Direction dir = TrafficMap.Direction.UNKNOWN;
 	public Delivery.DeliveryTask dt = null;
 	public Road dest = null;
 	public boolean isLoading = false;//loading or unloading
@@ -46,7 +46,7 @@ public class Car {
     public int timeout = Integer.MAX_VALUE;
 	
 	private Road realLoc = null;//if this car become a phantom, then this variable stores it's real location
-	private int realDir;
+	private TrafficMap.Direction realDir;
 
     private final String url;
     private StreamConnection conn = null;
@@ -80,7 +80,7 @@ public class Car {
         trend = STOPPED;
         lastHornCmd = Command.HORN_OFF;
         loc = null;
-		dir = TrafficMap.UNKNOWN_DIR;
+		dir = TrafficMap.Direction.UNKNOWN;
 		dt = null;
 		dest = null;
 		isLoading = false;
@@ -120,8 +120,8 @@ public class Car {
             return;
         firstEntry = false;
         loc = sensor.nextRoad;
-        if(dir == TrafficMap.UNKNOWN_DIR) {
-            dir = loc.dir[1] == TrafficMap.UNKNOWN_DIR ? loc.dir[0] : sensor.dir;
+        if(dir == TrafficMap.Direction.UNKNOWN) {
+            dir = sensor.getNextRoadDir();
             PkgHandler.send(new AppPkg().setDir(name, dir));
         }
         sensor.nextRoad.cars.add(this);
@@ -227,7 +227,7 @@ public class Car {
         }
     }
 	
-	public void enter(Road road, int dir){
+	public void enter(Road road, TrafficMap.Direction dir){
 		if(road == null || road == loc)
 			return;
 		notifyPolice(Police.BEFORE_ENTRY, road);
@@ -310,7 +310,7 @@ public class Car {
         resetRealInfo();
     }
 
-    public void setRealInfo(Road loc, int dir) {
+    public void setRealInfo(Road loc, TrafficMap.Direction dir) {
         realLoc.realCars.remove(this);
         realLoc.allRealCars.remove(this);
         realLoc.iconPanel.repaint();
@@ -334,7 +334,7 @@ public class Car {
             realLoc.realCars.remove(this);
             realLoc = null;
         }
-        realDir = TrafficMap.UNKNOWN_DIR;
+        realDir = TrafficMap.Direction.UNKNOWN;
     }
 
     public void setAvailCmd(int cmd) {
@@ -385,7 +385,7 @@ public class Car {
 		return TrafficMap.dirOf(getRealDir());
 	}
 	
-	public int getRealDir(){
+	public TrafficMap.Direction getRealDir(){
 		return !hasPhantom() ? dir : realDir;
 	}
 

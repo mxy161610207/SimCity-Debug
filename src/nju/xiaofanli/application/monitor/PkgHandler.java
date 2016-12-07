@@ -68,7 +68,7 @@ public class PkgHandler implements Runnable{
 //				Dashboard.setPushed(p.car, p.dir);
 				Car car = Car.carOf(p.car);
 				if(car != null)
-					car.dir = p.dir;
+					car.dir = TrafficMap.dirOf(p.dir);
 				break;
 			}
 			case 2:{
@@ -91,11 +91,11 @@ public class PkgHandler implements Runnable{
 					Car car = Car.carOf(p.car);
 					if(car != null){
 						if(road.cars.contains(car)){
-							car.dir = TrafficMap.UNKNOWN_DIR;
+							car.dir = TrafficMap.Direction.UNKNOWN;
 							car.leave(road, false);
 						}
 						else{
-							car.enter(road, p.dir);
+							car.enter(road, TrafficMap.dirOf(p.dir));
 						}
 					}
 				}
@@ -133,7 +133,7 @@ public class PkgHandler implements Runnable{
 			if(!car.isConnected())
 				continue;
 			if(car.loc == null)
-				oos.writeObject(new AppPkg().setCar(car.name, -1, null));
+				oos.writeObject(new AppPkg().setCar(car.name, TrafficMap.Direction.UNKNOWN, null));
 			else
 				oos.writeObject(new AppPkg().setCar(car.name, car.dir, car.loc.name));
 		} 

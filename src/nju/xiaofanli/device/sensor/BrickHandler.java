@@ -63,7 +63,7 @@ public class BrickHandler extends Thread{
                     }
 
                     if (isRealCar) { //real car entered
-                        car.setRealInfo(sensor.nextRoad, sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
+                        car.setRealInfo(sensor.nextRoad, sensor.getNextRoadDir());
                         break;
                     }
                 }
@@ -78,7 +78,7 @@ public class BrickHandler extends Thread{
 
                 System.out.println("["+sensor.name+"] DETECT "+car.name);
 
-                car.enter(sensor.nextRoad, sensor.nextRoad.dir[1] == TrafficMap.UNKNOWN_DIR ? sensor.nextRoad.dir[0] : sensor.dir);
+                car.enter(sensor.nextRoad, sensor.getNextRoadDir());
 
                 Remedy.updateRemedyQWhenDetect(car);
 
@@ -123,7 +123,7 @@ public class BrickHandler extends Thread{
             case Sensor.UNDETECTED:
                 if(sensor.entryDetected(reading)){
                     Car car = null;
-                    int dir = TrafficMap.UNKNOWN_DIR;
+                    TrafficMap.Direction dir = TrafficMap.Direction.UNKNOWN;
                     boolean isRealCar = false;
                     //check real cars first
                     for(Car realCar : sensor.prevRoad.realCars){
@@ -179,8 +179,7 @@ public class BrickHandler extends Thread{
                                         iter.remove(); // remove all raw data of the same sensor, make sure not trigger relocation repeatedly
                                 }
                             }
-//                            StateSwitcher.startRelocating(car, sensor);
-                            StateSwitcher.startRelocating(car, prevPrevSensor, prevSensor);
+                            StateSwitcher.startRelocating(car, prevSensor, true);
                             break;
                         }
                     }

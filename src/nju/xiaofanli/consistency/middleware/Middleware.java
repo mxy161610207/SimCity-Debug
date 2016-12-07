@@ -124,23 +124,23 @@ public class Middleware {
                     sensor.showBalloon(Context.FP, car.name, resolutionEnabled);
                     if (resolutionEnabled) {
                         List<Pair<String, Style>> strings = new ArrayList<>();
-                        strings.add(new Pair<>("False positive resolved: ", null));
+                        strings.add(new Pair<>("A false positive (", null));
                         strings.add(new Pair<>(sensor.name, Resource.getTextStyle(Resource.LIGHT_SKY_BLUE)));
                         strings.add(new Pair<>(" detects ", null));
                         strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-                        strings.add(new Pair<>(".\n", null));
+                        strings.add(new Pair<>(") is resolved.\n", null));
                         Dashboard.log(strings);
                     }
                 }
                 if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)
                     BrickHandler.switchState(car, sensor, isRealCar, false);
                 break;
-            case Context.FN:
-                if (detectionEnabled)
-                    sensor.showBalloon(Context.FN, car.name, resolutionEnabled);
-                if (resolutionEnabled || !detectionEnabled && !resolutionEnabled) //if (resolutionEnabled)
-                    BrickHandler.switchState(car, sensor, isRealCar, true);
-                break;
+//            case Context.FN:
+//                if (detectionEnabled)
+//                    sensor.showBalloon(Context.FN, car.name, resolutionEnabled);
+//                if (resolutionEnabled || !detectionEnabled && !resolutionEnabled) //if (resolutionEnabled)
+//                    BrickHandler.switchState(car, sensor, isRealCar, true);
+//                break;
         }
 //        display();
     }
