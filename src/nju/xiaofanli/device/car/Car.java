@@ -230,8 +230,8 @@ public class Car {
 	public void enter(Road road, TrafficMap.Direction dir){
 		if(road == null || road == loc)
 			return;
-		notifyPolice(Police.BEFORE_ENTRY, road);
 		leave(loc, true);
+        notifyPolice(Police.BEFORE_ENTRY, road);
         loc = road;
 		loc.cars.add(this);
         this.dir = dir;

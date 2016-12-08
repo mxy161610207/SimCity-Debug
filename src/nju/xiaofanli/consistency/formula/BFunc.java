@@ -90,8 +90,8 @@ public class BFunc extends Formula {
 //    	if (v1 == null || v2 == null)
 //    		return false;
     	
-    	//two contexts of one car occurring less than 300ms will be considered same lastRecvTime
-		return Math.abs(v1 - v2) < 300;
+    	//two contexts of one car occurring less than 200ms will be considered same lastRecvTime
+		return Math.abs(v1 - v2) < 200;
 	}
 
 	private boolean funcStillState(HashMap<String, Context> var) {

@@ -51,10 +51,10 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void switchState(Car car, Sensor sensor, boolean isRealCar, boolean isCtxTrue){
+    public static void switchState(Car car, Sensor sensor, boolean isRealCar, boolean isTrueCtx, boolean triggerSth) {
         switch(sensor.state){
             case Sensor.UNDETECTED:{
-                if(isCtxTrue){
+                if(isTrueCtx){
                     sensor.state = Sensor.DETECTED;
                     sensor.car = car;
                     if(sensor.prevSensor.state == Sensor.DETECTED && sensor.prevSensor.car == car){
@@ -77,29 +77,22 @@ public class BrickHandler extends Thread{
                 }
 
                 System.out.println("["+sensor.name+"] DETECT "+car.name);
-
                 car.enter(sensor.nextRoad, sensor.getNextRoadDir());
-
                 Remedy.updateRemedyQWhenDetect(car);
-
-                //do triggered stuff
-                if(car.dest != null){
-                    if(car.dest == car.loc){
+                if (triggerSth) { //do triggered stuff
+                    if (car.dest == car.loc) {
                         car.notifyPolice(Police.REQUEST2STOP);
                         //trigger reach dest event
-                        if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
+                        if (EventManager.hasListener(Event.Type.CAR_REACH_DEST))
                             EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
                     }
-                    else {
+                    else
                         car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
-                    }
-                }
-                else
-                    car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
 
-                //trigger context
-                if(ContextManager.hasListener())
-                    ContextManager.trigger(new Context(""+sensor.bid+(sensor.sid+1), car.name, car.getDirStr()));
+                    //trigger context
+                    if (ContextManager.hasListener())
+                        ContextManager.trigger(new Context(sensor.name, car.name, car.getDirStr()));
+                }
             }
             break;
         }
@@ -186,7 +179,7 @@ public class BrickHandler extends Thread{
                     System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + time);
 
                     Middleware.checkConsistency(car.name, dir, car.state, "movement", "enter", sensor.prevRoad.name,
-                            sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, time, car, sensor, isRealCar);
+                            sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, time, car, sensor, isRealCar, true);
                 }
                 break;
         }
@@ -217,7 +210,7 @@ public class BrickHandler extends Thread{
 
     /**
      * In suspension phase, all readings will be discarded.
-     * In relocation phase, all readings except those from interested sensors will also be discarded.
+     * In relocation phase, all readings except those from interested sensors will be discarded.
      */
     public static void insert(Sensor sensor, int reading, long time) {
         if (sensor == null)

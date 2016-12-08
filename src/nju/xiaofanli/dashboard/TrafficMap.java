@@ -117,11 +117,29 @@ public class TrafficMap extends JPanel{
         initSensors();
         initBuildings();
 
+        roads.values().forEach(road -> {
+            road.isStraight.put(road.dir[0], true);
+            if (road.dir[1] != Direction.UNKNOWN)
+                road.isStraight.put(road.dir[1], true);
+        });
+        streets[0].isStraight.put(streets[0].dir[0], false);
+        streets[1].isStraight.put(streets[1].dir[0], false);
+        streets[10].isStraight.put(streets[10].dir[0], false);
+        streets[14].isStraight.put(streets[14].dir[0], false);
+        crossroads[0].isStraight.put(Direction.WEST, false); //horizontal
+        crossroads[0].isStraight.put(Direction.EAST, false); //horizontal
+        crossroads[2].isStraight.put(Direction.WEST, false); //horizontal
+        crossroads[2].isStraight.put(Direction.EAST, false); //horizontal
+        crossroads[5].isStraight.put(Direction.NORTH, false); //vertical
+        crossroads[5].isStraight.put(Direction.SOUTH, false); //vertical
+        crossroads[6].isStraight.put(Direction.NORTH, false); //vertical
+        crossroads[6].isStraight.put(Direction.SOUTH, false); //vertical
+
         for (Sensor[] array : sensors) {
             for (Sensor sensor : array) {
                 add(sensor.icon);
                 Resource.timeouts.get(sensor.name).forEach((car, time) -> {
-                    Direction direction = sensor.nextRoad.dir[1] == Direction.UNKNOWN ? sensor.nextRoad.dir[0] : sensor.dir;
+                    Direction direction = sensor.getNextRoadDir();
                     if (!sensor.nextRoad.timeouts.containsKey(direction))
                         sensor.nextRoad.timeouts.put(direction, new HashMap<>());
                     sensor.nextRoad.timeouts.get(direction).put(car, (int) (time * 1.5));

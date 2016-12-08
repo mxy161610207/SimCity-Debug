@@ -108,6 +108,8 @@ public class Police implements Runnable{
 						break;
 					case BEFORE_ENTRY:
 						r.requested.removeWaitingCar(r.car);
+//						if (r.requested.permitted == null)
+//							r.requested.permitted = r.car;
 						break;
 					case AFTER_ENTRY:
 						r.requested.removeWaitingCar(r.car);

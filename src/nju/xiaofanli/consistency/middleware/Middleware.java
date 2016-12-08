@@ -99,14 +99,15 @@ public class Middleware {
     }
 
     public static void checkConsistency(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
-                                        Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
-        checkConsistency(getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar));
+                                        Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar, boolean triggerSth) {
+        checkConsistency(getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar, triggerSth));
     }
 
     public static void checkConsistency(Context context) {
         Car car = (Car) context.getFields().get("car");
         Sensor sensor = (Sensor) context.getFields().get("sensor");
         boolean isRealCar = (boolean) context.getFields().get("real");
+        boolean triggerSth = (boolean) context.getFields().get("trigger");
 
         Map<String, List<ContextChange>> changes = getChanges(context);
         // check consistency
@@ -117,7 +118,7 @@ public class Middleware {
         // update cars' and sensors' states
         switch (res.first) {
             case Context.Normal:
-                BrickHandler.switchState(car, sensor, isRealCar, true);
+                BrickHandler.switchState(car, sensor, isRealCar, true, triggerSth);
                 break;
             case Context.FP:
                 if (detectionEnabled) {
@@ -133,7 +134,7 @@ public class Middleware {
                     }
                 }
                 if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)
-                    BrickHandler.switchState(car, sensor, isRealCar, false);
+                    BrickHandler.switchState(car, sensor, isRealCar, false, triggerSth);
                 break;
 //            case Context.FN:
 //                if (detectionEnabled)
@@ -146,7 +147,7 @@ public class Middleware {
     }
 
     public static Context getContext(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
-                                     Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+                                     Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar, boolean triggerSth) {
         Context context = new Context();
         context.addField("subject", subject);
         context.addField("direction", direction);
@@ -160,6 +161,7 @@ public class Middleware {
         context.addField("car", car);
         context.addField("sensor", sensor);
         context.addField("real", isRealCar);
+        context.addField("trigger", triggerSth);
         return context;
     }
 
@@ -184,10 +186,10 @@ public class Middleware {
     }
 
     public static void add(Object subject, Object direction, Object state, Object category, Object predicate, Object prev,
-                           Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar) {
+                           Object object, Object next, Object timestamp, Car car, Sensor sensor, boolean isRealCar, boolean triggerSth) {
         if(StateSwitcher.isResetting())
             return;
-        Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar);
+        Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, isRealCar, triggerSth);
         synchronized (queue) {
             queue.add(context);
             queue.notify();
@@ -199,7 +201,7 @@ public class Middleware {
      */
     public static void addInitialContext(Object subject, Object direction, Object state, Object category, Object predicate,
                                          Object prev, Object object, Object next, Object timestamp, Car car, Sensor sensor) {
-        Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, false);
+        Context context = getContext(subject, direction, state, category, predicate, prev, object, next, timestamp, car, sensor, false, true);
         Map<String, List<ContextChange>> changes = getChanges(context);
         Operation.operate(changes, resolutionStrategy);
 //        display();
@@ -247,7 +249,8 @@ public class Middleware {
         while(!list.isEmpty()){
             String testCase = list.poll();
             String[] s = testCase.split(", ");
-            add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], s[7], Long.parseLong(s[8]), null, null, false);
+            add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], s[6], s[7], Long.parseLong(s[8]),
+                    null, null, false, true);
         }
     }
 
