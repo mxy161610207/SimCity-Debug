@@ -32,8 +32,8 @@ public class Police implements Runnable{
 		StateSwitcher.register(thread);
 		//noinspection InfiniteLoopStatement
 		while(true){
-			while(req.isEmpty() || !StateSwitcher.isNormal()){
-				synchronized (req) {
+			synchronized (req) {
+				 while(req.isEmpty() || !StateSwitcher.isNormal()) {
 					try {
 						req.wait();
 					} catch (InterruptedException e) {

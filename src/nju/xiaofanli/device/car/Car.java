@@ -245,8 +245,8 @@ public class Car {
             if(EventManager.hasListener(Event.Type.CAR_MOVE))
                 EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
         }
-        if(getLoading())
-            setLoading(false);
+
+        setLoading(false);
 		notifyPolice(Police.AFTER_ENTRY, road);
         if (hasPhantom() && loc == realLoc && dir == realDir) {
             resetRealInfo();
@@ -286,11 +286,13 @@ public class Car {
 			EventManager.trigger(new Event(Event.Type.CAR_LEAVE, name, road.name));
 	}
 	
-	public void setLoading(boolean loading){
-		isLoading = loading;
-		if(loc == null)
-			return;
-		loc.iconPanel.repaint();
+	public void setLoading(boolean loading) {
+	    if (getLoading() != loading) {
+            isLoading = loading;
+            if (loc == null)
+                return;
+            loc.iconPanel.repaint();
+        }
 	}
 
 	public boolean getLoading() {
@@ -301,13 +303,6 @@ public class Car {
         loc.realCars.add(this);
         realLoc = loc;
         realDir = dir;
-    }
-
-    public void loadRealInfo(){
-        leave(loc, false);
-        loc = realLoc;
-        dir = realDir;
-        resetRealInfo();
     }
 
     public void setRealInfo(Road loc, TrafficMap.Direction dir) {

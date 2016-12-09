@@ -73,8 +73,8 @@ public class Middleware {
         StateSwitcher.register(thread);
         //noinspection InfiniteLoopStatement
         while(true){
-            while(queue.isEmpty() || !StateSwitcher.isNormal()){
-                synchronized (queue) {
+            synchronized (queue) {
+                while(queue.isEmpty() || !StateSwitcher.isNormal()) {
                     try {
                         queue.wait();
                     } catch (InterruptedException e) {

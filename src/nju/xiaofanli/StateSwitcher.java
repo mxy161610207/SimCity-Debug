@@ -309,7 +309,7 @@ public class StateSwitcher {
                 interruptAll(); //must invoked after state changed back, drive all threads away from safe points
                 if (prevState == State.RESET || prevState == State.RELOCATE) {
                     synchronized (SUSPEND_OBJ) {
-                        SUSPEND_OBJ.notify();
+                        SUSPEND_OBJ.notifyAll();
                     }
                 }
                 movingCars.clear();
@@ -351,7 +351,7 @@ public class StateSwitcher {
         private static Car car2relocate = null;
         private static Sensor locatedSensor = null;
         private static final Set<Car> movingCars = new HashSet<>(), whistlingCars = new HashSet<>();
-        private static boolean isPreserved = false, isInterested = false;
+        private static boolean isPreserved = false, isInterested = false, areAllCarsStopped = false;
         private static final Set<Sensor> interestedSensors = new HashSet<>();
 
         private Relocation(){}
@@ -360,8 +360,9 @@ public class StateSwitcher {
             setName("Relocation Thread");
             //noinspection InfiniteLoopStatement
             while (true) {
-                while (queue.isEmpty() || isSuspending()) {
-                    if (queue.isEmpty() && isPreserved && !isSuspending()) {
+                while (queue.isEmpty()) {
+                    if (isPreserved) {
+                        checkIfSuspended();
                         isPreserved = false;
                         cars2relocate.clear();
                         movingCars.forEach(Command::drive);
@@ -373,9 +374,11 @@ public class StateSwitcher {
                         setState(StateSwitcher.State.NORMAL);
                         interruptAll();
                     }
+
                     try {
                         synchronized (queue) {
-                            queue.wait();
+                            if (queue.isEmpty())
+                                queue.wait();
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -383,25 +386,35 @@ public class StateSwitcher {
                 }
                 checkIfSuspended();
 
-                if (!isPreserved) {
-                    isPreserved = true;
-                    setState(StateSwitcher.State.RELOCATE);
-                    for (Car car : Resource.getConnectedCars()) {
-                        if (car.trend == Car.MOVING)
-                            movingCars.add(car);
-                        Command.stop(car);
-                        if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
-                            whistlingCars.add(car);
-                        Command.silence(car);
-                    }
-                    Dashboard.enableCtrlUI(false);
+//                if (!isPreserved) {
+//                    isPreserved = true;
+//                    setState(StateSwitcher.State.RELOCATE);
+//                    for (Car car : Resource.getConnectedCars()) {
+//                        if (car.trend == Car.MOVING)
+//                            movingCars.add(car);
+//                        Command.stop(car);
+//                        if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
+//                            whistlingCars.add(car);
+//                        Command.silence(car);
+//                    }
+//                    Dashboard.enableCtrlUI(false);
+//                    try {
+//                        Thread.sleep(1000); // wait for all cars to stop
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    checkIfSuspended();
+//                }
+                if (!areAllCarsStopped) {
                     try {
                         Thread.sleep(1000); // wait for all cars to stop
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    areAllCarsStopped = true;
                     checkIfSuspended();
                 }
+
 
                 Request r;
                 synchronized (queue) {
@@ -410,40 +423,17 @@ public class StateSwitcher {
                 if (r == null || r.car2relocate == null || r.sensor == null)
                     continue;
 
-                if (r.detected) {
-                    Sensor nextNextSensor = r.sensor.nextSensor;
-                    Road nextNextRoad = nextNextSensor.nextRoad;
-                    while (!nextNextRoad.allRealCars.isEmpty()) {
-                        Car car1 = nextNextRoad.allRealCars.peek();
-                        forwardRelocateRecursively(car1, nextNextRoad.adjSensors.get(car1.getRealDir()));
-                        if (!nextNextRoad.allRealCars.isEmpty())
-                            System.err.println("There still is/are car(s) at " + nextNextRoad.name + " in front of the relocated car " + car1.name);
-                    }
-                    //directly relocate the car to the next next road
-                    //enter next road
-                    r.sensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(r.car2relocate.name, r.car2relocate.getRealDir(), Car.MOVING, "movement", "enter",
-                            r.sensor.prevRoad.name, r.sensor.nextRoad.name, nextNextRoad.name,
-                            System.currentTimeMillis()-400, r.car2relocate, r.sensor, r.car2relocate.hasPhantom(), false);
-                    //enter next next road
-                    nextNextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(r.car2relocate.name, r.car2relocate.getRealDir(), Car.MOVING, "movement", "enter",
-                            r.sensor.nextRoad.name, nextNextRoad.name, nextNextSensor.nextSensor.nextRoad.name,
-                            System.currentTimeMillis(), r.car2relocate, nextNextSensor, r.car2relocate.hasPhantom(), true);
+                if (r.sensor.nextRoad.isStraight.get(r.sensor.getNextRoadDir())
+                        && r.sensor.prevRoad.isStraight.get(r.sensor.prevSensor.getNextRoadDir())) { //if both roads are straight, use backward relocation
+                    backwardRelocate(r.car2relocate, r.sensor);
                 }
-                else {
-                    if (r.sensor.nextRoad.isStraight.get(r.sensor.getNextRoadDir())
-                            && r.sensor.prevRoad.isStraight.get(r.sensor.prevSensor.getNextRoadDir())) { //if both roads are straight, use backward relocation
-                        backwardRelocate(r.car2relocate, r.sensor);
-                    }
-                    else { //if either one is curved, use forward relocation
-                        forwardRelocateRecursively(r.car2relocate, r.sensor, true);
-                    }
+                else { //if either one is curved, use forward relocation
+                    forwardRelocateRecursively(r.car2relocate, r.sensor, true, r.detected);
                 }
             }
         }
 
-        private static void forwardRelocateRecursively(Car car, Sensor sensor, boolean knownLost) {
+        private static void forwardRelocateRecursively(Car car, Sensor sensor, boolean knownLost, boolean detectedByNextNextSensor) {
             checkIfSuspended();
             Road nextRoad = sensor.nextRoad;
             while (!nextRoad.allRealCars.isEmpty()) {
@@ -466,13 +456,26 @@ public class StateSwitcher {
                 }
             }
 
+            Sensor nextNextSensor = sensor.nextSensor;
+            Sensor nextNextNextSensor = sensor.nextSensor.nextSensor;
+            Road nextNextRoad = nextNextSensor.nextRoad;
+            Road nextNextNextRoad = nextNextNextSensor.nextRoad;
+
             if (knownLost) {
-                Road nextNextRoad = sensor.nextSensor.nextRoad;
                 while (!nextNextRoad.allRealCars.isEmpty()) {
                     Car car1 = nextNextRoad.allRealCars.peek();
                     forwardRelocateRecursively(car1, nextNextRoad.adjSensors.get(car1.getRealDir()));
                     if (!nextNextRoad.allRealCars.isEmpty())
                         System.err.println("There still is/are car(s) at " + nextNextRoad.name);
+                }
+            }
+
+            if (detectedByNextNextSensor) {
+                while (!nextNextNextRoad.allRealCars.isEmpty()) {
+                    Car car1 = nextNextNextRoad.allRealCars.peek();
+                    forwardRelocateRecursively(car1, nextNextNextRoad.adjSensors.get(car1.getRealDir()));
+                    if (!nextNextNextRoad.allRealCars.isEmpty())
+                        System.err.println("2There still is/are car(s) at " + nextNextNextRoad.name);
                 }
             }
 
@@ -486,7 +489,9 @@ public class StateSwitcher {
             interestedSensors.clear();
             interestedSensors.add(sensor);
             if (knownLost)
-                interestedSensors.add(sensor.nextSensor);
+                interestedSensors.add(nextNextSensor);
+            if (detectedByNextNextSensor)
+                interestedSensors.add(nextNextNextSensor);
             isInterested = true;
             Command.drive(car);
             if (locatedSensor == null) {
@@ -521,20 +526,37 @@ public class StateSwitcher {
                     sensor.state = Sensor.UNDETECTED;
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
-                            sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
+                            sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
                 }
-                else {
+                else if (locatedSensor == sensor.nextSensor) {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
-                            sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
+                            sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis()-400, car, sensor, car.hasPhantom(), false);
                     //enter next next road
                     sensor.nextSensor.state = Sensor.UNDETECTED;
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
-                            sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, sensor.nextSensor.nextSensor.nextRoad.name,
-                            System.currentTimeMillis(), car, sensor.nextSensor, car.hasPhantom(), true);
+                            nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
+                            System.currentTimeMillis(), car, nextNextSensor, car.hasPhantom(), true);
+                }
+                else if (locatedSensor == sensor.nextSensor.nextSensor) {
+                    //enter next road
+                    sensor.state = Sensor.UNDETECTED;
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                            sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
+                            System.currentTimeMillis()-800, car, sensor, car.hasPhantom(), false);
+                    //enter next next road
+                    sensor.nextSensor.state = Sensor.UNDETECTED;
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                            nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
+                            System.currentTimeMillis()-400, car, nextNextSensor, car.hasPhantom(), false);
+                    //enter next next next road
+                    sensor.nextSensor.nextSensor.state = Sensor.UNDETECTED;
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                            nextNextRoad.name, nextNextNextRoad.name, nextNextNextSensor.nextSensor.nextRoad.name,
+                            System.currentTimeMillis(), car, nextNextNextSensor, car.hasPhantom(), true);
                 }
             }
             car2relocate = null;
@@ -542,7 +564,7 @@ public class StateSwitcher {
         }
 
         private static void forwardRelocateRecursively(Car car, Sensor sensor) {
-            forwardRelocateRecursively(car, sensor, false);
+            forwardRelocateRecursively(car, sensor, false, false);
         }
 
         private static void backwardRelocate(Car car, Sensor sensor) {
@@ -587,7 +609,7 @@ public class StateSwitcher {
                     sensor.state = Sensor.UNDETECTED;
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
-                            sensor.prevSensor.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
+                            sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                             System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
                 }
                 else {
@@ -628,8 +650,24 @@ public class StateSwitcher {
                         return;
                     cars2relocate.add(car2relocate);
                 }
+
+                if (!isPreserved) {
+                    isPreserved = true;
+                    setState(StateSwitcher.State.RELOCATE);
+                    for (Car car : Resource.getConnectedCars()) {
+                        if (car.trend == Car.MOVING)
+                            movingCars.add(car);
+                        Command.stop(car);
+                        if (car.lastHornCmd == Command.HORN_ON && car.isHornOn)
+                            whistlingCars.add(car);
+                        Command.silence(car);
+                    }
+                    areAllCarsStopped = false;
+                    Dashboard.enableCtrlUI(false);
+                }
+
                 queue.add(new Request(car2relocate, sensor, detected));
-                queue.notify();
+                queue.notifyAll();
             }
         }
 

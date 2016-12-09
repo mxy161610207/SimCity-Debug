@@ -14,6 +14,7 @@ import javax.swing.text.Style;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.Queue;
 
 public class Delivery {
 	public static final Queue<DeliveryTask> searchTasks = new LinkedList<>();
@@ -38,16 +39,17 @@ public class Delivery {
 			StateSwitcher.register(thread);
 			//noinspection InfiniteLoopStatement
 			while(true){
-				while(searchTasks.isEmpty() || allBusy || !StateSwitcher.isNormal())
-					synchronized (searchTasks) {
-						try {
-							searchTasks.wait();
-						} catch (InterruptedException e) {
+                synchronized (searchTasks) {
+                    while(searchTasks.isEmpty() || allBusy || !StateSwitcher.isNormal()) {
+                        try {
+                            searchTasks.wait();
+                        } catch (InterruptedException e) {
 //							e.printStackTrace();
-							if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
-								clearSearchTasks();
-						}
-					}
+                            if (StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
+                                clearSearchTasks();
+                        }
+                    }
+                }
 				DeliveryTask dt;
 				Car car;
 				Result res = null;
@@ -88,10 +90,8 @@ public class Delivery {
 					if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
 						EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
 				}
-				else{
-//					car.finalState = Car.MOVING;
+				else
 					car.notifyPolice(Police.REQUEST2ENTER);
-				}
 					
 				if(!StateSwitcher.isResetting()){
 					synchronized (deliveryTasks) {
@@ -158,16 +158,17 @@ public class Delivery {
         StateSwitcher.register(thread);
 		//noinspection InfiniteLoopStatement
 		while(true){
-            while(deliveryTasks.isEmpty() || !StateSwitcher.isNormal())
-                synchronized (deliveryTasks) {
+            synchronized (deliveryTasks) {
+                while(deliveryTasks.isEmpty() || !StateSwitcher.isNormal()) {
                     try {
                         deliveryTasks.wait();
                     } catch (InterruptedException e) {
 //							e.printStackTrace();
-                        if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
+                        if (StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
                             clearDeliveryTasks();
                     }
                 }
+            }
 
             synchronized (deliveryTasks) {
                 for(Iterator<DeliveryTask> iter = deliveryTasks.iterator();iter.hasNext();){

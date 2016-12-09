@@ -64,8 +64,8 @@ public class EventManager {
 			StateSwitcher.register(thread);
 			//noinspection InfiniteLoopStatement
 			while(true){
-				while(queue.isEmpty() || !StateSwitcher.isNormal()){
-					synchronized (queue) {
+				synchronized (queue) {
+					while(queue.isEmpty() || !StateSwitcher.isNormal()) {
 						try {
 							queue.wait();
 						} catch (InterruptedException e) {
@@ -75,11 +75,6 @@ public class EventManager {
 						}
 					}
 				}
-//				if(StateSwitcher.isResetting()){
-//					if(!StateSwitcher.isThreadReset(thread))
-//						clear();
-//					continue;
-//				}
 				
 				Event event;
 				synchronized (queue) {

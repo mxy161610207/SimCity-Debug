@@ -40,8 +40,8 @@ public class PkgHandler implements Runnable{
 		StateSwitcher.register(thread);
 		//noinspection InfiniteLoopStatement
 		while(true){
-			while(queue.isEmpty() || !StateSwitcher.isNormal()){
-				synchronized (queue) {
+			synchronized (queue) {
+				while(queue.isEmpty() || !StateSwitcher.isNormal()) {
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {
@@ -51,17 +51,13 @@ public class PkgHandler implements Runnable{
 					}
 				}
 			}
-//			if(StateSwitcher.isResetting()){
-//				if(!StateSwitcher.isThreadReset(thread))
-//					clear();
-//				continue;
-//			}
+
 			AppPkg p;
 			synchronized (queue) {
 				p = queue.poll();
-				if(p == null)
-					continue;
 			}
+			if(p == null)
+				continue;
 			
 			switch(p.type){
 			case 1:{
@@ -165,10 +161,10 @@ public class PkgHandler implements Runnable{
 			StateSwitcher.register(thread);
 			//noinspection InfiniteLoopStatement
 			while(true){
-				while(sockets.isEmpty()){
-					clear();
-					//noinspection SynchronizeOnNonFinalField
-					synchronized (sockets) {
+				//noinspection SynchronizeOnNonFinalField
+				synchronized (sockets) {
+					while(sockets.isEmpty()) {
+						clear();
 						try {
 							sockets.wait();
 						} catch (InterruptedException e) {

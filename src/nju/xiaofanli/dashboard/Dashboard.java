@@ -591,7 +591,7 @@ public class Dashboard extends JFrame{
                 for(Sensor s : array)
                     s.icon.setVisible(showSensor);
         });
-//        jchkSensor.doClick();
+        jchkSensor.doClick();
 
         jchkBalloon.addActionListener(e -> {
             showError = jchkBalloon.isSelected();

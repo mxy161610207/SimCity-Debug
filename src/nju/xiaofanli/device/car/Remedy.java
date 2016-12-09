@@ -4,6 +4,7 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
@@ -27,44 +28,7 @@ public class Remedy implements Runnable{
             }
         };
 
-        Runnable countdownThread = () -> {
-			long start = System.currentTimeMillis();
-			//noinspection InfiniteLoopStatement
-			while (true) {
-				if (StateSwitcher.isNormal()) {
-					int elapsed = (int) (System.currentTimeMillis() - start);
-					start = System.currentTimeMillis();
-					Resource.getConnectedCars().forEach(car -> {
-						if (car.trend == Car.MOVING) {
-//							System.out.println(car.name + " " + car.timeout);
-							car.timeout -= elapsed;
-							if (car.timeout < 0) {
-								Sensor nextSensor = car.getRealLoc().adjSensors.get(car.getRealDir());
-								Sensor prevSensor = nextSensor.prevSensor;
-								if (prevSensor.state == Sensor.DETECTED && prevSensor.car == car) {
-									car.timeout = car.getRealLoc().timeouts.get(car.getRealDir()).get(car.name); // reset timeout
-								}
-								else {
-									car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
-									StateSwitcher.startRelocating(car, nextSensor, false);
-								}
-							}
-						}
-					});
-				}
-				else
-					start = System.currentTimeMillis();
-
-				try {
-					Thread.sleep(30);
-				} catch (InterruptedException e) {
-//					e.printStackTrace();
-				}
-			}
-		};
-
         new Thread(wakeThread, "Wake Thread").start();
-//		new Thread(countdownThread, "Countdown Thread").start(); //TODO enable timeout
 	}
 	
 	public void run() {
@@ -72,8 +36,8 @@ public class Remedy implements Runnable{
 		StateSwitcher.register(thread);
 		//noinspection InfiniteLoopStatement
 		while(true){
-			while(queue.isEmpty() || !StateSwitcher.isNormal()){
-				synchronized (queue) {
+			synchronized (queue) {
+				while(queue.isEmpty() || !StateSwitcher.isNormal()) {
 					try {
 						queue.wait();
 					} catch (InterruptedException e) {

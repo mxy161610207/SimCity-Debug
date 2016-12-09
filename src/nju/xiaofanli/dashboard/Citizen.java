@@ -72,8 +72,8 @@ public class Citizen implements Runnable {
     }
 
     public void setAction(Action action){
-        this.action = action;
-        synchronized (this){
+        synchronized (this) {
+            this.action = action;
             this.notify();
         }
     }
@@ -94,19 +94,20 @@ public class Citizen implements Runnable {
             count[i] = 0;
         //noinspection InfiniteLoopStatement
         while(true){
-            while(action == null || !StateSwitcher.isNormal())
-                synchronized (this) {
+            synchronized (this) {
+                 while(action == null || !StateSwitcher.isNormal()) {
                     try {
                         this.wait();
                     } catch (InterruptedException e) {
 //                        e.printStackTrace();
-                        if(StateSwitcher.isResetting()) {
+                        if (StateSwitcher.isResetting()) {
                             StateSwitcher.unregister(thread);
                             reset();
                             return;
                         }
                     }
                 }
+            }
             if(action == null)
                 continue;
 

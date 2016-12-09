@@ -19,9 +19,51 @@ import java.util.*;
 
 public class BrickHandler extends Thread{
     private static final List<RawData> rawData = new LinkedList<>();
+    private static final Set<Sensor> sensors2handle = new HashSet<>();
 
     BrickHandler(String name) {
         super(name);
+
+        Runnable countdownThread = () -> {
+            long start = System.currentTimeMillis();
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                if (StateSwitcher.isNormal()) {
+                    int elapsed = (int) (System.currentTimeMillis() - start);
+                    start = System.currentTimeMillis();
+                    for (Car car : Resource.getConnectedCars()) {
+                        if (car.trend == Car.STOPPED)
+                            continue;
+//						System.out.println(car.name + " " + car.timeout);
+                        car.timeout -= elapsed;
+                        if (car.timeout < 0) {
+                            Sensor nextSensor = car.getRealLoc().adjSensors.get(car.getRealDir());
+                            Sensor prevSensor = nextSensor.prevSensor;
+
+                            if (prevSensor.state == Sensor.DETECTED && prevSensor.car == car) {
+                                car.timeout = car.getRealLoc().timeouts.get(car.getRealDir()).get(car.name); // reset timeout
+                            }
+                            else if (!sensors2handle.contains(nextSensor) && !sensors2handle.contains(nextSensor.nextSensor)) {
+                                //if there are unhandled raw data about interested sensor, then no hurry to relocate
+                                car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
+                                System.out.println("[" + nextSensor.name + "] Timeout relocate " + car.name + "\t" + start);
+                                StateSwitcher.startRelocating(car, nextSensor, false);
+                            }
+                        }
+
+                    }
+                }
+                else
+                    start = System.currentTimeMillis();
+
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+//					e.printStackTrace();
+                }
+            }
+        };
+        new Thread(countdownThread, "Countdown Thread").start(); //TODO enable timeout
     }
 
     @Override
@@ -30,15 +72,16 @@ public class BrickHandler extends Thread{
         StateSwitcher.register(thread);
         //noinspection InfiniteLoopStatement
         while(true){
-            while(rawData.isEmpty() || StateSwitcher.isResetting()){ // in suspension and relocation phase, this handler still runs to exhaust rawdata queue
-                try {
-                    synchronized (rawData) {
+            synchronized (rawData) { // in suspension and relocation phase, this handler still runs to exhaust rawdata queue
+                while(rawData.isEmpty() || StateSwitcher.isResetting()) {
+                    try {
                         rawData.wait();
-                    }
-                } catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
 //					e.printStackTrace();
-                    if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
-                        clearRawData();
+                        if (StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread)) {
+                            clearRawData();
+                        }
+                    }
                 }
             }
 
@@ -47,6 +90,7 @@ public class BrickHandler extends Thread{
                 data = rawData.remove(0);
             }
             switchState(data.sensor, data.reading, data.time);
+            sensors2handle.remove(data.sensor);
             SensorManager.trigger(data.sensor, data.reading);
         }
     }
@@ -98,13 +142,11 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void switchState(Sensor sensor, int reading, long time){
+    private static void switchState(Sensor sensor, int reading, long time){
         switch(sensor.state){
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
-                    if(sensor.car != null && !sensor.car.hasPhantom()
-                            && sensor.car.loc == sensor.nextRoad
-                            && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
+                    if(sensor.car != null && !sensor.car.hasPhantom() && sensor.car.loc == sensor.nextRoad && sensor.car.state == Car.STOPPED){ // just a simple condition to judge FP
                         System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading + "\t" + time);
                         break;
                     }
@@ -205,7 +247,7 @@ public class BrickHandler extends Thread{
 
     private static Comparator<RawData> comparator = (o1, o2) -> (int) (o1.time - o2.time);
     public static void insert(int bid, int sid, int reading, long time){
-        insert(Resource.getSensors()[bid][sid], reading, time);
+        insert(Resource.getSensor(bid, sid), reading, time);
     }
 
     /**
@@ -219,6 +261,7 @@ public class BrickHandler extends Thread{
         if (StateSwitcher.isNormal()) {
             RawData datum = new RawData(sensor, reading, time);
             synchronized (rawData) {
+                sensors2handle.add(sensor);
                 int pos = Collections.binarySearch(rawData, datum, comparator);
                 if(pos < 0)
                     pos = -pos - 1;
@@ -235,13 +278,14 @@ public class BrickHandler extends Thread{
         }
     }
 
-    private static void clearRawData(){
+    private static void clearRawData() {
         synchronized (rawData) {
             rawData.clear();
+            sensors2handle.clear();
         }
     }
 
-    private static class RawData{
+    private static class RawData {
         Sensor sensor;
         int reading;
         long time;
