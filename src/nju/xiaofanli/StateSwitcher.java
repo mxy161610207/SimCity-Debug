@@ -277,6 +277,11 @@ public class StateSwitcher {
                 isSuspended = true;
                 prevState = state;
                 setState(State.SUSPEND);
+//                try {
+//                    Thread.sleep(1000); //wait for working threads to reach their safe points
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 for (Car car : Resource.getConnectedCars()) {
                     if (car.trend == Car.MOVING)
                         movingCars.add(car);
@@ -343,6 +348,12 @@ public class StateSwitcher {
         Relocation.add(car2relocate, sensor, detected);
     }
 
+    public static void startRelocationThread() {
+        if (!relocation.isAlive())
+            relocation.start();
+    }
+
+
     private static Relocation relocation = new Relocation();
     public static class Relocation extends Thread {
         private static final Object OBJ = new Object();
@@ -372,6 +383,7 @@ public class StateSwitcher {
                         movingCars.clear();
                         whistlingCars.clear();
                         setState(StateSwitcher.State.NORMAL);
+                        System.out.println("switch state to normal");
                         interruptAll();
                     }
 
@@ -389,6 +401,15 @@ public class StateSwitcher {
 //                if (!isPreserved) {
 //                    isPreserved = true;
 //                    setState(StateSwitcher.State.RELOCATE);
+//                    System.out.println("switch state to relocation");
+//                    Dashboard.enableCtrlUI(false);
+//                    try {
+//                        Thread.sleep(1000); //wait for working threads to reach their safe points
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    checkIfSuspended();
+//
 //                    for (Car car : Resource.getConnectedCars()) {
 //                        if (car.trend == Car.MOVING)
 //                            movingCars.add(car);
@@ -397,9 +418,9 @@ public class StateSwitcher {
 //                            whistlingCars.add(car);
 //                        Command.silence(car);
 //                    }
-//                    Dashboard.enableCtrlUI(false);
+//
 //                    try {
-//                        Thread.sleep(1000); // wait for all cars to stop
+//                        Thread.sleep(1000); //wait for all cars to stop
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                    }
@@ -414,7 +435,6 @@ public class StateSwitcher {
                     areAllCarsStopped = true;
                     checkIfSuspended();
                 }
-
 
                 Request r;
                 synchronized (queue) {
@@ -641,9 +661,6 @@ public class StateSwitcher {
         }
 
         public static void add(Car car2relocate, Sensor sensor, boolean detected) {
-            if (!relocation.isAlive())
-                relocation.start();
-
             synchronized (queue) {
                 synchronized (cars2relocate) {
                     if (cars2relocate.contains(car2relocate))
@@ -651,9 +668,12 @@ public class StateSwitcher {
                     cars2relocate.add(car2relocate);
                 }
 
+//                setState(StateSwitcher.State.RELOCATE);
+//                System.out.println("switch state to relocation");
                 if (!isPreserved) {
                     isPreserved = true;
                     setState(StateSwitcher.State.RELOCATE);
+                    System.out.println("switch state to relocation");
                     for (Car car : Resource.getConnectedCars()) {
                         if (car.trend == Car.MOVING)
                             movingCars.add(car);

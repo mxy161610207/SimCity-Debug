@@ -33,11 +33,11 @@ public class Main {
 		addModule();
         new BrickServer();
 		new CmdSender();
-//		new Middleware();
 		new Police();
 		new Delivery();
 		new AppServer();
         new RandomDataGenerator();
+        StateSwitcher.startRelocationThread();
 		Dashboard.loadCtrlUI();
 		initial = false;
 		Dashboard.showInitDialog();

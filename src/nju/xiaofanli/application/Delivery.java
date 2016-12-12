@@ -80,7 +80,7 @@ public class Delivery {
 				car.dt = dt;
 				dt.car = car;
 				dt.phase = DeliveryTask.HEAD4SRC;
-				if(car.dest == car.loc && car.state == Car.STOPPED){
+				if(car.dest == car.loc && car.getState() == Car.STOPPED){
                     car.setLoading(true);
                     Command.send(car, Command.WHISTLE2);
                     //trigger start loading event
@@ -192,7 +192,7 @@ public class Delivery {
                         continue;
                     }
                     Car car = dt.car;
-                    if (car.loc == car.dest && car.state == Car.STOPPED
+                    if (car.loc == car.dest && car.getState() == Car.STOPPED
                             && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
                         //head for the src
                         if(dt.phase == DeliveryTask.HEAD4SRC){

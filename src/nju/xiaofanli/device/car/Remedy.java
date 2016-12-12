@@ -4,8 +4,6 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
-import nju.xiaofanli.device.sensor.BrickHandler;
-import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
@@ -54,10 +52,16 @@ public class Remedy implements Runnable{
                     continue;
 				Command cmd = queue.get(0);
 				boolean donesth = false;
-				while(cmd.deadline < System.currentTimeMillis()){
+				while(cmd.deadline <= System.currentTimeMillis()){
 					donesth = true;
 					queue.remove(0);
-					if (cmd.cmd == Command.STOP) {
+					if (cmd.cmd == Command.MOVE_FORWARD || cmd.cmd == Command.MOVE_BACKWARD) {
+						cmd.car.setState(Car.MOVING);
+						//trigger move event
+						if(EventManager.hasListener(Event.Type.CAR_MOVE))
+							EventManager.trigger(new Event(Event.Type.CAR_MOVE, cmd.car.name, cmd.car.loc.name));
+					}
+					else if (cmd.cmd == Command.STOP) {
 						cmd.car.setState(Car.STOPPED);
 						cmd.car.stopTime = System.currentTimeMillis();
 						if(cmd.car.dest != null && cmd.car.dest == cmd.car.loc && cmd.car.dt != null){
@@ -80,6 +84,7 @@ public class Remedy implements Runnable{
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));
 					}
+
 					if (queue.isEmpty())
 						break;
 					cmd = queue.get(0);
@@ -90,7 +95,7 @@ public class Remedy implements Runnable{
 				}
 			}
 			try {
-				Thread.sleep(50);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 //				e.printStackTrace();
 				if(StateSwitcher.isResetting())
@@ -111,8 +116,7 @@ public class Remedy implements Runnable{
 					donesth = true;
 					it.remove();
 					if(cmd.cmd == Command.STOP){
-						cmd.deadline = Remedy.getDeadline();
-//						Command.send(cmd, false);
+						cmd.deadline = cmd.getDeadline();
                         newCmd = cmd;
 					}
 					break;
@@ -166,15 +170,10 @@ public class Remedy implements Runnable{
 		}
 	}
 	
-	static long getDeadline(){
-		return System.currentTimeMillis() + 1000;
-	}
-	
 	private static void printQueue(){
         StringBuilder sb = new StringBuilder();
         queue.forEach(x -> sb.append(x.car.name).append("\t").append((x.cmd == Command.STOP) ? "S" : "F").append("\t").append(x.deadline).append("\t\t"));
-//		System.out.println("-----------------------");
-        System.out.println(sb.toString());
+        System.out.println(sb.length() != 0 ? sb.toString() : "Remedy queue is empty.");
 	}
 	
 	public static List<Command> getQueue(){

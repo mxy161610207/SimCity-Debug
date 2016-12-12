@@ -256,7 +256,7 @@ public class Dashboard extends JFrame{
             for (String name : Resource.getBricks()) {
                 bgbc.anchor = GridBagConstraints.WEST;
                 JLabel nameLabel = new JLabel(name);
-                nameLabel.setFont(Resource.plain17dialog); //TODO consistent font size
+                nameLabel.setFont(Resource.plain17dialog);
                 brickPanel.add(nameLabel, bgbc);
                 bgbc.gridx += bgbc.gridwidth;
                 bgbc.anchor = GridBagConstraints.EAST;
@@ -326,7 +326,7 @@ public class Dashboard extends JFrame{
             for (Car car : Resource.getCars()) {
                 cgbc.anchor = GridBagConstraints.WEST;
                 JLabel nameLabel = new JLabel(car.name);
-                nameLabel.setFont(Resource.plain17dialog); //TODO consistent font size
+                nameLabel.setFont(Resource.plain17dialog);
                 carPanel.add(nameLabel, cgbc);
                 cgbc.gridx += cgbc.gridwidth;
                 cgbc.anchor = GridBagConstraints.EAST;

@@ -47,7 +47,16 @@ public class Command {
 	public Command(Car car, int cmd) {
 		this.car = car;
 		this.cmd = cmd;
-		deadline = Remedy.getDeadline();
+		deadline = getDeadline();
+	}
+
+	long getDeadline(){
+		switch (cmd) {
+			case Command.MOVE_FORWARD: case Command.MOVE_BACKWARD:
+				return System.currentTimeMillis();
+			default:
+				return System.currentTimeMillis() + 1000;
+		}
 	}
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
@@ -60,26 +69,14 @@ public class Command {
 			return;
 		CmdSender.send(car, cmd);
 		if(cmd == STOP || cmd == MOVE_FORWARD){
-            boolean isMoving = cmd == MOVE_FORWARD;
             car.lastCmd = cmd;
-			if(isMoving) {
-                car.setState(Car.MOVING);
-				//trigger move event
-				if(EventManager.hasListener(Event.Type.CAR_MOVE))
-					EventManager.trigger(new Event(Event.Type.CAR_MOVE, car.name, car.loc.name));
-            }
-			
 			if(remedy)
 				Remedy.addRemedyCommand(car, cmd);
 		}
 		else if(cmd == HORN_ON || cmd == HORN_OFF)
 			car.lastHornCmd = cmd;
 	}
-	
-	public static void send(Command cmd, boolean remedy) {
-		send(cmd.car, cmd.cmd, remedy);
-	}
-	
+
 	static void wake(Car car){
 		if(car == null || !car.isConnected())
 			return;

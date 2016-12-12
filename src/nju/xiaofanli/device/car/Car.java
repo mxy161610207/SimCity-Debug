@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class Car {
 	public final String name;
-	public int state = STOPPED;//0: stopped	1: moving	-1: uncertain
+	private int state = STOPPED;//0: stopped	1: moving	-1: uncertain
 	public int lastCmd = Command.STOP;
     public int trend = STOPPED; // Only used by suspend and wake!
     public int lastHornCmd = Command.HORN_OFF;
@@ -239,12 +239,12 @@ public class Car {
             loc.allRealCars.add(this);
             timeout = loc.timeouts.get(dir).get(name); //setting remaining time to phantoms is meaningless
         }
-        if(getState() != MOVING) {
-            setState(MOVING);
-            //trigger move event
-            if(EventManager.hasListener(Event.Type.CAR_MOVE))
-                EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
-        }
+//        if(getState() != MOVING) {
+//            setState(MOVING);
+//            //trigger move event
+//            if(EventManager.hasListener(Event.Type.CAR_MOVE))
+//                EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
+//        }
 
         setLoading(false);
 		notifyPolice(Police.AFTER_ENTRY, road);
@@ -398,6 +398,7 @@ public class Car {
 
     public void setState(int state){
         this.state = state;
+        System.out.println(name+"'s state: " + stateOf(state) + " -> " + stateOf(this.state));
     }
 
 	public String getStateStr(){
