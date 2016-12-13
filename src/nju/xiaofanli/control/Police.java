@@ -108,8 +108,18 @@ public class Police implements Runnable{
 						break;
 					case BEFORE_ENTRY:
 						r.requested.removeWaitingCar(r.car);
-//						if (r.requested.permitted == null)
+						if (r.requested.permitted != null && r.requested.permitted != r.car && r.requested.permitted.loc != r.requested) { //enforce to enter
+							Car permittedCar = r.requested.permitted;
 //							r.requested.permitted = r.car;
+							//tell the permitted car to stop
+							System.out.println(permittedCar.name + " need to STOP!!!3");
+							r.requested.addWaitingCar(permittedCar);
+							Command.send(permittedCar, Command.STOP);
+							permittedCar.setAvailCmd(Command.STOP);
+							//trigger recv response event
+							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
+								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, permittedCar.name, permittedCar.loc.name, Command.STOP));
+						}
 						break;
 					case AFTER_ENTRY:
 						r.requested.removeWaitingCar(r.car);

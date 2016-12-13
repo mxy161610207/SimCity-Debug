@@ -15,14 +15,17 @@ public class Remedy implements Runnable{
     Remedy() {
         Runnable wakeThread = () -> {
             //noinspection InfiniteLoopStatement
+			int count = 0;
             while (true) {
                 Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
-//                Resource.getConnectedCars().forEach(car -> car.write(Command.codes.get(left[0] ? Command.LEFT : Command.RIGHT)));
+                if (count == 0)
+					Resource.getConnectedCars().forEach(car -> car.write(Command.RIGHT2));
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                count = (count + 1) % 5;
             }
         };
 

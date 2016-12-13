@@ -95,7 +95,7 @@ public class Dashboard extends JFrame{
                 }
             }
 
-            TrafficMap.checkCrashEffectExpiration(elapsed);
+//            TrafficMap.checkCrashEffectExpiration(elapsed);
 
             for(Road road : Resource.getRoads().values()){
                 boolean isLoading = false;
@@ -1260,7 +1260,11 @@ public class Dashboard extends JFrame{
     }
 
     public static void showCrashEffect(Road road) {
-        trafficMap.showCrashEffect(road);
+        TrafficMap.showCrashEffect(road);
+    }
+
+    public static void hideCrashEffect(Road road) {
+        TrafficMap.hideCrashEffect(road);
     }
 
     public static void reset(){

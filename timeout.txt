@@ -7,7 +7,7 @@ Green Car	B2S1	1291
 Green Car	B2S2	901
 Green Car	B2S3	373
 Green Car	B2S4	1585
-Green Car	B3S1	400
+Green Car	B3S1	500
 Green Car	B3S2	854
 Green Car	B3S3	513
 Green Car	B3S4	840
@@ -39,7 +39,7 @@ Red Car	B2S1	1173
 Red Car	B2S2	801
 Red Car	B2S3	485
 Red Car	B2S4	1561
-Red Car	B3S1	400
+Red Car	B3S1	500
 Red Car	B3S2	767
 Red Car	B3S3	539
 Red Car	B3S4	813
@@ -71,9 +71,9 @@ Silver SUV	B2S1	1177
 Silver SUV	B2S2	883
 Silver SUV	B2S3	435
 Silver SUV	B2S4	1543
-Silver SUV	B3S1	400
+Silver SUV	B3S1	500
 Silver SUV	B3S2	772
-Silver SUV	B3S3	500
+Silver SUV	B3S3	600
 Silver SUV	B3S4	933
 Silver SUV	B4S1	661
 Silver SUV	B4S2	3000
@@ -103,9 +103,9 @@ White Car	B2S1	1054
 White Car	B2S2	753
 White Car	B2S3	1100
 White Car	B2S4	1798
-White Car	B3S1	400
+White Car	B3S1	500
 White Car	B3S2	723
-White Car	B3S3	500
+White Car	B3S3	600
 White Car	B3S4	760
 White Car	B4S1	609
 White Car	B4S2	15466
@@ -135,7 +135,7 @@ Black Car	B2S1	1124
 Black Car	B2S2	780
 Black Car	B2S3	502
 Black Car	B2S4	1477
-Black Car	B3S1	400
+Black Car	B3S1	500
 Black Car	B3S2	724
 Black Car	B3S3	335
 Black Car	B3S4	1406
@@ -167,7 +167,7 @@ Orange Car	B2S1	1291
 Orange Car	B2S2	901
 Orange Car	B2S3	373
 Orange Car	B2S4	1585
-Orange Car	B3S1	400
+Orange Car	B3S1	500
 Orange Car	B3S2	854
 Orange Car	B3S3	513
 Orange Car	B3S4	840

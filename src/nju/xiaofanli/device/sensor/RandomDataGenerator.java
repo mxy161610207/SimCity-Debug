@@ -3,10 +3,13 @@ package nju.xiaofanli.device.sensor;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.consistency.context.Context;
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.util.Pair;
 
+import javax.swing.text.Style;
 import java.util.*;
 
 /**
@@ -24,7 +27,7 @@ public class RandomDataGenerator implements Runnable{
         Map<Sensor, Car> disabled = new HashMap<>();
 		//noinspection InfiniteLoopStatement
 		while(true){
-			if(StateSwitcher.isNormal() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled())) {
+			if(StateSwitcher.isNormal() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled()) && !TrafficMap.crashOccurred) {
                 enabled.clear();
                 disabled.clear();
                 Resource.getConnectedCars().stream().filter(car -> car.loc != null && car.dir != TrafficMap.Direction.UNKNOWN).forEach(car -> {
@@ -52,7 +55,17 @@ public class RandomDataGenerator implements Runnable{
                 }
                 else {
                     Sensor sensor = (Sensor) disabled.keySet().toArray()[random.nextInt(disabled.size())];
-                    sensor.showBalloon(Context.FP, disabled.get(sensor).name, Middleware.isResolutionEnabled());
+                    Car car = disabled.get(sensor);
+                    sensor.showBalloon(Context.FP, car.name, Middleware.isResolutionEnabled());
+                    if (Middleware.isResolutionEnabled()) {
+                        List<Pair<String, Style>> strings = new ArrayList<>();
+                        strings.add(new Pair<>("Resolved a false positive (sensor ", null));
+                        strings.add(new Pair<>(sensor.name, Resource.getTextStyle(Resource.LIGHT_SKY_BLUE)));
+                        strings.add(new Pair<>(" detected ", null));
+                        strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+                        strings.add(new Pair<>(").\n", null));
+                        Dashboard.log(strings);
+                    }
                 }
             }
 			try {

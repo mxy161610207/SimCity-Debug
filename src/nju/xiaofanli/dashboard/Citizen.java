@@ -135,8 +135,8 @@ public class Citizen implements Runnable {
             state = action;
             switch (action) {
                 case Wander: {
-                    int xmax = icon.getParent().getWidth() - icon.dimension.width;
-                    int ymax = icon.getParent().getHeight() - icon.dimension.height;
+                    int xmax = icon.getParent().getWidth() - icon.getWidth();
+                    int ymax = icon.getParent().getHeight() - icon.getHeight();
                     if (count[action.ordinal()] == 0) {
                         count[action.ordinal()] = 3;
                         delay = 1000;
@@ -310,8 +310,8 @@ public class Citizen implements Runnable {
                         if(dest == null)
                             throw new NullPointerException();
                         loc = dest;
-                        int xmax = ((Building) dest).icon.getWidth() - icon.dimension.width;
-                        int ymax = ((Building) dest).icon.getHeight() - icon.dimension.height;
+                        int xmax = ((Building) dest).icon.getWidth() - icon.getWidth();
+                        int ymax = ((Building) dest).icon.getHeight() - icon.getHeight();
                         int x = (int) (Math.random() * xmax) + ((Building) dest).icon.coord.x;
                         int y = (int) (Math.random() * ymax) + ((Building) dest).icon.coord.y;
                         icon.setLocation(x, y);
@@ -363,7 +363,6 @@ public class Citizen implements Runnable {
         public ImageIcon imageIcon;
         public final Color color;
         public boolean blink = false;
-        final Dimension dimension;
         static final int AVATAR_SIZE = CarIcon.SIZE;//(int) (0.8*CarIcon.AVATAR_SIZE);
 
         CitizenIcon(Citizen citizen, String iconFile, int rgb) {
@@ -382,9 +381,7 @@ public class Citizen implements Runnable {
             setVerticalTextPosition(SwingConstants.BOTTOM);
             setHorizontalTextPosition(SwingConstants.CENTER);
             setFont(new Font(Font.DIALOG, Font.BOLD, 14));
-            FontMetrics fm = getFontMetrics(getFont());
-            dimension = new Dimension(Math.max(AVATAR_SIZE, fm.stringWidth(citizen.name)+40), AVATAR_SIZE+fm.getHeight());
-            setSize(dimension);
+            setSize(getPreferredSize());
         }
 
 //        protected void paintBorder(Graphics g) {
@@ -431,28 +428,12 @@ public class Citizen implements Runnable {
 //            }
         }
 
-//        private void setIcon() {
-//            String filename;
-//            switch (citizen.name) {
-//                case "Tintin":
-//                    filename = "res/tintin.png"; break;
-//                case "Wade Wilson":
-//                    filename = "res/deadpool.png"; break;
-//                case "Scott Lang":
-//                    filename = "res/antman.png"; break;
-//                default:
-//                    return;
-//            }
-//            imageIcon = Resource.loadImage(filename, AVATAR_SIZE, AVATAR_SIZE);
-//            setIcon(imageIcon);
-//        }
-
         public int getCenterX() {
-            return getX() + dimension.width / 2;
+            return getX() + getWidth() / 2;
         }
 
         public int getCenterY() {
-            return getY() + dimension.height / 2;
+            return getY() + getHeight() / 2;
         }
     }
 }

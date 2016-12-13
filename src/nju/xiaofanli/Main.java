@@ -42,6 +42,7 @@ public class Main {
 		initial = false;
 		Dashboard.showInitDialog();
         TrafficMap.checkRealCrash(); // should never trigger crash, otherwise change cars' initial locations
+//		Dashboard.showCrashEffect(Resource.getRoad("Crossroad 2"));
 	}
 
 	private static void addModule(){

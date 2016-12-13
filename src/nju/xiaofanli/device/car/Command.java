@@ -27,9 +27,7 @@ public class Command {
     public final static int WHISTLE = 9;
     public final static int WHISTLE2 = 10;
     public final static int WHISTLE3 = 11;
-
-//	public final static int CONNECT = 9;
-//	public final static int DISCONNECT = 10;
+	public final static int RIGHT2 = 12;
 
     static final Map<Integer, byte[]> codes = new HashMap<>();
 
@@ -39,6 +37,7 @@ public class Command {
         codes.put(Command.MOVE_BACKWARD, ByteBuffer.allocate(4).putInt(Codes.SPEED_BACK[30]).array());
         codes.put(Command.LEFT, ByteBuffer.allocate(4).putInt(Codes.STEER_LEFT[5]).array());
         codes.put(Command.RIGHT, ByteBuffer.allocate(4).putInt(Codes.STEER_RIGHT[5]).array());
+		codes.put(Command.RIGHT2, ByteBuffer.allocate(4).putInt(Codes.STEER_RIGHT[10]).array());
         codes.put(Command.NO_STEER, ByteBuffer.allocate(4).putInt(Codes.NO_STEER).array());
         codes.put(Command.HORN_ON, ByteBuffer.allocate(4).putInt(Codes.HORN_ON).array());
         codes.put(Command.HORN_OFF, ByteBuffer.allocate(4).putInt(Codes.HORN_OFF).array());

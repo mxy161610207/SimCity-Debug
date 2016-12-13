@@ -1,22 +1,21 @@
 package nju.xiaofanli.dashboard;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.swing.*;
-
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.control.Police;
-import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.device.car.Car.CarIcon;
 import nju.xiaofanli.dashboard.Road.Crossroad.CrossroadIcon;
 import nju.xiaofanli.dashboard.Road.Street.StreetIcon;
-import nju.xiaofanli.Resource;
+import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.car.Car.CarIcon;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.Pair;
+
+import javax.swing.*;
+import javax.swing.text.Style;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.Queue;
 
 public abstract class Road extends Location{
 	public final Map<TrafficMap.Direction, Road> adjRoads = new HashMap<>(); //adjacent roads
@@ -28,6 +27,7 @@ public abstract class Road extends Location{
 	public final Queue<Car> realCars = new LinkedList<>();
 	public final Queue<Car> allRealCars = new LinkedList<>();
 	public Car permitted = null;
+	public JPanel crashLettersPanel = null;
 	public int numSections;
 	public final Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public final Map<TrafficMap.Direction, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
@@ -311,6 +311,7 @@ public abstract class Road extends Location{
 		allRealCars.clear();
 		waiting.clear();
 		permitted = null;
+		crashLettersPanel = null;
 	}
 
 	public void checkRealCrash() {
@@ -333,6 +334,20 @@ public abstract class Road extends Location{
 
 			Dashboard.showCrashEffect(this);
 			Dashboard.playCrashSound();
+
+			List<Pair<String, Style>> strings = new ArrayList<>();
+			Iterator<Car> iter = allRealCars.iterator();
+			Car crashedCar = iter.next();
+			strings.add(new Pair<>(crashedCar.name, Resource.getTextStyle(crashedCar.icon.color)));
+			while (iter.hasNext()) {
+				strings.add(new Pair<>(", ", null));
+				crashedCar = iter.next();
+				strings.add(new Pair<>(crashedCar.name, Resource.getTextStyle(crashedCar.icon.color)));
+			}
+			strings.add(new Pair<>(" crashed at ", null));
+			strings.add(new Pair<>(name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
+			strings.add(new Pair<>(".\n", null));
+			Dashboard.log(strings);
 
 			List<Car> frontCars = new ArrayList<>();
 			Set<TrafficMap.Direction> dirs = new HashSet<>();
@@ -361,6 +376,8 @@ public abstract class Road extends Location{
 					}
 				}
 			});
+
+			Dashboard.hideCrashEffect(this);
 		}
 	}
 
