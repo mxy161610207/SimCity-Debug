@@ -83,4 +83,9 @@ public class NotFormula extends Formula {
     	f.formula = formula.createInitialFormula();
 		return f;
 	}
+
+    @Override
+    public String toString() {
+        return "\u00ac" + (formula.needBrackets() ? "(" + formula + ")" : formula);
+    }
 }

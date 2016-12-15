@@ -106,4 +106,12 @@ public class AndFormula extends Formula {
     	f.second = second.createInitialFormula();
 		return f;
 	}
+
+    @Override
+    public String toString() {
+        String s = first.needBrackets() ? "(" + first + ")" : first.toString();
+        s += "\u2227";
+        s += second.needBrackets() ? "(" + second + ")" : second.toString();
+        return s;
+    }
 }

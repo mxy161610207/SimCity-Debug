@@ -27,11 +27,15 @@ public class Delivery {
     public static boolean autoGenTasks = false;
 
     public Delivery() {
-        MAX_USER_DELIV_NUM = Resource.getCars().size() >= 1 ? 1 : 0;
-        MAX_SYS_DELIV_NUM = Resource.getCars().size() - MAX_USER_DELIV_NUM;
+        updateDeliveryLimit();
 		new Thread(carSearcher, "Car Searcher").start();
 		new Thread(carMonitor, "Car Monitor").start();
 	}
+
+	public static void updateDeliveryLimit() {
+        MAX_USER_DELIV_NUM = Resource.getConnectedCars().size() >= 1 ? 1 : 0;
+        MAX_SYS_DELIV_NUM = Resource.getConnectedCars().size() - MAX_USER_DELIV_NUM;
+    }
 	
 	private Runnable carSearcher = new Runnable(){
 		public void run() {
@@ -75,6 +79,7 @@ public class Delivery {
 					}
 					searchTasks.poll();
 				}
+				System.out.println(res.car.name + "'s dest: " + res.road.name);
 				car = res.car;
 				car.dest = res.road;
 				car.dt = dt;
@@ -177,7 +182,7 @@ public class Delivery {
                         iter.remove();
                         allBusy = false;
                         completedSysDelivNum++;
-                        if(dt.createdByUser) {
+                        if(dt.manual) {
                             userDelivNum--;
                             Dashboard.enableDeliveryButton(true);
                         }
@@ -205,6 +210,8 @@ public class Delivery {
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
                                 List<Pair<String, Style>> strings = new ArrayList<>();
+                                if (dt.manual)
+                                    strings.add(new Pair<>("[M] ", null));
                                 strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
                                 strings.add(new Pair<>(" picks up ", null));
                                 strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
@@ -250,6 +257,8 @@ public class Delivery {
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
                                 List<Pair<String, Style>> strings = new ArrayList<>();
+                                if (dt.manual)
+                                    strings.add(new Pair<>("[M] ", null));
                                 strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
                                 strings.add(new Pair<>(" drops off ", null));
                                 strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
@@ -287,7 +296,7 @@ public class Delivery {
 		if(roads.contains(start))
 			return start;
 		Queue<Road> queue = new LinkedList<>();
-		queue.add(start.adjRoads.get(dir));//may be wrong
+		queue.add(start.adjRoads.get(dir));
 		Road prev = start;
 		while(!queue.isEmpty()){
 			Road road = queue.poll();
@@ -328,13 +337,13 @@ public class Delivery {
             Dashboard.enableDeliveryButton(false);
     }
 
-	public static void add(Location src, Location dest, Citizen citizen, boolean releasedByUser){
+	public static void add(Location src, Location dest, Citizen citizen, boolean manual){
         if(src != null && dest != null && citizen != null)
-		    add(new DeliveryTask(src, dest, citizen, releasedByUser));
+		    add(new DeliveryTask(src, dest, citizen, manual));
 	}
 
-    public static void add(Location src, Location dest, boolean createdByUser){
-        if(createdByUser){
+    public static void add(Location src, Location dest, boolean manual){
+        if(manual){
             if(userDelivNum == MAX_USER_DELIV_NUM)
                 return;
         }
@@ -347,7 +356,7 @@ public class Delivery {
         if(citizen == null)
             return;
 
-        if(createdByUser){
+        if(manual){
             if(++userDelivNum == MAX_USER_DELIV_NUM)
                 Dashboard.enableDeliveryButton(false);
         }
@@ -356,9 +365,8 @@ public class Delivery {
 
         citizen.loc = src;
         citizen.dest = dest;
+        citizen.manual = manual;
         citizen.setAction(Citizen.Action.HailATaxi);
-        citizen.createdByUser = createdByUser;
-//        Resource.execute(citizen);
         citizen.startAction();
 	}
 	
@@ -388,103 +396,21 @@ public class Delivery {
 		public int phase;//0: search car; 1: to src 2: to dest
 		public long startTime = 0;
 		public Citizen citizen = null;
-        public boolean createdByUser = false;
+        public boolean manual = false;
 
         public static final int SEARCH_CAR = 0;
         public static final int HEAD4SRC = 1;
         public static final int HEAD4DEST = 2;
         public static final int COMPLETED = 3;
 		
-		public DeliveryTask(Location src, Location dest, Citizen citizen, boolean createdByUser) {
+		public DeliveryTask(Location src, Location dest, Citizen citizen, boolean manual) {
 			this.id = Delivery.taskid++;
 			this.src = src;
 			this.dest = dest;
 			this.phase = SEARCH_CAR;
 			this.startTime = System.currentTimeMillis();
 			this.citizen = citizen;
-            this.createdByUser = createdByUser;
+            this.manual = manual;
 		}
-
-		public static final String css = "<style type=\"text/css\">\n" +
-                "table.user\n" +
-                "  {\n" +
-                "  font-family:\"Trebuchet MS\", Arial, Helvetica, sans-serif;\n" +
-                "  border-collapse:collapse;\n" +
-                "  font-size: 10px;\n" +
-                "  margin: 0px 0px 4px 0px;\n" +
-                "  white-space: nowrap;\n" +
-                "  }\n" +
-                "\n" +
-                "table.user td, table.user th \n" +
-                "  {\n" +
-                "  border:1px solid #98bf21;\n" +
-                "  border-collapse:collapse;\n" +
-                "  text-align:left;\n" +
-                "  margin: 0;\n" +
-                "  padding: 0;\n" +
-                "  }\n" +
-                "\n" +
-                "table.user th \n" +
-                "  {\n" +
-                "  background-color:#A7C942;\n" +
-                "  color:#ffffff;\n" +
-                "  }\n" +
-                "\n" +
-                "table.sys\n" +
-                "  {\n" +
-                "  font-family:\"Trebuchet MS\", Arial, Helvetica, sans-serif;\n" +
-                "  border-collapse:collapse;\n" +
-                "  font-size: 10px;\n" +
-                "  margin: 0px 0px 4px 0px;\n" +
-                "  white-space: nowrap;\n" +
-                "  }\n" +
-                "\n" +
-                "table.sys td, table.sys th \n" +
-                "  {\n" +
-                "  border:1px solid #000000;\n" +
-                "  text-align:left;\n" +
-                "  margin: 0;\n" +
-                "  padding: 0;\n" +
-                "  }\n" +
-                "\n" +
-                "table.sys th \n" +
-                "  {\n" +
-                "  background-color:#404040;\n" +
-                "  color:#ffffff;\n" +
-                "  }\n" +
-                "</style>";
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-//            sb.append("<html>");
-            sb.append("<table class="+ (createdByUser ? "user" : "sys") + ">");
-            sb.append("<tr><th>").append("Src").append("</th>");
-            sb.append("<td>").append(src.name).append("</td></tr>");
-            sb.append("<tr><th>").append("Dest").append("</th>");
-            sb.append("<td>").append(dest.name).append("</td></tr>");
-            if(citizen != null) {
-                sb.append("<tr><th>").append("Pax").append("</th>");
-                sb.append("<td>").append(citizen.name).append("</td></tr>");
-            }
-            sb.append("<tr><th>").append("Stat").append("</th>");
-            String phaseStr;
-            switch (phase){
-                case SEARCH_CAR:
-                    phaseStr = "Search Car"; break;
-                case HEAD4SRC:
-                    phaseStr = "Head for Src"; break;
-                case HEAD4DEST:
-                    phaseStr = "Head for Dest"; break;
-                case COMPLETED:
-                    phaseStr = "Completed"; break;
-                default:
-                    phaseStr = "Unknown"; break;
-            }
-            sb.append("<td>").append(phaseStr).append("</td></tr>");
-            sb.append("</table>");
-//            sb.append("</html>");
-            return sb.toString();
-        }
     }
 }

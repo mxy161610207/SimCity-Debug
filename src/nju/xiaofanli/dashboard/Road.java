@@ -132,11 +132,11 @@ public abstract class Road extends Location{
 
 	public static abstract class RoadIcon extends JPanel {
 		private static final long serialVersionUID = 1L;
-		public Road road = null;
-		public TrafficMap.Coord coord = new TrafficMap.Coord();
-		private Map<String, JLabel[]> carIcons = new HashMap<>();
-		private Map<String, JLabel> citizenIcons = new HashMap<>();
-		private JLabel idLabel = null;
+		public final Road road;
+		public final TrafficMap.Coord coord = new TrafficMap.Coord();
+		private final Map<String, JLabel[]> carIcons = new HashMap<>();
+		private final Map<String, JLabel> citizenIcons = new HashMap<>();
+		private final JLabel idLabel, mLabel;
 
 		private RoadIcon(Road road) {
 			setLayout(null);
@@ -161,6 +161,15 @@ public abstract class Road extends Location{
 			idLabel.setSize(idLabel.getPreferredSize());
 			add(idLabel);
 
+			mLabel = new JLabel("M");
+			mLabel.setFont(Resource.bold17dialog);
+			mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
+			mLabel.setBackground(Color.WHITE);
+			mLabel.setOpaque(true);
+			mLabel.setSize(mLabel.getPreferredSize());
+			mLabel.setVisible(false);
+			add(mLabel);
+
 			citizenIcons.values().forEach(label -> {
 				label.setVisible(false);
 				add(label);
@@ -173,12 +182,6 @@ public abstract class Road extends Location{
 				}
 			}
 		}
-
-//		@Override
-//		public void setEnabled(boolean b) {
-//			super.setEnabled(b);
-//			System.out.println(road.name);
-//		}
 
 		public boolean isPressed = false, isEntered = false;
 		protected void paintBorder(Graphics g) {
@@ -250,6 +253,12 @@ public abstract class Road extends Location{
 							citizenIcon.setLocation(carIcon.getX() + carIcon.getWidth() / 2, carIcon.getY() + carIcon.getHeight() / 2);
 							citizenIcon.setVisible(true);
 							visibleLabel.add(citizenIcon);
+
+							if (car.passenger.manual) {
+								mLabel.setLocation(citizenIcon.getX()+citizenIcon.getWidth()-mLabel.getWidth(), citizenIcon.getY()+citizenIcon.getHeight()-mLabel.getHeight());
+								mLabel.setVisible(true);
+								visibleLabel.add(mLabel);
+							}
 						}
 					}
 
@@ -289,6 +298,9 @@ public abstract class Road extends Location{
 				if (!visibleLabel.contains(label) && label.isVisible())
 					label.setVisible(false); // CAUTION: this will invoke paintComponent() again, so be careful of infinite loop
 			});
+
+			if (!visibleLabel.contains(mLabel) && mLabel.isVisible())
+				mLabel.setVisible(false); // CAUTION: this will invoke paintComponent() again, so be careful of infinite loop
 		}
 
 		@Override
@@ -302,7 +314,6 @@ public abstract class Road extends Location{
 			if (idLabel != null)
 				idLabel.setVisible(b);
 		}
-
 	}
 
 	public void reset() {

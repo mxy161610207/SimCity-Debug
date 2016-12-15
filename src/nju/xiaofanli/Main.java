@@ -83,7 +83,7 @@ public class Main {
 			Citizen citizen = new Citizen(elm.attributeValue("name"), Citizen.genderOf(elm.attributeValue("gender")),
 					Citizen.jobOf(elm.attributeValue("job")), elm.attributeValue("icon"), Integer.parseInt(elm.attributeValue("color"), 16));
 			TrafficMap.citizens.add(citizen);
-            TrafficMap.freeCitizens.add(citizen);
+            TrafficMap.addAFreeCitizen(citizen);
 		}
 		Resource.setCitizenIcons();
 

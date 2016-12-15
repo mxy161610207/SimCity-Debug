@@ -112,4 +112,12 @@ public class ImpliesFormula extends Formula {
     	f.second = second.createInitialFormula();
 		return f;
 	}
+
+    @Override
+    public String toString() {
+        String s = first.needBrackets() ? "(" + first + ")" : first.toString();
+        s += "\u2192";
+        s += second.needBrackets() ? "(" + second + ")" : second.toString();
+        return s;
+    }
 }

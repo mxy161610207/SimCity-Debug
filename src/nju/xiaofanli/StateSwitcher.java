@@ -8,6 +8,7 @@ import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
+import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
 
 import java.util.*;
@@ -448,17 +449,23 @@ public class StateSwitcher {
                     backwardRelocate(r.car2relocate, r.sensor);
                 }
                 else { //if either one is curved, use forward relocation
-                    forwardRelocateRecursively(r.car2relocate, r.sensor, true, r.detected);
+                    forwardRelocate(r.car2relocate, r.sensor, true, r.detected);
                 }
             }
         }
 
-        private static void forwardRelocateRecursively(Car car, Sensor sensor, boolean knownLost, boolean detectedByNextNextSensor) {
+        private static void forwardRelocate(Car car, Sensor sensor, boolean knownLost, boolean detectedByNextNextSensor) {
+            Map<Car, Sensor> relocatedCars = new HashMap<>();
+            forwardRelocateRecursively(car, sensor, knownLost, detectedByNextNextSensor, relocatedCars);
+            relocatedCars.forEach(BrickHandler::triggerEventAfterEntering); //each car should trigger events when it's detected by the LAST sensor
+        }
+
+        private static void forwardRelocateRecursively(Car car, Sensor sensor, boolean knownLost, boolean detectedByNextNextSensor, final Map<Car, Sensor> relocatedCars) {
             checkIfSuspended();
             Road nextRoad = sensor.nextRoad;
             while (!nextRoad.allRealCars.isEmpty()) {
                 Car car1 = nextRoad.allRealCars.peek();
-                forwardRelocateRecursively(car1, nextRoad.adjSensors.get(car1.getRealDir()));
+                forwardRelocateRecursively(car1, nextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
                 if (!nextRoad.allRealCars.isEmpty())
                     System.err.println("There still is/are car(s) at " + nextRoad.name + " in front of the relocated car " + car.name);
             }
@@ -484,7 +491,7 @@ public class StateSwitcher {
             if (knownLost) {
                 while (!nextNextRoad.allRealCars.isEmpty()) {
                     Car car1 = nextNextRoad.allRealCars.peek();
-                    forwardRelocateRecursively(car1, nextNextRoad.adjSensors.get(car1.getRealDir()));
+                    forwardRelocateRecursively(car1, nextNextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
                     if (!nextNextRoad.allRealCars.isEmpty())
                         System.err.println("There still is/are car(s) at " + nextNextRoad.name);
                 }
@@ -493,7 +500,7 @@ public class StateSwitcher {
             if (detectedByNextNextSensor) {
                 while (!nextNextNextRoad.allRealCars.isEmpty()) {
                     Car car1 = nextNextNextRoad.allRealCars.peek();
-                    forwardRelocateRecursively(car1, nextNextNextRoad.adjSensors.get(car1.getRealDir()));
+                    forwardRelocateRecursively(car1, nextNextNextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
                     if (!nextNextNextRoad.allRealCars.isEmpty())
                         System.err.println("2There still is/are car(s) at " + nextNextNextRoad.name);
                 }
@@ -547,7 +554,9 @@ public class StateSwitcher {
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
                             sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
-                            System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
+                            System.currentTimeMillis(), car, sensor, car.hasPhantom(), false);
+
+                    relocatedCars.put(car, sensor);
                 }
                 else if (locatedSensor == sensor.nextSensor) {
                     //enter next road
@@ -559,7 +568,9 @@ public class StateSwitcher {
                     sensor.nextSensor.state = Sensor.UNDETECTED;
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
                             nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
-                            System.currentTimeMillis(), car, nextNextSensor, car.hasPhantom(), true);
+                            System.currentTimeMillis(), car, nextNextSensor, car.hasPhantom(), false);
+
+                    relocatedCars.put(car, nextNextSensor);
                 }
                 else if (locatedSensor == sensor.nextSensor.nextSensor) {
                     //enter next road
@@ -576,15 +587,17 @@ public class StateSwitcher {
                     sensor.nextSensor.nextSensor.state = Sensor.UNDETECTED;
                     Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
                             nextNextRoad.name, nextNextNextRoad.name, nextNextNextSensor.nextSensor.nextRoad.name,
-                            System.currentTimeMillis(), car, nextNextNextSensor, car.hasPhantom(), true);
+                            System.currentTimeMillis(), car, nextNextNextSensor, car.hasPhantom(), false);
+
+                    relocatedCars.put(car, nextNextNextSensor);
                 }
             }
             car2relocate = null;
             locatedSensor = null;
         }
 
-        private static void forwardRelocateRecursively(Car car, Sensor sensor) {
-            forwardRelocateRecursively(car, sensor, false, false);
+        private static void forwardRelocateRecursively(Car car, Sensor sensor, final Map<Car, Sensor> relocatedCars) {
+            forwardRelocateRecursively(car, sensor, false, false, relocatedCars);
         }
 
         private static void backwardRelocate(Car car, Sensor sensor) {

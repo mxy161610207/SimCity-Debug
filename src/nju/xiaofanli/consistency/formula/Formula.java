@@ -62,4 +62,11 @@ public abstract class Formula{
     public abstract void setGoal(String goal);
     
 	public abstract Formula createInitialFormula();
+
+    @Override
+    public abstract String toString();
+
+    public boolean needBrackets() {
+        return this instanceof AndFormula || this instanceof OrFormula || this instanceof ImpliesFormula;
+    }
 }

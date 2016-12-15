@@ -61,7 +61,7 @@ public class Police implements Runnable{
                         r.requested.removeWaitingCar(r.car);
 						if(r.car == r.requested.permitted) {
 							r.requested.permitted = null;
-							processingAfterLeave(r.requested);
+							triggerEventAfterLeaving(r.requested);
 						}
 						break;
 					case REQUEST2ENTER:
@@ -71,7 +71,7 @@ public class Police implements Runnable{
                             r.requested.removeWaitingCar(r.car);
                             if(r.car == r.requested.permitted){
 								r.requested.permitted = null;
-								processingAfterLeave(r.requested);
+								triggerEventAfterLeaving(r.requested);
 							}
                         }
 						else if(r.requested.isOccupied()){
@@ -108,9 +108,12 @@ public class Police implements Runnable{
 						break;
 					case BEFORE_ENTRY:
 						r.requested.removeWaitingCar(r.car);
+						break;
+					case AFTER_ENTRY:
+						r.requested.removeWaitingCar(r.car);
 						if (r.requested.permitted != null && r.requested.permitted != r.car && r.requested.permitted.loc != r.requested) { //enforce to enter
 							Car permittedCar = r.requested.permitted;
-//							r.requested.permitted = r.car;
+							r.requested.permitted = r.car;
 							//tell the permitted car to stop
 							System.out.println(permittedCar.name + " need to STOP!!!3");
 							r.requested.addWaitingCar(permittedCar);
@@ -121,35 +124,32 @@ public class Police implements Runnable{
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, permittedCar.name, permittedCar.loc.name, Command.STOP));
 						}
 						break;
-					case AFTER_ENTRY:
-						r.requested.removeWaitingCar(r.car);
-						break;
 					case BEFORE_LEAVE:
 						r.requested.removeWaitingCar(r.car);
 						break;
 					case AFTER_LEAVE:
 						if(r.requested.permitted == r.car)
 							r.requested.permitted = null;
-						processingAfterLeave(r.requested);
+						triggerEventAfterLeaving(r.requested);
 						break;
 					case BEFORE_VANISH:
 						r.requested.removeWaitingCar(r.car);
 						if(r.requested.permitted == r.car) {
 							r.requested.permitted = null;
-							processingAfterLeave(r.requested);
+							triggerEventAfterLeaving(r.requested);
 						}
 						break;
 					case AFTER_VANISH:
 						if(r.requested.permitted == r.car)
 							r.requested.permitted = null;
-						processingAfterLeave(r.requested);
+						triggerEventAfterLeaving(r.requested);
 						break;
 				}
 			}
 		}
 	}
 
-	private void processingAfterLeave(Road road) {
+	private void triggerEventAfterLeaving(Road road) {
 		if(road == null || road.isOccupied())
 			return;
 

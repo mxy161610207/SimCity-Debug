@@ -20,7 +20,6 @@ import nju.xiaofanli.util.Pair;
 public class TrafficMap extends JPanel{
     private static final long serialVersionUID = 1L;
     private static TrafficMap instance = null;
-    public static final boolean DIRECTION = true;
     public static final ConcurrentMap<String, Car> cars = new ConcurrentHashMap<>();
     public static final List<Car> carList = new ArrayList<>();
     public static final Set<Car> connectedCars = new HashSet<>();
@@ -31,7 +30,8 @@ public class TrafficMap extends JPanel{
     public static final List<Location> locationList = new ArrayList<>();
     public static final Sensor[][] sensors = new Sensor[10][];
     public static final List<Citizen> citizens = new ArrayList<>();
-    public static final List<Citizen> freeCitizens = new ArrayList<>();
+    private static final List<Citizen> freeCitizens = new ArrayList<>();
+    public static final JLabel mLabel = new JLabel("M");
     public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
@@ -102,6 +102,14 @@ public class TrafficMap extends JPanel{
             crashLettersPanels.put(panel, 0);
             panel.setVisible(false);
         }
+
+        mLabel.setFont(Resource.bold17dialog);
+//        mLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.black), BorderFactory.createEmptyBorder(-6, -1, -5, -1)));
+        mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
+        mLabel.setBackground(Color.WHITE);
+        mLabel.setOpaque(true);
+        mLabel.setSize(mLabel.getPreferredSize());
+        mLabel.setVisible(false);
     }
 
     private TrafficMap() {
@@ -147,6 +155,7 @@ public class TrafficMap extends JPanel{
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)
                 add(sensor.balloon);
+        add(mLabel);
         citizens.forEach(citizen -> add(citizen.icon));
         roads.values().forEach(road -> locations.put(road.name, road));
         buildings.values().forEach(building -> {
@@ -208,6 +217,13 @@ public class TrafficMap extends JPanel{
                 return null;
             }
             return freeCitizens.remove(random.nextInt(freeCitizens.size()));
+        }
+    }
+
+    public static void addAFreeCitizen(Citizen citizen) {
+        synchronized (freeCitizens) {
+            if (!freeCitizens.contains(citizen))
+                freeCitizens.add(citizen);
         }
     }
 
@@ -602,14 +618,8 @@ public class TrafficMap extends JPanel{
         Sensor prev = orders.poll(), next;
         while(!orders.isEmpty()){
             next = orders.poll();
-            if(TrafficMap.DIRECTION){
-                prev.nextSensor = next;
-                next.prevSensor = prev;
-            }
-            else{
-                prev.prevSensor = next;
-                next.nextSensor = prev;
-            }
+            prev.nextSensor = next;
+            next.prevSensor = prev;
             prev = next;
         }
 
@@ -624,7 +634,7 @@ public class TrafficMap extends JPanel{
     }
 
     private static void setSensor(Sensor sensor, Road prevRoad, Road nextRoad, Direction dir){
-        sensor.dir = TrafficMap.DIRECTION ? dir : oppositeDirOf(dir);
+        sensor.dir = dir;
         sensor.prevRoad = prevRoad;
         sensor.nextRoad = nextRoad;
         sensor.prevRoad.dir[sensor.prevRoad.dir[0] == Direction.UNKNOWN ? 0 : 1] = sensor.dir;
@@ -714,26 +724,14 @@ public class TrafficMap extends JPanel{
         crossroads[6].adjRoads.put(Direction.WEST, streets[16]);
         crossroads[6].adjRoads.put(Direction.EAST, streets[10]);
 
-        if(TrafficMap.DIRECTION){
-            streets[0].adjRoads.put(Direction.SOUTH, crossroads[1]);
-            streets[0].adjRoads.put(Direction.NORTH, crossroads[0]);
-            streets[2].adjRoads.put(Direction.EAST, crossroads[2]);
-            streets[2].adjRoads.put(Direction.WEST, crossroads[0]);
-            streets[10].adjRoads.put(Direction.WEST, crossroads[6]);
-            streets[10].adjRoads.put(Direction.EAST, crossroads[4]);
-            streets[17].adjRoads.put(Direction.NORTH, crossroads[6]);
-            streets[17].adjRoads.put(Direction.SOUTH, crossroads[5]);
-        }
-        else{
-            streets[0].adjRoads.put(Direction.SOUTH, crossroads[0]);
-            streets[0].adjRoads.put(Direction.NORTH, crossroads[1]);
-            streets[2].adjRoads.put(Direction.EAST, crossroads[0]);
-            streets[2].adjRoads.put(Direction.WEST, crossroads[2]);
-            streets[10].adjRoads.put(Direction.WEST, crossroads[4]);
-            streets[10].adjRoads.put(Direction.EAST, crossroads[6]);
-            streets[17].adjRoads.put(Direction.NORTH, crossroads[5]);
-            streets[17].adjRoads.put(Direction.SOUTH, crossroads[6]);
-        }
+        streets[0].adjRoads.put(Direction.SOUTH, crossroads[1]);
+        streets[0].adjRoads.put(Direction.NORTH, crossroads[0]);
+        streets[2].adjRoads.put(Direction.EAST, crossroads[2]);
+        streets[2].adjRoads.put(Direction.WEST, crossroads[0]);
+        streets[10].adjRoads.put(Direction.WEST, crossroads[6]);
+        streets[10].adjRoads.put(Direction.EAST, crossroads[4]);
+        streets[17].adjRoads.put(Direction.NORTH, crossroads[6]);
+        streets[17].adjRoads.put(Direction.SOUTH, crossroads[5]);
 
         streets[1].adjRoads.put(Direction.WEST, streets[4]);
         streets[1].adjRoads.put(Direction.SOUTH, streets[7]);
@@ -797,14 +795,8 @@ public class TrafficMap extends JPanel{
     }
 
     private static void setAccess(Road road, Road entry, Road exit){
-        if(TrafficMap.DIRECTION){
-            road.entrance2exit.put(entry, exit);
-            road.exit2entrance.put(exit, entry);
-        }
-        else{
-            road.entrance2exit.put(exit, entry);
-            road.exit2entrance.put(entry, exit);
-        }
+        road.entrance2exit.put(entry, exit);
+        road.exit2entrance.put(exit, entry);
     }
 
     public static void checkRealCrash() {

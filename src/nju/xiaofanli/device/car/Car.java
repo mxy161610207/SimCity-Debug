@@ -153,6 +153,7 @@ public class Car {
 //        if(name.equals(Car.BLACK) || name.equals(Car.RED))
         write(Command.RIGHT);
 
+        Delivery.updateDeliveryLimit();
         synchronized (Delivery.searchTasks) {
             if(Delivery.allBusy){
                 Delivery.allBusy = false;
@@ -247,10 +248,11 @@ public class Car {
 //        }
 
         setLoading(false);
-		notifyPolice(Police.AFTER_ENTRY, road);
         if (hasPhantom() && loc == realLoc && dir == realDir) {
             resetRealInfo();
         }
+        notifyPolice(Police.AFTER_ENTRY, road);
+
 		road.iconPanel.repaint();
         road.checkRealCrash();
 

@@ -101,7 +101,7 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void switchState(Car car, Sensor sensor, boolean isRealCar, boolean isTrueCtx, boolean triggerSth) {
+    public static void switchState(Car car, Sensor sensor, boolean isRealCar, boolean isTrueCtx, boolean triggerEvent) {
         switch(sensor.state){
             case Sensor.UNDETECTED:{
                 if(isTrueCtx){
@@ -129,23 +129,26 @@ public class BrickHandler extends Thread{
                 System.out.println("["+sensor.name+"] DETECT "+car.name);
                 car.enter(sensor.nextRoad, sensor.getNextRoadDir());
                 Remedy.updateRemedyQWhenDetect(car);
-                if (triggerSth) { //do triggered stuff
-                    if (car.dest == car.loc) {
-                        car.notifyPolice(Police.REQUEST2STOP);
-                        //trigger reach dest event
-                        if (EventManager.hasListener(Event.Type.CAR_REACH_DEST))
-                            EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
-                    }
-                    else
-                        car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
-
-                    //trigger context
-                    if (ContextManager.hasListener())
-                        ContextManager.trigger(new Context(sensor.name, car.name, car.getDirStr()));
-                }
+                if (triggerEvent) //do triggered stuff
+                    triggerEventAfterEntering(car, sensor);
             }
             break;
         }
+    }
+
+    public static void triggerEventAfterEntering(Car car, Sensor sensor) {
+        if (car.dest == car.loc) {
+            car.notifyPolice(Police.REQUEST2STOP);
+            //trigger reach dest event
+            if (EventManager.hasListener(Event.Type.CAR_REACH_DEST))
+                EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
+        }
+        else
+            car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
+
+        //trigger context
+        if (ContextManager.hasListener())
+            ContextManager.trigger(new Context(sensor.name, car.name, car.getDirStr()));
     }
 
     private static void switchState(Sensor sensor, int reading, long time){

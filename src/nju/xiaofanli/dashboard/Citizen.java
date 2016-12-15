@@ -21,7 +21,7 @@ public class Citizen implements Runnable {
     public Location loc = null, dest = null;
     public Car car = null;
     public CitizenIcon icon = null;
-    public boolean createdByUser = false; //used in taking taxis
+    public boolean manual = false; //used in taking taxis
     public boolean isRunning = false;
 
     public enum Gender {
@@ -63,12 +63,13 @@ public class Citizen implements Runnable {
         loc = dest = null;
         car = null;
         delay = 0;
-        isRunning = createdByUser = false;
-        icon.setVisible(false);
-        synchronized (TrafficMap.freeCitizens) {
-            if (!TrafficMap.freeCitizens.contains(this))
-                TrafficMap.freeCitizens.add(this);
+        isRunning = false;
+        if (manual) {
+            manual = false;
+            TrafficMap.mLabel.setVisible(false);
         }
+        icon.setVisible(false);
+        TrafficMap.addAFreeCitizen(this);
     }
 
     public void setAction(Action action){
@@ -190,15 +191,21 @@ public class Citizen implements Runnable {
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
-                        icon.setLocation(x-icon.getWidth()/8, y);
+                        icon.setLocation(x-icon.getXOffset(), y);
                         icon.setVisible(true);
-                        icon.setVisible(true);
+                        if (manual) {
+                            TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()+icon.getIconWidth()-TrafficMap.mLabel.getWidth(),
+                                    icon.getY()+icon.getIconHeight()-TrafficMap.mLabel.getHeight());
+                            TrafficMap.mLabel.setVisible(true);
+                        }
                     }
-                    Delivery.add(loc, dest, this, createdByUser);
+                    Delivery.add(loc, dest, this, manual);
                     break;
                 case TakeATaxi:
                     action = null;
                     icon.setVisible(false);// get on the taxi
+                    if (manual)
+                        TrafficMap.mLabel.setVisible(false);
                     PkgHandler.send(new AppPkg().setCitizen(name, false));
                     break;
                 case GetOff:
@@ -213,8 +220,13 @@ public class Citizen implements Runnable {
                             x = ((Building) loc).icon.coord.centerX;
                             y = ((Building) loc).icon.coord.centerY;
                         }
-                        icon.setLocation(x-icon.getWidth()/8, y);
+                        icon.setLocation(x-icon.getXOffset(), y);
                         icon.setVisible(true);
+                        if (manual) {
+                            TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()+icon.getIconWidth()-TrafficMap.mLabel.getWidth(),
+                                    icon.getY()+icon.getIconHeight()-TrafficMap.mLabel.getHeight());
+                            TrafficMap.mLabel.setVisible(true);
+                        }
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));
                         PkgHandler.send(new AppPkg().setCitizen(name, true));
@@ -363,7 +375,7 @@ public class Citizen implements Runnable {
         public ImageIcon imageIcon;
         public final Color color;
         public boolean blink = false;
-        static final int AVATAR_SIZE = CarIcon.SIZE;//(int) (0.8*CarIcon.AVATAR_SIZE);
+        static final int AVATAR_SIZE = CarIcon.SIZE;
 
         CitizenIcon(Citizen citizen, String iconFile, int rgb) {
             this.citizen = citizen;
@@ -380,7 +392,9 @@ public class Citizen implements Runnable {
             setText(citizen.name);
             setVerticalTextPosition(SwingConstants.BOTTOM);
             setHorizontalTextPosition(SwingConstants.CENTER);
-            setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+//            setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+            setFont(Resource.bold17dialog);
+            setIconTextGap(0);
             setSize(getPreferredSize());
         }
 
@@ -434,6 +448,18 @@ public class Citizen implements Runnable {
 
         public int getCenterY() {
             return getY() + getHeight() / 2;
+        }
+
+        public int getXOffset() {
+            return (getWidth() - getIcon().getIconWidth()) / 2;
+        }
+
+        public int getIconWidth() {
+            return getIcon().getIconWidth();
+        }
+
+        public int getIconHeight() {
+            return getIcon().getIconHeight();
         }
     }
 }

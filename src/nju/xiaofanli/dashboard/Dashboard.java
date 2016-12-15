@@ -531,7 +531,7 @@ public class Dashboard extends JFrame{
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
                         TrafficMap.getACitizen(), s.equals("u"));
                 Delivery.add(dt);
-//                if(dt.createdByUser)
+//                if(dt.manual)
 //                    Delivery.completedUserDelivNum++;
 //                else
 //                    Delivery.completedSysDelivNum++;
@@ -1139,6 +1139,9 @@ public class Dashboard extends JFrame{
                     firstLine = false;
                 else
                     strings.add(new Pair<>("\n", null));
+
+                if (dt.manual)
+                    strings.add(new Pair<>("[M] ", null));
                 strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
                 switch (dt.phase) {
                     case Delivery.DeliveryTask.SEARCH_CAR:
