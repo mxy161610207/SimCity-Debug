@@ -42,6 +42,7 @@ public class Dashboard extends JFrame{
     private static final JButton stopCarButton = new JButton("Stop");
     private static final JButton startAllCarsButton = new JButton("Start all");
     private static final JButton stopAllCarsButton = new JButton("Stop all");
+    private static final JPanel ongoingDTPanel = new JPanel(new BorderLayout());
     private static final JLabel deliveryCountLabel = new JLabel();
     private static final JTextPane deliveryPane = new JTextPane();
     private static final JScrollPane deliveryPaneScroll = new JScrollPane(deliveryPane);
@@ -53,13 +54,17 @@ public class Dashboard extends JFrame{
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
     private static final JButton ruleButton = new JButton("Rule");
+    private static final JButton langButton = new JButton("中文");
+    private static final JPanel deliveryPanel = new JPanel();
     private static final JButton startdButton = new JButton("Manually create a task");
-    private static final JButton deliverButton = new JButton("Deliver");
+    private static final JButton deliverButton = new JButton("Create");
     private static final JButton canceldButton = new JButton("Cancel");
+    private static final JPanel miscPanel = new JPanel();
     private static final JCheckBox jchkSensor = new JCheckBox("Show sensors");
     private static final JCheckBox jchkRoad = new JCheckBox("Show roads");
     private static final JCheckBox jchkBalloon = new JCheckBox("Show error");
     private static final JCheckBox jchkCrash = new JCheckBox("Play crash");
+    private static final JPanel scenarioPanel = new JPanel();
     private static final JRadioButton idealRadioButton = new JRadioButton("Ideal");
     private static final JRadioButton noisyRadioButton = new JRadioButton("Noisy");
     private static final JRadioButton fixedRadioButton = new JRadioButton("Fixed");
@@ -70,7 +75,8 @@ public class Dashboard extends JFrame{
     public static boolean showError = false;
     public static boolean playCrashSound = false;
 
-    private static final JPanel buttonRowPanel = new JPanel(new GridBagLayout());
+    private static final JLabel srcLabel = new JLabel("Src");
+    private static final JLabel destLabel = new JLabel("Dest");
     private static final JTextField srctf = new JTextField();
     private static final JTextField desttf = new JTextField();
     private static final JTextField console  = new JTextField("Console");
@@ -153,6 +159,8 @@ public class Dashboard extends JFrame{
         deviceButton.setMargin(new Insets(0, 0, 0, 0));
         ruleButton.setFont(Resource.bold16dialog);
         ruleButton.setMargin(new Insets(0, 0, 0, 0));
+        langButton.setFont(Resource.bold16dialog);
+        langButton.setMargin(new Insets(0, 0, 0, 0));
         startdButton.setFont(Resource.bold16dialog);
         startdButton.setMargin(new Insets(0, 0, 0, 0));
         deliverButton.setFont(Resource.bold16dialog);
@@ -424,6 +432,7 @@ public class Dashboard extends JFrame{
         gbc.gridheight = 1;
         gbc.weightx = gbc.weighty = 0;
 
+        JPanel buttonRowPanel = new JPanel(new GridBagLayout());
         rightPanel.add(buttonRowPanel, gbc);
         GridBagConstraints bgbc = new GridBagConstraints();
         bgbc.fill = GridBagConstraints.BOTH;
@@ -456,6 +465,10 @@ public class Dashboard extends JFrame{
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(ruleButton, bgbc);
         ruleButton.addActionListener(e -> showRuleDialog());
+
+        bgbc.gridx += bgbc.gridwidth;
+        buttonRowPanel.add(langButton, bgbc);
+        langButton.addActionListener(e -> switchLanguage());
 
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(console, bgbc);
@@ -573,7 +586,7 @@ public class Dashboard extends JFrame{
         });
 
         gbc.gridy += gbc.gridheight;
-        JPanel miscPanel = new JPanel();
+
         rightPanel.add(miscPanel, gbc);
         miscPanel.setBorder(BorderFactory.createTitledBorder("Display & sound options"));
         ((TitledBorder) miscPanel.getBorder()).setTitleFont(Resource.bold16dialog);
@@ -627,18 +640,17 @@ public class Dashboard extends JFrame{
         });
 
         gbc.gridy += gbc.gridheight;
-        JPanel CCPanel = new JPanel();
-        rightPanel.add(CCPanel, gbc);
-        CCPanel.setBorder(BorderFactory.createTitledBorder("Scenario selection"));
-        ((TitledBorder) CCPanel.getBorder()).setTitleFont(Resource.bold16dialog);
-        CCPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        rightPanel.add(scenarioPanel, gbc);
+        scenarioPanel.setBorder(BorderFactory.createTitledBorder("Scenario selection"));
+        ((TitledBorder) scenarioPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+        scenarioPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         ButtonGroup bg = new ButtonGroup();
         bg.add(idealRadioButton);
         bg.add(noisyRadioButton);
         bg.add(fixedRadioButton);
-        CCPanel.add(idealRadioButton);
-        CCPanel.add(noisyRadioButton);
-        CCPanel.add(fixedRadioButton);
+        scenarioPanel.add(idealRadioButton);
+        scenarioPanel.add(noisyRadioButton);
+        scenarioPanel.add(fixedRadioButton);
 
         idealRadioButton.addActionListener(e -> {
             if (selectedScenario == idealRadioButton)
@@ -757,7 +769,6 @@ public class Dashboard extends JFrame{
         });
 
         gbc.gridy += gbc.gridheight;
-        JPanel deliveryPanel = new JPanel();
         rightPanel.add(deliveryPanel, gbc);
         deliveryPanel.setBorder(BorderFactory.createTitledBorder("Taxi service"));
         ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(Resource.bold16dialog);
@@ -788,7 +799,6 @@ public class Dashboard extends JFrame{
         sgbc.fill = GridBagConstraints.BOTH;
         sgbc.gridx = sgbc.gridy = 0;
         sgbc.weightx = sgbc.weighty = 0;
-        JLabel srcLabel = new JLabel("Src");
         srcLabel.setFont(Resource.bold16dialog);
         srcPanel.add(srcLabel, sgbc);
         sgbc.gridx += sgbc.gridwidth;
@@ -797,7 +807,6 @@ public class Dashboard extends JFrame{
 
         sgbc.gridx = sgbc.gridy = 0;
         sgbc.weightx = sgbc.weighty = 0;
-        JLabel destLabel = new JLabel("Dest");
         destLabel.setFont(Resource.bold16dialog);
         destPanel.add(destLabel, sgbc);
         sgbc.gridx += sgbc.gridwidth;
@@ -860,7 +869,6 @@ public class Dashboard extends JFrame{
         gbc.weightx = 1;
         gbc.weighty = 0;
 
-        JPanel ongoingDTPanel = new JPanel(new BorderLayout());
         bottomPanel.add(ongoingDTPanel, gbc);
         ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Tasks"));
         ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(Resource.bold16dialog);
@@ -916,6 +924,61 @@ public class Dashboard extends JFrame{
         TrafficMap.enableSensorIcons(true);
     }
 
+    private static boolean useEnglish = true;
+    public static boolean useEnglish() {
+        return useEnglish;
+    }
+
+    private static void switchLanguage() {
+        useEnglish = !useEnglish;
+        getInstance().setTitle(useEnglish ? "Dashboard" : "控制面板");
+
+        ((TitledBorder) VCPanel.getBorder()).setTitle(useEnglish ? "Vehicle info" : "车辆信息");
+        updateVehicleConditionPanel();
+
+        resetButton.setText(useEnglish ? "Reset" : "重置");
+        deviceButton.setText(useEnglish ? "Device" : "设备");
+        ruleButton.setText(useEnglish ? "Rule" : "规则");
+        langButton.setText(useEnglish ? "中文" : "English"); //language switch button need to display the opposite text
+//        console.setText(useEnglish ? "Console" : "控制台");
+
+        ((TitledBorder) miscPanel.getBorder()).setTitle(useEnglish ? "Display & sound options" : "显示与声音选项");
+        jchkRoad.setText(useEnglish ? "Show roads" : "显示路名");
+        jchkSensor.setText(useEnglish ? "Show sensors" : "显示传感器");
+        jchkBalloon.setText(useEnglish ? "Show error" : "显示错误");
+        jchkCrash.setText(useEnglish ? "Play crash" : "播放撞车声");
+
+        ((TitledBorder) scenarioPanel.getBorder()).setTitle(useEnglish ? "Scenario selection" : "场景选择");
+        idealRadioButton.setText(useEnglish ? "Ideal" : "理想");
+        noisyRadioButton.setText(useEnglish ? "Noisy" : "包含错误");
+        fixedRadioButton.setText(useEnglish ? "Fixed" : "修复错误");
+
+        startCarButton.setText(useEnglish ? "Start" : "启动");
+        stopCarButton.setText(useEnglish ? "Stop" : "停止");
+        startAllCarsButton.setText(useEnglish ? "Start all" : "全启动");
+        stopAllCarsButton.setText(useEnglish ? "Stop all" : "全停止");
+
+        ((TitledBorder) deliveryPanel.getBorder()).setTitle(useEnglish ? "Taxi Service" : "打车服务");
+        jchkAutoGen.setText(useEnglish ? "Automatically generate tasks" : "自动产生任务");
+        srcLabel.setText(useEnglish ? "Src" : "起点");
+        destLabel.setText(useEnglish ? "Dest" : "终点");
+        startdButton.setText(useEnglish ? "Manually create a task" : "手动创建任务");
+        deliverButton.setText(useEnglish ? "Create" : "创建");
+        canceldButton.setText(useEnglish ? "Cancel" : "取消");
+
+        ((TitledBorder) ongoingDTPanel.getBorder()).setTitle(useEnglish ? "Tasks" : "任务");
+        updateDeliveryTaskPanel();
+
+        ((TitledBorder) logPaneScroll.getBorder()).setTitle(useEnglish ? "Logs" : "记录");
+        //TODO store printed logs and change their languages; choose the right language when printing logs
+
+        //TODO trafficMap
+
+        //TODO dialogs
+
+        getInstance().repaint();
+    }
+
     private static final JDialog deviceDialog = new JDialog(new JFrame(), "Device");
     public static void showDeviceDialog(boolean closable){
         if (closable && deviceDialog.isVisible()) {
@@ -943,6 +1006,7 @@ public class Dashboard extends JFrame{
         ruleDialog.setContentPane(ruleTextPane);
         ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }
+
     private static void showRuleDialog() {
         if (ruleDialog.isVisible()) {
             ruleDialog.setVisible(false);
@@ -1086,7 +1150,6 @@ public class Dashboard extends JFrame{
         dialog.setVisible(true);
     }
 
-
     public static void logCrashEvent(List<Car> cars) {
         if (cars == null || cars.isEmpty())
             return;
@@ -1148,8 +1211,8 @@ public class Dashboard extends JFrame{
         queue.addAll(Delivery.searchTasks);
         queue.addAll(Delivery.deliveryTasks);
         synchronized (deliveryCountLabel) {
-            deliveryCountLabel.setText("Ongoing: " + queue.size()
-                    + "    Completed: " + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
+            deliveryCountLabel.setText((useEnglish ? "Ongoing: " : "进行中: ") + queue.size()
+                    + (useEnglish ? "    Completed: " : "    已完成: ") + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
         }
         boolean firstLine = true;
         synchronized (deliveryPane) {
@@ -1166,17 +1229,26 @@ public class Dashboard extends JFrame{
                 text.append(dt.citizen.name, dt.citizen.icon.color);
                 switch (dt.phase) {
                     case Delivery.DeliveryTask.SEARCH_CAR:
-                        text.append(" at ").append(dt.src.name, Resource.DEEP_SKY_BLUE).append(" needs a taxi to ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
+                        text.append(useEnglish ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
+                                .append(useEnglish ? " needs a taxi to " : " 需要一辆车去 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
                         break;
                     case Delivery.DeliveryTask.HEAD4SRC:
-                        text.append(" at ").append(dt.src.name, Resource.DEEP_SKY_BLUE).append(" waits for ").append(dt.car.name, dt.car.icon.color);
+                        text.append(useEnglish ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
+                                .append(useEnglish ? " waits for " : " 等待 ").append(dt.car.name, dt.car.icon.color);
                         break;
                     case Delivery.DeliveryTask.HEAD4DEST:
-                        text.append(" gets on ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE)
-                                .append(" and heads for ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
+                        if (useEnglish)
+                            text.append(" gets on ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE)
+                                    .append(" and heads for ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
+                        else
+                            text.append(" 在 ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE).append(" 乘上了 ").append(dt.car.name, dt.car.icon.color)
+                                    .append(" 并向 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE).append(" 出发");
                         break;
                     case Delivery.DeliveryTask.COMPLETED:
-                        text.append(" gets off ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE);
+                        if (useEnglish)
+                            text.append(" gets off ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE);
+                        else
+                            text.append(" 在 ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下了 ").append(dt.car.name, dt.car.icon.color);
                         break;
                 }
             }
@@ -1372,7 +1444,7 @@ public class Dashboard extends JFrame{
                 if (src == null) {
                     src = icon.road;
                     updateDeliverySrcPanel(src.name);
-                    updateDeliveryDestPanel("Click any loc");
+                    updateDeliveryDestPanel(useEnglish ? "Click any loc" : "点击任意地点");
                 }
                 else if (dest == null) {
                     if (src instanceof Road && icon.road == src)
@@ -1464,7 +1536,7 @@ public class Dashboard extends JFrame{
                 if (src == null) {
                     src = building;
                     updateDeliverySrcPanel(src.name);
-                    updateDeliveryDestPanel("Click any loc");
+                    updateDeliveryDestPanel(useEnglish ? "Click any loc" : "点击任意地点");
                 }
                 else if (dest == null) {
                     if (building == src)

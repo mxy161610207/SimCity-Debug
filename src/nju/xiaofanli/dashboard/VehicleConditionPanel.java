@@ -23,9 +23,8 @@ class VehicleConditionPanel extends JPanel{
 	}
 	
 	void updateVC(Car car){
-		if(entries.containsKey(car)){
+		if(entries.containsKey(car))
 			entries.get(car).update();
-		}
 	}
 	
 	void addCar(Car car){
@@ -107,7 +106,7 @@ class VehicleConditionPanel extends JPanel{
                     text.setCaretPosition(doc.getLength());
                     text.insertComponent(dirIcons.get(car.dir));
                     if (car.loc != null)
-                        doc.insertString(doc.getLength(), "\nLoc: " + car.loc.name, null);
+                        doc.insertString(doc.getLength(), (Dashboard.useEnglish() ? "\nLoc: " : "\n位置: ") + car.loc.name, null);
 //                    if (car.dest != null)
 //                        doc.insertString(doc.getLength(), "\nDest: " + car.dest.name, null);
                 } catch (BadLocationException e) {

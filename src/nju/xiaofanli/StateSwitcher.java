@@ -92,6 +92,7 @@ public class StateSwitcher {
     }
 
     private static void wakeUp(final Object obj){
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (obj) {
             obj.notify();
         }
@@ -240,7 +241,7 @@ public class StateSwitcher {
             TrafficMap.checkRealCrash();
         }
 
-        public static void detectedBy(Sensor sensor) {
+        static void detectedBy(Sensor sensor) {
             if (isResetting()) {
                 Car car = resetTask.car2locate;
                 if (car != null && car.loc == null) {//still not located, then locate it
@@ -349,7 +350,7 @@ public class StateSwitcher {
         Relocation.add(car2relocate, sensor, detected);
     }
 
-    public static void startRelocationThread() {
+    static void startRelocationThread() {
         if (!relocation.isAlive())
             relocation.start();
     }
@@ -449,14 +450,14 @@ public class StateSwitcher {
                     backwardRelocate(r.car2relocate, r.sensor);
                 }
                 else { //if either one is curved, use forward relocation
-                    forwardRelocate(r.car2relocate, r.sensor, true, r.detected);
+                    forwardRelocate(r.car2relocate, r.sensor, r.detected);
                 }
             }
         }
 
-        private static void forwardRelocate(Car car, Sensor sensor, boolean knownLost, boolean detectedByNextNextSensor) {
+        private static void forwardRelocate(Car car, Sensor sensor, boolean detectedByNextNextSensor) {
             Map<Car, Sensor> relocatedCars = new HashMap<>();
-            forwardRelocateRecursively(car, sensor, knownLost, detectedByNextNextSensor, relocatedCars);
+            forwardRelocateRecursively(car, sensor, true, detectedByNextNextSensor, relocatedCars);
             relocatedCars.forEach(BrickHandler::triggerEventAfterEntering); //each car should trigger events when it's detected by the LAST sensor
         }
 
@@ -659,7 +660,7 @@ public class StateSwitcher {
             }
         }
 
-        public static void detectedBy(Sensor sensor) {
+        static void detectedBy(Sensor sensor) {
             if (isInterestedSensor(sensor)) {
                 isInterested = false;
                 interestedSensors.clear();
