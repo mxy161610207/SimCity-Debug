@@ -1,21 +1,20 @@
 package nju.xiaofanli.dashboard;
 
+import nju.xiaofanli.Resource;
+import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.StyledText;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.text.Style;
-
-import nju.xiaofanli.Resource;
-import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.device.sensor.Sensor;
-import nju.xiaofanli.util.Pair;
 
 public class TrafficMap extends JPanel{
     private static final long serialVersionUID = 1L;
@@ -810,10 +809,9 @@ public class TrafficMap extends JPanel{
                 return;
 
             if (loc instanceof Building)
-                Dashboard.append2pane(loc.name, null, roadPane);
+                Dashboard.append2pane(new StyledText(loc.name), roadPane);
             else if (loc instanceof Road) {
-                List<Pair<String, Style>> strings = new ArrayList<>();
-                strings.add(new Pair<>(loc.name, null));
+                StyledText text = new StyledText(loc.name);
 
                 Road road = (Road) loc;
                 Set<Car> allCars = new HashSet<>();
@@ -824,10 +822,10 @@ public class TrafficMap extends JPanel{
                     allCars.add(road.permitted);
 
                 if(!allCars.isEmpty())
-                    strings.add(new Pair<>("\n", null));
+                    text.append("\n");
                 allCars.forEach(car -> {
                     boolean hasBracket = false;
-                    strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
+                    text.append(car.name, car.icon.color);
                     StringBuilder sb = new StringBuilder();
                     if (car.hasPhantom()) {
                         if (road.cars.contains(car)) {
@@ -860,10 +858,10 @@ public class TrafficMap extends JPanel{
                             sb.append(", Waiting");
                     }
                     sb.append(hasBracket ? ")\n" : "\n");
-                    strings.add(new Pair<>(sb.toString(), null));
+                    text.append(sb.toString());
                 });
 
-                Dashboard.append2pane(strings, roadPane);
+                Dashboard.append2pane(text, roadPane);
             }
         }
     }

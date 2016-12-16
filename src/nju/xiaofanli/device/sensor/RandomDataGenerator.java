@@ -3,13 +3,12 @@ package nju.xiaofanli.device.sensor;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.consistency.context.Context;
+import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.dashboard.TrafficMap;
-import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.util.Pair;
+import nju.xiaofanli.util.StyledText;
 
-import javax.swing.text.Style;
 import java.util.*;
 
 /**
@@ -58,13 +57,10 @@ public class RandomDataGenerator implements Runnable{
                     Car car = disabled.get(sensor);
                     sensor.showBalloon(Context.FP, car.name, Middleware.isResolutionEnabled());
                     if (Middleware.isResolutionEnabled()) {
-                        List<Pair<String, Style>> strings = new ArrayList<>();
-                        strings.add(new Pair<>("Resolved a false positive (sensor ", null));
-                        strings.add(new Pair<>(sensor.name, Resource.getTextStyle(Resource.LIGHT_SKY_BLUE)));
-                        strings.add(new Pair<>(" detected ", null));
-                        strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-                        strings.add(new Pair<>(").\n", null));
-                        Dashboard.log(strings);
+                        StyledText text = new StyledText();
+                        text.append("Fixed a sensor error (sensor ").append(sensor.name, Resource.LIGHT_SKY_BLUE).append(" detected ")
+                                .append(car.name, car.icon.color).append(").\n");
+                        Dashboard.log(text);
                     }
                 }
             }

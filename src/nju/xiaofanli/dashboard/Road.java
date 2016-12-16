@@ -8,10 +8,9 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Car.CarIcon;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.Sensor;
-import nju.xiaofanli.util.Pair;
+import nju.xiaofanli.util.StyledText;
 
 import javax.swing.*;
-import javax.swing.text.Style;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -346,19 +345,16 @@ public abstract class Road extends Location{
 			Dashboard.showCrashEffect(this);
 			Dashboard.playCrashSound();
 
-			List<Pair<String, Style>> strings = new ArrayList<>();
+			StyledText text = new StyledText();
 			Iterator<Car> iter = allRealCars.iterator();
 			Car crashedCar = iter.next();
-			strings.add(new Pair<>(crashedCar.name, Resource.getTextStyle(crashedCar.icon.color)));
+			text.append(crashedCar.name, crashedCar.icon.color);
 			while (iter.hasNext()) {
-				strings.add(new Pair<>(", ", null));
 				crashedCar = iter.next();
-				strings.add(new Pair<>(crashedCar.name, Resource.getTextStyle(crashedCar.icon.color)));
+				text.append(", ").append(crashedCar.name, crashedCar.icon.color);
 			}
-			strings.add(new Pair<>(" crashed at ", null));
-			strings.add(new Pair<>(name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-			strings.add(new Pair<>(".\n", null));
-			Dashboard.log(strings);
+			text.append(" crashed at ").append(name, Resource.DEEP_SKY_BLUE).append(".\n");
+			Dashboard.log(text);
 
 			List<Car> frontCars = new ArrayList<>();
 			Set<TrafficMap.Direction> dirs = new HashSet<>();
@@ -366,7 +362,7 @@ public abstract class Road extends Location{
 				dirs.add(car.getRealDir());
 				frontCars.add(car);
 			});
-			Dashboard.showCrashDialog(frontCars);
+			Dashboard.logCrashEvent(frontCars);
 		}
 		else{
 			allRealCars.forEach(car -> {

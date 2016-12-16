@@ -8,8 +8,6 @@ package nju.xiaofanli.consistency.middleware;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.dashboard.Dashboard;
-import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.consistency.context.ContextChange;
 import nju.xiaofanli.consistency.context.Pattern;
@@ -17,12 +15,14 @@ import nju.xiaofanli.consistency.context.Rule;
 import nju.xiaofanli.consistency.dataLoader.Configuration;
 import nju.xiaofanli.consistency.dataLoader.PatternLoader;
 import nju.xiaofanli.consistency.dataLoader.RuleLoader;
+import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.util.Pair;
+import nju.xiaofanli.util.StyledText;
 
-import javax.swing.text.Style;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -62,7 +62,7 @@ public class Middleware {
         for(Rule rule : ruleSet){
             rule.setInitialFormula();
             rules.put(rule.getName(), rule);
-            System.out.println(rule.getName() + ": " + rule.getFormula());
+//            System.out.println(rule.getName() + ": " + rule.getFormula());
         }
 
         new Operation(patterns, rules);
@@ -125,13 +125,10 @@ public class Middleware {
                 if (detectionEnabled) {
                     sensor.showBalloon(Context.FP, car.name, resolutionEnabled);
                     if (resolutionEnabled) {
-                        List<Pair<String, Style>> strings = new ArrayList<>();
-                        strings.add(new Pair<>("Resolved a false positive (sensor ", null));
-                        strings.add(new Pair<>(sensor.name, Resource.getTextStyle(Resource.LIGHT_SKY_BLUE)));
-                        strings.add(new Pair<>(" detected ", null));
-                        strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-                        strings.add(new Pair<>(").\n", null));
-                        Dashboard.log(strings);
+                        StyledText text = new StyledText();
+                        text.append("Fixed a sensor error (sensor ").append(sensor.name, Resource.LIGHT_SKY_BLUE).append(" detected ")
+                                .append(car.name, car.icon.color).append(").\n");
+                        Dashboard.log(text);
                     }
                 }
                 if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)

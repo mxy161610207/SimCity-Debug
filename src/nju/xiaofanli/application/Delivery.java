@@ -8,12 +8,10 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
-import nju.xiaofanli.util.Pair;
+import nju.xiaofanli.util.StyledText;
 
-import javax.swing.text.Style;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.Queue;
 
 public class Delivery {
@@ -74,7 +72,7 @@ public class Delivery {
 						}
 					}
 					if(allBusy || res == null){
-						Dashboard.log("All cars are busy!\n", Resource.getTextStyle(Color.RED));
+						Dashboard.log(new StyledText("All cars are busy!\n", Color.RED));
 						continue;
 					}
 					searchTasks.poll();
@@ -209,16 +207,12 @@ public class Delivery {
                                 car.passenger = dt.citizen;
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
-                                List<Pair<String, Style>> strings = new ArrayList<>();
+                                StyledText text = new StyledText();
                                 if (dt.manual)
-                                    strings.add(new Pair<>("[M] ", null));
-                                strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-                                strings.add(new Pair<>(" picks up ", null));
-                                strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
-                                strings.add(new Pair<>(" at ", null));
-                                strings.add(new Pair<>(car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                                strings.add(new Pair<>(".\n", null));
-                                Dashboard.log(strings);
+                                    text.append("[M] ");
+                                text.append(car.name, car.icon.color).append(" picks up ").append(dt.citizen.name, dt.citizen.icon.color)
+                                        .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                                Dashboard.log(text);
                             }
                             //trigger end loading event
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
@@ -256,16 +250,13 @@ public class Delivery {
                                 dt.citizen.car = null;
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
-                                List<Pair<String, Style>> strings = new ArrayList<>();
+
+                                StyledText text = new StyledText();
                                 if (dt.manual)
-                                    strings.add(new Pair<>("[M] ", null));
-                                strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-                                strings.add(new Pair<>(" drops off ", null));
-                                strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
-                                strings.add(new Pair<>(" at ", null));
-                                strings.add(new Pair<>(car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                                strings.add(new Pair<>(".\n", null));
-                                Dashboard.log(strings);
+                                    text.append("[M] ");
+                                text.append(car.name, car.icon.color).append(" drops off ").append(dt.citizen.name, dt.citizen.icon.color)
+                                        .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                                Dashboard.log(text);
                             }
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))

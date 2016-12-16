@@ -1,32 +1,24 @@
 package nju.xiaofanli;
 
-import java.awt.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-
-import nju.xiaofanli.dashboard.Citizen;
-import nju.xiaofanli.dashboard.Road;
-import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.application.Delivery;
+import nju.xiaofanli.consistency.context.Rule;
+import nju.xiaofanli.consistency.middleware.Middleware;
+import nju.xiaofanli.dashboard.Citizen;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.dashboard.Road;
+import nju.xiaofanli.dashboard.TrafficMap;
+import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.Sensor;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Resource {
     public static final Font bold16dialog = new Font(Font.DIALOG, Font.BOLD, 16);
@@ -260,6 +252,10 @@ public class Resource {
 		return CITIZEN_ICONS;
 	}
 
+	public static Map<String, Rule> getRules() {
+		return Middleware.getRules();
+	}
+
 	public static ImageIcon loadImage(String filename, int width, int height) {
 		return loadImage(new ImageIcon(filename), width, height);
 	}
@@ -273,36 +269,4 @@ public class Resource {
         return new ImageIcon(image);
     }
 
-    public static Style getTextStyle(Color color) {
-		StyleContext sc = StyleContext.getDefaultStyleContext();
-		Style style = sc.getStyle(color.toString());
-		if (style == null) {
-			style = sc.addStyle(color.toString(), null);
-			StyleConstants.setForeground(style, color);
-		}
-		return style;
-	}
-
-	public static Style getTextStyle(boolean bold) {
-		String name = bold ? "bold" : "not bold";
-		StyleContext sc = StyleContext.getDefaultStyleContext();
-		Style style = sc.getStyle(name);
-		if (style == null) {
-			style = sc.addStyle(name, null);
-			StyleConstants.setBold(style, bold);
-		}
-		return style;
-	}
-
-	public static Style getTextStyle(Color color, boolean bold) {
-		String name = color.toString() + (bold ? "bold" : "not bold");
-		StyleContext sc = StyleContext.getDefaultStyleContext();
-		Style style = sc.getStyle(name);
-		if (style == null) {
-			style = sc.addStyle(name, null);
-			StyleConstants.setForeground(style, color);
-			StyleConstants.setBold(style, bold);
-		}
-		return style;
-	}
 }

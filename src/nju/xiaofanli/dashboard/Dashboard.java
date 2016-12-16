@@ -17,6 +17,7 @@ import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.util.Pair;
+import nju.xiaofanli.util.StyledText;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
@@ -51,6 +52,7 @@ public class Dashboard extends JFrame{
     private static final VehicleConditionPanel VCPanel = new VehicleConditionPanel();
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
+    private static final JButton ruleButton = new JButton("Rule");
     private static final JButton startdButton = new JButton("Manually create a task");
     private static final JButton deliverButton = new JButton("Deliver");
     private static final JButton canceldButton = new JButton("Cancel");
@@ -68,6 +70,7 @@ public class Dashboard extends JFrame{
     public static boolean showError = false;
     public static boolean playCrashSound = false;
 
+    private static final JPanel buttonRowPanel = new JPanel(new GridBagLayout());
     private static final JTextField srctf = new JTextField();
     private static final JTextField desttf = new JTextField();
     private static final JTextField console  = new JTextField("Console");
@@ -148,6 +151,8 @@ public class Dashboard extends JFrame{
         resetButton.setMargin(new Insets(0, 0, 0, 0));
         deviceButton.setFont(Resource.bold16dialog);
         deviceButton.setMargin(new Insets(0, 0, 0, 0));
+        ruleButton.setFont(Resource.bold16dialog);
+        ruleButton.setMargin(new Insets(0, 0, 0, 0));
         startdButton.setFont(Resource.bold16dialog);
         startdButton.setMargin(new Insets(0, 0, 0, 0));
         deliverButton.setFont(Resource.bold16dialog);
@@ -348,7 +353,7 @@ public class Dashboard extends JFrame{
     }
 
     private static JPanel controlPanel = null;
-    private static int controlPanelWidth = 1280, controlPanelHeight = 720;
+    private final static Dimension controlPanelDimension = new Dimension(1280, 720);
     public static void loadCtrlUI(){
         if(controlPanel != null){
             getInstance().setTitle("Dashboard");
@@ -357,8 +362,8 @@ public class Dashboard extends JFrame{
             return;
         }
         controlPanel = new JPanel(new GridBagLayout());
-        controlPanel.setPreferredSize(new Dimension(controlPanelWidth, controlPanelHeight));
-        controlPanel.setSize(controlPanelWidth, controlPanelHeight);
+        controlPanel.setPreferredSize(controlPanelDimension);
+        controlPanel.setSize(controlPanelDimension);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
 //		gbc.anchor = GridBagConstraints.CENTER;
@@ -382,7 +387,7 @@ public class Dashboard extends JFrame{
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1;
         gbc.weighty = 0;
-		leftPanel.setPreferredSize(new Dimension(230, 0));
+//		leftPanel.setPreferredSize(new Dimension(200, 0));
         controlPanel.add(leftPanel, gbc);
 
         gbc.gridx = 2;
@@ -419,9 +424,14 @@ public class Dashboard extends JFrame{
         gbc.gridheight = 1;
         gbc.weightx = gbc.weighty = 0;
 
-        JPanel tmpPanel = new JPanel(new GridLayout(1, 3, 4, 0));
-        rightPanel.add(tmpPanel, gbc);
-        tmpPanel.add(resetButton);
+        rightPanel.add(buttonRowPanel, gbc);
+        GridBagConstraints bgbc = new GridBagConstraints();
+        bgbc.fill = GridBagConstraints.BOTH;
+        bgbc.gridx = bgbc.gridy = 0;
+        bgbc.insets = new Insets(0, 2, 0, 2);
+        bgbc.weightx = 1;
+        bgbc.weighty = 0;
+        buttonRowPanel.add(resetButton, bgbc);
         resetButton.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if(!resetButton.isEnabled() || e.getButton() != MouseEvent.BUTTON3) // only focus on right click
@@ -439,10 +449,16 @@ public class Dashboard extends JFrame{
             StateSwitcher.startResetting();
         });
 
-        tmpPanel.add(deviceButton);
+        bgbc.gridx += bgbc.gridwidth;
+        buttonRowPanel.add(deviceButton, bgbc);
         deviceButton.addActionListener(e -> showDeviceDialog(true));
 
-        tmpPanel.add(console, gbc);
+        bgbc.gridx += bgbc.gridwidth;
+        buttonRowPanel.add(ruleButton, bgbc);
+        ruleButton.addActionListener(e -> showRuleDialog());
+
+        bgbc.gridx += bgbc.gridwidth;
+        buttonRowPanel.add(console, bgbc);
         console.addActionListener(e -> {
             String cmd = console.getText();
             if(cmd.startsWith("add car ")){
@@ -537,20 +553,16 @@ public class Dashboard extends JFrame{
 //                    Delivery.completedSysDelivNum++;
             }
             else if(cmd.equals("all busy")){
-                Dashboard.log("All cars are busy!\n", Resource.getTextStyle(Color.RED));
+                Dashboard.log(new StyledText("All cars are busy!\n", Color.RED));
             }
             else if(cmd.equals("pick") || cmd.equals("drop")) {
                 String carName = Car.getACarName();
                 Citizen citizen = TrafficMap.getACitizen();
                 Location loc = TrafficMap.getALocation();
-                List<Pair<String, Style>> strings = new ArrayList<>();
-                strings.add(new Pair<>(carName, Resource.getTextStyle(Car.colorOf(carName))));
-                strings.add(new Pair<>(cmd.equals("pick") ? " picks up " : " drops off ", null));
-                strings.add(new Pair<>(citizen.name, Resource.getTextStyle(citizen.icon.color)));
-                strings.add(new Pair<>(" at ", null));
-                strings.add(new Pair<>(loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                strings.add(new Pair<>(".\n", null));
-                Dashboard.log(strings);
+                StyledText text = new StyledText();
+                text.append(carName, Car.colorOf(carName)).append(cmd.equals("pick") ? " picks up " : " drops off ")
+                        .append(citizen.name, citizen.icon.color).append(" at ").append(loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                Dashboard.log(text);
             }
             else if(cmd.equals("wander")) {
                 for(Citizen citizen : Resource.getCitizens()) {
@@ -650,6 +662,9 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             jchkBalloon.setEnabled(false);
             jchkCrash.setEnabled(false);
+            ruleButton.setVisible(false);
+            if (ruleDialog.isVisible())
+                ruleDialog.setVisible(false);
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
         });
@@ -676,6 +691,7 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             TrafficMap.showFakeLocIconLabel(true);
             TrafficMap.showRealLocIconLabel(true);
+            ruleButton.setVisible(true);
         });
 
         fixedRadioButton.addActionListener(e -> {
@@ -698,6 +714,7 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
+            ruleButton.setVisible(true);
         });
 
         gbc.gridy += gbc.gridheight;
@@ -899,7 +916,7 @@ public class Dashboard extends JFrame{
         TrafficMap.enableSensorIcons(true);
     }
 
-    private static final JDialog deviceDialog = new JDialog(getInstance(), "Device");
+    private static final JDialog deviceDialog = new JDialog(new JFrame(), "Device");
     public static void showDeviceDialog(boolean closable){
         if (closable && deviceDialog.isVisible()) {
             deviceDialog.setVisible(false);
@@ -917,11 +934,44 @@ public class Dashboard extends JFrame{
         deviceDialog.setVisible(false);
     }
 
+    private static final JDialog ruleDialog = new JDialog(new JFrame(), "Rule");
+    private static final JTextPane ruleTextPane = new JTextPane();
+    static {
+        ruleTextPane.setEditable(false);
+        ruleTextPane.setBackground(null);
+        ruleTextPane.setFont(Resource.plain17dialog);
+        ruleDialog.setContentPane(ruleTextPane);
+        ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }
+    private static void showRuleDialog() {
+        if (ruleDialog.isVisible()) {
+            ruleDialog.setVisible(false);
+            return;
+        }
+
+        ruleTextPane.setText("");
+        StyledText text = new StyledText();
+        Map<String, String> treeMap = new TreeMap<>();
+        Resource.getRules().forEach((name, rule) -> treeMap.put(name, rule.getFormula().toString()));
+        boolean[] firstLine = new boolean[] {true};
+        treeMap.forEach((name, rule) -> {
+            if (!firstLine[0])
+                text.append("\n");
+            text.append(name+":", true).append(" "+rule);
+            firstLine[0] = false;
+        });
+        Dashboard.append2pane(text, ruleTextPane);
+
+        ruleDialog.pack();
+//		ruleDialog.setLocationRelativeTo(null);
+        ruleDialog.setVisible(true);
+    }
+
     private static final JDialog relocationDialog = new JDialog(getInstance(), "Relocation");
     private static final JTextPane relocationTextPane = new JTextPane();
     private static final JButton relocationDoneButton = new JButton("Done");
     static {
-        relocationTextPane.setBackground(null);
+        relocationTextPane.setBackground(Resource.SNOW4);
         relocationTextPane.setEditable(false);
         relocationTextPane.setFont(Resource.plain17dialog);
         relocationDoneButton.setFont(Resource.bold16dialog);
@@ -947,52 +997,37 @@ public class Dashboard extends JFrame{
         relocationDialog.add(relocationDoneButton, gbc);
         relocationDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         relocationDialog.setResizable(false);
-//        relocationDialog.setMinimumSize(new Dimension(200, 0));
-//        relocationDialog.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
+        relocationDialog.getContentPane().setBackground(Resource.SNOW4);
         relocationDialog.setLocationRelativeTo(null);
     }
 
     public static void showRelocationDialog(Car car) {
-        List<Pair<String, Style>> strings = new ArrayList<>();
-        strings.add(new Pair<>("Relocating ", null));
+        StyledText text = new StyledText("Relocating ");
         if (car != null)
-            strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-        strings.add(new Pair<>("...", null));
-        append2pane(strings, relocationTextPane);
+            text.append(car.name, car.icon.color);
+        text.append("...");
+        append2pane(text, relocationTextPane);
         relocationDialog.pack();
         relocationDialog.setVisible(true);
     }
 
     public static void showRelocationDialog(Car car, boolean successful, Road road) {
-        List<Pair<String, Style>> strings = new ArrayList<>(), strings2log = new ArrayList<>();
+        StyledText text = new StyledText(), text2log = new StyledText();
         if (successful) {
-            strings.add(new Pair<>("Successful", Resource.getTextStyle(Color.GREEN)));
-
-            strings2log.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-            strings2log.add(new Pair<>(" is relocated successfully.\n", null));
+            text.append("Successful", Color.GREEN);
+            text2log.append(car.name, car.icon.color).append(" is relocated successfully.\n");
         }
         else {
-            strings.add(new Pair<>("Failed\n", Resource.getTextStyle(Color.RED)));
-            strings.add(new Pair<>("Please put ", null));
-            strings.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-            strings.add(new Pair<>(" at ", null));
-            strings.add(new Pair<>(road.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-            strings.add(new Pair<>(".\n", null));
-            strings.add(new Pair<>("After", Resource.getTextStyle(true)));
-            strings.add(new Pair<>(" that, click ", null));
-            strings.add(new Pair<>("Done", Resource.getTextStyle(true)));
-            strings.add(new Pair<>(" button.", null));
+            text.append("Failed", Color.RED).append("\nPlease put ").append(car.name, car.icon.color).append(" at ")
+                    .append(road.name, Resource.DEEP_SKY_BLUE).append(".\n").append("After", true).append(" that, click ")
+                    .append("Done", true).append(" button.");
             relocationDoneButton.setVisible(true);
-
-            strings2log.add(new Pair<>("Fail", Resource.getTextStyle(Color.RED)));
-            strings2log.add(new Pair<>(" to relocate ", null));
-            strings2log.add(new Pair<>(car.name, Resource.getTextStyle(car.icon.color)));
-            strings2log.add(new Pair<>(".\n", null));
+            text2log.append("Fail", Color.RED).append(" to relocate ").append(car.name, car.icon.color).append(".\n");
         }
-        append2pane(strings, relocationTextPane);
+        append2pane(text, relocationTextPane);
         relocationDialog.pack();
         relocationDialog.setVisible(true);
-        log(strings2log);
+        log(text2log);
     }
 
     public static void clearRelocationDialog() {
@@ -1020,27 +1055,17 @@ public class Dashboard extends JFrame{
             resetButton.doClick();
         });
         JTextPane pane = new JTextPane();
-        pane.setBackground(null);
+        pane.setBackground(Resource.SNOW4);
         pane.setEditable(false);
         pane.setFont(Resource.plain17dialog);
         List<Car> cars = new ArrayList<>(Resource.getConnectedCars());
-        List<Pair<String, Style>> strings = new ArrayList<>();
-        strings.add(new Pair<>("Please put ", null));
-        strings.add(new Pair<>(cars.get(0).name, Resource.getTextStyle(cars.get(0).icon.color)));
-        strings.add(new Pair<>(" at ", null));
-        strings.add(new Pair<>(cars.get(0).loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-        for (int i = 1;i < cars.size();i++) {
-            strings.add(new Pair<>(", ", null));
-            strings.add(new Pair<>(cars.get(i).name, Resource.getTextStyle(cars.get(i).icon.color)));
-            strings.add(new Pair<>(" at ", null));
-            strings.add(new Pair<>(cars.get(i).loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-        }
-        strings.add(new Pair<>(".\n", null));
-        strings.add(new Pair<>("After", Resource.getTextStyle(true)));
-        strings.add(new Pair<>(" that, click ", null));
-        strings.add(new Pair<>("Reset", Resource.getTextStyle(true)));
-        strings.add(new Pair<>(" button.", null));
-        append2pane(strings, pane);
+
+        StyledText text = new StyledText();
+        text.append("Please put ").append(cars.get(0).name, cars.get(0).icon.color).append(" at ").append(cars.get(0).loc.name, Resource.DEEP_SKY_BLUE);
+        for (int i = 1;i < cars.size();i++)
+            text.append(", ").append(cars.get(i).name, cars.get(i).icon.color).append(" at ").append(cars.get(i).loc.name, Resource.DEEP_SKY_BLUE);
+        text.append(".\n").append("After", true).append(" that, click ").append("Reset", true).append(" button.");
+        append2pane(text, pane);
 
         dialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -1053,6 +1078,7 @@ public class Dashboard extends JFrame{
         gbc.insets = new Insets(5, 0, 5, 0);
         gbc.weightx = gbc.weighty = 0;
         dialog.add(button, gbc);
+        dialog.getContentPane().setBackground(Resource.SNOW4);
         dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(null);
@@ -1061,20 +1087,16 @@ public class Dashboard extends JFrame{
     }
 
 
-    public static void showCrashDialog(List<Car> cars) {
+    public static void logCrashEvent(List<Car> cars) {
         if (cars == null || cars.isEmpty())
             return;
 
-        List<Pair<String, Style>> strings = new ArrayList<>();
-        strings.add(new Pair<>("Please select ", null));
-        strings.add(new Pair<>(cars.get(0).name, Resource.getTextStyle(cars.get(0).icon.color)));
-        for (int i = 1;i < cars.size();i++) {
-            strings.add(new Pair<>(", or ", null));
-            strings.add(new Pair<>(cars.get(i).name, Resource.getTextStyle(cars.get(i).icon.color)));
-        }
-        strings.add(new Pair<>(", and click ", null));
-        strings.add(new Pair<>("Start", Resource.getTextStyle(true)));
-        strings.add(new Pair<>(" button to recover from the crash.\n", null));
+        StyledText text = new StyledText();
+        text.append("Please select ").append(cars.get(0).name, cars.get(0).icon.color);
+        for (int i = 1;i < cars.size();i++)
+            text.append(", or ").append(cars.get(i).name, cars.get(i).icon.color);
+        text.append(", and click ").append("Start", true).append(" button to recover from the crash.\n");
+        Dashboard.log(text);
 
 //        JTextPane pane = new JTextPane();
 //        pane.setBackground(null);
@@ -1082,7 +1104,6 @@ public class Dashboard extends JFrame{
 //        pane.setFont(Resource.plain17dialog);
 //        Dashboard.append2pane(strings, pane);
 //        JOptionPane.showMessageDialog(Dashboard.getInstance(), pane, "Recover from the crash", JOptionPane.PLAIN_MESSAGE, null);
-        Dashboard.log(strings);
     }
 
     public static Road getNearestRoad(int x, int y){
@@ -1133,46 +1154,33 @@ public class Dashboard extends JFrame{
         boolean firstLine = true;
         synchronized (deliveryPane) {
             deliveryPane.setText("");
-            List<Pair<String, Style>> strings = new ArrayList<>();
+            StyledText text = new StyledText();
             for (Delivery.DeliveryTask dt : queue) {
                 if(firstLine)
                     firstLine = false;
                 else
-                    strings.add(new Pair<>("\n", null));
+                    text.append("\n");
 
                 if (dt.manual)
-                    strings.add(new Pair<>("[M] ", null));
-                strings.add(new Pair<>(dt.citizen.name, Resource.getTextStyle(dt.citizen.icon.color)));
+                    text.append("[M] ");
+                text.append(dt.citizen.name, dt.citizen.icon.color);
                 switch (dt.phase) {
                     case Delivery.DeliveryTask.SEARCH_CAR:
-                        strings.add(new Pair<>(" at ", null));
-                        strings.add(new Pair<>(dt.src.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                        strings.add(new Pair<>(" needs a taxi to ", null));
-                        strings.add(new Pair<>(dt.dest.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
+                        text.append(" at ").append(dt.src.name, Resource.DEEP_SKY_BLUE).append(" needs a taxi to ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
                         break;
                     case Delivery.DeliveryTask.HEAD4SRC:
-                        strings.add(new Pair<>(" at ", null));
-                        strings.add(new Pair<>(dt.src.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                        strings.add(new Pair<>(" waits for ", null));
-                        strings.add(new Pair<>(dt.car.name, Resource.getTextStyle(dt.car.icon.color)));
+                        text.append(" at ").append(dt.src.name, Resource.DEEP_SKY_BLUE).append(" waits for ").append(dt.car.name, dt.car.icon.color);
                         break;
                     case Delivery.DeliveryTask.HEAD4DEST:
-                        strings.add(new Pair<>(" gets on ", null));
-                        strings.add(new Pair<>(dt.car.name, Resource.getTextStyle(dt.car.icon.color)));
-                        strings.add(new Pair<>(" at ", null));
-                        strings.add(new Pair<>(dt.car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
-                        strings.add(new Pair<>(" and heads for ", null));
-                        strings.add(new Pair<>(dt.dest.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
+                        text.append(" gets on ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE)
+                                .append(" and heads for ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
                         break;
                     case Delivery.DeliveryTask.COMPLETED:
-                        strings.add(new Pair<>(" gets off ", null));
-                        strings.add(new Pair<>(dt.car.name, Resource.getTextStyle(dt.car.icon.color)));
-                        strings.add(new Pair<>(" at ", null));
-                        strings.add(new Pair<>(dt.car.loc.name, Resource.getTextStyle(Resource.DEEP_SKY_BLUE)));
+                        text.append(" gets off ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE);
                         break;
                 }
             }
-            append2pane(strings, deliveryPane);
+            append2pane(text, deliveryPane);
         }
     }
 
@@ -1197,7 +1205,19 @@ public class Dashboard extends JFrame{
         }
     }
 
-    public static void append2pane(List<Pair<String, Style>> strings, JTextPane pane) {
+    public static void log(StyledText text) {
+        if (text == null)
+            return;
+        append2pane(text.getText(), logPane);
+    }
+
+    public static void append2pane(StyledText text, JTextPane pane) {
+        if (text == null)
+            return;
+        append2pane(text.getText(), pane);
+    }
+
+    private static void append2pane(List<Pair<String, Style>> strings, JTextPane pane) {
         if(strings == null || strings.isEmpty())
             return;
         synchronized (pane) {
@@ -1206,7 +1226,7 @@ public class Dashboard extends JFrame{
         }
     }
 
-    public static void append2pane(String str, Style style, JTextPane pane) {
+    private static void append2pane(String str, Style style, JTextPane pane) {
         if (style == null)
             style = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
         synchronized (pane) {
@@ -1218,14 +1238,6 @@ public class Dashboard extends JFrame{
                 e.printStackTrace();
             }
         }
-    }
-
-    public static void log(List<Pair<String, Style>> strings) {
-        append2pane(strings, logPane);
-    }
-
-    public static void log(String str, Style style) {
-        append2pane(str, style, logPane);
     }
 
     public static synchronized void addCar(Car car){
