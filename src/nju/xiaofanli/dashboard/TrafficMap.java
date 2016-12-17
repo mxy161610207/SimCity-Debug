@@ -951,7 +951,13 @@ public class TrafficMap extends JPanel{
     }
 
     static void switchLanguage() {
-        crossroadIconPanel.setText(Dashboard.useEnglish() ? "Crossroad" : "");
+        crossroadIconPanel.setText(Dashboard.useEnglish() ? "Crossroad" : "十字路口");
+        streetIconPanel.setText(Dashboard.useEnglish() ? "Street" : "单行道");
+        carIconPanel.setText(Dashboard.useEnglish() ? "Car" : "车辆");
+        fakeCarIconPanel.setText(Dashboard.useEnglish() ? "Fake location" : "虚假位置");
+        realCarIconPanel.setText(Dashboard.useEnglish() ? "Real location" : "真实位置");
+
+        ((TitledBorder) roadPaneScroll.getBorder()).setTitle(Dashboard.useEnglish() ? "Location info" : "位置信息");
     }
 
     public static Direction oppositeDirOf(Direction dir){

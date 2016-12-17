@@ -238,7 +238,8 @@ public class Dashboard extends JFrame{
             label.setIcon(Resource.getRedXImageIcon());
     }
 
-    private static JPanel checkingPanel = null;
+    private static JPanel checkingPanel = null, brickPanel = null, carPanel = null;
+    private static JButton shutdownButton = null;
     public static final int MARK_SIZE = 30;
     public static void loadCheckUI(){
         if(checkingPanel != null){
@@ -256,9 +257,9 @@ public class Dashboard extends JFrame{
         gbc.weightx = gbc.weighty = 1;
         //brick panel
         if(Resource.getBricks().size() > 0) {
-            JPanel brickPanel = new JPanel();
+            brickPanel = new JPanel();
             checkingPanel.add(brickPanel, gbc);
-            brickPanel.setBorder(BorderFactory.createTitledBorder("Bricks"));
+            brickPanel.setBorder(BorderFactory.createTitledBorder("Lego hosts"));
             ((TitledBorder) brickPanel.getBorder()).setTitleFont(Resource.bold16dialog);
             brickPanel.setLayout(new GridBagLayout());
             GridBagConstraints bgbc = new GridBagConstraints();
@@ -285,12 +286,12 @@ public class Dashboard extends JFrame{
             gbc.gridx = 0;
             gbc.gridy += gbc.gridheight;
             gbc.weightx = gbc.weighty = 0;
-            JButton shutDownBtn = new JButton("Shutdown");
-            shutDownBtn.setFont(Resource.bold16dialog);
-            shutDownBtn.setMargin(new Insets(0, 0, 0, 0));
-            checkingPanel.add(shutDownBtn, gbc);
-            shutDownBtn.addActionListener(e -> {
-                shutDownBtn.setEnabled(false);
+            shutdownButton = new JButton("Shutdown");
+            shutdownButton.setFont(Resource.bold16dialog);
+            shutdownButton.setMargin(new Insets(0, 0, 0, 0));
+            checkingPanel.add(shutdownButton, gbc);
+            shutdownButton.addActionListener(e -> {
+                shutdownButton.setEnabled(false);
                 int[] count = {Resource.getBricks().size()};
                 for(String name : Resource.getBricks())
                     Resource.execute(()->{
@@ -315,7 +316,7 @@ public class Dashboard extends JFrame{
                         }
                         synchronized (count){
                             if(--count[0] == 0)
-                                shutDownBtn.setEnabled(true);
+                                shutdownButton.setEnabled(true);
                         }
                     });
             });
@@ -326,7 +327,7 @@ public class Dashboard extends JFrame{
             gbc.gridy = 0;
             gbc.gridheight = 2;
             gbc.weightx = gbc.weighty = 1;
-            JPanel carPanel = new JPanel();
+            carPanel = new JPanel();
             checkingPanel.add(carPanel, gbc);
             carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
             ((TitledBorder) carPanel.getBorder()).setTitleFont(Resource.bold16dialog);
@@ -973,10 +974,24 @@ public class Dashboard extends JFrame{
 
         ((TitledBorder) logPaneScroll.getBorder()).setTitle(useEnglish ? "Logs" : "记录");
         changeLogsLanguage();
-        //TODO trafficMap
         TrafficMap.switchLanguage();
 
         //TODO dialogs
+        deviceDialog.setTitle(useEnglish ? "Device" : "设备");
+        if (brickPanel != null)
+            ((TitledBorder) brickPanel.getBorder()).setTitle(useEnglish ? "Lego hosts" : "乐高主机");
+        if (carPanel != null)
+            ((TitledBorder) carPanel.getBorder()).setTitle(useEnglish ? "Cars" : "车辆");
+        if (shutdownButton != null)
+            shutdownButton.setText(useEnglish ? "Shutdown" : "关机");
+        deviceDialog.repaint();
+
+        ruleDialog.setTitle(useEnglish ? "Rule" : "规则");
+        ruleDialog.repaint();
+
+        relocationDialog.setTitle(useEnglish ? "Relocation" : "重定位");
+        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
+        relocationDialog.repaint();
 
         getInstance().repaint();
     }
@@ -1073,7 +1088,7 @@ public class Dashboard extends JFrame{
             text.append(car.name, car.icon.color);
         text.append("...");
         append2pane(text, relocationTextPane);
-        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
+//        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
         relocationDialog.pack();
         relocationDialog.setVisible(true);
     }
