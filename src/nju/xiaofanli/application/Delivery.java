@@ -72,7 +72,7 @@ public class Delivery {
 						}
 					}
 					if(allBusy || res == null){
-						Dashboard.log(new StyledText("All cars are busy!\n", Color.RED));
+						Dashboard.log(new StyledText("All cars are busy!\n", Color.RED), new StyledText("所有车辆都被占用！\n", Color.RED));
 						continue;
 					}
 					searchTasks.poll();
@@ -207,12 +207,16 @@ public class Delivery {
                                 car.passenger = dt.citizen;
                                 dt.citizen.car = car;
                                 dt.citizen.setAction(Citizen.Action.TakeATaxi);
-                                StyledText text = new StyledText();
-                                if (dt.manual)
-                                    text.append("[M] ");
-                                text.append(car.name, car.icon.color).append(" picks up ").append(dt.citizen.name, dt.citizen.icon.color)
+                                StyledText enText = new StyledText(), chText = new StyledText();
+                                if (dt.manual) {
+                                    enText.append("[M] ");
+                                    chText.append("[M] ");
+                                }
+                                enText.append(car.name, car.icon.color).append(" picks up ").append(dt.citizen.name, dt.citizen.icon.color)
                                         .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
-                                Dashboard.log(text);
+                                chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
+                                        .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 上车。\n");
+                                Dashboard.log(enText, chText);
                             }
                             //trigger end loading event
                             if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
@@ -251,12 +255,16 @@ public class Delivery {
                                 dt.citizen.loc = car.loc;
                                 dt.citizen.setAction(Citizen.Action.GetOff);
 
-                                StyledText text = new StyledText();
-                                if (dt.manual)
-                                    text.append("[M] ");
-                                text.append(car.name, car.icon.color).append(" drops off ").append(dt.citizen.name, dt.citizen.icon.color)
+                                StyledText enText = new StyledText(), chText = new StyledText();
+                                if (dt.manual) {
+                                    enText.append("[M] ");
+                                    chText.append("[M] ");
+                                }
+                                enText.append(car.name, car.icon.color).append(" drops off ").append(dt.citizen.name, dt.citizen.icon.color)
                                         .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
-                                Dashboard.log(text);
+                                chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
+                                        .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下车。\n");
+                                Dashboard.log(enText, chText);
                             }
                             //trigger end unloading event
                             if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))

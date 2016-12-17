@@ -43,6 +43,7 @@ public class Main {
 		Dashboard.showInitDialog();
         TrafficMap.checkRealCrash(); // should never trigger crash, otherwise change cars' initial locations
 //		Dashboard.showCrashEffect(Resource.getRoad("Crossroad 2"));
+//		Resource.getBricks().forEach(name -> Dashboard.setDeviceStatus(name + " sample", true)); //TODO delete this
 	}
 
 	private static void addModule(){

@@ -57,10 +57,12 @@ public class RandomDataGenerator implements Runnable{
                     Car car = disabled.get(sensor);
                     sensor.showBalloon(Context.FP, car.name, Middleware.isResolutionEnabled());
                     if (Middleware.isResolutionEnabled()) {
-                        StyledText text = new StyledText();
-                        text.append("Fixed a sensor error (sensor ").append(sensor.name, Resource.LIGHT_SKY_BLUE).append(" detected ")
+                        StyledText enText = new StyledText(), chText = new StyledText();
+                        enText.append("Fixed a sensor error (sensor ").append(sensor.name, Resource.LIGHT_SKY_BLUE).append(" detected ")
                                 .append(car.name, car.icon.color).append(").\n");
-                        Dashboard.log(text);
+                        chText.append("已修复传感器错误（传感器 ").append(sensor.name, Resource.LIGHT_SKY_BLUE).append(" 检测到 ")
+                                .append(car.name, car.icon.color).append(" 经过）。\n");
+                        Dashboard.log(enText, chText);
                     }
                 }
             }

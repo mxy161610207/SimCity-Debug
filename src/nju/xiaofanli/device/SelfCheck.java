@@ -26,6 +26,7 @@ public class SelfCheck{
 	 */
 	public SelfCheck() {
 		List<BrickChecking> brickCheckingThreads = new ArrayList<>();
+		//TODO uncomment this
 		for(String name : Resource.getBricks()){
             deviceStatus.put(name, false);
 			BrickChecking thread = new BrickChecking(name);

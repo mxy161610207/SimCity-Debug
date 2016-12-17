@@ -345,16 +345,19 @@ public abstract class Road extends Location{
 			Dashboard.showCrashEffect(this);
 			Dashboard.playCrashSound();
 
-			StyledText text = new StyledText();
+			StyledText enText = new StyledText(), chText = new StyledText();
 			Iterator<Car> iter = allRealCars.iterator();
 			Car crashedCar = iter.next();
-			text.append(crashedCar.name, crashedCar.icon.color);
+			enText.append(crashedCar.name, crashedCar.icon.color);
+			chText.append(crashedCar.name, crashedCar.icon.color);
 			while (iter.hasNext()) {
 				crashedCar = iter.next();
-				text.append(", ").append(crashedCar.name, crashedCar.icon.color);
+				enText.append(", ").append(crashedCar.name, crashedCar.icon.color);
+				chText.append("，").append(crashedCar.name, crashedCar.icon.color);
 			}
-			text.append(" crashed at ").append(name, Resource.DEEP_SKY_BLUE).append(".\n");
-			Dashboard.log(text);
+			enText.append(" crashed at ").append(name, Resource.DEEP_SKY_BLUE).append(".\n");
+			enText.append(" 在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 相撞。\n");
+			Dashboard.log(enText, chText);
 
 			List<Car> frontCars = new ArrayList<>();
 			Set<TrafficMap.Direction> dirs = new HashSet<>();

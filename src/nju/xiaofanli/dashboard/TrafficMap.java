@@ -34,11 +34,11 @@ public class TrafficMap extends JPanel{
     public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
-    private static final JPanel crossroadIconPanel = createIconPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.bold17dialog),
-            streetIconPanel = createIconPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.bold17dialog),
-            carIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.bold17dialog),
-            fakeCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.bold15dialog),
-            realCarIconPanel = createIconPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.bold15dialog);
+    private static final IdentifierPanel crossroadIconPanel = new IdentifierPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.bold17dialog),
+            streetIconPanel = new IdentifierPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.bold17dialog),
+            carIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.bold17dialog),
+            fakeCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.bold15dialog),
+            realCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.bold15dialog);
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
     private static final Map<CrashLettersPanel, Integer> crashLettersPanels = new HashMap<>();
     private static final Map<Object, Object> roadAndCrashLettersPanel = new HashMap<>();
@@ -936,15 +936,6 @@ public class TrafficMap extends JPanel{
         return instance;
     }
 
-    private static JPanel createIconPanel(ImageIcon icon, int width, int height, String text, Font textFont) {
-        JPanel p = new JPanel(new BorderLayout());
-        p.add(new JLabel(Resource.loadImage(icon, width, height), JLabel.LEADING), BorderLayout.WEST);
-        JLabel textLabel = new JLabel(text, JLabel.TRAILING);
-        textLabel.setFont(textFont);
-        p.add(textLabel, BorderLayout.EAST);
-        return p;
-    }
-
     public static void showFakeLocIconLabel(boolean b) {
         fakeCarIconPanel.setVisible(b);
     }
@@ -957,6 +948,10 @@ public class TrafficMap extends JPanel{
         for (Sensor[] array : sensors)
             for(Sensor sensor : array)
                 sensor.icon.setEnabled(enable);
+    }
+
+    static void switchLanguage() {
+        crossroadIconPanel.setText(Dashboard.useEnglish() ? "Crossroad" : "");
     }
 
     public static Direction oppositeDirOf(Direction dir){
@@ -1001,6 +996,22 @@ public class TrafficMap extends JPanel{
                 return Direction.EAST;
             default:
                 return Direction.UNKNOWN;
+        }
+    }
+
+    private static class IdentifierPanel extends JPanel {
+        private final JLabel iconLabel, textLabel;
+        IdentifierPanel (ImageIcon icon, int width, int height, String text, Font textFont) {
+            setLayout(new BorderLayout());
+            iconLabel = new JLabel(Resource.loadImage(icon, width, height), JLabel.LEADING);
+            add(iconLabel, BorderLayout.WEST);
+            textLabel = new JLabel(text, JLabel.TRAILING);
+            textLabel.setFont(textFont);
+            add(textLabel, BorderLayout.EAST);
+        }
+
+        public void setText(String text) {
+            textLabel.setText(text);
         }
     }
 

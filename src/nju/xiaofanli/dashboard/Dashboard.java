@@ -566,16 +566,18 @@ public class Dashboard extends JFrame{
 //                    Delivery.completedSysDelivNum++;
             }
             else if(cmd.equals("all busy")){
-                Dashboard.log(new StyledText("All cars are busy!\n", Color.RED));
+                Dashboard.log(new StyledText("All cars are busy!\n", Color.RED), new StyledText("所有车辆都被占用！\n", Color.RED));
             }
             else if(cmd.equals("pick") || cmd.equals("drop")) {
                 String carName = Car.getACarName();
                 Citizen citizen = TrafficMap.getACitizen();
                 Location loc = TrafficMap.getALocation();
-                StyledText text = new StyledText();
-                text.append(carName, Car.colorOf(carName)).append(cmd.equals("pick") ? " picks up " : " drops off ")
+                StyledText enText = new StyledText(), chText = new StyledText();
+                enText.append(carName, Car.colorOf(carName)).append(cmd.equals("pick") ? " picks up " : " drops off ")
                         .append(citizen.name, citizen.icon.color).append(" at ").append(loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
-                Dashboard.log(text);
+                chText.append(carName, Car.colorOf(carName)).append(" 让 ").append(citizen.name, citizen.icon.color)
+                        .append(" 在 ").append(loc.name, Resource.DEEP_SKY_BLUE).append(cmd.equals("pick") ? " 上车。\n" : " 下车。\n");
+                Dashboard.log(enText, chText);
             }
             else if(cmd.equals("wander")) {
                 for(Citizen citizen : Resource.getCitizens()) {
@@ -970,9 +972,9 @@ public class Dashboard extends JFrame{
         updateDeliveryTaskPanel();
 
         ((TitledBorder) logPaneScroll.getBorder()).setTitle(useEnglish ? "Logs" : "记录");
-        //TODO store printed logs and change their languages; choose the right language when printing logs
-
+        changeLogsLanguage();
         //TODO trafficMap
+        TrafficMap.switchLanguage();
 
         //TODO dialogs
 
@@ -1066,32 +1068,37 @@ public class Dashboard extends JFrame{
     }
 
     public static void showRelocationDialog(Car car) {
-        StyledText text = new StyledText("Relocating ");
+        StyledText text = new StyledText(useEnglish ? "Relocating " : "正在重定位 ");
         if (car != null)
             text.append(car.name, car.icon.color);
         text.append("...");
         append2pane(text, relocationTextPane);
+        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
         relocationDialog.pack();
         relocationDialog.setVisible(true);
     }
 
     public static void showRelocationDialog(Car car, boolean successful, Road road) {
-        StyledText text = new StyledText(), text2log = new StyledText();
+        StyledText text = new StyledText(), enText2log = new StyledText(), chText2log = new StyledText();
         if (successful) {
-            text.append("Successful", Color.GREEN);
-            text2log.append(car.name, car.icon.color).append(" is relocated successfully.\n");
+            text.append(useEnglish ? "Successful" : "成功", Color.GREEN);
+            enText2log.append(car.name, car.icon.color).append(" is relocated successfully.\n");
+            chText2log.append(car.name, car.icon.color).append(" 重定位成功。\n");
         }
         else {
-            text.append("Failed", Color.RED).append("\nPlease put ").append(car.name, car.icon.color).append(" at ")
-                    .append(road.name, Resource.DEEP_SKY_BLUE).append(".\n").append("After", true).append(" that, click ")
-                    .append("Done", true).append(" button.");
+            text.append(useEnglish ? "Failed" : "失败", Color.RED).append(useEnglish ? "\nPlease put " : "\n请置 ")
+                    .append(car.name, car.icon.color).append(useEnglish ? " at " : " 于 ").append(road.name, Resource.DEEP_SKY_BLUE)
+                    .append(useEnglish ? ".\n" : "。\n").append(useEnglish ? "After" : "在此之后", true).append(useEnglish ? " that, click " : "，点击 ")
+                    .append(useEnglish ? "Done" : "完成", true).append(useEnglish ? " button." : " 按钮。");
             relocationDoneButton.setVisible(true);
-            text2log.append("Fail", Color.RED).append(" to relocate ").append(car.name, car.icon.color).append(".\n");
+            enText2log.append("Fail to relocate ").append(car.name, car.icon.color).append(".\n");
+            chText2log.append(car.name, car.icon.color).append(" 重定位失败。\n");
         }
         append2pane(text, relocationTextPane);
+        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
         relocationDialog.pack();
         relocationDialog.setVisible(true);
-        log(text2log);
+        log(enText2log, chText2log);
     }
 
     public static void clearRelocationDialog() {
@@ -1154,12 +1161,16 @@ public class Dashboard extends JFrame{
         if (cars == null || cars.isEmpty())
             return;
 
-        StyledText text = new StyledText();
-        text.append("Please select ").append(cars.get(0).name, cars.get(0).icon.color);
-        for (int i = 1;i < cars.size();i++)
-            text.append(", or ").append(cars.get(i).name, cars.get(i).icon.color);
-        text.append(", and click ").append("Start", true).append(" button to recover from the crash.\n");
-        Dashboard.log(text);
+        StyledText enText = new StyledText(), chText = new StyledText();
+        enText.append("Please select ").append(cars.get(0).name, cars.get(0).icon.color);
+        chText.append("请选择 ").append(cars.get(0).name, cars.get(0).icon.color);
+        for (int i = 1;i < cars.size();i++) {
+            enText.append(", or ").append(cars.get(i).name, cars.get(i).icon.color);
+            chText.append("，或 ").append(cars.get(i).name, cars.get(i).icon.color);
+        }
+        enText.append(", and click ").append("Start", true).append(" button to resolve the crash.\n");
+        chText.append("，接着点击 ").append("启动", true).append(" 按钮以消除撞车事故。\n");
+        Dashboard.log(enText, chText);
 
 //        JTextPane pane = new JTextPane();
 //        pane.setBackground(null);
@@ -1211,8 +1222,8 @@ public class Dashboard extends JFrame{
         queue.addAll(Delivery.searchTasks);
         queue.addAll(Delivery.deliveryTasks);
         synchronized (deliveryCountLabel) {
-            deliveryCountLabel.setText((useEnglish ? "Ongoing: " : "进行中: ") + queue.size()
-                    + (useEnglish ? "    Completed: " : "    已完成: ") + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
+            deliveryCountLabel.setText((useEnglish ? "Ongoing: " : "进行中：") + queue.size()
+                    + (useEnglish ? "    Completed: " : "    已完成：") + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
         }
         boolean firstLine = true;
         synchronized (deliveryPane) {
@@ -1277,10 +1288,34 @@ public class Dashboard extends JFrame{
         }
     }
 
-    public static void log(StyledText text) {
-        if (text == null)
+    private static Map<Boolean, List<StyledText>> logs = new HashMap<>();
+    static {
+        logs.put(true, new LinkedList<>());
+        logs.put(false, new LinkedList<>());
+    }
+
+    private static void changeLogsLanguage() {
+        synchronized (logPane) {
+            logPane.setText("");
+            logs.get(useEnglish).forEach(text -> append2pane(text, logPane));
+        }
+    }
+
+    /**
+     * @param enText text in English
+     * @param chText corresponding text in Chinese
+     */
+    public static void log(StyledText enText, StyledText chText) {
+        if (enText == null || chText == null)
             return;
-        append2pane(text.getText(), logPane);
+        logs.get(true).add(enText);
+        logs.get(false).add(chText);
+        for (List<StyledText> list : logs.values()) {
+            while (list.size() > 50)
+                list.remove(0);
+        }
+
+        append2pane(useEnglish ? enText.getText() : chText.getText(), logPane);
     }
 
     public static void append2pane(StyledText text, JTextPane pane) {
@@ -1292,6 +1327,7 @@ public class Dashboard extends JFrame{
     private static void append2pane(List<Pair<String, Style>> strings, JTextPane pane) {
         if(strings == null || strings.isEmpty())
             return;
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (pane) {
             for (Pair<String, Style> string : strings)
                 append2pane(string.first, string.second, pane);
@@ -1301,6 +1337,7 @@ public class Dashboard extends JFrame{
     private static void append2pane(String str, Style style, JTextPane pane) {
         if (style == null)
             style = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (pane) {
             StyledDocument doc = pane.getStyledDocument();
             try {
@@ -1368,6 +1405,7 @@ public class Dashboard extends JFrame{
         updateRemedyCommandPanel();
         updateVehicleConditionPanel();
         logPane.setText("");
+        logs.values().forEach(List::clear);
         jchkAutoGen.setSelected(false);
         enableStartCarButton(getSelectedCar() != null);
         enableStopCarButton(false);
