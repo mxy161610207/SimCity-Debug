@@ -166,6 +166,6 @@ public class ForallFormula extends Formula {
 
     @Override
     public String toString() {
-        return "\u2200" + variable + "\u2208" + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
+        return "\u2200" + variable + " \u2208 " + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
     }
 }

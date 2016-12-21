@@ -34,11 +34,11 @@ public class TrafficMap extends JPanel{
     public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
-    private static final IdentifierPanel crossroadIconPanel = new IdentifierPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.bold17dialog),
-            streetIconPanel = new IdentifierPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.bold17dialog),
-            carIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.bold17dialog),
-            fakeCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.bold15dialog),
-            realCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.bold15dialog);
+    private static final IdentifierPanel crossroadIconPanel = new IdentifierPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.en16bold),
+            streetIconPanel = new IdentifierPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.en16bold),
+            carIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.en16bold),
+            fakeCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.en15bold),
+            realCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.en15bold);
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
     private static final Map<CrashLettersPanel, Integer> crashLettersPanels = new HashMap<>();
     private static final Map<Object, Object> roadAndCrashLettersPanel = new HashMap<>();
@@ -84,10 +84,10 @@ public class TrafficMap extends JPanel{
         roadPaneScroll.setSize(U3, U3);
         roadPane.setEditable(false);
         roadPane.setBackground(Color.WHITE);
-        roadPane.setFont(Resource.plain17dialog);
+        roadPane.setFont(Resource.en17plain);
         roadPaneScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location info",
                 TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
-        ((TitledBorder) roadPaneScroll.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) roadPaneScroll.getBorder()).setTitleFont(Resource.en16bold);
         roadPaneScroll.setBackground(Color.LIGHT_GRAY);
         roadPane.setBackground(Resource.SNOW4);
 
@@ -102,7 +102,7 @@ public class TrafficMap extends JPanel{
             panel.setVisible(false);
         }
 
-        mLabel.setFont(Resource.bold17dialog);
+        mLabel.setFont(Resource.en16bold);
 //        mLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.black), BorderFactory.createEmptyBorder(-6, -1, -5, -1)));
         mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
         mLabel.setBackground(Color.WHITE);
@@ -1031,7 +1031,7 @@ public class TrafficMap extends JPanel{
             setLayout(null);
             setOpaque(false);
             setBackground(null);
-            setFont(Resource.bold16dialog);
+            setFont(Resource.en16bold);
             fm = getFontMetrics(getFont());
             icon.setSize(icon.getPreferredSize());
             CrashLettersPanel panel = this;

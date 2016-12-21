@@ -18,6 +18,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +27,11 @@ import java.util.List;
 public class Main {
 	public static boolean initial = true;
 	public static void main(String[] args) throws IOException {
+//		try {
+//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//		} catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
+//			e.printStackTrace();
+//		}
 		readConfigFile();
 		Dashboard.loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready

@@ -128,7 +128,7 @@ public class Dashboard extends JFrame{
 
     static {
         carbox.setEditable(false);
-        carbox.setFont(Resource.bold16dialog);
+        carbox.setFont(Resource.en16bold);
         carbox.addItemListener(e -> {
             Car car = Car.carOf((String) e.getItem());
             if (car == null)
@@ -145,47 +145,47 @@ public class Dashboard extends JFrame{
                     break;
             }
         });
-        startCarButton.setFont(Resource.bold16dialog);
+        startCarButton.setFont(Resource.en16bold);
         startCarButton.setMargin(new Insets(0, 0, 0, 0));
-        stopCarButton.setFont(Resource.bold16dialog);
+        stopCarButton.setFont(Resource.en16bold);
         stopCarButton.setMargin(new Insets(0, 0, 0, 0));
-        startAllCarsButton.setFont(Resource.bold16dialog);
+        startAllCarsButton.setFont(Resource.en16bold);
         startAllCarsButton.setMargin(new Insets(0, 0, 0, 0));
-        stopAllCarsButton.setFont(Resource.bold16dialog);
+        stopAllCarsButton.setFont(Resource.en16bold);
         stopAllCarsButton.setMargin(new Insets(0, 0, 0, 0));
-        resetButton.setFont(Resource.bold16dialog);
+        resetButton.setFont(Resource.en16bold);
         resetButton.setMargin(new Insets(0, 0, 0, 0));
-        deviceButton.setFont(Resource.bold16dialog);
+        deviceButton.setFont(Resource.en16bold);
         deviceButton.setMargin(new Insets(0, 0, 0, 0));
-        ruleButton.setFont(Resource.bold16dialog);
+        ruleButton.setFont(Resource.en16bold);
         ruleButton.setMargin(new Insets(0, 0, 0, 0));
-        langButton.setFont(Resource.bold16dialog);
+        langButton.setFont(Resource.en16bold);
         langButton.setMargin(new Insets(0, 0, 0, 0));
-        startdButton.setFont(Resource.bold16dialog);
+        startdButton.setFont(Resource.en16bold);
         startdButton.setMargin(new Insets(0, 0, 0, 0));
-        deliverButton.setFont(Resource.bold16dialog);
+        deliverButton.setFont(Resource.en16bold);
         deliverButton.setMargin(new Insets(0, 0, 0, 0));
-        canceldButton.setFont(Resource.bold16dialog);
+        canceldButton.setFont(Resource.en16bold);
         canceldButton.setMargin(new Insets(0, 0, 0, 0));
-        jchkSensor.setFont(Resource.bold16dialog);
-        jchkRoad.setFont(Resource.bold16dialog);
-        jchkBalloon.setFont(Resource.bold16dialog);
-        jchkCrash.setFont(Resource.bold16dialog);
-        idealRadioButton.setFont(Resource.bold16dialog);
-        noisyRadioButton.setFont(Resource.bold16dialog);
-        fixedRadioButton.setFont(Resource.bold16dialog);
-        jchkAutoGen.setFont(Resource.bold16dialog);
-        srctf.setFont(Resource.bold16dialog);
+        jchkSensor.setFont(Resource.en16bold);
+        jchkRoad.setFont(Resource.en16bold);
+        jchkBalloon.setFont(Resource.en16bold);
+        jchkCrash.setFont(Resource.en16bold);
+        idealRadioButton.setFont(Resource.en16bold);
+        noisyRadioButton.setFont(Resource.en16bold);
+        fixedRadioButton.setFont(Resource.en16bold);
+        jchkAutoGen.setFont(Resource.en16bold);
+        srctf.setFont(Resource.en16bold);
         srctf.setEditable(false);
-        desttf.setFont(Resource.bold16dialog);
+        desttf.setFont(Resource.en16bold);
         desttf.setEditable(false);
-        console.setFont(Resource.bold16dialog);
-        deliveryCountLabel.setFont(Resource.bold16dialog);
+        console.setFont(Resource.en16bold);
+        deliveryCountLabel.setFont(Resource.en16bold);
         deliveryCountLabel.setBackground(null);
         deliveryPane.setEditable(false);
         deliveryPane.setBackground(Resource.SNOW4);
 //        deliveryPane.setContentType("text/html");
-        deliveryPane.setFont(Resource.plain17dialog);
+        deliveryPane.setFont(Resource.en17plain);
         deliveryPaneScroll.setBorder(BorderFactory.createEmptyBorder());
 //        deliveryPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         deliveryPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -195,12 +195,12 @@ public class Dashboard extends JFrame{
         logPaneScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         logPaneScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 //        logPaneScroll.setBackground(Resource.SNOW4);
-        logPane.setFont(Resource.plain17dialog);
+        logPane.setFont(Resource.en17plain);
         logPane.setEditable(false);
         logPane.setBackground(Resource.SNOW4);
         ((DefaultCaret) logPane.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-        remedyta.setFont(Resource.plain17dialog);
+        remedyta.setFont(Resource.en17plain);
         remedyta.setEditable(false);
         remedyta.setBackground(null);
 //		updateRemedyCommandPanel();
@@ -260,7 +260,7 @@ public class Dashboard extends JFrame{
             brickPanel = new JPanel();
             checkingPanel.add(brickPanel, gbc);
             brickPanel.setBorder(BorderFactory.createTitledBorder("Lego hosts"));
-            ((TitledBorder) brickPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+            ((TitledBorder) brickPanel.getBorder()).setTitleFont(Resource.en16bold);
             brickPanel.setLayout(new GridBagLayout());
             GridBagConstraints bgbc = new GridBagConstraints();
 //		bgbc.fill = GridBagConstraints.BOTH;
@@ -270,7 +270,7 @@ public class Dashboard extends JFrame{
             for (String name : Resource.getBricks()) {
                 bgbc.anchor = GridBagConstraints.WEST;
                 JLabel nameLabel = new JLabel(name);
-                nameLabel.setFont(Resource.plain17dialog);
+                nameLabel.setFont(Resource.en17plain);
                 brickPanel.add(nameLabel, bgbc);
                 bgbc.gridx += bgbc.gridwidth;
                 bgbc.anchor = GridBagConstraints.EAST;
@@ -287,7 +287,7 @@ public class Dashboard extends JFrame{
             gbc.gridy += gbc.gridheight;
             gbc.weightx = gbc.weighty = 0;
             shutdownButton = new JButton("Shutdown");
-            shutdownButton.setFont(Resource.bold16dialog);
+            shutdownButton.setFont(Resource.en16bold);
             shutdownButton.setMargin(new Insets(0, 0, 0, 0));
             checkingPanel.add(shutdownButton, gbc);
             shutdownButton.addActionListener(e -> {
@@ -330,7 +330,7 @@ public class Dashboard extends JFrame{
             carPanel = new JPanel();
             checkingPanel.add(carPanel, gbc);
             carPanel.setBorder(BorderFactory.createTitledBorder("Cars"));
-            ((TitledBorder) carPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+            ((TitledBorder) carPanel.getBorder()).setTitleFont(Resource.en16bold);
             carPanel.setLayout(new GridBagLayout());
             GridBagConstraints cgbc = new GridBagConstraints();
 //		cgbc.fill = GridBagConstraints.BOTH;
@@ -340,7 +340,7 @@ public class Dashboard extends JFrame{
             for (Car car : Resource.getCars()) {
                 cgbc.anchor = GridBagConstraints.WEST;
                 JLabel nameLabel = new JLabel(car.name);
-                nameLabel.setFont(Resource.plain17dialog);
+                nameLabel.setFont(Resource.en17plain);
                 carPanel.add(nameLabel, cgbc);
                 cgbc.gridx += cgbc.gridwidth;
                 cgbc.anchor = GridBagConstraints.EAST;
@@ -423,7 +423,7 @@ public class Dashboard extends JFrame{
         gbc.weightx = gbc.weighty = 1;
 
         VCPanel.setBorder(BorderFactory.createTitledBorder("Vehicle info"));
-        ((TitledBorder) VCPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) VCPanel.getBorder()).setTitleFont(Resource.en16bold);
         leftPanel.add(VCPanel, gbc);
 
         //right panel settings
@@ -592,7 +592,7 @@ public class Dashboard extends JFrame{
 
         rightPanel.add(miscPanel, gbc);
         miscPanel.setBorder(BorderFactory.createTitledBorder("Display & sound options"));
-        ((TitledBorder) miscPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) miscPanel.getBorder()).setTitleFont(Resource.en16bold);
         miscPanel.setLayout(new GridLayout(2, 1));
         JPanel topMiscPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)),
                 bottomMiscPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -645,7 +645,7 @@ public class Dashboard extends JFrame{
         gbc.gridy += gbc.gridheight;
         rightPanel.add(scenarioPanel, gbc);
         scenarioPanel.setBorder(BorderFactory.createTitledBorder("Scenario selection"));
-        ((TitledBorder) scenarioPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) scenarioPanel.getBorder()).setTitleFont(Resource.en16bold);
         scenarioPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         ButtonGroup bg = new ButtonGroup();
         bg.add(idealRadioButton);
@@ -774,7 +774,7 @@ public class Dashboard extends JFrame{
         gbc.gridy += gbc.gridheight;
         rightPanel.add(deliveryPanel, gbc);
         deliveryPanel.setBorder(BorderFactory.createTitledBorder("Taxi service"));
-        ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) deliveryPanel.getBorder()).setTitleFont(Resource.en16bold);
         deliveryPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints dgbc = new GridBagConstraints();
@@ -802,7 +802,7 @@ public class Dashboard extends JFrame{
         sgbc.fill = GridBagConstraints.BOTH;
         sgbc.gridx = sgbc.gridy = 0;
         sgbc.weightx = sgbc.weighty = 0;
-        srcLabel.setFont(Resource.bold16dialog);
+        srcLabel.setFont(Resource.en16bold);
         srcPanel.add(srcLabel, sgbc);
         sgbc.gridx += sgbc.gridwidth;
         sgbc.weightx = 1;
@@ -810,7 +810,7 @@ public class Dashboard extends JFrame{
 
         sgbc.gridx = sgbc.gridy = 0;
         sgbc.weightx = sgbc.weighty = 0;
-        destLabel.setFont(Resource.bold16dialog);
+        destLabel.setFont(Resource.en16bold);
         destPanel.add(destLabel, sgbc);
         sgbc.gridx += sgbc.gridwidth;
         sgbc.weightx = 1;
@@ -874,7 +874,7 @@ public class Dashboard extends JFrame{
 
         bottomPanel.add(ongoingDTPanel, gbc);
         ongoingDTPanel.setBorder(BorderFactory.createTitledBorder("Tasks"));
-        ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) ongoingDTPanel.getBorder()).setTitleFont(Resource.en16bold);
 //        ongoingDTPanel.setBackground(Resource.SNOW4);
         ongoingDTPanel.add(deliveryCountLabel, BorderLayout.NORTH);
         ongoingDTPanel.add(deliveryPane, BorderLayout.CENTER);
@@ -884,7 +884,7 @@ public class Dashboard extends JFrame{
         gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1;
         logPaneScroll.setBorder(BorderFactory.createTitledBorder("Logs"));
-        ((TitledBorder) logPaneScroll.getBorder()).setTitleFont(Resource.bold16dialog);
+        ((TitledBorder) logPaneScroll.getBorder()).setTitleFont(Resource.en16bold);
         bottomPanel.add(logPaneScroll, gbc);
         new Thread(blinkThread, "Blink Thread").start();
 
@@ -1017,11 +1017,18 @@ public class Dashboard extends JFrame{
     private static final JDialog ruleDialog = new JDialog(new JFrame(), "Rule");
     private static final JTextPane ruleTextPane = new JTextPane();
     static {
+        JScrollPane scrollPane = new JScrollPane(ruleTextPane);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         ruleTextPane.setEditable(false);
         ruleTextPane.setBackground(null);
-        ruleTextPane.setFont(Resource.plain17dialog);
-        ruleDialog.setContentPane(ruleTextPane);
+        ruleTextPane.setFont(Resource.en17plain);
+        ruleTextPane.setSize(controlPanelDimension);
+        ruleTextPane.setPreferredSize(controlPanelDimension);
+        ruleTextPane.setLogicalStyle(StyledText.getTextStyle(ruleTextPane.getFont(), 0.5f));
+        ruleDialog.setContentPane(scrollPane);
         ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
+//        ruleDialog.setSize(controlPanelDimension);
     }
 
     private static void showRuleDialog() {
@@ -1044,7 +1051,6 @@ public class Dashboard extends JFrame{
         Dashboard.append2pane(text, ruleTextPane);
 
         ruleDialog.pack();
-//		ruleDialog.setLocationRelativeTo(null);
         ruleDialog.setVisible(true);
     }
 
@@ -1054,8 +1060,8 @@ public class Dashboard extends JFrame{
     static {
         relocationTextPane.setBackground(Resource.SNOW4);
         relocationTextPane.setEditable(false);
-        relocationTextPane.setFont(Resource.plain17dialog);
-        relocationDoneButton.setFont(Resource.bold16dialog);
+        relocationTextPane.setFont(Resource.en17plain);
+        relocationDoneButton.setFont(Resource.en16bold);
         relocationDoneButton.setMargin(new Insets(2, 5, 2, 5));
         relocationDoneButton.setVisible(false);
         relocationDoneButton.addActionListener(e -> {
@@ -1134,7 +1140,7 @@ public class Dashboard extends JFrame{
             return;
         JDialog dialog = new JDialog(getInstance(), "Initialization");
         JButton button = new JButton("Reset");
-        button.setFont(Resource.bold16dialog);
+        button.setFont(Resource.en16bold);
         button.setMargin(new Insets(2, 5, 2, 5));
         button.addActionListener(e -> {
             dialog.dispose();
@@ -1143,7 +1149,7 @@ public class Dashboard extends JFrame{
         JTextPane pane = new JTextPane();
         pane.setBackground(Resource.SNOW4);
         pane.setEditable(false);
-        pane.setFont(Resource.plain17dialog);
+        pane.setFont(Resource.en17plain);
         List<Car> cars = new ArrayList<>(Resource.getConnectedCars());
 
         StyledText text = new StyledText();
@@ -1190,7 +1196,7 @@ public class Dashboard extends JFrame{
 //        JTextPane pane = new JTextPane();
 //        pane.setBackground(null);
 //        pane.setEditable(false);
-//        pane.setFont(Resource.plain17dialog);
+//        pane.setFont(Resource.en17plain);
 //        Dashboard.append2pane(strings, pane);
 //        JOptionPane.showMessageDialog(Dashboard.getInstance(), pane, "Recover from the crash", JOptionPane.PLAIN_MESSAGE, null);
     }

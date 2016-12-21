@@ -111,7 +111,7 @@ public class OrFormula extends Formula {
     @Override
     public String toString() {
         String s = first.needBrackets() ? "(" + first + ")" : first.toString();
-        s += "\u2228";
+        s += " \u2228 ";
         s += second.needBrackets() ? "(" + second + ")" : second.toString();
         return s;
     }

@@ -21,12 +21,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Resource {
-    public static final Font bold16dialog = new Font(Font.DIALOG, Font.BOLD, 16);
-    public static final Font bold15dialog = new Font(Font.DIALOG, Font.BOLD, 15);
-    public static final Font plain17dialog = new Font(Font.DIALOG, Font.PLAIN, 17);
-    public static final Font bold17dialog = new Font(Font.DIALOG, Font.BOLD, 17);
-    public static final Font bold20dialog = new Font(Font.DIALOG, Font.BOLD, 20);
-    private static ExecutorService threadPool = Executors.newCachedThreadPool();
+	public static final Font en15bold = new Font(Font.DIALOG, Font.BOLD, 15);
+	public static final Font ch15bold = new Font("Microsoft YaHei", Font.BOLD, 15);
+    public static final Font en16bold = new Font(Font.DIALOG, Font.BOLD, 16);
+	public static final Font ch16bold = new Font("Microsoft YaHei", Font.BOLD, 16);
+    public static final Font en17plain = new Font(Font.DIALOG, Font.PLAIN, 17);
+	public static final Font ch17plain = new Font("Microsoft YaHei", Font.PLAIN, 17);
+	private static ExecutorService threadPool = Executors.newCachedThreadPool();
 	private static Map<String, String> brickAddr = new HashMap<>();
 	public final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON, BLACK_QUESTION_ICON, GREEN_CHECK_ICON,
 			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,

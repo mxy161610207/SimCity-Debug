@@ -392,8 +392,7 @@ public class Citizen implements Runnable {
             setText(citizen.name);
             setVerticalTextPosition(SwingConstants.BOTTOM);
             setHorizontalTextPosition(SwingConstants.CENTER);
-//            setFont(new Font(Font.DIALOG, Font.BOLD, 14));
-            setFont(Resource.bold17dialog);
+            setFont(Resource.en16bold);
             setIconTextGap(0);
             setSize(getPreferredSize());
         }

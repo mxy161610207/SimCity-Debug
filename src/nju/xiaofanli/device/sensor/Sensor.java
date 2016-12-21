@@ -46,7 +46,7 @@ public class Sensor {
         leaveThreshold = (int) (undetectedReading[bid][sid] * 0.9);//entryThreshold + 1; //11;
 
         icon = new JButton(name);
-        icon.setFont(Resource.bold16dialog);
+        icon.setFont(Resource.en16bold);
         icon.setVisible(false);
         icon.setMargin(new Insets(0, 0, 0, 0));
         icon.addMouseListener(new SensorIconListener(this));

@@ -116,7 +116,7 @@ public class ImpliesFormula extends Formula {
     @Override
     public String toString() {
         String s = first.needBrackets() ? "(" + first + ")" : first.toString();
-        s += "\u2192";
+        s += " \u2192 ";
         s += second.needBrackets() ? "(" + second + ")" : second.toString();
         return s;
     }

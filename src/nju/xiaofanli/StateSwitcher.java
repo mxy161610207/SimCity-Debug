@@ -463,14 +463,6 @@ public class StateSwitcher {
 
         private static void forwardRelocateRecursively(Car car, Sensor sensor, boolean knownLost, boolean detectedByNextNextSensor, final Map<Car, Sensor> relocatedCars) {
             checkIfSuspended();
-            Road nextRoad = sensor.nextRoad;
-            while (!nextRoad.allRealCars.isEmpty()) {
-                Car car1 = nextRoad.allRealCars.peek();
-                forwardRelocateRecursively(car1, nextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
-                if (!nextRoad.allRealCars.isEmpty())
-                    System.err.println("There still is/are car(s) at " + nextRoad.name + " in front of the relocated car " + car.name);
-            }
-
             synchronized (queue) {
                 synchronized (cars2relocate) {
                     cars2relocate.add(car);
@@ -480,8 +472,18 @@ public class StateSwitcher {
                     if (r.car2relocate == car) {
                         iter.remove();
                         knownLost = true;
+                        if (r.detected)
+                            detectedByNextNextSensor = true;
                     }
                 }
+            }
+
+            Road nextRoad = sensor.nextRoad;
+            while (!nextRoad.allRealCars.isEmpty()) {
+                Car car1 = nextRoad.allRealCars.peek();
+                forwardRelocateRecursively(car1, nextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
+                if (!nextRoad.allRealCars.isEmpty())
+                    System.err.println("There still is/are car(s) at " + nextRoad.name + " in front of the relocated car " + car.name);
             }
 
             Sensor nextNextSensor = sensor.nextSensor;

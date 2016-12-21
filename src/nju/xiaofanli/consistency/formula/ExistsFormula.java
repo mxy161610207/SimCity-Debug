@@ -168,6 +168,6 @@ public class ExistsFormula extends Formula{
 
     @Override
     public String toString() {
-        return "\u2203" + variable + "\u2208" + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
+        return "\u2203" + variable + " \u2208 " + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
     }
 }

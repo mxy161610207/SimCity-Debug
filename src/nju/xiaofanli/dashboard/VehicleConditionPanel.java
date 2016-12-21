@@ -65,7 +65,7 @@ class VehicleConditionPanel extends JPanel{
 //            text.setWrapStyleWord(true);
 			text.setEditable(false);
 			text.setBackground(null);
-            text.setFont(Resource.plain17dialog);
+            text.setFont(Resource.en17plain);
 
             ASCENT_PIXEL = text.getFont().createGlyphVector(text.getFontMetrics(text.getFont()).getFontRenderContext(), "A").getVisualBounds().getHeight();
             ICON_SIZE = (int) (ASCENT_PIXEL * 1.5);

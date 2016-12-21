@@ -156,12 +156,12 @@ public abstract class Road extends Location{
 			citizenIcons.values().forEach(label -> label.setSize(label.getPreferredSize()));
 
 			idLabel = new JLabel(String.valueOf(road.id));
-			idLabel.setFont(Resource.bold17dialog);
+			idLabel.setFont(Resource.en16bold);
 			idLabel.setSize(idLabel.getPreferredSize());
 			add(idLabel);
 
 			mLabel = new JLabel("M");
-			mLabel.setFont(Resource.bold17dialog);
+			mLabel.setFont(Resource.en16bold);
 			mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
 			mLabel.setBackground(Color.WHITE);
 			mLabel.setOpaque(true);
@@ -199,7 +199,7 @@ public abstract class Road extends Location{
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 //			System.out.println(road.name);
-			g.setFont(Resource.bold16dialog);
+//			g.setFont(Resource.en16bold);
 			switch(road.allRealCars.size()){
 				case 0:
 					g.setColor(Resource.LIGHT_SKY_BLUE); break;

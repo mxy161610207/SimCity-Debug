@@ -69,13 +69,29 @@ public class StyledText {
     }
 
     public static Style getTextStyle(Color color, boolean bold) {
-        String name = color.toString() + (bold ? "bold" : "");
+        if (!bold)
+            return getTextStyle(color);
+
+        String name = color.toString() + "_bold";
         StyleContext sc = StyleContext.getDefaultStyleContext();
         Style style = sc.getStyle(name);
         if (style == null) {
             style = sc.addStyle(name, null);
             StyleConstants.setForeground(style, color);
-            StyleConstants.setBold(style, bold);
+            StyleConstants.setBold(style, true);
+        }
+        return style;
+    }
+
+    public static Style getTextStyle(Font font, float lineSpacing) {
+        String name = font.getName()+"_lineSpacing" + lineSpacing;
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        Style style = sc.getStyle(name);
+        if (style == null) {
+            style = sc.addStyle(name, null);
+            StyleConstants.setFontSize(style, font.getSize());
+            StyleConstants.setFontFamily(style, font.getFamily());
+            StyleConstants.setLineSpacing(style, lineSpacing);
         }
         return style;
     }
