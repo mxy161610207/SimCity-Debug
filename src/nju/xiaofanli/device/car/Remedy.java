@@ -71,13 +71,13 @@ public class Remedy implements Runnable{
 							cmd.car.setLoading(true);
 							//trigger start loading event
 							if(cmd.car.dt.phase == Delivery.DeliveryTask.HEAD4SRC) {
-                                Command.send(cmd.car, Command.WHISTLE2);
+                                Command.send(cmd.car, Command.WHISTLE);
 								if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
 									EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, cmd.car.name, cmd.car.loc.name));
 							}
 							//trigger start unloading event
 							else if(cmd.car.dt.phase == Delivery.DeliveryTask.HEAD4DEST) {
-                                Command.send(cmd.car, Command.WHISTLE3);
+                                Command.send(cmd.car, Command.WHISTLE2);
 								if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
 									EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
 							}

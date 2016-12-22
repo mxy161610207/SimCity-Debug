@@ -2,8 +2,6 @@ package nju.xiaofanli.device.car;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.event.Event;
-import nju.xiaofanli.event.EventManager;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -22,12 +20,20 @@ public class Command {
 	public final static int NO_STEER = 5;
     public final static int HORN_ON = 6;
     public final static int HORN_OFF = 7;
-
 	public final static int URGE = 8;
     public final static int WHISTLE = 9;
     public final static int WHISTLE2 = 10;
     public final static int WHISTLE3 = 11;
 	public final static int RIGHT2 = 12;
+	public final static int LIGHTS = 13;
+	public final static int LIGHTS_SOFT = 14;
+	public final static int LIGHTS_OFF = 15;
+	public final static int LEFT_HEADLIGHT_ON = 16;
+	public final static int RIGHT_HEADLIGHT_ON = 17;
+	public final static int LEFT_TAILLIGHT_ON = 18;
+	public final static int RIGHT_TAILLIGHT_ON = 19;
+	public final static int LEFT_LIGHTS_OFF = 20;
+	public final static int RIGHT_LIGHTS_OFF = 21;
 
     static final Map<Integer, byte[]> codes = new HashMap<>();
 
@@ -41,6 +47,15 @@ public class Command {
         codes.put(Command.NO_STEER, ByteBuffer.allocate(4).putInt(Codes.NO_STEER).array());
         codes.put(Command.HORN_ON, ByteBuffer.allocate(4).putInt(Codes.HORN_ON).array());
         codes.put(Command.HORN_OFF, ByteBuffer.allocate(4).putInt(Codes.HORN_OFF).array());
+        codes.put(Command.LIGHTS, ByteBuffer.allocate(4).putInt(Codes.LIGHTS).array());
+		codes.put(Command.LIGHTS_SOFT, ByteBuffer.allocate(4).putInt(Codes.LIGHTS_SOFT).array());
+		codes.put(Command.LIGHTS_OFF, ByteBuffer.allocate(4).putInt(Codes.LIGHTS_OFF).array());
+		codes.put(Command.LEFT_HEADLIGHT_ON, ByteBuffer.allocate(4).putInt(Codes.BLINK_LEFT[1]).array());
+		codes.put(Command.LEFT_TAILLIGHT_ON, ByteBuffer.allocate(4).putInt(Codes.BLINK_LEFT[0]).array());
+		codes.put(Command.RIGHT_HEADLIGHT_ON, ByteBuffer.allocate(4).putInt(Codes.BLINK_RIGHT[1]).array());
+		codes.put(Command.RIGHT_TAILLIGHT_ON, ByteBuffer.allocate(4).putInt(Codes.BLINK_RIGHT[0]).array());
+		codes.put(Command.LEFT_LIGHTS_OFF, ByteBuffer.allocate(4).putInt(Codes.BLINK_LEFT_OFF).array());
+		codes.put(Command.RIGHT_LIGHTS_OFF, ByteBuffer.allocate(4).putInt(Codes.BLINK_RIGHT_OFF).array());
     }
 	
 	public Command(Car car, int cmd) {

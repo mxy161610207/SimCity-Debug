@@ -102,9 +102,10 @@ public class TrafficMap extends JPanel{
             panel.setVisible(false);
         }
 
-        mLabel.setFont(Resource.en16bold);
-//        mLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.black), BorderFactory.createEmptyBorder(-6, -1, -5, -1)));
-        mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
+        mLabel.setFont(Resource.en20bold);
+        mLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK), BorderFactory.createEmptyBorder(-4, 0, -3, 0)));
+//        mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
+//        mLabel.setForeground(Color.WHITE);
         mLabel.setBackground(Color.WHITE);
         mLabel.setOpaque(true);
         mLabel.setSize(mLabel.getPreferredSize());

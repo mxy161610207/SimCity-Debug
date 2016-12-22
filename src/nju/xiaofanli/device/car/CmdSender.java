@@ -42,6 +42,10 @@ public class CmdSender implements Runnable{
 
             private void whistle(){
                 car.write(Command.HORN_ON);
+                car.write(Command.LEFT_HEADLIGHT_ON);
+                car.write(Command.LEFT_TAILLIGHT_ON);
+                car.write(Command.RIGHT_HEADLIGHT_ON);
+                car.write(Command.RIGHT_TAILLIGHT_ON);
                 try {
                     Thread.sleep(duration);
                 } catch (InterruptedException e) {
@@ -49,6 +53,8 @@ public class CmdSender implements Runnable{
                 }
                 if(car.lastHornCmd != Command.HORN_ON) //if the car crashed and keeps whistling, do not silence it
                     car.write(Command.HORN_OFF);
+                car.write(Command.LEFT_LIGHTS_OFF);
+                car.write(Command.RIGHT_LIGHTS_OFF);
             }
         }
 
@@ -76,16 +82,16 @@ public class CmdSender implements Runnable{
                 continue;
             switch(cmd.cmd){
                 case Command.URGE:
-                    Resource.execute(new WhistleTask(cmd.car, 500, 0, 1));
+                    Resource.execute(new WhistleTask(cmd.car, 300, 0, 1));
                     break;
                 case Command.WHISTLE:
                     Resource.execute(new WhistleTask(cmd.car, 200, 0, 1));
                     break;
                 case Command.WHISTLE2:
-                    Resource.execute(new WhistleTask(cmd.car, 200, 200, 2));
+                    Resource.execute(new WhistleTask(cmd.car, 200, 100, 2));
                     break;
                 case Command.WHISTLE3:
-                    Resource.execute(new WhistleTask(cmd.car, 200, 200, 3));
+                    Resource.execute(new WhistleTask(cmd.car, 200, 100, 3));
                 default:
                     cmd.car.write(cmd.cmd);
                     break;

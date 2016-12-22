@@ -556,6 +556,24 @@ public class Dashboard extends JFrame{
                 CmdSender.send(getSelectedCar(), Command.LEFT);
             else if(cmd.equals("right"))
                 CmdSender.send(getSelectedCar(), Command.RIGHT);
+            else if(cmd.equals("lights"))
+                CmdSender.send(getSelectedCar(), Command.LIGHTS);
+            else if(cmd.equals("lights soft"))
+                CmdSender.send(getSelectedCar(), Command.LIGHTS_SOFT);
+            else if(cmd.equals("lights off"))
+                CmdSender.send(getSelectedCar(), Command.LIGHTS_OFF);
+            else if(cmd.equals("lhl"))
+                CmdSender.send(getSelectedCar(), Command.LEFT_HEADLIGHT_ON);
+            else if(cmd.equals("ltl"))
+                CmdSender.send(getSelectedCar(), Command.LEFT_TAILLIGHT_ON);
+            else if(cmd.equals("rhl"))
+                CmdSender.send(getSelectedCar(), Command.RIGHT_HEADLIGHT_ON);
+            else if(cmd.equals("rtl"))
+                CmdSender.send(getSelectedCar(), Command.RIGHT_TAILLIGHT_ON);
+            else if(cmd.equals("llo"))
+                CmdSender.send(getSelectedCar(), Command.LEFT_LIGHTS_OFF);
+            else if(cmd.equals("rlo"))
+                CmdSender.send(getSelectedCar(), Command.RIGHT_LIGHTS_OFF);
             else if(cmd.startsWith("add dt ")){
                 String s = cmd.substring("add dt ".length()).toLowerCase();
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
@@ -976,7 +994,6 @@ public class Dashboard extends JFrame{
         changeLogsLanguage();
         TrafficMap.switchLanguage();
 
-        //TODO dialogs
         deviceDialog.setTitle(useEnglish ? "Device" : "设备");
         if (brickPanel != null)
             ((TitledBorder) brickPanel.getBorder()).setTitle(useEnglish ? "Lego hosts" : "乐高主机");

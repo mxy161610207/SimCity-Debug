@@ -85,7 +85,7 @@ public class Delivery {
 				dt.phase = DeliveryTask.HEAD4SRC;
 				if(car.dest == car.loc && car.getState() == Car.STOPPED){
                     car.setLoading(true);
-                    Command.send(car, Command.WHISTLE2);
+                    Command.send(car, Command.WHISTLE);
                     //trigger start loading event
                     if(EventManager.hasListener(Event.Type.CAR_START_LOADING))
                         EventManager.trigger(new Event(Event.Type.CAR_START_LOADING, car.name, car.loc.name));
@@ -225,7 +225,7 @@ public class Delivery {
                             if(car.dest == car.loc){
                                 car.setLoading(true);
                                 dt.startTime = System.currentTimeMillis();
-								Command.send(car, Command.WHISTLE3);
+								Command.send(car, Command.WHISTLE2);
                                 //trigger start unloading event
                                 if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
                                     EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));

@@ -194,8 +194,7 @@ public class Citizen implements Runnable {
                         icon.setLocation(x-icon.getXOffset(), y);
                         icon.setVisible(true);
                         if (manual) {
-                            TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()+icon.getIconWidth()-TrafficMap.mLabel.getWidth(),
-                                    icon.getY()+icon.getIconHeight()-TrafficMap.mLabel.getHeight());
+                            TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()-TrafficMap.mLabel.getWidth(), icon.getY());
                             TrafficMap.mLabel.setVisible(true);
                         }
                     }
@@ -223,8 +222,7 @@ public class Citizen implements Runnable {
                         icon.setLocation(x-icon.getXOffset(), y);
                         icon.setVisible(true);
                         if (manual) {
-                            TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()+icon.getIconWidth()-TrafficMap.mLabel.getWidth(),
-                                    icon.getY()+icon.getIconHeight()-TrafficMap.mLabel.getHeight());
+                            TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()-TrafficMap.mLabel.getWidth(), icon.getY());
                             TrafficMap.mLabel.setVisible(true);
                         }
 

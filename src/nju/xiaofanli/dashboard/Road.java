@@ -161,8 +161,10 @@ public abstract class Road extends Location{
 			add(idLabel);
 
 			mLabel = new JLabel("M");
-			mLabel.setFont(Resource.en16bold);
-			mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
+			mLabel.setFont(Resource.en20bold);
+			mLabel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK), BorderFactory.createEmptyBorder(-4, 0, -3, 0)));
+//			mLabel.setBorder(BorderFactory.createEmptyBorder(-6, -1, -5, -1));
+//			mLabel.setForeground(Color.WHITE);
 			mLabel.setBackground(Color.WHITE);
 			mLabel.setOpaque(true);
 			mLabel.setSize(mLabel.getPreferredSize());
@@ -254,7 +256,7 @@ public abstract class Road extends Location{
 							visibleLabel.add(citizenIcon);
 
 							if (car.passenger.manual) {
-								mLabel.setLocation(citizenIcon.getX()+citizenIcon.getWidth()-mLabel.getWidth(), citizenIcon.getY()+citizenIcon.getHeight()-mLabel.getHeight());
+								mLabel.setLocation(citizenIcon.getX()-mLabel.getWidth(), citizenIcon.getY());
 								mLabel.setVisible(true);
 								visibleLabel.add(mLabel);
 							}

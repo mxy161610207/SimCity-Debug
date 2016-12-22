@@ -79,7 +79,6 @@ public class Police implements Runnable{
 							System.out.println(r.car.name + " need to STOP!!!");
 							r.requested.addWaitingCar(r.car);
 							Command.send(r.car, Command.STOP);
-							Command.send(r.car, Command.URGE);
                             r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
