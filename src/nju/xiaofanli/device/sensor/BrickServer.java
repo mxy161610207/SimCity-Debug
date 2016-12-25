@@ -33,6 +33,7 @@ public class BrickServer implements Runnable{
 			try {
 				server.receive(packet);
 				String data = new String(packet.getData());
+//				System.out.println(data);
 				int bid = data.charAt(0) - '0';//byte2int(b, 0);
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
 				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);

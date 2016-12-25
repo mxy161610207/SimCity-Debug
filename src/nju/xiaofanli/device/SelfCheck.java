@@ -172,6 +172,7 @@ public class SelfCheck{
 		}
 		public void run() {
 			setName("Brick Checking: " + name);
+			int timeout = 10000;
             //noinspection InfiniteLoopStatement
             while(true){
 				startTime = endTime = 0;
@@ -181,14 +182,14 @@ public class SelfCheck{
 					session = Resource.getSession(name);
 //					System.out.println(name + " connect session");
 //					startTime = System.currentTimeMillis();
-					session.connect();
+					session.connect(timeout);
 //					endTime = System.currentTimeMillis();
 //					System.out.println(name + " session connected");
 					channel = session.openChannel("exec");
 //					System.out.println(name + " set command");
 					((ChannelExec) channel).setCommand("./start.sh");
 //					System.out.println(name + " connect channel");
-					channel.connect();
+					channel.connect(timeout);
 //					System.out.println(name + " reading");
 					startTime = System.currentTimeMillis();
                     //noinspection ResultOfMethodCallIgnored
@@ -215,9 +216,9 @@ public class SelfCheck{
 //						System.out.println(name + " exec");
 						channel = session.openChannel("exec");
 //						System.out.println(name + " exec2");
-						((ChannelExec) channel).setCommand("ps -ef | grep 'python sample.py' | grep -v grep");
+						((ChannelExec) channel).setCommand("ps -ef | grep 'python3 sample.py' | grep -v grep");
 //						System.out.println(name + " exec3");
-						channel.connect();
+						channel.connect(timeout);
 //						System.out.println(name + " exec4");
 						startTime = System.currentTimeMillis();
 						sampling = channel.getInputStream().read() > 0; //may get blocked FOREVER!
@@ -226,7 +227,7 @@ public class SelfCheck{
 						channel.disconnect();
 //						System.out.println(name + " exec6");
 					} catch (JSchException | IOException e) {
-						e.printStackTrace();
+//						e.printStackTrace();
 						channel.disconnect();
 						session.disconnect();
 						sampling = false;
