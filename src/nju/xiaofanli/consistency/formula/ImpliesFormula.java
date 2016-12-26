@@ -6,6 +6,8 @@
 
 package nju.xiaofanli.consistency.formula;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import nju.xiaofanli.consistency.context.ContextChange;
@@ -119,5 +121,15 @@ public class ImpliesFormula extends Formula {
         s += " \u2192 ";
         s += second.needBrackets() ? "(" + second + ")" : second.toString();
         return s;
+    }
+
+    @Override
+    protected String getName4indentString() {
+        return "implies";
+    }
+
+    @Override
+    protected List<Formula> getSubformula4indentString() {
+        return Arrays.asList(first, second);
     }
 }

@@ -7,7 +7,9 @@
 package nju.xiaofanli.consistency.formula;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import nju.xiaofanli.consistency.context.ContextChange;
 
@@ -68,5 +70,33 @@ public abstract class Formula{
 
     public boolean needBrackets() {
         return this instanceof AndFormula || this instanceof OrFormula || this instanceof ImpliesFormula;
+    }
+
+    protected abstract String getName4indentString();
+
+    protected abstract List<Formula> getSubformula4indentString();
+
+    public String getIndentString() {
+        return getIndentString(0, new StringBuilder(), new Stack<>()).toString();
+    }
+
+    private StringBuilder getIndentString(int level, StringBuilder sb, Stack<Boolean> subformula2print) {
+        if (!subformula2print.isEmpty()) {
+            for (int i = 0; i < subformula2print.size() - 1; ++i) {
+                // determines if we need to print | at this level to show the tree structure
+                sb.append(subformula2print.get(i) ? "\u2502\u2003" : "\u2003\u2003");
+            }
+            sb.append(subformula2print.lastElement() ? "\u251c\u2500" : "\u2514\u2500");
+        }
+
+        sb.append(getName4indentString()).append("\n");
+        List<Formula> subformula = getSubformula4indentString();
+        for (int i = 0;i < subformula.size();i++) {
+            subformula2print.push(i != subformula.size()-1); //has other subformula to print
+            subformula.get(i).getIndentString(level+1, sb, subformula2print);
+            subformula2print.pop();
+        }
+
+        return sb;
     }
 }

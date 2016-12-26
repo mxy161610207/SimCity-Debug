@@ -11,8 +11,10 @@ import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.consistency.context.ContextChange;
 import nju.xiaofanli.device.car.Car;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -194,5 +196,15 @@ public class BFunc extends Formula {
         }
         s += ")";
         return s;
+    }
+
+    @Override
+    protected String getName4indentString() {
+        return toString();
+    }
+
+    @Override
+    protected List<Formula> getSubformula4indentString() {
+        return new ArrayList<>();
     }
 }

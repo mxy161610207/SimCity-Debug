@@ -6,6 +6,8 @@
 
 package nju.xiaofanli.consistency.formula;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import nju.xiaofanli.consistency.context.ContextChange;
@@ -114,5 +116,15 @@ public class OrFormula extends Formula {
         s += " \u2228 ";
         s += second.needBrackets() ? "(" + second + ")" : second.toString();
         return s;
+    }
+
+    @Override
+    protected String getName4indentString() {
+        return "or";
+    }
+
+    @Override
+    protected List<Formula> getSubformula4indentString() {
+        return Arrays.asList(first, second);
     }
 }

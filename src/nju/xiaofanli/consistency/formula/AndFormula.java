@@ -6,6 +6,8 @@
 
 package nju.xiaofanli.consistency.formula;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import nju.xiaofanli.consistency.context.ContextChange;
@@ -113,5 +115,15 @@ public class AndFormula extends Formula {
         s += " \u2227 ";
         s += second.needBrackets() ? "(" + second + ")" : second.toString();
         return s;
+    }
+
+    @Override
+    protected String getName4indentString() {
+        return "and";
+    }
+
+    @Override
+    protected List<Formula> getSubformula4indentString() {
+        return Arrays.asList(first, second);
     }
 }

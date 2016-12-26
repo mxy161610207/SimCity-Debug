@@ -8,6 +8,10 @@ package nju.xiaofanli.consistency.formula;
 
 import nju.xiaofanli.consistency.context.ContextChange;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * @author bingying
@@ -87,5 +91,15 @@ public class NotFormula extends Formula {
     @Override
     public String toString() {
         return "\u00ac" + (formula.needBrackets() ? "(" + formula + ")" : formula);
+    }
+
+    @Override
+    protected String getName4indentString() {
+        return "not";
+    }
+
+    @Override
+    protected List<Formula> getSubformula4indentString() {
+        return Collections.singletonList(formula);
     }
 }

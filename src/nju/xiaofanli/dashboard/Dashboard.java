@@ -1038,9 +1038,9 @@ public class Dashboard extends JFrame{
         ruleTextPane.setEditable(false);
         ruleTextPane.setBackground(null);
         ruleTextPane.setFont(Resource.en17plain);
-        ruleTextPane.setSize(controlPanelDimension);
-        ruleTextPane.setPreferredSize(controlPanelDimension);
-        ruleTextPane.setLogicalStyle(StyledText.getTextStyle(ruleTextPane.getFont(), 0.5f));
+        ruleTextPane.setSize((int) controlPanelDimension.getHeight(), (int) controlPanelDimension.getHeight());
+        ruleTextPane.setPreferredSize(ruleTextPane.getSize());
+//        ruleTextPane.setLogicalStyle(StyledText.getTextStyle(ruleTextPane.getFont(), 0.5f));
         ruleDialog.setContentPane(scrollPane);
         ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
 //        ruleDialog.setSize(controlPanelDimension);
@@ -1055,12 +1055,12 @@ public class Dashboard extends JFrame{
         ruleTextPane.setText("");
         StyledText text = new StyledText();
         Map<String, String> treeMap = new TreeMap<>();
-        Resource.getRules().forEach((name, rule) -> treeMap.put(name, rule.getFormula().toString()));
+        Resource.getRules().forEach((name, rule) -> treeMap.put(name, rule.getFormula().getIndentString()));
         boolean[] firstLine = new boolean[] {true};
         treeMap.forEach((name, rule) -> {
             if (!firstLine[0])
                 text.append("\n");
-            text.append(name+":", true).append(" "+rule);
+            text.append(name+":", true).append("\n"+rule);
             firstLine[0] = false;
         });
         Dashboard.append2pane(text, ruleTextPane);

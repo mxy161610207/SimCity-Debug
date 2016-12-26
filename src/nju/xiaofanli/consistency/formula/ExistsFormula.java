@@ -6,8 +6,7 @@
 
 package nju.xiaofanli.consistency.formula;
 
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.*;
 
 import nju.xiaofanli.consistency.context.ContextChange;
 import nju.xiaofanli.consistency.context.Pattern;
@@ -169,5 +168,15 @@ public class ExistsFormula extends Formula{
     @Override
     public String toString() {
         return "\u2203" + variable + " \u2208 " + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
+    }
+
+    @Override
+    protected String getName4indentString() {
+        return "\u2203" + variable + " \u2208 " + pattern.getName();
+    }
+
+    @Override
+    protected List<Formula> getSubformula4indentString() {
+        return Collections.singletonList(subFormula);
     }
 }
