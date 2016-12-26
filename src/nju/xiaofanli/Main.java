@@ -96,7 +96,9 @@ public class Main {
 
 		list = root.elements("brick");
 		for(Element e : list){
-			Resource.setBrickAddr(e.attributeValue("name"), e.attributeValue("address"));
+			String nm = e.attributeValue("name");
+			Resource.setBrickAddr(nm, e.attributeValue("address"));
+			Resource.setSensorNum(nm, Integer.parseInt(e.attributeValue("sensors")));
 		}
 
         readTimeout("timeout.txt");

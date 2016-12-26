@@ -29,7 +29,8 @@ public class Resource {
 	public static final Font ch17plain = new Font("Microsoft YaHei", Font.PLAIN, 17);
 	public static final Font en20bold = new Font(Font.DIALOG, Font.BOLD, 20);
 	private static ExecutorService threadPool = Executors.newCachedThreadPool();
-	private static Map<String, String> brickAddr = new HashMap<>();
+	private final static Map<String, String> brickAddr = new HashMap<>();
+	private final static Map<String, Integer> brickSensorNum = new HashMap<>();
 	public final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON, BLACK_QUESTION_ICON, GREEN_CHECK_ICON,
 			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,
             RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON;
@@ -205,6 +206,14 @@ public class Resource {
 	
 	public static void setBrickAddr(String brick, String addr){
 		brickAddr.put(brick, addr);
+	}
+
+	public static int getSensorNum(String name){
+		return brickSensorNum.get(name);
+	}
+
+	public static void setSensorNum(String brick, int num){
+		brickSensorNum.put(brick, num);
 	}
 	
 	public static Set<Delivery.DeliveryTask> getDelivTasks(){

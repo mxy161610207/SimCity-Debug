@@ -293,32 +293,30 @@ public class Dashboard extends JFrame{
             shutdownButton.addActionListener(e -> {
                 shutdownButton.setEnabled(false);
                 int[] count = {Resource.getBricks().size()};
-                for(String name : Resource.getBricks())
-                    Resource.execute(()->{
+                for(String name : Resource.getBricks()) {
+                    Resource.execute(() -> {
                         Session session = Resource.getRootSession(name);
-                        if(session != null) {
+                        if (session != null) {
                             Channel channel = null;
                             try {
                                 session.connect();
                                 channel = session.openChannel("exec");
                                 ((ChannelExec) channel).setCommand("poweroff");
-                                channel.setInputStream(null);
-                                ((ChannelExec) channel).setErrStream(System.err);
                                 channel.connect();
                             } catch (JSchException e1) {
                                 e1.printStackTrace();
-                            }
-                            finally {
+                            } finally {
                                 if (channel != null)
                                     channel.disconnect();
                                 session.disconnect();
                             }
                         }
-                        synchronized (count){
-                            if(--count[0] == 0)
+                        synchronized (count) {
+                            if (--count[0] == 0)
                                 shutdownButton.setEnabled(true);
                         }
                     });
+                }
             });
         }
         //car panel

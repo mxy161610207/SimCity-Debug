@@ -12,10 +12,7 @@ import nju.xiaofanli.device.car.Car;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SelfCheck{
 	private	static final Object OBJ = new Object();
@@ -52,12 +49,12 @@ public class SelfCheck{
                         thread.car.disconnect(); //TODO enable car checking
                     }
 
-                for(BrickChecking thread : brickCheckingThreads){
-					if(thread.startTime > thread.endTime && curTime - thread.startTime > 8000){
-						if(thread.channel != null)
-							thread.channel.disconnect();
-					}
-				}
+//                for(BrickChecking thread : brickCheckingThreads){
+//					if(thread.startTime > thread.endTime && curTime - thread.startTime > 8000){
+//						if(thread.channel != null)
+//							thread.channel.disconnect();
+//					}
+//				}
                 try {
                     Thread.sleep(300);
                 } catch (InterruptedException e) {
@@ -91,7 +88,7 @@ public class SelfCheck{
 			this.car = car;
 		}
 		public void run() {
-			setName("Car Checking: " + car.name);
+			setName("Car Checking " + car.name);
             //noinspection InfiniteLoopStatement
             while(true){
                 lastRecvTime = Long.MAX_VALUE;
@@ -159,9 +156,10 @@ public class SelfCheck{
 	
 	private class BrickChecking extends Thread{
 		private final String name, addr;
+		private final int numSensor;
 		private long startTime, endTime;
 		private Session session;
-		private Channel channel;
+		private ChannelExec channel;
         BrickChecking(String name) {
 			this.name = name;
 			addr = Resource.getBrickAddr(name);
@@ -169,98 +167,174 @@ public class SelfCheck{
 				System.err.println("Brick " + name + " has no address");
 				System.exit(-1);
 			}
+			numSensor = Resource.getSensorNum(name);
 		}
 		public void run() {
-			setName("Brick Checking: " + name);
+			setName("Brick Checking " + name);
 			int timeout = 10000;
             //noinspection InfiniteLoopStatement
-            while(true){
-				startTime = endTime = 0;
-				//start sample program in brick
+            while(true) {
+				//get a session
 				try {
-//					System.out.println(name + " get session");
 					session = Resource.getSession(name);
-//					System.out.println(name + " connect session");
-//					startTime = System.currentTimeMillis();
+					session.setTimeout(timeout);
 					session.connect(timeout);
-//					endTime = System.currentTimeMillis();
-//					System.out.println(name + " session connected");
-					channel = session.openChannel("exec");
-//					System.out.println(name + " set command");
-					((ChannelExec) channel).setCommand("./start.sh");
-//					System.out.println(name + " connect channel");
-					channel.connect(timeout);
-//					System.out.println(name + " reading");
-					startTime = System.currentTimeMillis();
-                    //noinspection ResultOfMethodCallIgnored
-                    channel.getInputStream().read();//assure sample program is started, may get blocked FOREVER!
-					endTime = System.currentTimeMillis();
-//					System.out.println(name + " read");
-					channel.disconnect();
-//					System.out.println(name + " channel disconnected");
-                    Dashboard.setDeviceStatus(name + " conn", true);
-				} catch (JSchException | IOException e) {
-//					e.printStackTrace();
-					if(channel != null)
-					    channel.disconnect();
-					session.disconnect();
+					Dashboard.setDeviceStatus(name + " conn", true);
+				} catch (JSchException e) {
+					e.printStackTrace();
+					if (session != null) {
+						session.disconnect();
+						session = null;
+					}
+					System.out.println(getName() + ": session disconnected");
 					Dashboard.setDeviceStatus(name + " conn", false);
-					startTime = endTime = 0;
 					continue;
 				}
-				
-				//check if sample program is running
-				boolean sampling = false;
-				while(true){
+
+				while (session != null && session.isConnected()) {
+					startTime = endTime = 0;
+					//check if the number of IR sensors is right
 					try {
-//						System.out.println(name + " exec");
-						channel = session.openChannel("exec");
-//						System.out.println(name + " exec2");
-						((ChannelExec) channel).setCommand("ps -ef | grep 'python3 sample.py' | grep -v grep");
-//						System.out.println(name + " exec3");
+						channel = (ChannelExec) session.openChannel("exec");
+						channel.setCommand("ls /sys/class/lego-sensor");
 						channel.connect(timeout);
-//						System.out.println(name + " exec4");
+						byte[] buf = new byte[128];
 						startTime = System.currentTimeMillis();
-						sampling = channel.getInputStream().read() > 0; //may get blocked FOREVER!
+						//noinspection ResultOfMethodCallIgnored
+						channel.getInputStream().read(buf);//assure sample program is started, may get blocked FOREVER!
 						endTime = System.currentTimeMillis();
-//						System.out.println(name + " exec5");
 						channel.disconnect();
-//						System.out.println(name + " exec6");
-					} catch (JSchException | IOException e) {
-//						e.printStackTrace();
-						channel.disconnect();
-						session.disconnect();
-						sampling = false;
-                        Dashboard.setDeviceStatus(name + " sample", false);
-						startTime = endTime = 0;
-					}
-					finally{
-						if(sampling ^ deviceStatus.get(name)){
-							Dashboard.setDeviceStatus(name + " sample", sampling);
-							if(allReady()){//true -> false
-								deviceStatus.put(name, sampling);
-								if(!Main.initial)
-									StateSwitcher.suspend();
+						channel = null;
+
+						Set<String> sensors = new HashSet<>();
+						Collections.addAll(sensors, new String(buf).trim().split("\n"));
+						boolean allSensorsReady = true;
+						for (int i = 0;i < numSensor;i++) {
+							if (!sensors.contains("sensor"+i)) {
+								allSensorsReady = false;
+								break;
 							}
-							else{
-								deviceStatus.put(name, sampling);
-								if(allReady()){//false -> true
-									if(Main.initial)
-										synchronized (OBJ) {
-											OBJ.notify();
-										}
-									else
-										StateSwitcher.resume();
+						}
+						if (!allSensorsReady) {
+							System.out.println("Brick "+name+" cannot find all sensors. Trying to Reboot it...");
+							Session rootSession = Resource.getRootSession(name);
+							if (rootSession != null) {
+								Channel channel = null;
+								try {
+									rootSession.connect();
+									channel = rootSession.openChannel("exec");
+									((ChannelExec) channel).setCommand("reboot");
+									channel.connect();
+								} catch (JSchException e1) {
+									e1.printStackTrace();
+								} finally {
+									if (channel != null)
+										channel.disconnect();
+									rootSession.disconnect();
+								}
+							}
+							throw new JSchException("cannot find all sensors");
+						}
+					} catch (JSchException | IOException e) {
+						e.printStackTrace();
+						if (channel != null) {
+							channel.disconnect();
+							channel = null;
+						}
+						if (session != null) {
+							session.disconnect();
+							session = null;
+						}
+						System.out.println(getName() + ": session disconnected4");
+						Dashboard.setDeviceStatus(name + " conn", false);
+						startTime = endTime = 0;
+						continue;
+					}
+
+					//run the sample program on EV3 brick
+					try {
+						channel = (ChannelExec) session.openChannel("exec");
+						channel.setCommand("./start.sh");
+						channel.connect(timeout);
+						startTime = System.currentTimeMillis();
+						//noinspection ResultOfMethodCallIgnored
+						channel.getInputStream().read();//assure sample program is started, may get blocked FOREVER!
+						endTime = System.currentTimeMillis();
+						channel.disconnect();
+						channel = null;
+					} catch (JSchException | IOException e) {
+						e.printStackTrace();
+						if (channel != null) {
+							channel.disconnect();
+							channel = null;
+						}
+						if (session != null) {
+							session.disconnect();
+							session = null;
+						}
+						System.out.println(getName() + ": session disconnected2");
+						Dashboard.setDeviceStatus(name + " conn", false);
+						startTime = endTime = 0;
+						continue;
+					}
+
+					//check if sample program is running
+					boolean sampling = true;
+					while (session != null && session.isConnected() && sampling) {
+						try {
+							channel = (ChannelExec) session.openChannel("exec");
+							channel.setCommand("ps -ef | grep 'python3 sample.py' | grep -v grep");
+							channel.connect(timeout);
+							startTime = System.currentTimeMillis();
+//							byte[] buf = new byte[128];
+//							sampling = channel.getInputStream().read(buf) > 0;
+//							System.out.println(getName() + ": " + new String(buf));
+							sampling = channel.getInputStream().read() > 0; //may get blocked FOREVER!
+							endTime = System.currentTimeMillis();
+							channel.disconnect();
+							channel = null;
+//							Dashboard.setDeviceStatus(name + " sample", true);
+						} catch (JSchException | IOException e) {
+							e.printStackTrace();
+							if (channel != null) {
+								channel.disconnect();
+								channel = null;
+							}
+							if (session != null) {
+								session.disconnect();
+								session = null;
+							}
+							System.out.println(getName() + ": session disconnected3");
+							sampling = false;
+							Dashboard.setDeviceStatus(name + " sample", false);
+							startTime = endTime = 0;
+						} finally {
+							if (sampling ^ deviceStatus.get(name)) {
+								Dashboard.setDeviceStatus(name + " sample", sampling);
+								if (allReady()) {//true -> false
+									deviceStatus.put(name, sampling);
+									if (!Main.initial)
+										StateSwitcher.suspend();
+									System.out.println("[Brick " + name + "] connection broke. " + new Date());
+								} else {
+									deviceStatus.put(name, sampling);
+									if (allReady()) {//false -> true
+										if (Main.initial)
+											synchronized (OBJ) {
+												OBJ.notify();
+											}
+										else
+											StateSwitcher.resume();
+										System.out.println("[Brick " + name + "] connection resumed. " + new Date());
+									}
 								}
 							}
 						}
-					}
-                    if(!sampling)
-						break;
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
