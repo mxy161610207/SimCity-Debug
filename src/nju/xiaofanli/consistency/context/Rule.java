@@ -6,11 +6,10 @@
 
 package nju.xiaofanli.consistency.context;
 
-import java.util.HashMap;
-import java.util.Set;
-
 import nju.xiaofanli.consistency.formula.Formula;
 import nju.xiaofanli.consistency.formula.Link;
+
+import java.util.Set;
 
 /**
  *
@@ -20,10 +19,8 @@ import nju.xiaofanli.consistency.formula.Link;
 public class Rule {
     private String name;
     private Formula formula, initialFormula;//һ���߼���ʽ
-    
-    public HashMap<ContextChange,String> sch;
-    
-//    @SuppressWarnings("unused")
+    private String explanInEn, explanInCh;
+    //    @SuppressWarnings("unused")
 //	private static Log logger = LogFactory.getLog(Rule.class.getName());
     
     public Rule(String name) {
@@ -63,12 +60,15 @@ public class Rule {
 	public void reset() {
 		formula = initialFormula.createInitialFormula();
 	}
-    
-    public double hazardPairProb(ContextChange change,ContextChange laterChange) {
-        return 0.9;
+
+	public void setExplanation(String explan, boolean useEnglish) {
+	    if (useEnglish)
+	        this.explanInEn = explan;
+	    else
+	        this.explanInCh = explan;
     }
-    
-    public boolean isHazardPair(ContextChange change,ContextChange laterChange) {
-        return false;
+
+    public String getExplanation(boolean useEnglish) {
+	    return useEnglish ? explanInEn : explanInCh;
     }
 }

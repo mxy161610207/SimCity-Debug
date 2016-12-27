@@ -9,6 +9,7 @@ import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
+import nju.xiaofanli.consistency.context.Rule;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.device.car.Car;
@@ -1002,6 +1003,7 @@ public class Dashboard extends JFrame{
         deviceDialog.repaint();
 
         ruleDialog.setTitle(useEnglish ? "Rule" : "规则");
+        updateRuleTextPane();
         ruleDialog.repaint();
 
         relocationDialog.setTitle(useEnglish ? "Relocation" : "重定位");
@@ -1052,21 +1054,29 @@ public class Dashboard extends JFrame{
             return;
         }
 
-        ruleTextPane.setText("");
-        StyledText text = new StyledText();
-        Map<String, String> treeMap = new TreeMap<>();
-        Resource.getRules().forEach((name, rule) -> treeMap.put(name, rule.getFormula().getIndentString()));
-        boolean[] firstLine = new boolean[] {true};
-        treeMap.forEach((name, rule) -> {
-            if (!firstLine[0])
-                text.append("\n");
-            text.append(name+":", true).append("\n"+rule);
-            firstLine[0] = false;
-        });
-        Dashboard.append2pane(text, ruleTextPane);
-
+        updateRuleTextPane();
         ruleDialog.pack();
         ruleDialog.setVisible(true);
+    }
+
+    private static void updateRuleTextPane() {
+        synchronized (ruleTextPane) {
+            ruleTextPane.setText("");
+            StyledText text = new StyledText();
+            Map<String, Rule> treeMap = new TreeMap<>();
+            Middleware.getRules().forEach(treeMap::put);
+            boolean[] firstLine = new boolean[] {true};
+            treeMap.forEach((name, rule) -> {
+                if (!firstLine[0])
+                    text.append("\n\n");
+                text.append(name+(useEnglish()?": ":"："), true).append(rule.getExplanation(useEnglish()), true)
+                        .append("\n"+rule.getFormula().getIndentString()).append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
+                .append(Middleware.getResolutionStrategy(useEnglish()), true);
+                firstLine[0] = false;
+            });
+            Dashboard.append2pane(text, ruleTextPane);
+            ruleTextPane.setCaretPosition(0); // scroll back to top
+        }
     }
 
     private static final JDialog relocationDialog = new JDialog(getInstance(), "Relocation");

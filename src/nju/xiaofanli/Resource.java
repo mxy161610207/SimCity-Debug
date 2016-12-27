@@ -263,10 +263,6 @@ public class Resource {
 		return CITIZEN_ICONS;
 	}
 
-	public static Map<String, Rule> getRules() {
-		return Middleware.getRules();
-	}
-
 	public static ImageIcon loadImage(String filename, int width, int height) {
 		return loadImage(new ImageIcon(filename), width, height);
 	}

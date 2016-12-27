@@ -265,7 +265,6 @@ public class Middleware {
         }
     }
 
-
     public static void enableDetection(boolean detectionEnabled) {
         Middleware.detectionEnabled = detectionEnabled;
     }
@@ -280,5 +279,19 @@ public class Middleware {
 
     public static boolean isResolutionEnabled(){
         return resolutionEnabled;
+    }
+
+    public static String getResolutionStrategy(boolean useEnglish) {
+        switch (resolutionStrategy) {
+            case "Drop-latest":
+                return useEnglish ? "Drop the latest one of the inconsistent contexts. Existing contexts were consistent until the latest one came, so it's very likely to be a noise."
+                        : "丢弃不一致上下文中最新的一个。现存的上下文在最新上下文到来前是一致的，因此最新上下文很可能是噪声。";
+            case "Drop-all":
+                return useEnglish ? "Drop all inconsistent contexts." : "丢弃所有不一致的上下文。";
+            case "Drop-random":
+                return useEnglish ? "Randomly drop one of the inconsistent contexts." : "随机丢弃一个不一致的上下文。";
+            default:
+                return useEnglish ? "Unknown resolution strategy." : "未知的消解策略。";
+        }
     }
 }

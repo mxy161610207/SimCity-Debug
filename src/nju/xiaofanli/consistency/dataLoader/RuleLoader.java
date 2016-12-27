@@ -67,8 +67,19 @@ public class RuleLoader {
                 NodeList subChildren = idNode.getChildNodes();
                 String name = subChildren.item(0).getNodeValue();
                 Rule rule = new Rule(name);
+                //explanation
+                Node explanationNode = children.item(3);
+                if (explanationNode.hasAttributes()) {
+                    NamedNodeMap map = explanationNode.getAttributes();
+                    Attr attr = (Attr) map.getNamedItem("en");
+                    if (attr != null)
+                        rule.setExplanation(attr.getValue(), true);
+                    attr = (Attr) map.getNamedItem("ch");
+                    if (attr != null)
+                        rule.setExplanation(attr.getValue(), false);
+                }
                 //formula
-                Node formulaNode = children.item(3);
+                Node formulaNode = children.item(5);
                 Formula formula = (Formula) parseElement((Element) formulaNode, name);
                 rule.setFormula(formula);
                 return rule;

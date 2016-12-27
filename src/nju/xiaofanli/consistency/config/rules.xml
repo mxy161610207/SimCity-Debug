@@ -3,6 +3,7 @@
 <rules>
     <rule>
         <id>rule_00</id>
+        <explanation en="A moving car cannot be in still state." ch="行驶中的车辆不可能处于静止状态。" />
         <formula>
             <forall var="v1" in="latest">
                 <not>
@@ -16,6 +17,7 @@
 
     <rule>
         <id>rule_01</id>
+        <explanation en="An orange car cannot get to different places at the same time." ch="同一辆橘色小车不可能同时到达不同的地点。" />
         <formula>
             <forall var="v1" in="orange_car1">
                 <not>
@@ -48,6 +50,7 @@
 
     <rule>
         <id>rule_02</id>
+        <explanation en="A green car cannot get to different places at the same time." ch="同一辆绿色小车不可能同时到达不同的地点。" />
         <formula>
             <forall var="v1" in="green_car1">
                 <not>
@@ -80,6 +83,7 @@
 
     <rule>
         <id>rule_03</id>
+        <explanation en="A black car cannot get to different places at the same time." ch="同一辆黑色小车不可能同时到达不同的地点。" />
         <formula>
             <forall var="v1" in="black_car1">
                 <not>
@@ -112,6 +116,7 @@
 
     <rule>
         <id>rule_04</id>
+        <explanation en="A white car cannot get to different places at the same time." ch="同一辆白色小车不可能同时到达不同的地点。" />
         <formula>
             <forall var="v1" in="white_car1">
                 <not>
@@ -144,6 +149,7 @@
 
     <rule>
         <id>rule_05</id>
+        <explanation en="A red car cannot get to different places at the same time." ch="同一辆红色小车不可能同时到达不同的地点。" />
         <formula>
             <forall var="v1" in="red_car1">
                 <not>
@@ -176,6 +182,7 @@
 
     <rule>
         <id>rule_06</id>
+        <explanation en="A silver SUV cannot get to different places at the same time." ch="同一辆银色小车不可能同时到达不同的地点。" />
         <formula>
             <forall var="v1" in="silver_suv1">
                 <not>
@@ -208,6 +215,8 @@
 
     <rule>
         <id>rule_07</id>
+        <explanation en="An orange car must enter the previous road before entering the next one. In other words, if it enters a road, either it's the first entering event, or it has entered the previous road."
+                     ch="橘色小车必须先进入前一段路才能进入后一段。换句话说，如果它进入了某路段，要么这是第一个进入事件，要么它必然进入过前一段路。" />
         <formula>
             <forall var="v1" in="orange_car3">
                 <or>
@@ -238,6 +247,8 @@
 
     <rule>
         <id>rule_08</id>
+        <explanation en="A green car must enter the previous road before entering the next one. In other words, if it enters a road, either it's the first entering event, or it has entered the previous road."
+                     ch="绿色小车必须先进入前一段路才能进入后一段。换句话说，如果它进入了某路段，要么这是第一个进入事件，要么它必然进入过前一段路。" />
         <formula>
             <forall var="v1" in="green_car3">
                 <or>
@@ -268,6 +279,8 @@
 
     <rule>
         <id>rule_09</id>
+        <explanation en="A black car must enter the previous road before entering the next one. In other words, if it enters a road, either it's the first entering event, or it has entered the previous road."
+                     ch="黑色小车必须先进入前一段路才能进入后一段。换句话说，如果它进入了某路段，要么这是第一个进入事件，要么它必然进入过前一段路。" />
         <formula>
             <forall var="v1" in="black_car3">
                 <or>
@@ -298,6 +311,8 @@
 
     <rule>
         <id>rule_10</id>
+        <explanation en="A white car must enter the previous road before entering the next one. In other words, if it enters a road, either it's the first entering event, or it has entered the previous road."
+                     ch="白色小车必须先进入前一段路才能进入后一段。换句话说，如果它进入了某路段，要么这是第一个进入事件，要么它必然进入过前一段路。" />
         <formula>
             <forall var="v1" in="white_car3">
                 <or>
@@ -328,6 +343,8 @@
 
     <rule>
         <id>rule_11</id>
+        <explanation en="A red car must enter the previous road before entering the next one. In other words, if it enters a road, either it's the first entering event, or it has entered the previous road."
+                     ch="红色小车必须先进入前一段路才能进入后一段。换句话说，如果它进入了某路段，要么这是第一个进入事件，要么它必然进入过前一段路。" />
         <formula>
             <forall var="v1" in="red_car3">
                 <or>
@@ -358,6 +375,8 @@
 
     <rule>
         <id>rule_12</id>
+        <explanation en="A silver SUV must enter the previous road before entering the next one. In other words, if it enters a road, either it's the first entering event, or it has entered the previous road."
+                     ch="银色小车必须先进入前一段路才能进入后一段。换句话说，如果它进入了某路段，要么这是第一个进入事件，要么它必然进入过前一段路。" />
         <formula>
             <forall var="v1" in="silver_suv3">
                 <or>
