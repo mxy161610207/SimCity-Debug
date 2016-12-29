@@ -22,7 +22,7 @@ public class ImpliesFormula extends Formula {
     private Formula second;
     
 //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(AndFormula.class.getName());
+//	private static Log logger = LogFactory.getLog(AndFormula.class.getId());
     
     public ImpliesFormula(String name) {
         super(name);

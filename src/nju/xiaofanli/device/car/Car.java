@@ -128,8 +128,7 @@ public class Car {
         sensor.nextRoad.allRealCars.add(this);
         timeout = loc.timeouts.get(dir).get(name);
         sensor.nextRoad.iconPanel.repaint();
-        Middleware.addInitialContext(name, dir, Car.MOVING, "movement", "enter",
-                sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
+        Middleware.addInitialContext(name, dir, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
         PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
     }

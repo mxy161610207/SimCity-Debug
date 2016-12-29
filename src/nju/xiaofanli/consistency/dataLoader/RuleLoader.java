@@ -187,7 +187,7 @@ public class RuleLoader {
                 return formula;
             }
             case "bfunc": {
-                String name = "";
+                String id = "";
                 NamedNodeMap map = element.getAttributes();
                 //�����Ԫ�ش�������
                 if (map != null) {
@@ -196,12 +196,12 @@ public class RuleLoader {
                         Attr attr = (Attr) map.item(i);
                         String attrName = attr.getName();
                         String attrValue = attr.getValue();
-                        if (attrName.equals("name")) {
-                            name = attrValue;
+                        if (attrName.equals("id")) {
+                            id = attrValue;
                         }
                     }
                 }
-                BFunc formula = new BFunc(name);
+                BFunc formula = new BFunc(id);
                 //�ӽڵ㴦��
                 for (int i = 0; i < children.getLength(); i++) {
                     Node node = children.item(i);

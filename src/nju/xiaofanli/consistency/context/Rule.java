@@ -21,7 +21,7 @@ public class Rule {
     private Formula formula, initialFormula;//һ���߼���ʽ
     private String explanInEn, explanInCh;
     //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(Rule.class.getName());
+//	private static Log logger = LogFactory.getLog(Rule.class.getId());
     
     public Rule(String name) {
         this.name = name;

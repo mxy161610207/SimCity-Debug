@@ -25,7 +25,7 @@ public abstract class Formula{
     protected String goalLink;
     
 //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(Formula.class.getName());
+//	private static Log logger = LogFactory.getLog(Formula.class.getId());
     
     public Formula(String type) {
         this.type = type;
@@ -81,6 +81,7 @@ public abstract class Formula{
     }
 
     private StringBuilder getIndentString(int level, StringBuilder sb, Stack<Boolean> subformula2print) {
+        sb.append("\n");
         if (!subformula2print.isEmpty()) {
             for (int i = 0; i < subformula2print.size() - 1; ++i) {
                 // determines if we need to print | at this level to show the tree structure
@@ -89,7 +90,7 @@ public abstract class Formula{
             sb.append(subformula2print.lastElement() ? "\u251c\u2500" : "\u2514\u2500");
         }
 
-        sb.append(getName4indentString()).append("\n");
+        sb.append(getName4indentString());
         List<Formula> subformula = getSubformula4indentString();
         for (int i = 0;i < subformula.size();i++) {
             subformula2print.push(i != subformula.size()-1); //has other subformula to print

@@ -23,7 +23,7 @@ public class ExistsFormula extends Formula{
     private LinkedList<SubNode> subNodes = new LinkedList<>();
 
 //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(ForallFormula.class.getName());
+//	private static Log logger = LogFactory.getLog(ForallFormula.class.getId());
 
     public ExistsFormula(String name) {
         super(name);
@@ -167,12 +167,12 @@ public class ExistsFormula extends Formula{
 
     @Override
     public String toString() {
-        return "\u2203" + variable + " \u2208 " + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
+        return "\u2203" + variable + " \u2208 " + pattern.getId() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
     }
 
     @Override
     protected String getName4indentString() {
-        return "\u2203" + variable + " \u2208 " + pattern.getName();
+        return "\u2203" + variable + " \u2208 " + pattern.getId();
     }
 
     @Override

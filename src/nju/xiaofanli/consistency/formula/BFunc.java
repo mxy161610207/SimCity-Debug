@@ -34,7 +34,7 @@ public class BFunc extends Formula {
     }
     
 //    @SuppressWarnings("unused")
-//	private  static Log logger = LogFactory.getLog(BFunc.class.getName());
+//	private  static Log logger = LogFactory.getLog(BFunc.class.getId());
     
     public BFunc(String name) {
         super(name);
@@ -67,7 +67,7 @@ public class BFunc extends Formula {
         return varEnv.get(p.var).getFields().get(p.field);
     }
     
-    private boolean funcBeforeTime(HashMap<String, Context> var) {
+    private boolean funcEarlierThan(HashMap<String, Context> var) {
     	long v1 = (long) getValue(1, var);
     	long v2 = (long) getValue(2, var);
 //    	if (v1 == null || v2 == null)
@@ -76,13 +76,12 @@ public class BFunc extends Formula {
 		return v1 < v2;
 	}
 
-	private boolean funcSameTime(HashMap<String, Context> var) {
+	private boolean funcShortTime(HashMap<String, Context> var) {
 		long v1 = (long) getValue(1, var);
 		long v2 = (long) getValue(2, var);
 //    	if (v1 == null || v2 == null)
 //    		return false;
-    	
-    	//two contexts of one car occurring less than 200ms will be considered same lastRecvTime
+
 		return Math.abs(v1 - v2) < 200;
 	}
 
@@ -112,10 +111,10 @@ public class BFunc extends Formula {
                 value = funcStillState(node.getVar()); break;
             case "same_location":
                 value = funcSameLocation(node.getVar()); break;
-            case "same_time":
-                value = funcSameTime(node.getVar()); break;
-            case "before_time":
-                value = funcBeforeTime(node.getVar()); break;
+            case "short_time":
+                value = funcShortTime(node.getVar()); break;
+            case "earlier_than":
+                value = funcEarlierThan(node.getVar()); break;
             default:
                 System.out.println("incorrect function: " + type);
                 System.exit(1);

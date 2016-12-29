@@ -19,26 +19,26 @@ import org.apache.commons.logging.LogFactory;
  * ÿһ��������һ��contexts
  */
 public class Pattern {
-    private String name;
+    private String id;
 //    private ArrayList<String> fields = new ArrayList<String>();
     private HashMap<String, Object> fields = new HashMap<>();//����field�Լ����Ӧ��ֵ
     private LinkedList<Context> contexts = new LinkedList<>();
-    private int ctxNum = Integer.MAX_VALUE;
+    private int size = Integer.MAX_VALUE;
     private String rule;//assumption: a pattern can only be used by one rule
     
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(Pattern.class.getName());
     
-    public Pattern(String name) {
-        this.name = name;
+    public Pattern(String id) {
+        this.id = id;
     }
     
     public int getSize() {//��pattern��context�ĸ���
     	return contexts.size();
     }
     
-    public String getName() {
-    	return name;
+    public String getId() {
+    	return id;
     }
     
     public void setRule(String rule){
@@ -61,8 +61,8 @@ public class Pattern {
     	return contexts;
     }
     
-//    public Context getContext(String name){
-//    	return contexts.get(name);
+//    public Context getContext(String id){
+//    	return contexts.get(id);
 //    }
     
 //    public void addField(String field) {
@@ -86,12 +86,12 @@ public class Pattern {
             contexts.remove(ctx);
     }
     
-    public void setMaxCtxNum(int num){
-    	this.ctxNum = num;
+    public void setSize(int size){
+    	this.size = size;
     }
     
     public boolean isFull(){
-    	return contexts.size() == ctxNum;
+    	return contexts.size() == size;
     }
 
 	public void reset() {
@@ -102,7 +102,7 @@ public class Pattern {
     public String toString() {
         String str = "";
         str += " ";
-        str += name;
+        str += id;
         return str;
     }
 }

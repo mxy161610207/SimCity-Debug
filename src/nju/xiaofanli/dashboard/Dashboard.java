@@ -636,7 +636,6 @@ public class Dashboard extends JFrame{
                 for(Sensor s : array)
                     s.icon.setVisible(showSensor);
         });
-        jchkSensor.doClick();
 
         jchkBalloon.addActionListener(e -> {
             showError = jchkBalloon.isSelected();
@@ -723,7 +722,7 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             TrafficMap.showFakeLocIconLabel(true);
             TrafficMap.showRealLocIconLabel(true);
-            ruleButton.setVisible(true);
+            ruleButton.setVisible(false);
         });
 
         fixedRadioButton.addActionListener(e -> {
@@ -911,6 +910,8 @@ public class Dashboard extends JFrame{
         getInstance().setContentPane(controlPanel);
         getInstance().pack();
         getInstance().setLocationRelativeTo(null);
+
+//        jchkSensor.doClick();
     }
 
     private static final Class ComponentView$Invalidator = ComponentView.class.getDeclaredClasses()[0];
@@ -951,63 +952,63 @@ public class Dashboard extends JFrame{
 
     private static void switchLanguage() {
         useEnglish = !useEnglish;
-        getInstance().setTitle(useEnglish ? "Dashboard" : "控制面板");
+        getInstance().setTitle(useEnglish() ? "Dashboard" : "控制面板");
 
-        ((TitledBorder) VCPanel.getBorder()).setTitle(useEnglish ? "Vehicle info" : "车辆信息");
+        ((TitledBorder) VCPanel.getBorder()).setTitle(useEnglish() ? "Vehicle info" : "车辆信息");
         updateVehicleConditionPanel();
 
-        resetButton.setText(useEnglish ? "Reset" : "重置");
-        deviceButton.setText(useEnglish ? "Device" : "设备");
-        ruleButton.setText(useEnglish ? "Rule" : "规则");
-        langButton.setText(useEnglish ? "中文" : "English"); //language switch button need to display the opposite text
-//        console.setText(useEnglish ? "Console" : "控制台");
+        resetButton.setText(useEnglish() ? "Reset" : "重置");
+        deviceButton.setText(useEnglish() ? "Device" : "设备");
+        ruleButton.setText(useEnglish() ? "Rule" : "规则");
+        langButton.setText(useEnglish() ? "中文" : "English"); //language switch button need to display the opposite text
+//        console.setText(useEnglish() ? "Console" : "控制台");
 
-        ((TitledBorder) miscPanel.getBorder()).setTitle(useEnglish ? "Display & sound options" : "显示与声音选项");
-        jchkRoad.setText(useEnglish ? "Show roads" : "显示路名");
-        jchkSensor.setText(useEnglish ? "Show sensors" : "显示传感器");
-        jchkBalloon.setText(useEnglish ? "Show error" : "显示错误");
-        jchkCrash.setText(useEnglish ? "Play crash" : "播放撞车声");
+        ((TitledBorder) miscPanel.getBorder()).setTitle(useEnglish() ? "Display & sound options" : "显示与声音选项");
+        jchkRoad.setText(useEnglish() ? "Show roads" : "显示路名");
+        jchkSensor.setText(useEnglish() ? "Show sensors" : "显示传感器");
+        jchkBalloon.setText(useEnglish() ? "Show error" : "显示错误");
+        jchkCrash.setText(useEnglish() ? "Play crash" : "播放撞车声");
 
-        ((TitledBorder) scenarioPanel.getBorder()).setTitle(useEnglish ? "Scenario selection" : "场景选择");
-        idealRadioButton.setText(useEnglish ? "Ideal" : "理想");
-        noisyRadioButton.setText(useEnglish ? "Noisy" : "包含错误");
-        fixedRadioButton.setText(useEnglish ? "Fixed" : "修复错误");
+        ((TitledBorder) scenarioPanel.getBorder()).setTitle(useEnglish() ? "Scenario selection" : "场景选择");
+        idealRadioButton.setText(useEnglish() ? "Ideal" : "理想");
+        noisyRadioButton.setText(useEnglish() ? "Noisy" : "包含错误");
+        fixedRadioButton.setText(useEnglish() ? "Fixed" : "修复错误");
 
-        startCarButton.setText(useEnglish ? "Start" : "启动");
-        stopCarButton.setText(useEnglish ? "Stop" : "停止");
-        startAllCarsButton.setText(useEnglish ? "Start all" : "全启动");
-        stopAllCarsButton.setText(useEnglish ? "Stop all" : "全停止");
+        startCarButton.setText(useEnglish() ? "Start" : "启动");
+        stopCarButton.setText(useEnglish() ? "Stop" : "停止");
+        startAllCarsButton.setText(useEnglish() ? "Start all" : "全启动");
+        stopAllCarsButton.setText(useEnglish() ? "Stop all" : "全停止");
 
-        ((TitledBorder) deliveryPanel.getBorder()).setTitle(useEnglish ? "Taxi Service" : "打车服务");
-        jchkAutoGen.setText(useEnglish ? "Automatically generate tasks" : "自动产生任务");
-        srcLabel.setText(useEnglish ? "Src" : "起点");
-        destLabel.setText(useEnglish ? "Dest" : "终点");
-        startdButton.setText(useEnglish ? "Manually create a task" : "手动创建任务");
-        deliverButton.setText(useEnglish ? "Create" : "创建");
-        canceldButton.setText(useEnglish ? "Cancel" : "取消");
+        ((TitledBorder) deliveryPanel.getBorder()).setTitle(useEnglish() ? "Taxi Service" : "打车服务");
+        jchkAutoGen.setText(useEnglish() ? "Automatically generate tasks" : "自动产生任务");
+        srcLabel.setText(useEnglish() ? "Src" : "起点");
+        destLabel.setText(useEnglish() ? "Dest" : "终点");
+        startdButton.setText(useEnglish() ? "Manually create a task" : "手动创建任务");
+        deliverButton.setText(useEnglish() ? "Create" : "创建");
+        canceldButton.setText(useEnglish() ? "Cancel" : "取消");
 
-        ((TitledBorder) ongoingDTPanel.getBorder()).setTitle(useEnglish ? "Tasks" : "任务");
+        ((TitledBorder) ongoingDTPanel.getBorder()).setTitle(useEnglish() ? "Tasks" : "任务");
         updateDeliveryTaskPanel();
 
-        ((TitledBorder) logPaneScroll.getBorder()).setTitle(useEnglish ? "Logs" : "记录");
+        ((TitledBorder) logPaneScroll.getBorder()).setTitle(useEnglish() ? "Logs" : "记录");
         changeLogsLanguage();
         TrafficMap.switchLanguage();
 
-        deviceDialog.setTitle(useEnglish ? "Device" : "设备");
+        deviceDialog.setTitle(useEnglish() ? "Device" : "设备");
         if (brickPanel != null)
-            ((TitledBorder) brickPanel.getBorder()).setTitle(useEnglish ? "Lego hosts" : "乐高主机");
+            ((TitledBorder) brickPanel.getBorder()).setTitle(useEnglish() ? "Lego hosts" : "乐高主机");
         if (carPanel != null)
-            ((TitledBorder) carPanel.getBorder()).setTitle(useEnglish ? "Cars" : "车辆");
+            ((TitledBorder) carPanel.getBorder()).setTitle(useEnglish() ? "Cars" : "车辆");
         if (shutdownButton != null)
-            shutdownButton.setText(useEnglish ? "Shutdown" : "关机");
+            shutdownButton.setText(useEnglish() ? "Shutdown" : "关机");
         deviceDialog.repaint();
 
-        ruleDialog.setTitle(useEnglish ? "Rule" : "规则");
+        ruleDialog.setTitle(useEnglish() ? "Rule" : "规则");
         updateRuleTextPane();
         ruleDialog.repaint();
 
-        relocationDialog.setTitle(useEnglish ? "Relocation" : "重定位");
-        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
+        relocationDialog.setTitle(useEnglish() ? "Relocation" : "重定位");
+        relocationDoneButton.setText(useEnglish() ? "Done" : "完成");
         relocationDialog.repaint();
 
         getInstance().repaint();
@@ -1070,10 +1071,16 @@ public class Dashboard extends JFrame{
                 if (!firstLine[0])
                     text.append("\n\n");
                 text.append(name+(useEnglish()?": ":"："), true).append(rule.getExplanation(useEnglish()), true)
-                        .append("\n"+rule.getFormula().getIndentString()).append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
-                .append(Middleware.getResolutionStrategy(useEnglish()), true);
+                        .append(rule.getFormula().getIndentString());
                 firstLine[0] = false;
             });
+            if (Middleware.isResolutionEnabled()) {
+                if (!firstLine[0])
+                    text.append("\n\n");
+                text.append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
+                        .append(Middleware.getResolutionStrategy(useEnglish()), true);
+            }
+
             Dashboard.append2pane(text, ruleTextPane);
             ruleTextPane.setCaretPosition(0); // scroll back to top
         }
@@ -1114,7 +1121,7 @@ public class Dashboard extends JFrame{
     }
 
     public static void showRelocationDialog(Car car) {
-        StyledText text = new StyledText(useEnglish ? "Relocating " : "正在重定位 ");
+        StyledText text = new StyledText(useEnglish() ? "Relocating " : "正在重定位 ");
         if (car != null)
             text.append(car.name, car.icon.color);
         text.append("...");
@@ -1127,21 +1134,26 @@ public class Dashboard extends JFrame{
     public static void showRelocationDialog(Car car, boolean successful, Road road) {
         StyledText text = new StyledText(), enText2log = new StyledText(), chText2log = new StyledText();
         if (successful) {
-            text.append(useEnglish ? "Successful" : "成功", Color.GREEN);
+            text.append(useEnglish() ? "Successful" : "成功", Color.GREEN);
             enText2log.append(car.name, car.icon.color).append(" is relocated successfully.\n");
             chText2log.append(car.name, car.icon.color).append(" 重定位成功。\n");
         }
         else {
-            text.append(useEnglish ? "Failed" : "失败", Color.RED).append(useEnglish ? "\nPlease put " : "\n请置 ")
-                    .append(car.name, car.icon.color).append(useEnglish ? " at " : " 于 ").append(road.name, Resource.DEEP_SKY_BLUE)
-                    .append(useEnglish ? ".\n" : "。\n").append(useEnglish ? "After" : "在此之后", true).append(useEnglish ? " that, click " : "，点击 ")
-                    .append(useEnglish ? "Done" : "完成", true).append(useEnglish ? " button." : " 按钮。");
+            if (useEnglish())
+                text.append("Failed", Color.RED).append("\nPlease put ").append(car.name, car.icon.color).append(" at ")
+                        .append(road.name, Resource.DEEP_SKY_BLUE).append(".\n").append("After", true).append(" that, click ")
+                        .append("Done", true).append(" button.");
+            else
+                text.append("失败", Color.RED).append("\n请置 ").append(car.name, car.icon.color).append(" 于 ")
+                        .append(road.name, Resource.DEEP_SKY_BLUE).append("。\n").append("在此之后", true).append("，点击 ")
+                        .append("完成", true).append(" 按钮。");
+
             relocationDoneButton.setVisible(true);
             enText2log.append("Fail to relocate ").append(car.name, car.icon.color).append(".\n");
             chText2log.append(car.name, car.icon.color).append(" 重定位失败。\n");
         }
         append2pane(text, relocationTextPane);
-        relocationDoneButton.setText(useEnglish ? "Done" : "完成");
+        relocationDoneButton.setText(useEnglish() ? "Done" : "完成");
         relocationDialog.pack();
         relocationDialog.setVisible(true);
         log(enText2log, chText2log);
@@ -1268,8 +1280,8 @@ public class Dashboard extends JFrame{
         queue.addAll(Delivery.searchTasks);
         queue.addAll(Delivery.deliveryTasks);
         synchronized (deliveryCountLabel) {
-            deliveryCountLabel.setText((useEnglish ? "Ongoing: " : "进行中：") + queue.size()
-                    + (useEnglish ? "    Completed: " : "    已完成：") + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
+            deliveryCountLabel.setText((useEnglish() ? "Ongoing: " : "进行中：") + queue.size()
+                    + (useEnglish() ? "    Completed: " : "    已完成：") + (Delivery.completedSysDelivNum + Delivery.completedUserDelivNum));
         }
         boolean firstLine = true;
         synchronized (deliveryPane) {
@@ -1286,15 +1298,15 @@ public class Dashboard extends JFrame{
                 text.append(dt.citizen.name, dt.citizen.icon.color);
                 switch (dt.phase) {
                     case Delivery.DeliveryTask.SEARCH_CAR:
-                        text.append(useEnglish ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
-                                .append(useEnglish ? " needs a taxi to " : " 需要一辆车去 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
+                        text.append(useEnglish() ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
+                                .append(useEnglish() ? " needs a taxi to " : " 需要一辆车去 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
                         break;
                     case Delivery.DeliveryTask.HEAD4SRC:
-                        text.append(useEnglish ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
-                                .append(useEnglish ? " waits for " : " 等待 ").append(dt.car.name, dt.car.icon.color);
+                        text.append(useEnglish() ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
+                                .append(useEnglish() ? " waits for " : " 等待 ").append(dt.car.name, dt.car.icon.color);
                         break;
                     case Delivery.DeliveryTask.HEAD4DEST:
-                        if (useEnglish)
+                        if (useEnglish())
                             text.append(" gets on ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE)
                                     .append(" and heads for ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
                         else
@@ -1302,7 +1314,7 @@ public class Dashboard extends JFrame{
                                     .append(" 并向 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE).append(" 出发");
                         break;
                     case Delivery.DeliveryTask.COMPLETED:
-                        if (useEnglish)
+                        if (useEnglish())
                             text.append(" gets off ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE);
                         else
                             text.append(" 在 ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下了 ").append(dt.car.name, dt.car.icon.color);
@@ -1343,7 +1355,7 @@ public class Dashboard extends JFrame{
     private static void changeLogsLanguage() {
         synchronized (logPane) {
             logPane.setText("");
-            logs.get(useEnglish).forEach(text -> append2pane(text, logPane));
+            logs.get(useEnglish()).forEach(text -> append2pane(text, logPane));
         }
     }
 
@@ -1361,7 +1373,7 @@ public class Dashboard extends JFrame{
                 list.remove(0);
         }
 
-        append2pane(useEnglish ? enText.getText() : chText.getText(), logPane);
+        append2pane(useEnglish() ? enText.getText() : chText.getText(), logPane);
     }
 
     public static void append2pane(StyledText text, JTextPane pane) {
@@ -1528,7 +1540,7 @@ public class Dashboard extends JFrame{
                 if (src == null) {
                     src = icon.road;
                     updateDeliverySrcPanel(src.name);
-                    updateDeliveryDestPanel(useEnglish ? "Click any loc" : "点击任意地点");
+                    updateDeliveryDestPanel(useEnglish() ? "Click any loc" : "点击任意地点");
                 }
                 else if (dest == null) {
                     if (src instanceof Road && icon.road == src)
@@ -1620,7 +1632,7 @@ public class Dashboard extends JFrame{
                 if (src == null) {
                     src = building;
                     updateDeliverySrcPanel(src.name);
-                    updateDeliveryDestPanel(useEnglish ? "Click any loc" : "点击任意地点");
+                    updateDeliveryDestPanel(useEnglish() ? "Click any loc" : "点击任意地点");
                 }
                 else if (dest == null) {
                     if (building == src)

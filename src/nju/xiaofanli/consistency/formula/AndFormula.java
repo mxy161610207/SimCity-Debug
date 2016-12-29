@@ -22,7 +22,7 @@ public class AndFormula extends Formula {
     private Formula second;
     
 //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(AndFormula.class.getName());
+//	private static Log logger = LogFactory.getLog(AndFormula.class.getId());
     
     public AndFormula(String name) {
         super(name);

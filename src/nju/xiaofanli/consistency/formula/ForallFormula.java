@@ -22,7 +22,7 @@ public class ForallFormula extends Formula {
     private Formula subFormula;//�ӹ�ʽ
     private LinkedList<SubNode> subNodes = new LinkedList<>();
 
-//    public static Log logger = LogFactory.getLog(ForallFormula.class.getName());
+//    public static Log logger = LogFactory.getLog(ForallFormula.class.getId());
 
     public ForallFormula(String name) {
         super(name);
@@ -165,12 +165,12 @@ public class ForallFormula extends Formula {
 
     @Override
     public String toString() {
-        return "\u2200" + variable + " \u2208 " + pattern.getName() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
+        return "\u2200" + variable + " \u2208 " + pattern.getId() + (subFormula.needBrackets() ? "(" + subFormula + ")" : " " + subFormula);
     }
 
     @Override
     protected String getName4indentString() {
-        return "\u2200" + variable + " \u2208 " + pattern.getName();
+        return "\u2200" + variable + " \u2208 " + pattern.getId();
     }
 
     @Override

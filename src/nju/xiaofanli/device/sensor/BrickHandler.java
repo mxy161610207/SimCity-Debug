@@ -229,7 +229,7 @@ public class BrickHandler extends Thread{
                     }
                     System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + time);
 
-                    Middleware.checkConsistency(car.name, dir, car.getState(), "movement", "enter", sensor.prevRoad.name,
+                    Middleware.checkConsistency(car.name, dir, car.getState(), sensor.prevRoad.name,
                             sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, time, car, sensor, isRealCar, true);
                 }
                 break;

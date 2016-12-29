@@ -17,7 +17,7 @@ import java.util.Set;
  * ������context��������������Ӧ��ֵ
  */
 public class Context {
-	private String name;//����
+	private String id;//����
 	private HashMap<String, Object> fields = new HashMap<>();//����field�Լ����Ӧ��ֵ
 	private Set<Pattern> patterns = new HashSet<>();//������Щpattern
     
@@ -30,9 +30,9 @@ public class Context {
 	
     public Context() {
         state = -1;
-        this.name = "ctx_" + ctxNum;
+        this.id = "ctx_" + ctxNum;
         ctxNum++;
-        addField("name", name);
+        addField("id", id);
     }
     public HashMap<String,Object> getFields() {
     	return fields;
@@ -46,12 +46,12 @@ public class Context {
         fields.put(fieldName, value);
     }
     
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
     
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
     
     public boolean matches(Pattern pattern){
@@ -88,7 +88,7 @@ public class Context {
     public boolean equals(Object arg) {
         /*if(!(fields.equals(e.fields)))
         	return false;*/
-    	return arg instanceof Context && name.equals(((Context)arg).name);
+    	return arg instanceof Context && id.equals(((Context)arg).id);
     }
     
     @Override
@@ -100,7 +100,7 @@ public class Context {
     }
     
     public void print(){
-        StringBuilder sb = new StringBuilder("    " + name);
+        StringBuilder sb = new StringBuilder("    " + id);
     	for(Map.Entry<String, Object> e : fields.entrySet())
     		sb.append("\t[" + e.getKey() + "] " + e.getValue());
         System.out.println(sb);

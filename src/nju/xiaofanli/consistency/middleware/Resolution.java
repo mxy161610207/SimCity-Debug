@@ -60,7 +60,7 @@ public class Resolution {
 			for(int i = changes.size()-1;i >= 0;i--){
 				ContextChange newChange = flip(changes.get(i));
 				newChanges.add(newChange);
-//				System.out.println((newChange.getType()==1?"ADD":"DEL")+"\t"+newChange.getContext().getName()+"\t"+newChange.getPattern().getName());
+//				System.out.println((newChange.getType()==1?"ADD":"DEL")+"\t"+newChange.getContext().getId()+"\t"+newChange.getPattern().getId());
 			}
 			Detection.detect(rule, newChanges);
 		}

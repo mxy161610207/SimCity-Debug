@@ -16,10 +16,10 @@ public class Remedy implements Runnable{
         Runnable wakeThread = () -> {
             //noinspection InfiniteLoopStatement
 			int count = 0;
-            while (true) {
+			while (true) {
                 Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
                 if (count == 0)
-					Resource.getConnectedCars().forEach(car -> car.write(Command.RIGHT2));
+					Resource.getConnectedCars().forEach(car -> car.write(car.name.equals(Car.RED) ? Command.RIGHT3 : Command.RIGHT2)); //calibration
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

@@ -21,7 +21,7 @@ public class NotFormula extends Formula {
     private Formula formula;
     
 //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(NotFormula.class.getName());
+//	private static Log logger = LogFactory.getLog(NotFormula.class.getId());
     
     public NotFormula(String name) {
         super(name);

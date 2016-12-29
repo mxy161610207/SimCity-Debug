@@ -3,372 +3,373 @@
 <patterns>
     <pattern>
         <id>latest</id>
+        <size>1</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>any</subject>
-        <direction>any</direction>
+        <car>any</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
+    
     <pattern>
         <id>orange_car1</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Orange Car</subject>
-        <direction>any</direction>
+        <car>Orange Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>orange_car2</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Orange Car</subject>
-        <direction>any</direction>
+        <car>Orange Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>orange_car3</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Orange Car</subject>
-        <direction>any</direction>
+        <car>Orange Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>orange_car4</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Orange Car</subject>
-        <direction>any</direction>
+        <car>Orange Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>orange_car5</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Orange Car</subject>
-        <direction>any</direction>
+        <car>Orange Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>green_car1</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Green Car</subject>
-        <direction>any</direction>
+        <car>Green Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>green_car2</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Green Car</subject>
-        <direction>any</direction>
+        <car>Green Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>green_car3</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Green Car</subject>
-        <direction>any</direction>
+        <car>Green Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>green_car4</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Green Car</subject>
-        <direction>any</direction>
+        <car>Green Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>green_car5</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Green Car</subject>
-        <direction>any</direction>
+        <car>Green Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>black_car1</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Black Car</subject>
-        <direction>any</direction>
+        <car>Black Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>black_car2</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Black Car</subject>
-        <direction>any</direction>
+        <car>Black Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>black_car3</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Black Car</subject>
-        <direction>any</direction>
+        <car>Black Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>black_car4</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Black Car</subject>
-        <direction>any</direction>
+        <car>Black Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>black_car5</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Black Car</subject>
-        <direction>any</direction>
+        <car>Black Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>white_car1</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>White Car</subject>
-        <direction>any</direction>
+        <car>White Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>white_car2</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>White Car</subject>
-        <direction>any</direction>
+        <car>White Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>white_car3</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>White Car</subject>
-        <direction>any</direction>
+        <car>White Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>white_car4</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>White Car</subject>
-        <direction>any</direction>
+        <car>White Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>white_car5</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>White Car</subject>
-        <direction>any</direction>
+        <car>White Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>red_car1</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Red Car</subject>
-        <direction>any</direction>
+        <car>Red Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>red_car2</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Red Car</subject>
-        <direction>any</direction>
+        <car>Red Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>red_car3</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Red Car</subject>
-        <direction>any</direction>
+        <car>Red Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>red_car4</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Red Car</subject>
-        <direction>any</direction>
+        <car>Red Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>red_car5</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Red Car</subject>
-        <direction>any</direction>
+        <car>Red Car</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>silver_suv1</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Silver SUV</subject>
-        <direction>any</direction>
+        <car>Silver SUV</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>silver_suv2</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Silver SUV</subject>
-        <direction>any</direction>
+        <car>Silver SUV</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>silver_suv3</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Silver SUV</subject>
-        <direction>any</direction>
+        <car>Silver SUV</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>silver_suv4</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Silver SUV</subject>
-        <direction>any</direction>
+        <car>Silver SUV</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 
     <pattern>
         <id>silver_suv5</id>
+        <size>2</size>
         <timestamp>any</timestamp>
-        <category>movement</category>
-        <subject>Silver SUV</subject>
-        <direction>any</direction>
+        <car>Silver SUV</car>
+        <dir>any</dir>
         <state>any</state>
-        <predicate>any</predicate>
-        <object>any</object>
-        <prev>any</prev>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
     </pattern>
 </patterns>

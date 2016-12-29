@@ -62,7 +62,7 @@ public class PatternLoader {
                 for(int i = 0; i < map.getLength(); i++) {
                     //��ø�Ԫ�ص�ÿһ������
                     Attr attr = (Attr)map.item(i);	
-                    String attrName = attr.getName();
+                    String attrName = attr.getId();
                     String attrValue = attr.getValue();
                     if(attrName.equals("name")) {
                         name = attrValue;
@@ -91,7 +91,7 @@ public class PatternLoader {
             if(map != null) {
                 //��ø�Ԫ�صĵ�һ�����ԣ�name
                 Attr attr = (Attr)map.item(0);	
-                String attrName = attr.getName();
+                String attrName = attr.getId();
                 if(attrName.equals("name")) {
                     field = attr.getValue();
                 }
@@ -115,10 +115,11 @@ public class PatternLoader {
         	for(int i = 0;i < children.getLength();i++){
         		Element child = (Element) children.item(i);
         		Pattern pattern = new Pattern(child.getElementsByTagName("id").item(0).getFirstChild().getNodeValue());
+        		pattern.setSize(Integer.parseInt(child.getElementsByTagName("size").item(0).getFirstChild().getNodeValue()));
     			NodeList fields = child.getChildNodes();
     			for(int j = 1;j < fields.getLength();j += 2){
     				Node field = fields.item(j);
-    				if(!field.getNodeName().equals("id"))
+    				if(!field.getNodeName().equals("id") && !field.getNodeName().equals("size"))
     					pattern.addField(field.getNodeName(), field.getFirstChild().getNodeValue());
     			}
     			patterns.add(pattern);

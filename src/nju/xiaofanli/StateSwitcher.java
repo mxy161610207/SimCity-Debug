@@ -555,7 +555,7 @@ public class StateSwitcher {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis(), car, sensor, car.hasPhantom(), false);
 
@@ -564,12 +564,12 @@ public class StateSwitcher {
                 else if (locatedSensor == sensor.nextSensor) {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis()-400, car, sensor, car.hasPhantom(), false);
                     //enter next next road
                     sensor.nextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
                             System.currentTimeMillis(), car, nextNextSensor, car.hasPhantom(), false);
 
@@ -578,17 +578,17 @@ public class StateSwitcher {
                 else if (locatedSensor == sensor.nextSensor.nextSensor) {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis()-800, car, sensor, car.hasPhantom(), false);
                     //enter next next road
                     sensor.nextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
                             System.currentTimeMillis()-400, car, nextNextSensor, car.hasPhantom(), false);
                     //enter next next next road
                     sensor.nextSensor.nextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             nextNextRoad.name, nextNextNextRoad.name, nextNextNextSensor.nextSensor.nextRoad.name,
                             System.currentTimeMillis(), car, nextNextNextSensor, car.hasPhantom(), false);
 
@@ -644,7 +644,7 @@ public class StateSwitcher {
                 if (locatedSensor == sensor) {
                     sensor.state = Sensor.UNDETECTED;
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING, "movement", "enter",
+                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
                             sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                             System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
                 }

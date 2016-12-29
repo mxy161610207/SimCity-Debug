@@ -54,9 +54,9 @@ class Operation {
 	//�Զ���change�Ĵ���(Drop-latest/Drop-all/Drop-random)
 	private static boolean operate(Rule rule, List<ContextChange> changes, String strategy) {
 		if(strategy.equals("Drop-latest") || strategy.equals("Drop-all") || strategy.equals("Drop-random")) {
-//			System.out.println(rule.getName());
+//			System.out.println(rule.getId());
 //			for(ContextChange change : changes)
-//				System.out.println((change.getType()==1?"ADD":"DEL")+"\t"+change.getContext().getName()+"\t"+change.getPattern().getName());
+//				System.out.println((change.getType()==1?"ADD":"DEL")+"\t"+change.getContext().getId()+"\t"+change.getPattern().getId());
 			Middleware.changeNum += changes.size();
 			Set<Link> links = Detection.detect(rule, changes);
 //			System.out.println("Inconsistency "+ (rule.getValue()?"undetected":"detected"));
@@ -65,7 +65,7 @@ class Operation {
 //	        		if(!link.getViolated())
 //	        			continue;
 //	        		for(Map.Entry<String, Context> entry : link.getBinding().entrySet())
-//	        			System.out.print(entry.getKey()+": "+entry.getValue().getName()+"\t");
+//	        			System.out.print(entry.getKey()+": "+entry.getValue().getId()+"\t");
 //	        		System.out.println();
 //	        	}
 //	        	System.out.println("---------------------");

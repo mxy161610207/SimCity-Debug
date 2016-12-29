@@ -55,7 +55,7 @@ public class Detection {
 			Operation.change(change);
 			check(rule, change);
 		}
-//		System.out.println(rule.getName() + ":" + rule.getValue());
+//		System.out.println(rule.getId() + ":" + rule.getValue());
 		return rule.getValue() ? null : rule.getLinks();//diff(rule.getLinks(), prevLinks);
 	}
    
