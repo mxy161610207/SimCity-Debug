@@ -22,9 +22,9 @@ public abstract class Road extends Location{
 	public final Map<Road, Road> entrance2exit = new HashMap<>(); //entrance -> exit
 	public final Map<Road, Road> exit2entrance = new HashMap<>(); //exit -> entrance
 	public final TrafficMap.Direction[] dir = {TrafficMap.Direction.UNKNOWN, TrafficMap.Direction.UNKNOWN};
-	public final Queue<Car> cars = new LinkedList<>();//may contain phantoms
-	public final Queue<Car> realCars = new LinkedList<>();
-	public final Queue<Car> allRealCars = new LinkedList<>();
+	public final Queue<Car> cars = new LinkedList<>(); //may contain cars that have fake locations
+	public final Queue<Car> carsWithoutFake = new LinkedList<>(); //cars without those that have fake locations
+	public final Queue<Car> realCars = new LinkedList<>(); //cars whose real locations are this
 	public Car permitted = null;
 	public JPanel crashLettersPanel = null;
 	public int numSections;
@@ -202,7 +202,7 @@ public abstract class Road extends Location{
 			super.paintComponent(g);
 //			System.out.println(road.name);
 //			g.setFont(Resource.en16bold);
-			switch(road.allRealCars.size()){
+			switch(road.carsWithoutFake.size()){
 				case 0:
 					g.setColor(Resource.LIGHT_SKY_BLUE); break;
 				case 1:
@@ -320,23 +320,23 @@ public abstract class Road extends Location{
 	public void reset() {
 		cars.clear();
 		realCars.clear();
-		allRealCars.clear();
+		carsWithoutFake.clear();
 		waiting.clear();
 		permitted = null;
 		crashLettersPanel = null;
 	}
 
 	public void checkRealCrash() {
-//        Set<Car> allRealCars = new HashSet<>(realCars);
-//        allRealCars.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
-		if(allRealCars.size() > 1) {
+//        Set<Car> carsWithoutFake = new HashSet<>(realCars);
+//        carsWithoutFake.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
+		if(carsWithoutFake.size() > 1) {
 			// stop all cars to keep the scene intact
 			if (!TrafficMap.crashOccurred) {
 				TrafficMap.crashOccurred = true;
 				Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP));
 			}
 
-			allRealCars.forEach(car -> {
+			carsWithoutFake.forEach(car -> {
 				if (!car.isInCrash) {
 					car.isInCrash = true;
 					if (Dashboard.playCrashSound)
@@ -348,7 +348,7 @@ public abstract class Road extends Location{
 			Dashboard.playCrashSound();
 
 			StyledText enText = new StyledText(), chText = new StyledText();
-			Iterator<Car> iter = allRealCars.iterator();
+			Iterator<Car> iter = carsWithoutFake.iterator();
 			Car crashedCar = iter.next();
 			enText.append(crashedCar.name, crashedCar.icon.color);
 			chText.append(crashedCar.name, crashedCar.icon.color);
@@ -363,14 +363,14 @@ public abstract class Road extends Location{
 
 			List<Car> frontCars = new ArrayList<>();
 			Set<TrafficMap.Direction> dirs = new HashSet<>();
-			allRealCars.stream().filter(car -> !dirs.contains(car.getRealDir())).forEach(car -> {
+			carsWithoutFake.stream().filter(car -> !dirs.contains(car.getRealDir())).forEach(car -> {
 				dirs.add(car.getRealDir());
 				frontCars.add(car);
 			});
 			Dashboard.logCrashEvent(frontCars);
 		}
 		else{
-			allRealCars.forEach(car -> {
+			carsWithoutFake.forEach(car -> {
 				if (car.isInCrash) {
 					car.isInCrash = false;
 					if (Dashboard.playCrashSound)

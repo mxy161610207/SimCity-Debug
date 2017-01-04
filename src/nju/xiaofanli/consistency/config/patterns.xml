@@ -6,7 +6,6 @@
         <size>1</size>
         <timestamp>any</timestamp>
         <car>any</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -18,7 +17,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Orange Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -30,7 +28,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Orange Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -42,7 +39,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Orange Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -54,7 +50,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Orange Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -66,7 +61,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Orange Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -78,7 +72,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Green Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -90,7 +83,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Green Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -102,7 +94,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Green Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -114,7 +105,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Green Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -126,7 +116,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Green Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -138,7 +127,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Black Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -150,7 +138,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Black Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -162,7 +149,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Black Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -174,7 +160,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Black Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -186,7 +171,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Black Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -198,7 +182,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>White Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -210,7 +193,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>White Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -222,7 +204,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>White Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -234,7 +215,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>White Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -246,7 +226,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>White Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -258,7 +237,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Red Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -270,7 +248,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Red Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -282,7 +259,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Red Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -294,7 +270,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Red Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -306,7 +281,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Red Car</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -318,7 +292,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Silver SUV</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -330,7 +303,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Silver SUV</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -342,7 +314,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Silver SUV</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -354,7 +325,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Silver SUV</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -366,7 +336,6 @@
         <size>2</size>
         <timestamp>any</timestamp>
         <car>Silver SUV</car>
-        <dir>any</dir>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>

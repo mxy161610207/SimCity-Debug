@@ -87,9 +87,9 @@ public class Middleware {
         new Thread(handler, "MiddleWare Handler").start();
     }
 
-    public static void checkConsistency(Object car, Object dir, Object state, Object prev_loc, Object cur_loc, Object next_loc,
+    public static void checkConsistency(Object car, Object state, Object prev_loc, Object cur_loc, Object next_loc,
                                         Object timestamp, Car carObj, Sensor sensor, boolean isRealCar, boolean triggerEvent) {
-        checkConsistency(getContext(car, dir, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, isRealCar, triggerEvent));
+        checkConsistency(getContext(car, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, isRealCar, triggerEvent));
     }
 
     public static void checkConsistency(Context context) {
@@ -134,11 +134,10 @@ public class Middleware {
 //        display();
     }
 
-    public static Context getContext(Object car, Object dir, Object state, Object prev_loc,
+    public static Context getContext(Object car, Object state, Object prev_loc,
                                      Object cur_loc, Object next_loc, Object timestamp, Car carObj, Sensor sensor, boolean isRealCar, boolean triggerEvent) {
         Context context = new Context();
         context.addField("car", car);
-        context.addField("dir", dir);
         context.addField("state", state);
         context.addField("prev_loc", prev_loc);
         context.addField("cur_loc", cur_loc);
@@ -171,11 +170,11 @@ public class Middleware {
         return changes;
     }
 
-    public static void add(Object car, Object dir, Object state, Object prev_loc, Object cur_loc, Object next_loc,
+    public static void add(Object car, Object state, Object prev_loc, Object cur_loc, Object next_loc,
                            Object timestamp, Car carObj, Sensor sensor, boolean isRealCar, boolean triggerEvent) {
         if(StateSwitcher.isResetting())
             return;
-        Context context = getContext(car, dir, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, isRealCar, triggerEvent);
+        Context context = getContext(car, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, isRealCar, triggerEvent);
         synchronized (queue) {
             queue.add(context);
             queue.notify();
@@ -185,9 +184,9 @@ public class Middleware {
     /**
      * Only called in the initial phase, directly add true contexts to patterns
      */
-    public static void addInitialContext(Object car, Object dir, Object state,
+    public static void addInitialContext(Object car, Object state,
                                          Object prev_loc, Object cur_loc, Object next_loc, Object timestamp, Car carObj, Sensor sensor) {
-        Context context = getContext(car, dir, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, false, true);
+        Context context = getContext(car, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, false, true);
         Map<String, List<ContextChange>> changes = getChanges(context);
         Operation.operate(changes, resolutionStrategy);
 //        display();
@@ -235,7 +234,7 @@ public class Middleware {
         while(!list.isEmpty()){
             String testCase = list.poll();
             String[] s = testCase.split(", ");
-            add(s[0], Integer.parseInt(s[1]), Integer.parseInt(s[2]), s[3], s[4], s[5], Long.parseLong(s[6]),
+            add(s[0], Integer.parseInt(s[1]), s[2], s[3], s[4], Long.parseLong(s[5]),
                     null, null, false, true);
         }
     }

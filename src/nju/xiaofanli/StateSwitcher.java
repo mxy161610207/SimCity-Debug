@@ -479,10 +479,10 @@ public class StateSwitcher {
             }
 
             Road nextRoad = sensor.nextRoad;
-            while (!nextRoad.allRealCars.isEmpty()) {
-                Car car1 = nextRoad.allRealCars.peek();
+            while (!nextRoad.carsWithoutFake.isEmpty()) {
+                Car car1 = nextRoad.carsWithoutFake.peek();
                 forwardRelocateRecursively(car1, nextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
-                if (!nextRoad.allRealCars.isEmpty())
+                if (!nextRoad.carsWithoutFake.isEmpty())
                     System.err.println("There still is/are car(s) at " + nextRoad.name + " in front of the relocated car " + car.name);
             }
 
@@ -492,19 +492,19 @@ public class StateSwitcher {
             Road nextNextNextRoad = nextNextNextSensor.nextRoad;
 
             if (knownLost) {
-                while (!nextNextRoad.allRealCars.isEmpty()) {
-                    Car car1 = nextNextRoad.allRealCars.peek();
+                while (!nextNextRoad.carsWithoutFake.isEmpty()) {
+                    Car car1 = nextNextRoad.carsWithoutFake.peek();
                     forwardRelocateRecursively(car1, nextNextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
-                    if (!nextNextRoad.allRealCars.isEmpty())
+                    if (!nextNextRoad.carsWithoutFake.isEmpty())
                         System.err.println("There still is/are car(s) at " + nextNextRoad.name);
                 }
             }
 
             if (detectedByNextNextSensor) {
-                while (!nextNextNextRoad.allRealCars.isEmpty()) {
-                    Car car1 = nextNextNextRoad.allRealCars.peek();
+                while (!nextNextNextRoad.carsWithoutFake.isEmpty()) {
+                    Car car1 = nextNextNextRoad.carsWithoutFake.peek();
                     forwardRelocateRecursively(car1, nextNextNextRoad.adjSensors.get(car1.getRealDir()), relocatedCars);
-                    if (!nextNextNextRoad.allRealCars.isEmpty())
+                    if (!nextNextNextRoad.carsWithoutFake.isEmpty())
                         System.err.println("2There still is/are car(s) at " + nextNextNextRoad.name);
                 }
             }
@@ -555,8 +555,7 @@ public class StateSwitcher {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
+                    Middleware.checkConsistency(car.name, Car.MOVING, sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis(), car, sensor, car.hasPhantom(), false);
 
                     relocatedCars.put(car, sensor);
@@ -564,13 +563,11 @@ public class StateSwitcher {
                 else if (locatedSensor == sensor.nextSensor) {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
+                    Middleware.checkConsistency(car.name, Car.MOVING, sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis()-400, car, sensor, car.hasPhantom(), false);
                     //enter next next road
                     sensor.nextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
+                    Middleware.checkConsistency(car.name, Car.MOVING, nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
                             System.currentTimeMillis(), car, nextNextSensor, car.hasPhantom(), false);
 
                     relocatedCars.put(car, nextNextSensor);
@@ -578,18 +575,15 @@ public class StateSwitcher {
                 else if (locatedSensor == sensor.nextSensor.nextSensor) {
                     //enter next road
                     sensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
+                    Middleware.checkConsistency(car.name, Car.MOVING, sensor.prevRoad.name, nextRoad.name, nextNextRoad.name,
                             System.currentTimeMillis()-800, car, sensor, car.hasPhantom(), false);
                     //enter next next road
                     sensor.nextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
+                    Middleware.checkConsistency(car.name, Car.MOVING, nextRoad.name, nextNextRoad.name, nextNextNextRoad.name,
                             System.currentTimeMillis()-400, car, nextNextSensor, car.hasPhantom(), false);
                     //enter next next next road
                     sensor.nextSensor.nextSensor.state = Sensor.UNDETECTED;
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            nextNextRoad.name, nextNextNextRoad.name, nextNextNextSensor.nextSensor.nextRoad.name,
+                    Middleware.checkConsistency(car.name, Car.MOVING, nextNextRoad.name, nextNextNextRoad.name, nextNextNextSensor.nextSensor.nextRoad.name,
                             System.currentTimeMillis(), car, nextNextNextSensor, car.hasPhantom(), false);
 
                     relocatedCars.put(car, nextNextNextSensor);
@@ -644,9 +638,8 @@ public class StateSwitcher {
                 if (locatedSensor == sensor) {
                     sensor.state = Sensor.UNDETECTED;
 //                    BrickHandler.switchState(locatedSensor, 0, System.currentTimeMillis());
-                    Middleware.checkConsistency(car.name, car.getRealDir(), Car.MOVING,
-                            sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
-                            System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
+                    Middleware.checkConsistency(car.name, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name,
+                            sensor.nextSensor.nextRoad.name, System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
                 }
                 else {
                     car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.name); // reset its timeout

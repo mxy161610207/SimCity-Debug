@@ -871,8 +871,8 @@ public class TrafficMap extends JPanel{
         if (roadAndCrashLettersPanel.containsKey(road) && roadAndCrashLettersPanel.get(road) != null)
             return;
         String crashedCars = Car.BLACK + ", " + Car.SILVER + ", " + Car.RED;
-        if (!road.allRealCars.isEmpty()) {
-            Iterator<Car> iter = road.allRealCars.iterator();
+        if (!road.carsWithoutFake.isEmpty()) {
+            Iterator<Car> iter = road.carsWithoutFake.iterator();
             crashedCars = iter.next().name;
             while (iter.hasNext())
                 crashedCars += ", " + iter.next().name;

@@ -125,10 +125,10 @@ public class Car {
             PkgHandler.send(new AppPkg().setDir(name, dir));
         }
         sensor.nextRoad.cars.add(this);
-        sensor.nextRoad.allRealCars.add(this);
+        sensor.nextRoad.carsWithoutFake.add(this);
         timeout = loc.timeouts.get(dir).get(name);
         sensor.nextRoad.iconPanel.repaint();
-        Middleware.addInitialContext(name, dir, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
+        Middleware.addInitialContext(name, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
         PkgHandler.send(new AppPkg().setCar(name, dir, loc.name));
     }
@@ -236,7 +236,7 @@ public class Car {
 		loc.cars.add(this);
         this.dir = dir;
         if (!hasPhantom()) {
-            loc.allRealCars.add(this);
+            loc.carsWithoutFake.add(this);
             timeout = loc.timeouts.get(dir).get(name); //setting remaining time to phantoms is meaningless
         }
 //        if(getState() != MOVING) {
@@ -277,7 +277,7 @@ public class Car {
 		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, road.adjRoads.get(dir));
 		road.cars.remove(this);
         if (!hasPhantom())
-            road.allRealCars.remove(this);
+            road.carsWithoutFake.remove(this);
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, road);
 		road.iconPanel.repaint();
         road.checkRealCrash();
@@ -308,7 +308,7 @@ public class Car {
 
     public void setRealInfo(Road loc, TrafficMap.Direction dir) {
         realLoc.realCars.remove(this);
-        realLoc.allRealCars.remove(this);
+        realLoc.carsWithoutFake.remove(this);
         realLoc.iconPanel.repaint();
         realLoc.checkRealCrash();
         if (this.loc == loc && this.dir == dir) {
@@ -319,7 +319,7 @@ public class Car {
             realLoc = loc;
             realDir = dir;
         }
-        loc.allRealCars.add(this);
+        loc.carsWithoutFake.add(this);
         loc.iconPanel.repaint();
         loc.checkRealCrash();
         timeout = loc.timeouts.get(dir).get(name);

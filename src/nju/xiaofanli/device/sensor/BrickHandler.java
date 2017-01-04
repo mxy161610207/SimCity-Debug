@@ -167,70 +167,59 @@ public class BrickHandler extends Thread{
             case Sensor.UNDETECTED:
                 if(sensor.entryDetected(reading)){
                     Car car = null;
-                    TrafficMap.Direction dir = TrafficMap.Direction.UNKNOWN;
                     boolean isRealCar = false;
-                    //check real cars first
-                    for(Car realCar : sensor.prevRoad.realCars){
-                        if(realCar.getRealDir() == sensor.dir){
-                            isRealCar = true;
-                            car = realCar;
-                            dir = realCar.getRealDir();
+                    for (Car car2 : sensor.prevRoad.carsWithoutFake) {
+                        if(car2.getRealDir() == sensor.dir){
+                            isRealCar = sensor.prevRoad.realCars.contains(car2);
+                            car = car2;
                             break;
                         }
                     }
-                    if(car == null){
-                        for(Car tmp : sensor.prevRoad.cars){
-                            if(tmp.dir == sensor.dir){
+
+                    if (car == null) {
+                        Set<Car> fakeCars = new HashSet<>(sensor.prevRoad.cars);
+                        fakeCars.removeAll(sensor.prevRoad.carsWithoutFake);
+                        for (Car car2 : fakeCars) {
+                            if(car2.dir == sensor.dir){
                                 isRealCar = false;
-                                car = tmp;
-                                dir = car.dir;
+                                car = car2;
                                 break;
                             }
                         }
                     }
+
                     if(car == null) {
-                        //checking if it's FN
                         Sensor prevSensor = sensor.prevSensor;
-                        Sensor prevPrevSensor = prevSensor.prevSensor;
-                        for(Car realCar : prevSensor.prevRoad.realCars) {
-                            if(realCar.getRealDir() == prevSensor.dir && realCar.getState() == Car.MOVING
-                                    && (prevPrevSensor.state != Sensor.DETECTED || prevPrevSensor.car != realCar)) {
-                                car = realCar;
+                        for (Car car2 : prevSensor.prevRoad.carsWithoutFake) {
+                            if(car2.getRealDir() == prevSensor.dir){
+                                isRealCar = prevSensor.prevRoad.realCars.contains(car2);
+                                car = car2;
                                 break;
                             }
                         }
+
                         if (car == null) {
-                            for(Car tmp : prevSensor.prevRoad.cars) {
-                                if(!tmp.hasPhantom() && tmp.dir == prevSensor.dir && tmp.getState() == Car.MOVING
-                                        && (prevPrevSensor.state != Sensor.DETECTED || prevPrevSensor.car != tmp)) {
-                                    car = tmp;
+                            Set<Car> fakeCars = new HashSet<>(prevSensor.prevRoad.cars);
+                            fakeCars.removeAll(prevSensor.prevRoad.carsWithoutFake);
+                            for (Car car2 : fakeCars) {
+                                if(car2.dir == prevSensor.dir){
+                                    isRealCar = false;
+                                    car = car2;
                                     break;
                                 }
                             }
                         }
-
-                        if (car == null)  {
-                            System.out.println("[" + sensor.name + "] Cannot find any car!\treading: " + reading + "\t" + time);
-                            sensor.state = Sensor.UNDETECTED;
-                            break;
-                        }
-                        else {
-                            System.out.println("[" + sensor.name + "] Relocate " + car.name + "\t" + time);
-                            synchronized (rawData) {
-                                for (ListIterator<RawData> iter = rawData.listIterator();iter.hasNext();) {
-                                    RawData data = iter.next();
-                                    if (data.sensor == sensor)
-                                        iter.remove(); // remove all raw data of the same sensor, make sure not trigger relocation repeatedly
-                                }
-                            }
-                            StateSwitcher.startRelocating(car, prevSensor, true);
-                            break;
-                        }
                     }
-                    System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + time);
 
-                    Middleware.checkConsistency(car.name, dir, car.getState(), sensor.prevRoad.name,
-                            sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, time, car, sensor, isRealCar, true);
+                    if (car == null)  {
+                        System.out.println("[" + sensor.name + "] Car not found!\treading: " + reading + "\t" + time);
+                        sensor.state = Sensor.UNDETECTED;
+                    }
+                    else {
+                        System.out.println("[" + sensor.name + "] ENTERING!!!" + "\treading: " + reading + "\t" + time);
+                        Middleware.checkConsistency(car.name, car.getState(), sensor.prevRoad.name,
+                                sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, time, car, sensor, isRealCar, true);
+                    }
                 }
                 break;
         }

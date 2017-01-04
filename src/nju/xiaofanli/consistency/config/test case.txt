@@ -1,3 +1,3 @@
-Black Car, 0, 1, Crossroad 3, Street 11, Crossroad 0, 1476348189531
-Black Car, 0, 1, movement, enter, Street 11, Crossroad 0, Street 2, 1476348190186
-Black Car, 0, 1, Crossroad 0, Street 2, Crossroad 1, 1476348277595
+Black Car, 1, Crossroad 3, Street 11, Crossroad 0, 1476348189531
+Black Car, 1, movement, enter, Street 11, Crossroad 0, Street 2, 1476348190186
+Black Car, 1, Crossroad 0, Street 2, Crossroad 1, 1476348277595
