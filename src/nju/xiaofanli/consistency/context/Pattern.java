@@ -24,7 +24,7 @@ public class Pattern {
     private HashMap<String, Object> fields = new HashMap<>();//����field�Լ����Ӧ��ֵ
     private LinkedList<Context> contexts = new LinkedList<>();
     private int size = Integer.MAX_VALUE;
-    private String rule;//assumption: a pattern can only be used by one rule
+    private Rule rule;//assumption: a pattern can only be used by one rule
     
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(Pattern.class.getName());
@@ -41,11 +41,11 @@ public class Pattern {
     	return id;
     }
     
-    public void setRule(String rule){
+    public void setRule(Rule rule){
     	this.rule = rule;
     }
     
-    public String getRule(){
+    public Rule getRule(){
     	return rule;
     }
     

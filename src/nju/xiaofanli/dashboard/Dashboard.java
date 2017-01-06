@@ -55,6 +55,7 @@ public class Dashboard extends JFrame{
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
     private static final JButton ruleButton = new JButton("Rule");
+    private static final JButton statsButton = new JButton("Stats");
     private static final JButton langButton = new JButton("中文");
     private static final JPanel deliveryPanel = new JPanel();
     private static final JButton startdButton = new JButton("Manually create a task");
@@ -160,6 +161,8 @@ public class Dashboard extends JFrame{
         deviceButton.setMargin(new Insets(0, 0, 0, 0));
         ruleButton.setFont(Resource.en16bold);
         ruleButton.setMargin(new Insets(0, 0, 0, 0));
+        statsButton.setFont(Resource.en16bold);
+        statsButton.setMargin(new Insets(0, 0, 0, 0));
         langButton.setFont(Resource.en16bold);
         langButton.setMargin(new Insets(0, 0, 0, 0));
         startdButton.setFont(Resource.en16bold);
@@ -460,15 +463,37 @@ public class Dashboard extends JFrame{
 
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(deviceButton, bgbc);
-        deviceButton.addActionListener(e -> showDeviceDialog(true));
+        deviceButton.addActionListener(e -> {
+            if (deviceDialog.isVisible())
+                deviceDialog.setVisible(false);
+            else
+                showDeviceDialog(true);
+        });
 
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(ruleButton, bgbc);
-        ruleButton.addActionListener(e -> showRuleDialog());
+        ruleButton.addActionListener(e -> {
+            if (ruleDialog.isVisible())
+                ruleDialog.setVisible(false);
+            else
+                showRuleDialog();
+        });
+
+        bgbc.gridx += bgbc.gridwidth;
+        buttonRowPanel.add(statsButton, bgbc);
+        statsButton.addActionListener(e -> {
+            if (statsDialog.isVisible())
+                statsDialog.setVisible(false);
+            else
+                showStatsDialog();
+        });
 
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(langButton, bgbc);
         langButton.addActionListener(e -> switchLanguage());
+
+        bgbc.gridx += bgbc.gridwidth;
+        buttonRowPanel.add(updateStatsTextPaneButton, bgbc);
 
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(console, bgbc);
@@ -693,11 +718,12 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             jchkBalloon.setEnabled(false);
             jchkCrash.setEnabled(false);
-            ruleButton.setVisible(false);
-            if (ruleDialog.isVisible())
-                ruleDialog.setVisible(false);
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
+            ruleButton.setVisible(false);
+            ruleDialog.setVisible(false);
+            statsButton.setVisible(false);
+            statsDialog.setVisible(false);
         });
         idealRadioButton.doClick();
         enableScenarioSelection(true);
@@ -723,6 +749,9 @@ public class Dashboard extends JFrame{
             TrafficMap.showFakeLocIconLabel(true);
             TrafficMap.showRealLocIconLabel(true);
             ruleButton.setVisible(false);
+            ruleDialog.setVisible(false);
+            statsButton.setVisible(false);
+            statsDialog.setVisible(false);
         });
 
         fixedRadioButton.addActionListener(e -> {
@@ -746,6 +775,7 @@ public class Dashboard extends JFrame{
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
             ruleButton.setVisible(true);
+            statsButton.setVisible(true);
         });
 
         gbc.gridy += gbc.gridheight;
@@ -912,6 +942,7 @@ public class Dashboard extends JFrame{
         getInstance().setLocationRelativeTo(null);
 
 //        jchkSensor.doClick();
+//        console.setVisible(false);
     }
 
     private static final Class ComponentView$Invalidator = ComponentView.class.getDeclaredClasses()[0];
@@ -960,6 +991,7 @@ public class Dashboard extends JFrame{
         resetButton.setText(useEnglish() ? "Reset" : "重置");
         deviceButton.setText(useEnglish() ? "Device" : "设备");
         ruleButton.setText(useEnglish() ? "Rule" : "规则");
+        statsButton.setText(useEnglish() ? "Stats" : "统计");
         langButton.setText(useEnglish() ? "中文" : "English"); //language switch button need to display the opposite text
 //        console.setText(useEnglish() ? "Console" : "控制台");
 
@@ -1005,7 +1037,14 @@ public class Dashboard extends JFrame{
 
         ruleDialog.setTitle(useEnglish() ? "Rule" : "规则");
         updateRuleTextPane();
+        if (ruleTextPane.isVisible())
+            ruleTextPane.setCaretPosition(0); //roll to top
         ruleDialog.repaint();
+
+        statsDialog.setTitle(useEnglish() ? "Stats" : "统计");
+        ((TitledBorder) statsTextPane.getBorder()).setTitle(useEnglish() ? "Fixed error" : "已修复的错误");
+        updateStatsTextPane();
+        statsDialog.repaint();
 
         relocationDialog.setTitle(useEnglish() ? "Relocation" : "重定位");
         relocationDoneButton.setText(useEnglish() ? "Done" : "完成");
@@ -1016,10 +1055,6 @@ public class Dashboard extends JFrame{
 
     private static final JDialog deviceDialog = new JDialog(new JFrame(), "Device");
     public static void showDeviceDialog(boolean closable){
-        if (closable && deviceDialog.isVisible()) {
-            deviceDialog.setVisible(false);
-            return;
-        }
         deviceDialog.setDefaultCloseOperation(closable ? HIDE_ON_CLOSE : DO_NOTHING_ON_CLOSE);
         deviceDialog.setContentPane(checkingPanel);
         deviceDialog.pack();
@@ -1032,8 +1067,9 @@ public class Dashboard extends JFrame{
         deviceDialog.setVisible(false);
     }
 
-    private static final JDialog ruleDialog = new JDialog(new JFrame(), "Rule");
-    private static final JTextPane ruleTextPane = new JTextPane();
+    private static final JDialog ruleDialog = new JDialog(new JFrame(), "Rule"), statsDialog = new JDialog(new JFrame(), "Stats");
+    private static final JTextPane ruleTextPane = new JTextPane(), statsTextPane = new JTextPane();
+    private static final JButton updateStatsTextPaneButton = new JButton();
     static {
         JScrollPane scrollPane = new JScrollPane(ruleTextPane);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -1043,47 +1079,95 @@ public class Dashboard extends JFrame{
         ruleTextPane.setFont(Resource.en17plain);
         ruleTextPane.setSize((int) controlPanelDimension.getHeight(), (int) controlPanelDimension.getHeight());
         ruleTextPane.setPreferredSize(ruleTextPane.getSize());
-//        ruleTextPane.setLogicalStyle(StyledText.getTextStyle(ruleTextPane.getFont(), 0.5f));
         ruleDialog.setContentPane(scrollPane);
         ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
-//        ruleDialog.setSize(controlPanelDimension);
+
+        statsTextPane.setBorder(BorderFactory.createTitledBorder("Fixed error"));
+        ((TitledBorder) statsTextPane.getBorder()).setTitleFont(Resource.en16bold);
+        statsTextPane.setEditable(false);
+        statsTextPane.setBackground(Color.WHITE);
+        statsTextPane.setFont(Resource.en17plain);
+        statsDialog.setContentPane(statsTextPane);
+        statsDialog.setResizable(false);
+        statsDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+        updateStatsTextPaneButton.setVisible(false);
+        updateStatsTextPaneButton.addActionListener(e -> updateStatsTextPane());
     }
 
     private static void showRuleDialog() {
-        if (ruleDialog.isVisible()) {
-            ruleDialog.setVisible(false);
-            return;
-        }
-
         updateRuleTextPane();
         ruleDialog.pack();
-        ruleDialog.setVisible(true);
+        if (!ruleDialog.isVisible()) {
+            ruleTextPane.setCaretPosition(0); // scroll back to top
+            ruleDialog.setVisible(true);
+        }
     }
 
     private static void updateRuleTextPane() {
+        StyledText text = new StyledText();
+        Map<String, Rule> treeMap = new TreeMap<>();
+        Middleware.getRules().forEach(treeMap::put);
+        boolean[] firstLine = new boolean[] {true};
+        treeMap.forEach((name, rule) -> {
+            if (!firstLine[0])
+                text.append("\n\n");
+            text.append(name+(useEnglish()?": ":"："), true).append(rule.getExplanation(useEnglish()), true)
+                    .append(rule.getFormula().getIndentString());
+            firstLine[0] = false;
+        });
+        if (Middleware.isResolutionEnabled()) {
+            if (!firstLine[0])
+                text.append("\n\n");
+            text.append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
+                    .append(Middleware.getResolutionStrategy(useEnglish()), true);
+        }
+
         synchronized (ruleTextPane) {
             ruleTextPane.setText("");
-            StyledText text = new StyledText();
-            Map<String, Rule> treeMap = new TreeMap<>();
-            Middleware.getRules().forEach(treeMap::put);
-            boolean[] firstLine = new boolean[] {true};
-            treeMap.forEach((name, rule) -> {
-                if (!firstLine[0])
-                    text.append("\n\n");
-                text.append(name+(useEnglish()?": ":"："), true).append(rule.getExplanation(useEnglish()), true)
-                        .append(rule.getFormula().getIndentString());
-                firstLine[0] = false;
-            });
-            if (Middleware.isResolutionEnabled()) {
-                if (!firstLine[0])
-                    text.append("\n\n");
-                text.append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
-                        .append(Middleware.getResolutionStrategy(useEnglish()), true);
-            }
-
-            Dashboard.append2pane(text, ruleTextPane);
-            ruleTextPane.setCaretPosition(0); // scroll back to top
+            append2pane(text, ruleTextPane);
         }
+    }
+
+    private static void showStatsDialog() {
+        synchronized (statsDialog) {
+            updateStatsTextPane();
+//            statsDialog.setPreferredSize(new Dimension((int) (statsDialog.getContentPane().getPreferredSize().getWidth()),
+//                    (int) controlPanelDimension.getHeight() / 2));
+            statsDialog.pack();
+            if (!statsDialog.isVisible()) {
+                statsTextPane.setCaretPosition(0);
+                statsDialog.setVisible(true);
+            }
+        }
+    }
+
+    private static Comparator<Rule> ruleComparator = (r1, r2) -> r2.getViolatedTimes() - r1.getViolatedTimes();
+    private static void updateStatsTextPane() {
+        StyledText text = new StyledText();
+        List<Rule> descSorted = new ArrayList<>(Middleware.getRules().values());
+        descSorted.sort(ruleComparator);
+        boolean[] firstLine = new boolean[]{ true };
+        descSorted.forEach(rule -> {
+            if (firstLine[0])
+                firstLine[0] = false;
+            else
+                text.append("\n");
+            text.append(rule.getName(), true).append("\t").append(Integer.toString(rule.getViolatedTimes()), true);
+        });
+
+        synchronized (statsTextPane) {
+            statsTextPane.setText("");
+            append2pane(text, statsTextPane);
+        }
+    }
+
+    public static void updateFixedError() {
+        updateStatsTextPaneButton.doClick();
+//        if (statsDialog.isVisible()) {
+//            updateRuleTextPane();
+//            statsDialog.pack();
+//        }
     }
 
     private static final JDialog relocationDialog = new JDialog(getInstance(), "Relocation");
@@ -1400,7 +1484,6 @@ public class Dashboard extends JFrame{
             StyledDocument doc = pane.getStyledDocument();
             try {
                 doc.insertString(doc.getLength(), str, style);
-//                pane.setCaretPosition(doc.getLength());
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }

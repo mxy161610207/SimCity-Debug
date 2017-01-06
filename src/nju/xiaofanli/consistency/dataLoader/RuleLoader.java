@@ -43,7 +43,7 @@ public class RuleLoader {
     @SuppressWarnings("unused")
 	private static Log logger = LogFactory.getLog(RuleLoader.class.getName());
     
-    private static Object parseElement(Element element, String ruleName) {
+    private static Object parseElement(Element element, Rule argRule) {
         String tagName = element.getNodeName();
         NodeList children = element.getChildNodes();
 
@@ -80,13 +80,13 @@ public class RuleLoader {
                 }
                 //formula
                 Node formulaNode = children.item(5);
-                Formula formula = (Formula) parseElement((Element) formulaNode, name);
+                Formula formula = (Formula) parseElement((Element) formulaNode, rule);
                 rule.setFormula(formula);
                 return rule;
             }
             case "formula": {//��Լ����һ���߼���ʽ
                 Node kindNode = children.item(1);
-                return parseElement((Element) kindNode, ruleName);
+                return parseElement((Element) kindNode, argRule);
             }
             case "forall": {//ȫ�����ʹ�ʽ
                 ForallFormula formula = new ForallFormula(tagName);
@@ -110,11 +110,11 @@ public class RuleLoader {
                     }
                 }
                 formula.setPattern(var, Middleware.getPatterns().get(pat));
-                Middleware.getPatterns().get(pat).setRule(ruleName);
+                Middleware.getPatterns().get(pat).setRule(argRule);
 
                 NodeList subChildren = element.getChildNodes();
                 Node sub = subChildren.item(1);
-                Formula subFormula = (Formula) parseElement((Element) sub, ruleName);
+                Formula subFormula = (Formula) parseElement((Element) sub, argRule);
                 formula.setSubFormula(subFormula);
                 return formula;
             }
@@ -140,11 +140,11 @@ public class RuleLoader {
                     }
                 }
                 formula.setPattern(var, Middleware.getPatterns().get(pat));
-                Middleware.getPatterns().get(pat).setRule(ruleName);
+                Middleware.getPatterns().get(pat).setRule(argRule);
 
                 NodeList subChildren = element.getChildNodes();
                 Node sub = subChildren.item(1);
-                Formula subFormula = (Formula) parseElement((Element) sub, ruleName);
+                Formula subFormula = (Formula) parseElement((Element) sub, argRule);
                 formula.setSubFormula(subFormula);
                 return formula;
             }
@@ -152,9 +152,9 @@ public class RuleLoader {
                 AndFormula formula = new AndFormula(tagName);
                 NodeList subChildren = element.getChildNodes();
                 Node first = subChildren.item(1);
-                Formula firstFormula = (Formula) parseElement((Element) first, ruleName);
+                Formula firstFormula = (Formula) parseElement((Element) first, argRule);
                 Node second = subChildren.item(3);
-                Formula secondFormula = (Formula) parseElement((Element) second, ruleName);
+                Formula secondFormula = (Formula) parseElement((Element) second, argRule);
                 formula.setSubFormula(firstFormula, secondFormula);
                 return formula;
             }
@@ -162,9 +162,9 @@ public class RuleLoader {
                 OrFormula formula = new OrFormula(tagName);
                 NodeList subChildren = element.getChildNodes();
                 Node first = subChildren.item(1);
-                Formula firstFormula = (Formula) parseElement((Element) first, ruleName);
+                Formula firstFormula = (Formula) parseElement((Element) first, argRule);
                 Node second = subChildren.item(3);
-                Formula secondFormula = (Formula) parseElement((Element) second, ruleName);
+                Formula secondFormula = (Formula) parseElement((Element) second, argRule);
                 formula.setSubFormula(firstFormula, secondFormula);
                 return formula;
             }
@@ -172,9 +172,9 @@ public class RuleLoader {
                 ImpliesFormula formula = new ImpliesFormula(tagName);
                 NodeList subChildren = element.getChildNodes();
                 Node first = subChildren.item(1);
-                Formula firstFormula = (Formula) parseElement((Element) first, ruleName);
+                Formula firstFormula = (Formula) parseElement((Element) first, argRule);
                 Node second = subChildren.item(3);
-                Formula secondFormula = (Formula) parseElement((Element) second, ruleName);
+                Formula secondFormula = (Formula) parseElement((Element) second, argRule);
                 formula.setSubFormula(firstFormula, secondFormula);
                 return formula;
             }
@@ -182,7 +182,7 @@ public class RuleLoader {
                 NotFormula formula = new NotFormula(tagName);
                 NodeList subChildren = element.getChildNodes();
                 Node sub = subChildren.item(1);
-                Formula subFormula = (Formula) parseElement((Element) sub, ruleName);
+                Formula subFormula = (Formula) parseElement((Element) sub, argRule);
                 formula.setSubFormula(subFormula);
                 return formula;
             }
@@ -209,7 +209,7 @@ public class RuleLoader {
                     short nodeType = node.getNodeType();
                     if (nodeType == Node.ELEMENT_NODE) {
                         //��Ԫ�أ������ݹ�
-                        String[] param = (String[]) parseElement((Element) node, ruleName);
+                        String[] param = (String[]) parseElement((Element) node, argRule);
                         if(param == null)
                             throw new NullPointerException();
                         formula.addParam(Integer.parseInt(param[0]), param[1], param[2]);

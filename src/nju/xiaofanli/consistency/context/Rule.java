@@ -8,6 +8,7 @@ package nju.xiaofanli.consistency.context;
 
 import nju.xiaofanli.consistency.formula.Formula;
 import nju.xiaofanli.consistency.formula.Link;
+import nju.xiaofanli.dashboard.Dashboard;
 
 import java.util.Set;
 
@@ -20,6 +21,7 @@ public class Rule {
     private String name;
     private Formula formula, initialFormula;//һ���߼���ʽ
     private String explanInEn, explanInCh;
+    private int violatedTimes;
     //    @SuppressWarnings("unused")
 //	private static Log logger = LogFactory.getLog(Rule.class.getId());
     
@@ -59,7 +61,17 @@ public class Rule {
 	
 	public void reset() {
 		formula = initialFormula.createInitialFormula();
+		violatedTimes = 0;
 	}
+
+	public int getViolatedTimes() {
+	    return violatedTimes;
+    }
+
+    public void increaseViolatedTime() {
+	    violatedTimes++;
+        Dashboard.updateFixedError();
+    }
 
 	public void setExplanation(String explan, boolean useEnglish) {
 	    if (useEnglish)

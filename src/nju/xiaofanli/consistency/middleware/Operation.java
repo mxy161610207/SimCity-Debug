@@ -77,22 +77,25 @@ class Operation {
         }
 		return true;
 	}
-	
-	static Pair<Integer, List<Context>> operate(Map<String, List<ContextChange>> changes, String strategy) {
+
+	static Pair<Integer, List<Context>> operate(Map<Rule, List<ContextChange>> changes, String strategy) {
 		if(changes.isEmpty())
 			return null;
 		if(strategy.equals("Drop-latest")){
-			List<Entry<String, List<ContextChange>>> entries = new ArrayList<>(changes.entrySet());
-			for(int i = 0;i < entries.size();i++){
-				if(!operate(rules.get(entries.get(i).getKey()), entries.get(i).getValue(), strategy)){
-					//drop the context where no inconsistency detected before
-					for(int j = i - 1;j >= 0;j--)
-						Resolution.resolve(rules.get(entries.get(j).getKey()), entries.get(j).getValue(), null, strategy);
-					//if an inconsistency is detected, then no need to check the rest (already violated)
-					return new Pair<>(Context.FP, null); //TODO currently only support FP detection
+			boolean[] inconsistent = new boolean[]{ false };
+			changes.forEach((rule, changeList) -> {
+				if (!operate(rule, changeList, strategy)) {
+					inconsistent[0] = true;
+					rule.increaseViolatedTime();
 				}
+			});
+
+			if (inconsistent[0]) {
+				changes.forEach((rule, changeList) -> Resolution.resolve(rule, changeList, null, strategy));
+				return new Pair<>(Context.FP, null); //TODO currently only support FP detection
 			}
-			return new Pair<>(Context.Normal, null);
+			else
+				return new Pair<>(Context.Normal, null);
 		}
 		return null;
 	}

@@ -50,7 +50,7 @@ public class Middleware {
         for(Rule rule : ruleSet){
             rule.setInitialFormula();
             rules.put(rule.getName(), rule);
-//            System.out.println(rule.getId() + ": " + rule.getFormula());
+//            System.out.println(rule.getName());
         }
 
         new Operation(patterns, rules);
@@ -98,7 +98,7 @@ public class Middleware {
         boolean isRealCar = (boolean) context.getFields().get("real");
         boolean triggerEvent = (boolean) context.getFields().get("trigger");
 
-        Map<String, List<ContextChange>> changes = getChanges(context);
+        Map<Rule, List<ContextChange>> changes = getChanges(context);
         // check consistency
         Pair<Integer, List<Context>> res = Operation.operate(changes, resolutionStrategy);
         if(res == null)
@@ -154,8 +154,8 @@ public class Middleware {
      * @param context used to generate changes (addition or deletion)
      * @return context changes derived from the context, which are separated by rules
      */
-    private static Map<String, List<ContextChange>> getChanges(Context context) {
-        Map<String, List<ContextChange>> changes = new HashMap<>();
+    private static Map<Rule, List<ContextChange>> getChanges(Context context) {
+        Map<Rule, List<ContextChange>> changes = new HashMap<>();
         patterns.values().stream().filter(context::matches).forEach(pattern -> {
             if (!changes.containsKey(pattern.getRule()))
                 changes.put(pattern.getRule(), new ArrayList<>());
@@ -187,7 +187,7 @@ public class Middleware {
     public static void addInitialContext(Object car, Object state,
                                          Object prev_loc, Object cur_loc, Object next_loc, Object timestamp, Car carObj, Sensor sensor) {
         Context context = getContext(car, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, false, true);
-        Map<String, List<ContextChange>> changes = getChanges(context);
+        Map<Rule, List<ContextChange>> changes = getChanges(context);
         Operation.operate(changes, resolutionStrategy);
 //        display();
     }
