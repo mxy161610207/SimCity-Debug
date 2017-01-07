@@ -105,6 +105,12 @@ public class Car {
 		Police.add(this, dir, loc, cmd, requested);
 	}
 
+    public void notifyPolice(int cmd, Road requested, Road requested2) {
+        if(requested == null || requested2 == null)
+            return;
+        Police.add(this, dir, loc, cmd, requested, requested2);
+    }
+
 	private void notifySelfCheck(){
 		if(!tried){
 			tried = true;
@@ -231,7 +237,7 @@ public class Car {
 		if(road == null || road == loc)
 			return;
 		leave(loc, true);
-        notifyPolice(Police.BEFORE_ENTRY, road);
+        notifyPolice(Police.BEFORE_ENTRY, road, this.loc.adjRoads.get(this.dir));
         loc = road;
 		loc.cars.add(this);
         this.dir = dir;
@@ -239,12 +245,6 @@ public class Car {
             loc.carsWithoutFake.add(this);
             timeout = loc.timeouts.get(dir).get(name); //setting remaining time to phantoms is meaningless
         }
-//        if(getState() != MOVING) {
-//            setState(MOVING);
-//            //trigger move event
-//            if(EventManager.hasListener(Event.Type.CAR_MOVE))
-//                EventManager.trigger(new Event(Event.Type.CAR_MOVE, name, loc.name));
-//        }
 
         setLoading(false);
         if (hasPhantom() && loc == realLoc && dir == realDir) {

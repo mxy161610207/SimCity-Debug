@@ -111,13 +111,13 @@ White Car	B4S1	609
 White Car	B4S2	15466
 White Car	B4S3	17052
 White Car	B5S1	458
-White Car	B5S2	1154
+White Car	B5S2	1254
 White Car	B5S3	900
 White Car	B6S1	1181
 White Car	B6S2	1234
 White Car	B6S3	4806
 White Car	B6S4	607
-White Car	B7S1	665
+White Car	B7S1	565
 White Car	B7S2	888
 White Car	B7S3	743
 White Car	B7S4	670

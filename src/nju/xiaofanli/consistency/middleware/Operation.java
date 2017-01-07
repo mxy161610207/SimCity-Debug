@@ -83,15 +83,20 @@ class Operation {
 			return null;
 		if(strategy.equals("Drop-latest")){
 			boolean[] inconsistent = new boolean[]{ false };
+			Set<Rule> violated = new HashSet<>();
 			changes.forEach((rule, changeList) -> {
 				if (!operate(rule, changeList, strategy)) {
 					inconsistent[0] = true;
 					rule.increaseViolatedTime();
+					violated.add(rule);
 				}
 			});
 
 			if (inconsistent[0]) {
-				changes.forEach((rule, changeList) -> Resolution.resolve(rule, changeList, null, strategy));
+				changes.forEach((rule, changeList) -> {
+					if (!violated.contains(rule))
+						Resolution.resolve(rule, changeList, null, strategy); //rollback the consistent rule
+				});
 				return new Pair<>(Context.FP, null); //TODO currently only support FP detection
 			}
 			else

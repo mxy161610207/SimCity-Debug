@@ -331,10 +331,8 @@ public abstract class Road extends Location{
 //        carsWithoutFake.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
 		if(carsWithoutFake.size() > 1) {
 			// stop all cars to keep the scene intact
-			if (!TrafficMap.crashOccurred) {
-				TrafficMap.crashOccurred = true;
-				Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP));
-			}
+			TrafficMap.crashOccurred = true;
+			Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP));
 
 			carsWithoutFake.forEach(car -> {
 				if (!car.isInCrash) {
@@ -358,7 +356,7 @@ public abstract class Road extends Location{
 				chText.append("，").append(crashedCar.name, crashedCar.icon.color);
 			}
 			enText.append(" crashed at ").append(name, Resource.DEEP_SKY_BLUE).append(".\n");
-			enText.append(" 在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 相撞。\n");
+			chText.append(" 在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 相撞。\n");
 			Dashboard.log(enText, chText);
 
 			List<Car> frontCars = new ArrayList<>();

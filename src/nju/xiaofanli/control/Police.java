@@ -107,6 +107,10 @@ public class Police implements Runnable{
 						break;
 					case BEFORE_ENTRY:
 						r.requested.removeWaitingCar(r.car);
+						if (r.requested2.permitted == r.car && r.requested2 != r.requested) { //the road it's about to enter is not the one it got permission
+							r.requested2.permitted = null;
+							triggerEventAfterLeaving(r.requested2);
+						}
 						break;
 					case AFTER_ENTRY:
 						r.requested.removeWaitingCar(r.car);
@@ -195,6 +199,10 @@ public class Police implements Runnable{
         add(new Request(car, dir, loc, cmd, requested, fromUser));
     }
 
+	public static void add(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, Road requested2) {
+		add(new Request(car, dir, loc, cmd, requested, requested2));
+	}
+
 	public static void clear(){
         synchronized (req) {
             req.clear();
@@ -204,7 +212,7 @@ public class Police implements Runnable{
 	private static class Request{
 		Car car;
 		TrafficMap.Direction dir;
-		Road loc, requested;
+		Road loc, requested, requested2;
 		int cmd;
         boolean fromUser = false; // whether this request is sent by user
 
@@ -214,6 +222,11 @@ public class Police implements Runnable{
 			this.loc = loc;
 			this.cmd = cmd;
 			this.requested = requested;
+		}
+
+		Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, Road requested2) {
+			this(car, dir, loc, cmd, requested);
+			this.requested2 = requested2;
 		}
 
         Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, boolean fromUser) {

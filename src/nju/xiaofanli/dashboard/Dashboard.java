@@ -942,7 +942,7 @@ public class Dashboard extends JFrame{
         getInstance().setLocationRelativeTo(null);
 
 //        jchkSensor.doClick();
-//        console.setVisible(false);
+        console.setVisible(false);
     }
 
     private static final Class ComponentView$Invalidator = ComponentView.class.getDeclaredClasses()[0];
