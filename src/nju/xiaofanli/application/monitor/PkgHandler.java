@@ -185,11 +185,7 @@ public class PkgHandler implements Runnable{
 						}
 					}
 				}
-//				if(StateSwitcher.isResetting()){
-//					if(!StateSwitcher.isThreadReset(thread))
-//						clear();
-//					continue;
-//				}
+
 				AppPkg p;
 				synchronized (queue) {
 					p = queue.poll();

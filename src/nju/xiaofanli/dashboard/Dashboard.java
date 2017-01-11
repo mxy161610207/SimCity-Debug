@@ -537,6 +537,7 @@ public class Dashboard extends JFrame{
                         TrafficMap.carList.add(car);
                     }
                     car.init();
+                    Police.addCarInConsole(car);
                 }
             }
             else if(cmd.startsWith("connect car ") || cmd.startsWith("disconnect car ")){

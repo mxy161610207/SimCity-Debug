@@ -82,7 +82,6 @@ public class Remedy implements Runnable{
 									EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
 							}
 						}
-//						cmd.car.notifyPolice(Police.ALREADY_STOPPED);
 						//trigger stop event
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));

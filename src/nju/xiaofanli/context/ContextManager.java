@@ -58,11 +58,7 @@ public class ContextManager {
 						}
 					}
 				}
-//				if(StateSwitcher.isResetting()){
-//					if(!StateSwitcher.isThreadReset(thread))
-//						clear();
-//					continue;
-//				}
+
 				Context context;
 				synchronized (queue) {
 					context = queue.poll();

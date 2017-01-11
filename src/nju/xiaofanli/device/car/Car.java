@@ -105,12 +105,6 @@ public class Car {
 		Police.add(this, dir, loc, cmd, requested);
 	}
 
-    public void notifyPolice(int cmd, Road requested, Road requested2) {
-        if(requested == null || requested2 == null)
-            return;
-        Police.add(this, dir, loc, cmd, requested, requested2);
-    }
-
 	private void notifySelfCheck(){
 		if(!tried){
 			tried = true;
@@ -237,7 +231,7 @@ public class Car {
 		if(road == null || road == loc)
 			return;
 		leave(loc, true);
-        notifyPolice(Police.BEFORE_ENTRY, road, this.loc.adjRoads.get(this.dir));
+        notifyPolice(Police.BEFORE_ENTRY, road);
         loc = road;
 		loc.cars.add(this);
         this.dir = dir;
@@ -274,7 +268,7 @@ public class Car {
 	public void leave(Road road, boolean withEntry){
 		if(road == null)
 			return;
-		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, road.adjRoads.get(dir));
+		notifyPolice(withEntry ? Police.BEFORE_LEAVE : Police.BEFORE_VANISH, road);
 		road.cars.remove(this);
         if (!hasPhantom())
             road.carsWithoutFake.remove(this);

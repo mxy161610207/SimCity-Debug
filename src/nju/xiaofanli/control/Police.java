@@ -1,5 +1,6 @@
 package nju.xiaofanli.control;
 
+import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.dashboard.TrafficMap;
@@ -8,18 +9,23 @@ import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Police implements Runnable{
 	private static final Queue<Request> req = new LinkedList<>();
+	private static final Map<Car, Set<Road>> permittingRoads = new HashMap<>(); //roads that the car is permitted to enter
+	private static final Map<Car, Set<Road>> waitedRoads = new HashMap<>(); //roads that the car is waiting for
 	public Police() {
+		Resource.getConnectedCars().forEach(car -> {
+			permittingRoads.put(car, new HashSet<>());
+			waitedRoads.put(car, new HashSet<>());
+		});
 		new Thread(this, "Police").start();
 	}
 
 	public static final int REQUEST2STOP = Car.STOPPED;
 	public static final int REQUEST2ENTER = Car.MOVING;
-//	public static final int ALREADY_STOPPED = 2;
 	public static final int BEFORE_ENTRY = 3;
 	public static final int AFTER_ENTRY = 4;
 	public static final int BEFORE_LEAVE = 5;
@@ -39,7 +45,7 @@ public class Police implements Runnable{
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
 						if(StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
-							clear();
+							reset();
 					}
 				}
 			}
@@ -58,8 +64,10 @@ public class Police implements Runnable{
 					case REQUEST2STOP:
 						Command.send(r.car, Command.STOP);
                         r.car.setAvailCmd(Command.MOVE_FORWARD);
-                        r.requested.removeWaitingCar(r.car);
+						waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
+						waitedRoads.get(r.car).clear();
 						if(r.car == r.requested.permitted) {
+							permittingRoads.get(r.requested.permitted).remove(r.requested);
 							r.requested.permitted = null;
 							triggerEventAfterLeaving(r.requested);
 						}
@@ -68,8 +76,10 @@ public class Police implements Runnable{
 					    if(TrafficMap.crashOccurred && !r.fromUser) {
                             Command.send(r.car, Command.STOP);
                             r.car.setAvailCmd(Command.MOVE_FORWARD);
-                            r.requested.removeWaitingCar(r.car);
+							waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
+							waitedRoads.get(r.car).clear();
                             if(r.car == r.requested.permitted){
+								permittingRoads.get(r.requested.permitted).remove(r.requested);
 								r.requested.permitted = null;
 								triggerEventAfterLeaving(r.requested);
 							}
@@ -78,6 +88,7 @@ public class Police implements Runnable{
 							//tell the car to stop
 							System.out.println(r.car.name + " need to STOP!!!");
 							r.requested.addWaitingCar(r.car);
+							waitedRoads.get(r.car).add(r.requested);
 							Command.send(r.car, Command.STOP);
                             r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
@@ -88,6 +99,7 @@ public class Police implements Runnable{
 							//tell the car to stop
 							System.out.println(r.car.name + " need to STOP!!!2");
 							r.requested.addWaitingCar(r.car);
+							waitedRoads.get(r.car).add(r.requested);
 							Command.send(r.car, Command.STOP);
                             r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
@@ -98,6 +110,7 @@ public class Police implements Runnable{
 							//tell the car to enter
 							System.out.println(r.car.name + " can ENTER!!!");
 							r.requested.permitted = r.car;
+							permittingRoads.get(r.requested.permitted).add(r.requested);
 							Command.send(r.car, Command.MOVE_FORWARD);
                             r.car.setAvailCmd(Command.STOP);
 							//trigger recv response event
@@ -106,45 +119,58 @@ public class Police implements Runnable{
 						}
 						break;
 					case BEFORE_ENTRY:
-						r.requested.removeWaitingCar(r.car);
-						if (r.requested2.permitted == r.car && r.requested2 != r.requested) { //the road it's about to enter is not the one it got permission
-							r.requested2.permitted = null;
-							triggerEventAfterLeaving(r.requested2);
+						//remove the permission which the car already gets but doesn't need any more
+						for (Iterator<Road> iter = permittingRoads.get(r.car).iterator(); iter.hasNext();) {
+							Road road = iter.next();
+							if (road != r.requested) {
+								iter.remove();
+								road.permitted = null;
+								triggerEventAfterLeaving(road);
+							}
 						}
 						break;
 					case AFTER_ENTRY:
-						r.requested.removeWaitingCar(r.car);
-						if (r.requested.permitted != null && r.requested.permitted != r.car && r.requested.permitted.loc != r.requested) { //enforce to enter
+						if (r.requested.permitted != null && r.requested.permitted != r.car && r.requested.permitted.loc != r.requested) { //forced to enter
 							Car permittedCar = r.requested.permitted;
 							r.requested.permitted = r.car;
+							permittingRoads.get(r.requested.permitted).add(r.requested);
 							//tell the permitted car to stop
 							System.out.println(permittedCar.name + " need to STOP!!!3");
-							r.requested.addWaitingCar(permittedCar);
 							Command.send(permittedCar, Command.STOP);
 							permittedCar.setAvailCmd(Command.STOP);
+							r.requested.addWaitingCar(permittedCar);
+							waitedRoads.get(permittedCar).add(r.requested);
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, permittedCar.name, permittedCar.loc.name, Command.STOP));
 						}
 						break;
 					case BEFORE_LEAVE:
-						r.requested.removeWaitingCar(r.car);
+						waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
+						waitedRoads.get(r.car).clear();
 						break;
 					case AFTER_LEAVE:
-						if(r.requested.permitted == r.car)
+						if(r.requested.permitted == r.car) {
+							permittingRoads.get(r.requested.permitted).remove(r.requested);
 							r.requested.permitted = null;
+						}
 						triggerEventAfterLeaving(r.requested);
 						break;
 					case BEFORE_VANISH:
-						r.requested.removeWaitingCar(r.car);
+						waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
+						waitedRoads.get(r.car).clear();
+
 						if(r.requested.permitted == r.car) {
+							permittingRoads.get(r.requested.permitted).remove(r.requested);
 							r.requested.permitted = null;
 							triggerEventAfterLeaving(r.requested);
 						}
 						break;
 					case AFTER_VANISH:
-						if(r.requested.permitted == r.car)
+						if(r.requested.permitted == r.car) {
+							permittingRoads.get(r.requested.permitted).remove(r.requested);
 							r.requested.permitted = null;
+						}
 						triggerEventAfterLeaving(r.requested);
 						break;
 				}
@@ -157,14 +183,22 @@ public class Police implements Runnable{
 			return;
 
 		synchronized (road.waiting) {
-			if(road.waiting.isEmpty())
-				road.permitted = null;
+			if(road.waiting.isEmpty()) {
+				if (road.permitted != null) {
+					permittingRoads.get(road.permitted).remove(road);
+					road.permitted = null;
+				}
+			}
 			else if (road.permitted == null) {
+				Set<Car> crashedCars = road.waiting.stream().filter(car -> car.isInCrash).collect(Collectors.toSet());
+				crashedCars.forEach(car -> {
+					waitedRoads.get(car).forEach(r -> r.removeWaitingCar(car));
+					waitedRoads.get(car).clear();
+				});
 				for(Car car : road.waiting) {
-					if (car.isInCrash)
-						road.removeWaitingCar(car);
-					else if (car.loc.cars.peek() == car && !TrafficMap.crashOccurred) {
+					if ( !TrafficMap.crashOccurred && car.loc.cars.peek() == car) {
 						road.permitted = car;
+						permittingRoads.get(road.permitted).add(road);
 						Command.send(car, Command.MOVE_FORWARD);
 						car.setAvailCmd(Command.STOP);
 						System.out.println(road.name + " notify " + car.name + " to enter");
@@ -199,20 +233,28 @@ public class Police implements Runnable{
         add(new Request(car, dir, loc, cmd, requested, fromUser));
     }
 
-	public static void add(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, Road requested2) {
-		add(new Request(car, dir, loc, cmd, requested, requested2));
-	}
-
-	public static void clear(){
+	public static void reset(){
         synchronized (req) {
             req.clear();
         }
+
+        permittingRoads.values().forEach(Set::clear);
+        waitedRoads.values().forEach(Set::clear);
     }
+
+	/**
+	 * Only for debugging purpose.
+	 */
+	public static void addCarInConsole(Car car) {
+		permittingRoads.put(car, new HashSet<>());
+		waitedRoads.put(car, new HashSet<>());
+	}
 
 	private static class Request{
 		Car car;
 		TrafficMap.Direction dir;
-		Road loc, requested, requested2;
+		Road loc;
+		Road requested;
 		int cmd;
         boolean fromUser = false; // whether this request is sent by user
 
@@ -222,11 +264,6 @@ public class Police implements Runnable{
 			this.loc = loc;
 			this.cmd = cmd;
 			this.requested = requested;
-		}
-
-		Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, Road requested2) {
-			this(car, dir, loc, cmd, requested);
-			this.requested2 = requested2;
 		}
 
         Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, boolean fromUser) {
