@@ -125,7 +125,7 @@ White Car	B8S1	3153
 White Car	B8S2	844
 White Car	B8S3	1144
 White Car	B9S1	1261
-White Car	B9S2	4578
+White Car	B9S2	700
 Black Car	B0S1	5000
 Black Car	B0S2	511
 Black Car	B1S1	828

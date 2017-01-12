@@ -181,7 +181,7 @@ public class SelfCheck{
 					session.connect(timeout);
 					Dashboard.setDeviceStatus(name + " conn", true);
 				} catch (JSchException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 					if (session != null) {
 						session.disconnect();
 						session = null;
