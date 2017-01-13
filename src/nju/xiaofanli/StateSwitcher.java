@@ -10,12 +10,12 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.StyledText;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 /**
  * NORMAL <-> RESET, RELOCATE, SUSPEND
@@ -98,12 +98,11 @@ public class StateSwitcher {
         }
     }
 
-    public static void startResetting(){
+    public static void startResetting(boolean locateAllCars, boolean locateNoCars, boolean locationAlreadyKnown){
+        resetTask.locateAllCars = locateAllCars;
+        resetTask.locateNoCars = locateNoCars;
+        resetTask.locationAlreadyKnown = locationAlreadyKnown;
         Resource.execute(resetTask);
-    }
-
-    public static void setInconsistencyType(boolean isReal){
-        resetTask.isRealInconsistency = isReal;
     }
 
     public static void setLastStopCmdTime(long time){
@@ -123,7 +122,7 @@ public class StateSwitcher {
         private final long maxWaitingTime = 1000;
         private Set<Car> cars2locate = new HashSet<>();
         private Map<Car, CarInfo> carInfo = new HashMap<>();
-        boolean isRealInconsistency;//real inconsistency
+        private boolean locateAllCars, locateNoCars, locationAlreadyKnown;
         private Car car2locate = null;
         private long lastStopCmdTime;
         private Set<Car> locatedCars = new HashSet<>();
@@ -139,19 +138,16 @@ public class StateSwitcher {
             interruptAll();
             Command.stopAllCars();
             Command.silenceAllCars();
-            if(isRealInconsistency){//all cars need to be located
+            if(locateAllCars) {//all cars need to be located
                 cars2locate.addAll(Resource.getConnectedCars());
             }
-            else{//Only moving cars and crashed cars need to be located
+            else if (!locateNoCars) {//Only moving cars and crashed cars need to be located
                 for(Car car :Resource.getConnectedCars()){
                     if(car.getState() != Car.STOPPED)
                         cars2locate.add(car);
                     if(car.getRealLoc() != null){
-                        Set<Car> crashedCars = new HashSet<>(car.getRealLoc().realCars);
-                        crashedCars.addAll(car.getRealLoc().cars.stream().filter(x -> !x.hasPhantom()).collect(Collectors.toList()));
-
-                        if(crashedCars.size() > 1)
-                            cars2locate.addAll(crashedCars);
+                        if(car.getRealLoc().carsWithoutFake.size() > 1)
+                            cars2locate.addAll(car.getRealLoc().carsWithoutFake);
                     }
                 }
             }
@@ -194,11 +190,12 @@ public class StateSwitcher {
 
             //third step: resolve the inconsistency
             checkIfSuspended();
-            //for false inconsistency, just restore its loc and dir
+            //for the car that does not need locating, just restore its loc and dir
             for(Map.Entry<Car, CarInfo> e : carInfo.entrySet())
                 e.getValue().restore(e.getKey());
-            //for real inconsistency, locate cars one by one
-            for(Car car : cars2locate){
+            //locate cars one by one
+            List<Car> cars2locateInOrder = locationAlreadyKnown ? getTopologicalOrder(cars2locate) : new ArrayList<>(cars2locate);
+            for(Car car : cars2locateInOrder){
                 car2locate = car;
                 Command.drive(car);
                 while(!locatedCars.contains(car)){
@@ -238,7 +235,8 @@ public class StateSwitcher {
             Dashboard.reset();
             setState(State.NORMAL);
 
-            TrafficMap.checkRealCrash();
+            Dashboard.log(new StyledText("Initialization is complete."), new StyledText("初始化完成。"));
+            TrafficMap.checkCrash();
         }
 
         static void detectedBy(Sensor sensor) {
@@ -252,6 +250,58 @@ public class StateSwitcher {
                     wakeUp(ResetTask.OBJ);
                 }
             }
+        }
+
+        private List<Car> getTopologicalOrder(Set<Car> cars) {
+            List<Car> res = new ArrayList<>();
+            if (cars == null || cars.isEmpty())
+                return res;
+
+            Map<Car, Set<Car>> indegree = new HashMap<>(), outdegree = new HashMap<>();
+            for (Car car : cars) {
+                Road nextRoad = car.getRealLoc().adjSensors.get(car.getRealDir()).nextRoad;
+                for (Car car2 : nextRoad.carsWithoutFake) {
+                    if (!indegree.containsKey(car))
+                        indegree.put(car, new HashSet<>());
+                    indegree.get(car).add(car2);
+
+                    if (!outdegree.containsKey(car2))
+                        outdegree.put(car2, new HashSet<>());
+                    outdegree.get(car2).add(car);
+                }
+            }
+
+            Queue<Car> zeroIndegree = new LinkedList<>();
+            for (Car car : cars) {
+                if (!indegree.containsKey(car) || indegree.get(car).isEmpty()) {
+                    indegree.remove(car);
+                    zeroIndegree.add(car);
+                }
+            }
+
+            while (!zeroIndegree.isEmpty()) {
+                Car in = zeroIndegree.poll();
+                res.add(in);
+                if (outdegree.containsKey(in)) {
+                    for (Car out : outdegree.get(in)) {
+                        indegree.get(out).remove(in);
+                        if (indegree.get(out).isEmpty()) {
+                            indegree.remove(out);
+                            zeroIndegree.add(out);
+                        }
+                    }
+                    outdegree.remove(in);
+                }
+            }
+
+            if (!indegree.isEmpty() || !outdegree.isEmpty()) {
+                try {
+                    throw new Exception("graph has at least one cycle");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return res;
         }
 
         private class CarInfo{

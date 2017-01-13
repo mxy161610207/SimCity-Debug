@@ -18,7 +18,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class Main {
 		Dashboard.loadCtrlUI();
 		initial = false;
 		Dashboard.showInitDialog();
-        TrafficMap.checkRealCrash(); // should never trigger crash, otherwise change cars' initial locations
+        TrafficMap.checkCrash(); // should never trigger crash, otherwise change cars' initial locations
 //		Dashboard.showCrashEffect(Resource.getRoad("Crossroad 2"));
 //		Resource.getBricks().forEach(name -> Dashboard.setDeviceStatus(name + " sample", true)); //TODO delete this
 	}

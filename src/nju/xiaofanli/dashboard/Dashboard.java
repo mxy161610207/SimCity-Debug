@@ -448,17 +448,13 @@ public class Dashboard extends JFrame{
             public void mousePressed(MouseEvent e) {
                 if(!resetButton.isEnabled() || e.getButton() != MouseEvent.BUTTON3) // only focus on right click
                     return;
-//                System.out.println("mouse listener");
-                StateSwitcher.setInconsistencyType(false);
-                StateSwitcher.startResetting();
+                StateSwitcher.startResetting(false, false, true);
             }
         });
         resetButton.addActionListener(e -> {
             if(!resetButton.isEnabled())
                 return;
-//            System.out.println("action listener");
-            StateSwitcher.setInconsistencyType(true);
-            StateSwitcher.startResetting();
+            StateSwitcher.startResetting(true, false, true);
         });
 
         bgbc.gridx += bgbc.gridwidth;
@@ -654,7 +650,6 @@ public class Dashboard extends JFrame{
                     icon.showRoadNumber(showRoad);
             }
         });
-        jchkRoad.doClick();
 
         jchkSensor.addActionListener(e -> {
             showSensor = jchkSensor.isSelected();
@@ -721,8 +716,8 @@ public class Dashboard extends JFrame{
             jchkCrash.setEnabled(false);
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
-            ruleButton.setVisible(false);
-            ruleDialog.setVisible(false);
+//            ruleButton.setVisible(false);
+//            ruleDialog.setVisible(false);
             statsButton.setVisible(false);
             statsDialog.setVisible(false);
         });
@@ -749,8 +744,8 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             TrafficMap.showFakeLocIconLabel(true);
             TrafficMap.showRealLocIconLabel(true);
-            ruleButton.setVisible(false);
-            ruleDialog.setVisible(false);
+//            ruleButton.setVisible(false);
+//            ruleDialog.setVisible(false);
             statsButton.setVisible(false);
             statsDialog.setVisible(false);
         });
@@ -775,7 +770,7 @@ public class Dashboard extends JFrame{
             fixedRadioButton.setEnabled(false);
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
-            ruleButton.setVisible(true);
+//            ruleButton.setVisible(true);
             statsButton.setVisible(true);
         });
 
@@ -793,28 +788,26 @@ public class Dashboard extends JFrame{
             Car car = getSelectedCar();
             if(car != null){
                 car.notifyPolice(Police.REQUEST2ENTER, true);
-                enableScenarioSelection(false);
+//                enableScenarioSelection(false);
             }
         });
         stopCarButton.addActionListener(e -> {
             Car car = Dashboard.getSelectedCar();
             if(car != null){
                 car.notifyPolice(Police.REQUEST2STOP, true);
-                enableScenarioSelection(false);
+//                enableScenarioSelection(false);
             }
         });
         startAllCarsButton.addActionListener(e -> {
             if (!Resource.getConnectedCars().isEmpty()) {
-                for (Car car : Resource.getConnectedCars())
-                    car.notifyPolice(Police.REQUEST2ENTER, true);
-                enableScenarioSelection(false);
+                Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2ENTER, true));
+//                enableScenarioSelection(false);
             }
         });
         stopAllCarsButton.addActionListener(e -> {
             if (!Resource.getConnectedCars().isEmpty()) {
-                for (Car car : Resource.getConnectedCars())
-                    car.notifyPolice(Police.REQUEST2STOP, true);
-                enableScenarioSelection(false);
+                Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP, true));
+//                enableScenarioSelection(false);
             }
         });
 
@@ -942,6 +935,7 @@ public class Dashboard extends JFrame{
         getInstance().pack();
         getInstance().setLocationRelativeTo(null);
 
+        jchkRoad.doClick();
 //        jchkSensor.doClick();
         console.setVisible(false);
     }
@@ -1037,9 +1031,9 @@ public class Dashboard extends JFrame{
         deviceDialog.repaint();
 
         ruleDialog.setTitle(useEnglish() ? "Rule" : "规则");
-        updateRuleTextPane();
-        if (ruleTextPane.isVisible())
-            ruleTextPane.setCaretPosition(0); //roll to top
+//        updateRuleTextPane();
+//        if (ruleTextPane.isVisible())
+//            ruleTextPane.setCaretPosition(0); //roll to top
         ruleDialog.repaint();
 
         statsDialog.setTitle(useEnglish() ? "Stats" : "统计");
@@ -1054,8 +1048,9 @@ public class Dashboard extends JFrame{
         getInstance().repaint();
     }
 
-    private static final JDialog deviceDialog = new JDialog(new JFrame(), "Device");
+    private static final JDialog deviceDialog = new JDialog((Dialog) null);
     public static void showDeviceDialog(boolean closable){
+        deviceDialog.setTitle("Device");
         deviceDialog.setDefaultCloseOperation(closable ? HIDE_ON_CLOSE : DO_NOTHING_ON_CLOSE);
         deviceDialog.setContentPane(checkingPanel);
         deviceDialog.pack();
@@ -1068,7 +1063,7 @@ public class Dashboard extends JFrame{
         deviceDialog.setVisible(false);
     }
 
-    private static final JDialog ruleDialog = new JDialog(new JFrame(), "Rule"), statsDialog = new JDialog(new JFrame(), "Stats");
+    private static final JDialog ruleDialog = new JDialog((Dialog) null), statsDialog = new JDialog((Dialog) null);
     private static final JTextPane ruleTextPane = new JTextPane(), statsTextPane = new JTextPane();
     private static final JButton updateStatsTextPaneButton = new JButton();
     static {
@@ -1080,6 +1075,7 @@ public class Dashboard extends JFrame{
         ruleTextPane.setFont(Resource.en17plain);
         ruleTextPane.setSize((int) controlPanelDimension.getHeight(), (int) controlPanelDimension.getHeight());
         ruleTextPane.setPreferredSize(ruleTextPane.getSize());
+        ruleDialog.setTitle("Rule");
         ruleDialog.setContentPane(scrollPane);
         ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
 
@@ -1088,6 +1084,7 @@ public class Dashboard extends JFrame{
         statsTextPane.setEditable(false);
         statsTextPane.setBackground(Color.WHITE);
         statsTextPane.setFont(Resource.en17plain);
+        statsDialog.setTitle("Stats");
         statsDialog.setContentPane(statsTextPane);
         statsDialog.setResizable(false);
         statsDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -1113,16 +1110,16 @@ public class Dashboard extends JFrame{
         treeMap.forEach((name, rule) -> {
             if (!firstLine[0])
                 text.append("\n\n");
-            text.append(name+(useEnglish()?": ":"："), true).append(rule.getExplanation(useEnglish()), true)
-                    .append(rule.getFormula().getIndentString());
+            text.append(name+": ", true).append(rule.getExplanation(true), true).append("\n")
+                    .append(rule.getExplanation(false), true).append(rule.getFormula().getIndentString());
             firstLine[0] = false;
         });
-        if (Middleware.isResolutionEnabled()) {
-            if (!firstLine[0])
-                text.append("\n\n");
-            text.append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
-                    .append(Middleware.getResolutionStrategy(useEnglish()), true);
-        }
+//        if (Middleware.isResolutionEnabled()) {
+//            if (!firstLine[0])
+//                text.append("\n\n");
+//            text.append(useEnglish() ? "Resolution strategy: " : "消解策略：", true)
+//                    .append(Middleware.getResolutionStrategy(useEnglish()), true);
+//        }
 
         synchronized (ruleTextPane) {
             ruleTextPane.setText("");
@@ -1171,7 +1168,7 @@ public class Dashboard extends JFrame{
 //        }
     }
 
-    private static final JDialog relocationDialog = new JDialog(getInstance(), "Relocation");
+    private static final JDialog relocationDialog = new JDialog();
     private static final JTextPane relocationTextPane = new JTextPane();
     private static final JButton relocationDoneButton = new JButton("Done");
     static {
@@ -1188,6 +1185,8 @@ public class Dashboard extends JFrame{
                 StateSwitcher.Relocation.manuallyRelocated();
             }
         });
+        relocationDialog.setTitle("Relocation");
+        relocationDialog.setAlwaysOnTop(true);
         relocationDialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = gbc.gridy = 0;
@@ -1261,12 +1260,12 @@ public class Dashboard extends JFrame{
         if (Resource.getConnectedCars().isEmpty())
             return;
         JDialog dialog = new JDialog(getInstance(), "Initialization");
-        JButton button = new JButton("Reset");
+        JButton button = new JButton("Initialize");
         button.setFont(Resource.en16bold);
         button.setMargin(new Insets(2, 5, 2, 5));
         button.addActionListener(e -> {
             dialog.dispose();
-            resetButton.doClick();
+            StateSwitcher.startResetting(true, false, false);
         });
         JTextPane pane = new JTextPane();
         pane.setBackground(Resource.SNOW4);
@@ -1278,7 +1277,7 @@ public class Dashboard extends JFrame{
         text.append("Please put ").append(cars.get(0).name, cars.get(0).icon.color).append(" at ").append(cars.get(0).loc.name, Resource.DEEP_SKY_BLUE);
         for (int i = 1;i < cars.size();i++)
             text.append(", ").append(cars.get(i).name, cars.get(i).icon.color).append(" at ").append(cars.get(i).loc.name, Resource.DEEP_SKY_BLUE);
-        text.append(".\n").append("After", true).append(" that, click ").append("Reset", true).append(" button.");
+        text.append(".\n").append("After", true).append(" that, click ").append("Initialize", true).append(" button.");
         append2pane(text, pane);
 
         dialog.setLayout(new GridBagLayout());

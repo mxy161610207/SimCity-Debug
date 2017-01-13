@@ -799,8 +799,8 @@ public class TrafficMap extends JPanel{
         road.exit2entrance.put(exit, entry);
     }
 
-    public static void checkRealCrash() {
-        roads.values().forEach(Road::checkRealCrash);
+    public static void checkCrash() {
+        roads.values().forEach(Road::checkCrash);
     }
 
     void updateRoadInfoPane(Location loc) {

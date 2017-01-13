@@ -3,7 +3,8 @@
 <rules>
     <rule>
         <id>rule_00</id>
-        <explanation en="When a sensor detects a car passing by, this car must be moving." ch="当传感器检测到有车辆经过，这辆车必然在行进中。" />
+        <explanation en="If a sensor detects a car passing by when this car's state is still, then this is a sensor error."
+                     ch="如果一辆车处于静止状态，而传感器检测到了它的经过，表明传感器出错了。" />
         <formula>
             <forall var="v1" in="latest">
                 <not>
@@ -17,7 +18,7 @@
 
     <rule>
         <id>rule_01</id>
-        <explanation en="An orange car cannot appear in different places in a very short time." ch="同一辆橘色小车不可能在很短时间内出现在不同的地点。" />
+        <explanation en="An orange car cannot be detected by different sensors at the same time." ch="一辆橘色小车不可能同时被不同的传感器检测到。" />
         <formula>
             <forall var="v1" in="orange_car1">
                 <not>
@@ -50,7 +51,7 @@
 
     <rule>
         <id>rule_02</id>
-        <explanation en="A green car cannot appear in different places in a very short time." ch="同一辆绿色小车不可能在很短时间内出现在不同的地点。" />
+        <explanation en="A green car cannot be detected by different sensors at the same time." ch="一辆绿色小车不可能同时被不同的传感器检测到。" />
         <formula>
             <forall var="v1" in="green_car1">
                 <not>
@@ -83,7 +84,7 @@
 
     <rule>
         <id>rule_03</id>
-        <explanation en="A black car cannot appear in different places in a very short time." ch="同一辆黑色小车不可能在很短时间内出现在不同的地点。" />
+        <explanation en="A black car cannot be detected by different sensors at the same time." ch="一辆黑色小车不可能同时被不同的传感器检测到。" />
         <formula>
             <forall var="v1" in="black_car1">
                 <not>
@@ -116,7 +117,7 @@
 
     <rule>
         <id>rule_04</id>
-        <explanation en="A white car cannot appear in different places in a very short time." ch="同一辆白色小车不可能在很短时间内出现在不同的地点。" />
+        <explanation en="A white car cannot be detected by different sensors at the same time." ch="一辆白色小车不可能同时被不同的传感器检测到。" />
         <formula>
             <forall var="v1" in="white_car1">
                 <not>
@@ -149,7 +150,7 @@
 
     <rule>
         <id>rule_05</id>
-        <explanation en="A red car cannot appear in different places in a very short time." ch="同一辆红色小车不可能在很短时间内出现在不同的地点。" />
+        <explanation en="A red car cannot be detected by different sensors at the same time." ch="一辆红色小车不可能同时被不同的传感器检测到。" />
         <formula>
             <forall var="v1" in="red_car1">
                 <not>
@@ -182,7 +183,7 @@
 
     <rule>
         <id>rule_06</id>
-        <explanation en="A silver SUV cannot appear in different places in a very short time." ch="同一辆银色小车不可能在很短时间内出现在不同的地点。" />
+        <explanation en="A silver SUV cannot be detected by different sensors at the same time." ch="一辆银色小车不可能同时被不同的传感器检测到。" />
         <formula>
             <forall var="v1" in="silver_suv1">
                 <not>
@@ -215,8 +216,8 @@
 
     <rule>
         <id>rule_07</id>
-        <explanation en="An orange car cannot violate physical space constraints. It must visit places in a physical sequence."
-                     ch="橘色小车无法违反物理空间的限制。它必须按照物理位置的顺序经过不同地点。" />
+        <explanation en="An orange car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+                     ch="橘色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="orange_car3">
                 <or>
@@ -247,8 +248,8 @@
 
     <rule>
         <id>rule_08</id>
-        <explanation en="A green car cannot violate physical space constraints. It must visit places in a physical sequence."
-                     ch="绿色小车无法违反物理空间的限制。它必须按照物理位置的顺序经过不同地点。" />
+        <explanation en="A green car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+                     ch="绿色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="green_car3">
                 <or>
@@ -279,8 +280,8 @@
 
     <rule>
         <id>rule_09</id>
-        <explanation en="A black car cannot violate physical space constraints. It must visit places in a physical sequence."
-                     ch="黑色小车无法违反物理空间的限制。它必须按照物理位置的顺序经过不同地点。" />
+        <explanation en="A black car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+                     ch="黑色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="black_car3">
                 <or>
@@ -311,8 +312,8 @@
 
     <rule>
         <id>rule_10</id>
-        <explanation en="A white car cannot violate physical space constraints. It must visit places in a physical sequence."
-                     ch="白色小车无法违反物理空间的限制。它必须按照物理位置的顺序经过不同地点。" />
+        <explanation en="A white car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+                     ch="白色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="white_car3">
                 <or>
@@ -343,8 +344,8 @@
 
     <rule>
         <id>rule_11</id>
-        <explanation en="A red car cannot violate physical space constraints. It must visit places in a physical sequence."
-                     ch="红色小车无法违反物理空间的限制。它必须按照物理位置的顺序经过不同地点。" />
+        <explanation en="A red car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+                     ch="红色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="red_car3">
                 <or>
@@ -375,8 +376,8 @@
 
     <rule>
         <id>rule_12</id>
-        <explanation en="A silver SUV cannot violate physical space constraints. It must visit places in a physical sequence."
-                     ch="银色小车无法违反物理空间的限制。它必须按照物理位置的顺序经过不同地点。" />
+        <explanation en="A silver SUV must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+                     ch="银色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="silver_suv3">
                 <or>

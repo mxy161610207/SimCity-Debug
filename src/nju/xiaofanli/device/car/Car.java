@@ -92,18 +92,22 @@ public class Car {
 	}
 
 	public void notifyPolice(int cmd) {
-		Police.add(this, dir, loc, cmd, loc.adjRoads.get(dir));
+        notifyPolice(cmd, false);
 	}
 
-	public void notifyPolice(int cmd, boolean fromUser) {
-        Police.add(this, dir, loc, cmd, loc.adjRoads.get(dir), fromUser);
+	public void notifyPolice(int cmd, boolean manual) {
+        notifyPolice(cmd, loc.adjRoads.get(dir), manual);
     }
 
 	public void notifyPolice(int cmd, Road requested) {
-		if(requested == null)
-			return;
-		Police.add(this, dir, loc, cmd, requested);
+        notifyPolice(cmd, requested, false);
 	}
+
+    public void notifyPolice(int cmd, Road requested, boolean manual) {
+        if(requested == null)
+            return;
+        Police.add(this, dir, loc, cmd, requested, manual);
+    }
 
 	private void notifySelfCheck(){
 		if(!tried){
@@ -247,7 +251,7 @@ public class Car {
         notifyPolice(Police.AFTER_ENTRY, road);
 
 		road.iconPanel.repaint();
-        road.checkRealCrash();
+        road.checkCrash();
 
         //trigger entering event
         if(EventManager.hasListener(Event.Type.CAR_ENTER))
@@ -274,7 +278,7 @@ public class Car {
             road.carsWithoutFake.remove(this);
 		notifyPolice(withEntry ? Police.AFTER_LEAVE : Police.AFTER_VANISH, road);
 		road.iconPanel.repaint();
-        road.checkRealCrash();
+        road.checkCrash();
 
 		//trigger leaving event
 		if(EventManager.hasListener(Event.Type.CAR_LEAVE))
@@ -304,7 +308,7 @@ public class Car {
         realLoc.realCars.remove(this);
         realLoc.carsWithoutFake.remove(this);
         realLoc.iconPanel.repaint();
-        realLoc.checkRealCrash();
+        realLoc.checkCrash();
         if (this.loc == loc && this.dir == dir) {
             resetRealInfo();
         }
@@ -315,7 +319,7 @@ public class Car {
         }
         loc.carsWithoutFake.add(this);
         loc.iconPanel.repaint();
-        loc.checkRealCrash();
+        loc.checkCrash();
         timeout = loc.timeouts.get(dir).get(name);
     }
 

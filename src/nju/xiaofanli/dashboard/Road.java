@@ -326,13 +326,11 @@ public abstract class Road extends Location{
 		crashLettersPanel = null;
 	}
 
-	public void checkRealCrash() {
-//        Set<Car> carsWithoutFake = new HashSet<>(realCars);
-//        carsWithoutFake.addAll(cars.stream().filter(car -> !car.hasPhantom()).collect(Collectors.toSet()));
+	public void checkCrash() {
 		if(carsWithoutFake.size() > 1) {
 			// stop all cars to keep the scene intact
 			TrafficMap.crashOccurred = true;
-			Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP));
+			Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP, true));
 
 			carsWithoutFake.forEach(car -> {
 				if (!car.isInCrash) {
