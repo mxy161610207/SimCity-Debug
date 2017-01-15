@@ -235,7 +235,7 @@ public class StateSwitcher {
             Dashboard.reset();
             setState(State.NORMAL);
 
-            Dashboard.log(new StyledText("Initialization is complete."), new StyledText("初始化完成。"));
+            Dashboard.log(new StyledText("Initialization is complete.\n"), new StyledText("初始化完成。\n"));
             TrafficMap.checkCrash();
         }
 

@@ -26,7 +26,7 @@ public class RandomDataGenerator implements Runnable{
         Map<Sensor, Car> disabled = new HashMap<>();
 		//noinspection InfiniteLoopStatement
 		while(true){
-			if(StateSwitcher.isNormal() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled()) && !TrafficMap.crashOccurred) {
+			if(StateSwitcher.isNormal() && Dashboard.isScenarioEnabled() && (Middleware.isDetectionEnabled() || Middleware.isResolutionEnabled()) && !TrafficMap.crashOccurred) {
                 enabled.clear();
                 disabled.clear();
                 Resource.getConnectedCars().stream().filter(car -> car.loc != null && car.dir != TrafficMap.Direction.UNKNOWN).forEach(car -> {

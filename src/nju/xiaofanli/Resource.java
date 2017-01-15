@@ -157,13 +157,17 @@ public class Resource {
 		}
 		return session;
 	}
-	
-	public static Collection<Car> getCars(){
-		return TrafficMap.cars.values();
+
+	public static Car getCar(String name) {
+		return TrafficMap.connectedCars.get(name);
 	}
 	
-	public static Set<Car> getConnectedCars(){
-		return TrafficMap.connectedCars;
+	public static Set<Car> getCars(){
+		return TrafficMap.cars;
+	}
+	
+	public static Collection<Car> getConnectedCars(){
+		return TrafficMap.connectedCars.values();
 	}
 	
 	public static Sensor[][] getSensors(){

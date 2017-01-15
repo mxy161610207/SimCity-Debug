@@ -8,6 +8,7 @@ import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.context.Context;
 import nju.xiaofanli.context.ContextManager;
 import nju.xiaofanli.control.Police;
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
@@ -249,27 +250,30 @@ public class BrickHandler extends Thread{
     }
 
     /**
+     * In normal phase, all readings will be discarded if the scenario is disabled.
      * In suspension phase, all readings will be discarded.
-     * In relocation phase, all readings except those from interested sensors will be discarded.
+     * In relocation phase, only handle readings from interested sensors.
      */
     public static void insert(Sensor sensor, int reading, long time) {
         if (sensor == null)
             return;
         sensor.reading = reading;
         if (StateSwitcher.isNormal()) {
-            synchronized (sensors2handle) {
-                if (!sensors2handle.containsKey(sensor))
-                    sensors2handle.put(sensor, new int[]{1});
-                else
-                    sensors2handle.get(sensor)[0]++;
-            }
-            RawData datum = new RawData(sensor, reading, time);
-            synchronized (rawData) {
-                int pos = Collections.binarySearch(rawData, datum, comparator);
-                if(pos < 0)
-                    pos = -pos - 1;
-                rawData.add(pos, datum);
-                rawData.notify();
+            if (Dashboard.isScenarioEnabled()) {
+                synchronized (sensors2handle) {
+                    if (!sensors2handle.containsKey(sensor))
+                        sensors2handle.put(sensor, new int[]{1});
+                    else
+                        sensors2handle.get(sensor)[0]++;
+                }
+                RawData datum = new RawData(sensor, reading, time);
+                synchronized (rawData) {
+                    int pos = Collections.binarySearch(rawData, datum, comparator);
+                    if (pos < 0)
+                        pos = -pos - 1;
+                    rawData.add(pos, datum);
+                    rawData.notify();
+                }
             }
         }
         else if(StateSwitcher.isResetting()) {

@@ -32,6 +32,7 @@ public class Main {
 //			e.printStackTrace();
 //		}
 		readConfigFile();
+		Dashboard.loadSelectionUI(); //blocked until clicking the done button
 		Dashboard.loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready
 
@@ -73,8 +74,7 @@ public class Main {
 		for(Element elm : list){
 			Car car = new Car(elm.attributeValue("name"), Road.roadOf(elm.attributeValue("loc")),
                     elm.attributeValue("url"), elm.attributeValue("icon"));
-			TrafficMap.cars.put(car.name, car);
-            TrafficMap.carList.add(car);
+			TrafficMap.allCars.add(car);
 		}
 		
 		list = root.elements("building");
@@ -100,13 +100,13 @@ public class Main {
 			Resource.setSensorNum(nm, Integer.parseInt(e.attributeValue("sensors")));
 		}
 
-        readTimeout("timeout.txt");
+        readTimeout();
 	}
 
-	private static void readTimeout(String file) {
+	private static void readTimeout() {
         BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader(file));
+			br = new BufferedReader(new FileReader("timeout.txt"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
             return;

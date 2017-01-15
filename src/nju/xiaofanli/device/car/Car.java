@@ -48,7 +48,7 @@ public class Car {
 	private Road realLoc = null;//if this car become a phantom, then this variable stores it's real location
 	private TrafficMap.Direction realDir;
 
-    private final String url;
+    public final String url;
     private StreamConnection conn = null;
     private DataInputStream dis = null;
     private DataOutputStream dos = null;
@@ -150,7 +150,9 @@ public class Car {
             initLocAndDir(sensor);
 		}
 
-        TrafficMap.connectedCars.add(this);
+        TrafficMap.connectedCars.put(name, this);
+		if (!TrafficMap.carList.contains(this))
+            TrafficMap.carList.add(this);
         Dashboard.addCar(this);
         //calibrate
 //        if(name.equals(Car.BLACK) || name.equals(Car.RED))
@@ -335,6 +337,8 @@ public class Car {
         if (cmd != Command.MOVE_FORWARD && cmd != Command.STOP)
             return;
         availCmd = cmd;
+        if (!Dashboard.isScenarioEnabled())
+            return;
         boolean isMoving = cmd == Command.MOVE_FORWARD;
         if (this == Dashboard.getSelectedCar()) {
             Dashboard.enableStartCarButton(isMoving);
@@ -388,7 +392,7 @@ public class Car {
 	}
 	
 	public static Car carOf(String name){
-		return TrafficMap.cars.get(name);
+		return Resource.getCar(name);
 	}
 
 	public int getState(){

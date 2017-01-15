@@ -19,9 +19,9 @@ import java.util.concurrent.ConcurrentMap;
 public class TrafficMap extends JPanel{
     private static final long serialVersionUID = 1L;
     private static TrafficMap instance = null;
-    public static final ConcurrentMap<String, Car> cars = new ConcurrentHashMap<>();
+    public static final Set<Car> cars = new HashSet<>(), allCars = new HashSet<>(); //cars: selected in allCars to connect
     public static final List<Car> carList = new ArrayList<>();
-    public static final Set<Car> connectedCars = new HashSet<>();
+    public static final Map<String, Car> connectedCars = new HashMap<>();
     public static final Road.Crossroad[] crossroads = new Road.Crossroad[7];
     public static final Road.Street[] streets = new Road.Street[18];
     public static final Map<String, Road> roads = new HashMap<>();
@@ -175,7 +175,7 @@ public class TrafficMap extends JPanel{
     }
 
     public static void reset() {
-        cars.values().forEach(Car::reset);
+        connectedCars.values().forEach(Car::reset);
         roads.values().forEach(Road::reset);
         for (Sensor[] array : sensors)
             for (Sensor sensor : array)

@@ -60,6 +60,7 @@ public class Remedy implements Runnable{
 					queue.remove(0);
 					if (cmd.cmd == Command.MOVE_FORWARD || cmd.cmd == Command.MOVE_BACKWARD) {
 						cmd.car.setState(Car.MOVING);
+						Dashboard.enableScenarioButton(false);
 						//trigger move event
 						if(EventManager.hasListener(Event.Type.CAR_MOVE))
 							EventManager.trigger(new Event(Event.Type.CAR_MOVE, cmd.car.name, cmd.car.loc.name));
@@ -82,6 +83,17 @@ public class Remedy implements Runnable{
 									EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, cmd.car.name, cmd.car.loc.name));
 							}
 						}
+
+						boolean allStopped = true;
+						for (Car car : Resource.getConnectedCars()) {
+							if (car.getState() == Car.MOVING) {
+								allStopped = false;
+								break;
+							}
+						}
+						if (allStopped)
+							Dashboard.enableScenarioButton(true);
+
 						//trigger stop event
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));

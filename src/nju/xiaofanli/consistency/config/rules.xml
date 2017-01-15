@@ -3,7 +3,7 @@
 <rules>
     <rule>
         <id>rule_00</id>
-        <explanation en="If a sensor detects a car passing by when this car's state is still, then this is a sensor error."
+        <explanation en="If a car stays still, but a sensor detects it passing by, then this is a sensor error."
                      ch="如果一辆车处于静止状态，而传感器检测到了它的经过，表明传感器出错了。" />
         <formula>
             <forall var="v1" in="latest">
