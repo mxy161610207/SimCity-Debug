@@ -4,6 +4,7 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import nju.xiaofanli.Main;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
@@ -281,13 +282,25 @@ public class Dashboard extends JFrame{
             e.printStackTrace();
         }
         for (Car car : TrafficMap.allCars) {
-            JCheckBox jchk = new JCheckBox(car.name + " ("+car.url+")");
+            JCheckBox jchk = new JCheckBox(car.name + " ("+car.url.substring(0, car.url.indexOf("1;")+1)+")");
             selectionPanel.add(jchk, gbc);
             jchk.addActionListener(e -> {
                 if (jchk.isSelected())
                     TrafficMap.cars.add(car);
                 else
                     TrafficMap.cars.remove(car);
+
+                try {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter("last_car_selection.txt"));
+                    String str = "";
+                    for (Car c : TrafficMap.cars)
+                        str += c.url + "\n";
+                    bw.write(str);
+                    bw.flush();
+                    bw.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             });
             jchk.setFont(Resource.en17plain);
             if (lastSelection.contains(car.url))
@@ -301,18 +314,6 @@ public class Dashboard extends JFrame{
         selectionPanel.add(button, gbc);
         button.setFont(Resource.en16bold);
         button.addActionListener(e -> {
-            try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter("last_car_selection.txt"));
-                String str = "";
-                for (Car c : TrafficMap.cars)
-                    str += c.url + "\n";
-                bw.write(str);
-                bw.flush();
-                bw.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
             synchronized (SEL_OBJ) {
                 SEL_OBJ.notify();
             }
@@ -332,18 +333,17 @@ public class Dashboard extends JFrame{
     }
 
     private static JPanel checkingPanel = null, brickPanel = null, carPanel = null;
-    private static JButton shutdownButton = null;
+    private static JButton shutdownButton = null, replaceCarButton = null;
     public static final int MARK_SIZE = 30;
     public static void loadCheckUI(){
-        if(checkingPanel != null){
-            getInstance().setTitle("Self checking");
-            getInstance().setContentPane(checkingPanel);
-            getInstance().pack();
-            getInstance().setLocationRelativeTo(null);
-            return;
-        }
+//        if(checkingPanel != null){
+//            getInstance().setTitle("Self checking");
+//            getInstance().setContentPane(checkingPanel);
+//            getInstance().pack();
+//            getInstance().setLocationRelativeTo(null);
+//            return;
+//        }
         checkingPanel = new JPanel(new GridBagLayout());
-//		add(checkingPanel, "Check");
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx = gbc.gridy = 0;
@@ -358,7 +358,7 @@ public class Dashboard extends JFrame{
             GridBagConstraints bgbc = new GridBagConstraints();
 //		bgbc.fill = GridBagConstraints.BOTH;
             bgbc.gridx = bgbc.gridy = 0;
-            bgbc.weightx = bgbc.weighty = 1;
+//            bgbc.weightx = bgbc.weighty = 1;
             bgbc.insets = new Insets(1, 2, 1, 2);
             for (String name : Resource.getBricks()) {
                 bgbc.anchor = GridBagConstraints.WEST;
@@ -381,8 +381,13 @@ public class Dashboard extends JFrame{
             gbc.weightx = gbc.weighty = 0;
             shutdownButton = new JButton("Shutdown");
             shutdownButton.setFont(Resource.en16bold);
-            shutdownButton.setMargin(new Insets(0, 0, 0, 0));
-            checkingPanel.add(shutdownButton, gbc);
+//            shutdownButton.setMargin(new Insets(0, 0, 0, 0));
+//            checkingPanel.add(shutdownButton, gbc);
+            bgbc.anchor = GridBagConstraints.SOUTH;
+            bgbc.gridwidth = GridBagConstraints.REMAINDER;
+            bgbc.fill = GridBagConstraints.HORIZONTAL;
+            bgbc.weightx = 1;
+            brickPanel.add(shutdownButton, bgbc);
             shutdownButton.addActionListener(e -> {
                 shutdownButton.setEnabled(false);
                 int[] count = {Resource.getBricks().size()};
@@ -442,6 +447,16 @@ public class Dashboard extends JFrame{
                 cgbc.gridx = 0;
                 cgbc.gridy += cgbc.gridheight;
             }
+            replaceCarButton = new JButton("Replace");
+            replaceCarButton.setFont(Resource.en16bold);
+//            replaceCarButton.setMargin(new Insets(0, 0, 0, 0));
+            cgbc.anchor = GridBagConstraints.SOUTH;
+            cgbc.gridwidth = GridBagConstraints.REMAINDER;
+            cgbc.fill = GridBagConstraints.HORIZONTAL;
+            cgbc.weightx = 1;
+            carPanel.add(replaceCarButton, cgbc);
+            replaceCarButton.addActionListener(e -> Main.main(null)); // restart the whole program
+            replaceCarButton.setVisible(false);
         }
 
         getInstance().setTitle("Self checking");
@@ -456,6 +471,7 @@ public class Dashboard extends JFrame{
         if(controlPanel != null){
             getInstance().setTitle("Dashboard");
             getInstance().setContentPane(controlPanel);
+            getInstance().pack();
             getInstance().setLocationRelativeTo(null);
             return;
         }
@@ -1671,6 +1687,7 @@ public class Dashboard extends JFrame{
         enableScenarioSelection(true);
         selectedScenario.doClick();
         scenarioEnabled = false;
+        enableScenarioButton.setEnabled(true);
         enableScenarioButton.setText(useEnglish() ? " Enable" : "启用");
 //        jchkDetection.setEnabled(true);
 //        jchkDetection.setSelected(false);

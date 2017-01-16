@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 public class TrafficMap extends JPanel{
     private static final long serialVersionUID = 1L;
     private static TrafficMap instance = null;
-    public static final Set<Car> cars = new HashSet<>(), allCars = new HashSet<>(); //cars: selected in allCars to connect
+    public static final Set<Car> allCars = new LinkedHashSet<>();
+    public static final Set<Car> cars = new HashSet<>(); //selected in allCars to connect
     public static final List<Car> carList = new ArrayList<>();
     public static final Map<String, Car> connectedCars = new HashMap<>();
     public static final Road.Crossroad[] crossroads = new Road.Crossroad[7];
@@ -42,7 +43,7 @@ public class TrafficMap extends JPanel{
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
     private static final Map<CrashLettersPanel, Integer> crashLettersPanels = new HashMap<>();
     private static final Map<Object, Object> roadAndCrashLettersPanel = new HashMap<>();
-    public static boolean crashOccurred = false;
+    public static boolean crashOccurred = false, allCarsStopped = true;
 
     public static final int SH = 48;//street height
     public static final int SW = SH * 2;//street width
@@ -188,6 +189,7 @@ public class TrafficMap extends JPanel{
         fakeCarIconPanel.setVisible(false);
         realCarIconPanel.setVisible(false);
         crashOccurred = false;
+        allCarsStopped = true;
         for (Map.Entry<CrashLettersPanel, Integer> entry : crashLettersPanels.entrySet()) {
             entry.setValue(0);
             entry.getKey().setVisible(false);

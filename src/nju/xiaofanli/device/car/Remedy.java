@@ -4,6 +4,7 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.dashboard.Dashboard;
+import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
@@ -60,6 +61,7 @@ public class Remedy implements Runnable{
 					queue.remove(0);
 					if (cmd.cmd == Command.MOVE_FORWARD || cmd.cmd == Command.MOVE_BACKWARD) {
 						cmd.car.setState(Car.MOVING);
+						TrafficMap.allCarsStopped = false;
 						Dashboard.enableScenarioButton(false);
 						//trigger move event
 						if(EventManager.hasListener(Event.Type.CAR_MOVE))
@@ -91,7 +93,8 @@ public class Remedy implements Runnable{
 								break;
 							}
 						}
-						if (allStopped)
+						TrafficMap.allCarsStopped = allStopped;
+						if (TrafficMap.allCarsStopped && !TrafficMap.crashOccurred)
 							Dashboard.enableScenarioButton(true);
 
 						//trigger stop event

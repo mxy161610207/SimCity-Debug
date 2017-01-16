@@ -18,6 +18,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * INIT <-> NORMAL
+ * <p>
  * NORMAL <-> RESET, RELOCATE, SUSPEND
  * <p>
  * RESET, RELOCATE <-> SUSPEND
@@ -25,12 +27,16 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public class StateSwitcher {
-    private static volatile State state = State.NORMAL;
+    private static volatile State state = State.INIT;
     private static ConcurrentHashMap<Thread, Boolean> threadStatus = new ConcurrentHashMap<>();//reset or not
 
-    private enum State {NORMAL, RESET, SUSPEND, RELOCATE}
+    private enum State {INIT, NORMAL, RESET, SUSPEND, RELOCATE}
 
     private StateSwitcher(){}
+
+    public static boolean isInitializing() {
+        return state == State.INIT;
+    }
 
     public static boolean isNormal(){
         return state == State.NORMAL;
@@ -96,6 +102,14 @@ public class StateSwitcher {
         synchronized (obj) {
             obj.notify();
         }
+    }
+
+    public static void init() {
+        setState(State.INIT);
+    }
+
+    public static void finishInit() {
+        setState(State.NORMAL);
     }
 
     public static void startResetting(boolean locateAllCars, boolean locateNoCars, boolean locationAlreadyKnown){
@@ -184,6 +198,7 @@ public class StateSwitcher {
             }
             //second step: clear all statuses
             checkIfSuspended();
+            List<Car> cars2locateInOrder = locationAlreadyKnown ? getTopologicalOrder(cars2locate) : new ArrayList<>(cars2locate);
             TrafficMap.reset();
             Middleware.reset();
             Delivery.reset();
@@ -194,7 +209,7 @@ public class StateSwitcher {
             for(Map.Entry<Car, CarInfo> e : carInfo.entrySet())
                 e.getValue().restore(e.getKey());
             //locate cars one by one
-            List<Car> cars2locateInOrder = locationAlreadyKnown ? getTopologicalOrder(cars2locate) : new ArrayList<>(cars2locate);
+
             for(Car car : cars2locateInOrder){
                 car2locate = car;
                 Command.drive(car);
@@ -259,7 +274,9 @@ public class StateSwitcher {
 
             Map<Car, Set<Car>> indegree = new HashMap<>(), outdegree = new HashMap<>();
             for (Car car : cars) {
-                Road nextRoad = car.getRealLoc().adjSensors.get(car.getRealDir()).nextRoad;
+                Map<TrafficMap.Direction, Sensor> adjSensors = car.getRealLoc().adjSensors;
+                TrafficMap.Direction dir = car.getRealDir();
+                Road nextRoad = adjSensors.get(dir).nextRoad;//car.getRealLoc().adjSensors.get(car.getRealDir()).nextRoad;
                 for (Car car2 : nextRoad.carsWithoutFake) {
                     if (!indegree.containsKey(car))
                         indegree.put(car, new HashSet<>());

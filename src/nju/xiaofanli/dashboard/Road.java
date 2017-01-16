@@ -331,6 +331,7 @@ public abstract class Road extends Location{
 			// stop all cars to keep the scene intact
 			TrafficMap.crashOccurred = true;
 			Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP, true));
+			Dashboard.enableScenarioButton(false);
 
 			carsWithoutFake.forEach(car -> {
 				if (!car.isInCrash) {
@@ -381,6 +382,8 @@ public abstract class Road extends Location{
 							}
 						}
 						TrafficMap.crashOccurred = crash;
+						if (TrafficMap.allCarsStopped && !TrafficMap.crashOccurred)
+							Dashboard.enableScenarioButton(true);
 					}
 				}
 			});

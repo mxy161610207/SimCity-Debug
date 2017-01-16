@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Main {
-	public static boolean initial = true;
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
+		StateSwitcher.init();
 //		try {
 //			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 //		} catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
@@ -35,7 +35,6 @@ public class Main {
 		Dashboard.loadSelectionUI(); //blocked until clicking the done button
 		Dashboard.loadCheckUI();
 		new SelfCheck();//blocked until all devices are ready
-
 		addModule();
         new BrickServer();
 		new CmdSender();
@@ -45,22 +44,29 @@ public class Main {
         new RandomDataGenerator();
         StateSwitcher.startRelocationThread();
 		Dashboard.loadCtrlUI();
-		initial = false;
+		StateSwitcher.finishInit();
 		Dashboard.showInitDialog();
         TrafficMap.checkCrash(); // should never trigger crash, otherwise change cars' initial locations
 //		Dashboard.showCrashEffect(Resource.getRoad("Crossroad 2"));
 //		Resource.getBricks().forEach(name -> Dashboard.setDeviceStatus(name + " sample", true)); //TODO delete this
 	}
 
+	private static boolean addModule = false;
 	private static void addModule(){
+		if (addModule)
+			return;
 		EventManager.register(new AppMonitor(), Event.Type.ALL);
 		EventManager.register(new VehicleConditionMonitor(), Arrays.asList(Event.Type.ADD_CAR, Event.Type.CAR_CRASH,
                 Event.Type.CAR_ENTER, Event.Type.CAR_LEAVE, Event.Type.CAR_LEAVE, Event.Type.CAR_MOVE, Event.Type.CAR_STOP,
                 Event.Type.CAR_START_LOADING, Event.Type.CAR_END_LOADING, Event.Type.CAR_START_UNLOADING, Event.Type.CAR_END_UNLOADING));
+		addModule = true;
 	}
-	
+
+	private static boolean readConfigFile = false;
 	@SuppressWarnings("unchecked")
 	private static void readConfigFile(){
+		if (readConfigFile)
+			return;
 		SAXReader reader = new SAXReader();
 		Document doc;
 		try {
@@ -101,6 +107,7 @@ public class Main {
 		}
 
         readTimeout();
+		readConfigFile = true;
 	}
 
 	private static void readTimeout() {

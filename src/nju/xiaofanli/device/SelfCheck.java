@@ -4,7 +4,6 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import nju.xiaofanli.Main;
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Dashboard;
@@ -17,25 +16,35 @@ import java.util.*;
 public class SelfCheck{
 	private	static final Object OBJ = new Object();
 	private static final Map<String, Boolean> deviceStatus = new HashMap<>();
-	
+	private static final Map<String, BrickChecking> brickCheckingThreads = new HashMap<>();
+	private static final Map<Car, CarChecking> carCheckingThreads = new HashMap<>();
 	/**
 	 * This method will block until all devices are ready
 	 */
 	public SelfCheck() {
-		List<BrickChecking> brickCheckingThreads = new ArrayList<>();
 		//TODO uncomment this
 		for(String name : Resource.getBricks()){
+			if (brickCheckingThreads.containsKey(name))
+				return;
             deviceStatus.put(name, false);
 			BrickChecking thread = new BrickChecking(name);
-			brickCheckingThreads.add(thread);
+			brickCheckingThreads.put(name, thread);
 			thread.start();
 		}
 
-        List<CarChecking> carCheckingThreads = new ArrayList<>();
+		Set<Car> cars = new HashSet<>(carCheckingThreads.keySet());
+		for (Car car : cars) {
+			if (!Resource.getCars().contains(car)) {
+
+			}
+		}
+
 		for(Car car : Resource.getCars()){
+			if (carCheckingThreads.containsKey(car))
+				return;
             deviceStatus.put(car.name, false);
             CarChecking thread = new CarChecking(car);
-            carCheckingThreads.add(thread);
+            carCheckingThreads.put(car, thread);
             thread.start();
         }
 
@@ -43,7 +52,7 @@ public class SelfCheck{
             //noinspection InfiniteLoopStatement
             while (true){
                 long curTime = System.currentTimeMillis();
-                for(CarChecking thread : carCheckingThreads)
+                for(CarChecking thread : carCheckingThreads.values())
                     if(thread.car.isConnected() && curTime - thread.lastRecvTime > 1500) {
                         thread.lastRecvTime = Long.MAX_VALUE;
                         thread.car.disconnect(); //TODO enable car checking
@@ -83,6 +92,7 @@ public class SelfCheck{
 
 	private class CarChecking extends Thread{
 		public final Car car;
+		private boolean running = true;
         private long lastRecvTime;
 		CarChecking(Car car) {
 			this.car = car;
@@ -90,7 +100,7 @@ public class SelfCheck{
 		public void run() {
 			setName("Car Checking " + car.name);
             //noinspection InfiniteLoopStatement
-            while(true){
+            while(running){
                 lastRecvTime = Long.MAX_VALUE;
                 car.connect();
 				while(!car.tried){
@@ -105,7 +115,7 @@ public class SelfCheck{
 				car.tried = false;
                 DataInputStream dis = car.getDIS();
                 // keep checking car's connection
-                while(true){
+                while(running){
                     try {
                         if(dis == null)
                             throw new IOException();
@@ -125,13 +135,13 @@ public class SelfCheck{
                             Dashboard.setDeviceStatus(car.name, car.isConnected());
                             if(allReady()){//true -> false
                                 deviceStatus.put(car.name, car.isConnected());
-                                if(!Main.initial)
+                                if(!StateSwitcher.isInitializing())
                                     StateSwitcher.suspend();
                             }
                             else{
                                 deviceStatus.put(car.name, car.isConnected());
                                 if(allReady()){//false -> true
-                                    if(Main.initial)
+                                    if(StateSwitcher.isInitializing())
                                         synchronized (OBJ) {
                                             OBJ.notify();
                                         }
@@ -151,6 +161,10 @@ public class SelfCheck{
                     }
                 }
 			}
+		}
+
+		void setRunning(boolean running) {
+			this.running = running;
 		}
 	}
 	
@@ -226,7 +240,7 @@ public class SelfCheck{
 									((ChannelExec) channel).setCommand("reboot");
 									channel.connect();
 								} catch (JSchException e1) {
-									e1.printStackTrace();
+//									e1.printStackTrace();
 								} finally {
 									if (channel != null)
 										channel.disconnect();
@@ -313,13 +327,13 @@ public class SelfCheck{
 								Dashboard.setDeviceStatus(name + " sample", sampling);
 								if (allReady()) {//true -> false
 									deviceStatus.put(name, sampling);
-									if (!Main.initial)
+									if (!StateSwitcher.isInitializing())
 										StateSwitcher.suspend();
 									System.out.println("[Brick " + name + "] connection broke. " + new Date());
 								} else {
 									deviceStatus.put(name, sampling);
 									if (allReady()) {//false -> true
-										if (Main.initial)
+										if (StateSwitcher.isInitializing())
 											synchronized (OBJ) {
 												OBJ.notify();
 											}
