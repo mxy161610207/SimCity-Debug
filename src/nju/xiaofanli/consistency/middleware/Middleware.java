@@ -95,6 +95,7 @@ public class Middleware {
     public static void checkConsistency(Context context) {
         Car car = (Car) context.getFields().get("carObj");
         Sensor sensor = (Sensor) context.getFields().get("sensor");
+        long time = (long) context.getFields().get("timestamp");
         boolean isRealCar = (boolean) context.getFields().get("real");
         boolean triggerEvent = (boolean) context.getFields().get("trigger");
 
@@ -107,7 +108,7 @@ public class Middleware {
         // update cars' and sensors' states
         switch (res.first) {
             case Context.Normal:
-                BrickHandler.switchState(car, sensor, isRealCar, true, triggerEvent);
+                BrickHandler.switchState(car, sensor, time, isRealCar, true, triggerEvent);
                 break;
             case Context.FP:
                 if (detectionEnabled) {
@@ -122,7 +123,7 @@ public class Middleware {
                     }
                 }
                 if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)
-                    BrickHandler.switchState(car, sensor, isRealCar, false, triggerEvent);
+                    BrickHandler.switchState(car, sensor, time, isRealCar, false, triggerEvent);
                 break;
 //            case Context.FN:
 //                if (detectionEnabled)

@@ -3,11 +3,10 @@ package nju.xiaofanli.device.car;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.Resource;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class CmdSender implements Runnable{
-    private static final Queue<Command> queue = new LinkedList<>();
+    private static final List<Command> queue = new ArrayList<>();
 
     public CmdSender(){
         new Thread(this, "Command Sender").start();
@@ -76,7 +75,7 @@ public class CmdSender implements Runnable{
 
             Command cmd;
             synchronized (queue) {
-                cmd = queue.poll();
+                cmd = queue.remove(0);
             }
             if(cmd.car == null)
                 continue;
@@ -96,14 +95,65 @@ public class CmdSender implements Runnable{
                     cmd.car.write(cmd.cmd);
                     break;
             }
+
+//            synchronized (queue) {
+//                while (!queue.isEmpty()) {
+//                    Command cmd = queue.get(0);
+//                    if (cmd.deadline > System.currentTimeMillis())
+//                        break;
+//                    queue.remove(0);
+//                    switch (cmd.cmd) {
+//                        case Command.URGE:
+//                            Resource.execute(new WhistleTask(cmd.car, 300, 0, 1));
+//                            break;
+//                        case Command.WHISTLE:
+//                            Resource.execute(new WhistleTask(cmd.car, 200, 0, 1));
+//                            break;
+//                        case Command.WHISTLE2:
+//                            Resource.execute(new WhistleTask(cmd.car, 200, 100, 2));
+//                            break;
+//                        case Command.WHISTLE3:
+//                            Resource.execute(new WhistleTask(cmd.car, 200, 100, 3));
+//                        default:
+//                            cmd.car.write(cmd.cmd);
+//                            break;
+//                    }
+//                }
+//            }
+//            try {
+//                Thread.sleep(10);
+//            } catch (InterruptedException e) {
+//                if (StateSwitcher.isResetting())
+//                    thread.interrupt();
+//            }
         }
     }
 
-    public static void send(Car car, int cmd){
+    private static Comparator<Command> comparator = (o1, o2) -> (int) (o1.deadline - o2.deadline);
+    public static void send(Car car, int cmd, boolean delay) {
         if(StateSwitcher.isResetting())
             return;
         synchronized (queue) {
-            queue.add(new Command(car, cmd));
+//            Command command = new Command(car, cmd, delay ? Math.max(System.currentTimeMillis(), car.lastDetectedTime+100) : System.currentTimeMillis());
+//            boolean addition = true;
+//            for(Iterator<Command> it = queue.iterator(); it.hasNext();){
+//                Command cmd2 = it.next();
+//                if(cmd2.car == car){
+//                    if(cmd2.cmd != cmd || cmd2.deadline > command.deadline)
+//                        it.remove();
+//                    else
+//                        addition = false;
+//                    break;
+//                }
+//            }
+//            if (addition) {
+//                int pos = Collections.binarySearch(queue, command, comparator);
+//                if(pos < 0)
+//                    pos = -pos - 1;
+//                queue.add(pos, command);
+//                queue.notify();
+//            }
+            queue.add(new Command(car, cmd, System.currentTimeMillis()));
             queue.notify();
         }
     }

@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Command {
-	public Car car = null;
-	public int cmd = -1;
-	public long deadline = 1000;
+	public Car car;
+	public int cmd;
+	public long deadline;
 
 	public final static int STOP = Car.STOPPED;
 	public final static int MOVE_FORWARD = Car.MOVING;
@@ -60,30 +60,25 @@ public class Command {
 		codes.put(Command.RIGHT_LIGHTS_OFF, ByteBuffer.allocate(4).putInt(Codes.BLINK_RIGHT_OFF).array());
     }
 	
-	public Command(Car car, int cmd) {
+	public Command(Car car, int cmd, long deadline) {
 		this.car = car;
 		this.cmd = cmd;
-		deadline = getDeadline();
-	}
-
-	long getDeadline(){
-		switch (cmd) {
-			case Command.MOVE_FORWARD: case Command.MOVE_BACKWARD:
-				return System.currentTimeMillis();
-			default:
-				return System.currentTimeMillis() + 1000;
-		}
+		this.deadline = deadline;
 	}
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
-	public static void send(Car car, int cmd){
-		send(car, cmd, true);
+	public static void send(Car car, int cmd) {
+		send(car, cmd, false);
 	}	
-	
-	public static void send(Car car, int cmd, boolean remedy){
+
+	public static void send(Car car, int cmd, boolean delay) {
+		send(car, cmd, delay, true);
+	}
+
+	public static void send(Car car, int cmd, boolean delay, boolean remedy) {
 		if(car == null)
 			return;
-		CmdSender.send(car, cmd);
+		CmdSender.send(car, cmd, delay);
 		if(cmd == STOP || cmd == MOVE_FORWARD){
             car.lastCmd = cmd;
 			if(remedy)
@@ -96,14 +91,7 @@ public class Command {
 	static void wake(Car car){
 		if(car == null || !car.isConnected())
 			return;
-//		if(StateSwitcher.isNormal()){
-//			 if(car.getState() == Car.MOVING)
-//				 drive(car);
-//			 else if(car.getState() == Car.STOPPED)
-//				 stop(car);
-//		}
-//		else if(StateSwitcher.isSuspending())
-//			stop(car); // maintain its stopped state
+
 		if(car.trend == Car.MOVING)
 			drive(car);
 		else if(car.trend == Car.STOPPED)

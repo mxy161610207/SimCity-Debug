@@ -668,35 +668,35 @@ public class Dashboard extends JFrame{
                 }
             }
             else if(cmd.equals("urge"))
-                CmdSender.send(getSelectedCar(), Command.URGE);
+                CmdSender.send(getSelectedCar(), Command.URGE, false);
             else if(cmd.equals("whistle"))
-                CmdSender.send(getSelectedCar(), Command.WHISTLE);
+                CmdSender.send(getSelectedCar(), Command.WHISTLE, false);
             else if(cmd.equals("whistle2"))
-                CmdSender.send(getSelectedCar(), Command.WHISTLE2);
+                CmdSender.send(getSelectedCar(), Command.WHISTLE2, false);
             else if(cmd.equals("whistle3"))
-                CmdSender.send(getSelectedCar(), Command.WHISTLE3);
+                CmdSender.send(getSelectedCar(), Command.WHISTLE3, false);
             else if(cmd.equals("left"))
-                CmdSender.send(getSelectedCar(), Command.LEFT);
+                CmdSender.send(getSelectedCar(), Command.LEFT, false);
             else if(cmd.equals("right"))
-                CmdSender.send(getSelectedCar(), Command.RIGHT);
+                CmdSender.send(getSelectedCar(), Command.RIGHT, false);
             else if(cmd.equals("lights"))
-                CmdSender.send(getSelectedCar(), Command.LIGHTS);
+                CmdSender.send(getSelectedCar(), Command.LIGHTS, false);
             else if(cmd.equals("lights soft"))
-                CmdSender.send(getSelectedCar(), Command.LIGHTS_SOFT);
+                CmdSender.send(getSelectedCar(), Command.LIGHTS_SOFT, false);
             else if(cmd.equals("lights off"))
-                CmdSender.send(getSelectedCar(), Command.LIGHTS_OFF);
+                CmdSender.send(getSelectedCar(), Command.LIGHTS_OFF, false);
             else if(cmd.equals("lhl"))
-                CmdSender.send(getSelectedCar(), Command.LEFT_HEADLIGHT_ON);
+                CmdSender.send(getSelectedCar(), Command.LEFT_HEADLIGHT_ON, false);
             else if(cmd.equals("ltl"))
-                CmdSender.send(getSelectedCar(), Command.LEFT_TAILLIGHT_ON);
+                CmdSender.send(getSelectedCar(), Command.LEFT_TAILLIGHT_ON, false);
             else if(cmd.equals("rhl"))
-                CmdSender.send(getSelectedCar(), Command.RIGHT_HEADLIGHT_ON);
+                CmdSender.send(getSelectedCar(), Command.RIGHT_HEADLIGHT_ON, false);
             else if(cmd.equals("rtl"))
-                CmdSender.send(getSelectedCar(), Command.RIGHT_TAILLIGHT_ON);
+                CmdSender.send(getSelectedCar(), Command.RIGHT_TAILLIGHT_ON, false);
             else if(cmd.equals("llo"))
-                CmdSender.send(getSelectedCar(), Command.LEFT_LIGHTS_OFF);
+                CmdSender.send(getSelectedCar(), Command.LEFT_LIGHTS_OFF, false);
             else if(cmd.equals("rlo"))
-                CmdSender.send(getSelectedCar(), Command.RIGHT_LIGHTS_OFF);
+                CmdSender.send(getSelectedCar(), Command.RIGHT_LIGHTS_OFF, false);
             else if(cmd.startsWith("add dt ")){
                 String s = cmd.substring("add dt ".length()).toLowerCase();
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),

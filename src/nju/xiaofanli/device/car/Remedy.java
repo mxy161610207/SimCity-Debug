@@ -52,11 +52,11 @@ public class Remedy implements Runnable{
 			
 			//remedy and update cars' states
 			synchronized (queue) {
-                if (queue.isEmpty())
-                    continue;
-				Command cmd = queue.get(0);
 				boolean donesth = false;
-				while(cmd.deadline <= System.currentTimeMillis()){
+				while(!queue.isEmpty()){
+					Command cmd = queue.get(0);
+					if (cmd.deadline > System.currentTimeMillis())
+						break;
 					donesth = true;
 					queue.remove(0);
 					if (cmd.cmd == Command.MOVE_FORWARD || cmd.cmd == Command.MOVE_BACKWARD) {
@@ -101,10 +101,6 @@ public class Remedy implements Runnable{
 						if(EventManager.hasListener(Event.Type.CAR_STOP))
 							EventManager.trigger(new Event(Event.Type.CAR_STOP, cmd.car.name, cmd.car.loc.name));
 					}
-
-					if (queue.isEmpty())
-						break;
-					cmd = queue.get(0);
 				}
 				if(donesth){
 					printQueue();
@@ -133,7 +129,7 @@ public class Remedy implements Runnable{
 					donesth = true;
 					it.remove();
 					if(cmd.cmd == Command.STOP){
-						cmd.deadline = cmd.getDeadline();
+						cmd.deadline = System.currentTimeMillis() + 1000;
                         newCmd = cmd;
 					}
 					break;
@@ -175,7 +171,7 @@ public class Remedy implements Runnable{
 				}
 			}
 			if(addition)
-				insert(new Command(car, cmd));
+				insert(new Command(car, cmd, cmd == Command.STOP ? System.currentTimeMillis()+1000 : System.currentTimeMillis()));
 			Dashboard.updateRemedyCommandPanel();
 			printQueue();
 		}

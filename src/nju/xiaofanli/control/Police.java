@@ -63,7 +63,7 @@ public class Police implements Runnable{
 			synchronized (r.requested.waiting) {
 				switch (r.cmd) {
 					case REQUEST2STOP:
-						Command.send(r.car, Command.STOP);
+						Command.send(r.car, Command.STOP, !r.manual);
                         r.car.setAvailCmd(Command.MOVE_FORWARD);
 						waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
 						waitedRoads.get(r.car).clear();
@@ -77,7 +77,7 @@ public class Police implements Runnable{
 						break;
 					case REQUEST2ENTER:
 					    if(!engineStarted.get(r.car) && !r.manual) {
-                            Command.send(r.car, Command.STOP);
+                            Command.send(r.car, Command.STOP, true);
                             r.car.setAvailCmd(Command.MOVE_FORWARD);
 							waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
 							waitedRoads.get(r.car).clear();
@@ -92,7 +92,7 @@ public class Police implements Runnable{
 							System.out.println(r.car.name + " need to STOP!!!");
 							r.requested.addWaitingCar(r.car);
 							waitedRoads.get(r.car).add(r.requested);
-							Command.send(r.car, Command.STOP);
+							Command.send(r.car, Command.STOP, !r.manual);
                             r.car.setAvailCmd(Command.STOP);
 							engineStarted.put(r.car, true);
 							//trigger recv response event

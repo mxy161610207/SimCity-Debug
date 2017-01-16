@@ -102,12 +102,13 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void switchState(Car car, Sensor sensor, boolean isRealCar, boolean isTrueCtx, boolean triggerEvent) {
+    public static void switchState(Car car, Sensor sensor, long time, boolean isRealCar, boolean isTrueCtx, boolean triggerEvent) {
         switch(sensor.state){
             case Sensor.UNDETECTED:{
                 if(isTrueCtx){
                     sensor.state = Sensor.DETECTED;
                     sensor.car = car;
+                    car.lastDetectedTime = time;
                     if(sensor.prevSensor.state == Sensor.DETECTED && sensor.prevSensor.car == car){
                         sensor.prevSensor.state = Sensor.UNDETECTED;
                         sensor.prevSensor.car = null;

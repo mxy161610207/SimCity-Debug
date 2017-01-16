@@ -39,6 +39,7 @@ public class Car {
 	public boolean isLoading = false;//loading or unloading
 	public long lastCmdTime = System.currentTimeMillis();//used for waking cars
 	public long stopTime = System.currentTimeMillis();//used for delivery
+    public long lastDetectedTime = 0;
 	public CarIcon icon = null;
 	public Citizen passenger = null;
     public boolean isHornOn = false; //only for crash
