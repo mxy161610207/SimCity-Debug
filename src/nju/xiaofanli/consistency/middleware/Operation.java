@@ -81,6 +81,7 @@ class Operation {
 	static Pair<Integer, List<Context>> operate(Map<Rule, List<ContextChange>> changes, String strategy) {
 		if(changes.isEmpty())
 			return null;
+		changes.keySet().forEach(Rule::setInUse);
 		if(strategy.equals("Drop-latest")){
 			boolean[] inconsistent = new boolean[]{ false };
 			Set<Rule> violated = new HashSet<>();

@@ -31,7 +31,6 @@ public class TrafficMap extends JPanel{
     public static final Sensor[][] sensors = new Sensor[10][];
     public static final List<Citizen> citizens = new ArrayList<>();
     private static final List<Citizen> freeCitizens = new ArrayList<>();
-    public static final JLabel mLabel = new JLabel("M");
     public static final ConcurrentMap<Building.Type, Building> buildings = new ConcurrentHashMap<>();
     private static final JTextPane roadPane = new JTextPane();
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
@@ -43,6 +42,8 @@ public class TrafficMap extends JPanel{
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
     private static final Map<CrashLettersPanel, Integer> crashLettersPanels = new HashMap<>();
     private static final Map<Object, Object> roadAndCrashLettersPanel = new HashMap<>();
+    public static final JLabel mLabel = new JLabel("M");
+    public static final Set<JLabel> upArrows = new HashSet<>(), downArrows = new HashSet<>();
     public static boolean crashOccurred = false, allCarsStopped = true;
 
     public static final int SH = 48;//street height
@@ -101,6 +102,15 @@ public class TrafficMap extends JPanel{
             CrashLettersPanel panel = new CrashLettersPanel(new JLabel(Resource.CRASH_LETTERS));
             crashLettersPanels.put(panel, 0);
             panel.setVisible(false);
+
+            JLabel icon = new JLabel(Resource.loadImage(Resource.UP_ARROW_ICON, SH/2, SH/2));
+            icon.setSize(icon.getPreferredSize());
+            icon.setVisible(false);
+            upArrows.add(icon);
+            icon = new JLabel(Resource.loadImage(Resource.DOWN_ARROW_ICON, SH/2, SH/2));
+            icon.setSize(icon.getPreferredSize());
+            icon.setVisible(false);
+            downArrows.add(icon);
         }
 
         mLabel.setFont(Resource.en20bold);
@@ -157,6 +167,8 @@ public class TrafficMap extends JPanel{
             for (Sensor sensor : array)
                 add(sensor.balloon);
         add(mLabel);
+        upArrows.forEach(this::add);
+        downArrows.forEach(this::add);
         citizens.forEach(citizen -> add(citizen.icon));
         roads.values().forEach(road -> locations.put(road.name, road));
         buildings.values().forEach(building -> {
@@ -195,6 +207,8 @@ public class TrafficMap extends JPanel{
             entry.getKey().setVisible(false);
         }
         roadAndCrashLettersPanel.clear();
+        upArrows.forEach(jLabel -> jLabel.setVisible(false));
+        downArrows.forEach(jLabel -> jLabel.setVisible(false));
     }
 
     private static Random random = new Random();

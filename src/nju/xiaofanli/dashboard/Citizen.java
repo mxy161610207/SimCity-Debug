@@ -21,6 +21,7 @@ public class Citizen implements Runnable {
     public Location loc = null, dest = null;
     public Car car = null;
     public CitizenIcon icon = null;
+    private JLabel arrow = null;
     public boolean manual = false; //used in taking taxis
     public boolean isRunning = false;
 
@@ -67,6 +68,10 @@ public class Citizen implements Runnable {
         if (manual) {
             manual = false;
             TrafficMap.mLabel.setVisible(false);
+        }
+        if (arrow != null) {
+            arrow.setVisible(false);
+            arrow = null;
         }
         icon.setVisible(false);
         TrafficMap.addAFreeCitizen(this);
@@ -197,6 +202,17 @@ public class Citizen implements Runnable {
                             TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()-TrafficMap.mLabel.getWidth(), icon.getY());
                             TrafficMap.mLabel.setVisible(true);
                         }
+                        synchronized (TrafficMap.upArrows) {
+                            for (JLabel label : TrafficMap.upArrows) {
+                                if (!label.isVisible()) {
+                                    arrow = label;
+                                    label.setLocation(icon.getX()+icon.getXOffset()+icon.getIcon().getIconWidth(),
+                                            icon.getY()+(icon.getIcon().getIconHeight()-label.getHeight())/2);
+                                    label.setVisible(true);
+                                    break;
+                                }
+                            }
+                        }
                     }
                     Delivery.add(loc, dest, this, manual);
                     break;
@@ -205,6 +221,8 @@ public class Citizen implements Runnable {
                     icon.setVisible(false);// get on the taxi
                     if (manual)
                         TrafficMap.mLabel.setVisible(false);
+                    arrow.setVisible(false);
+                    arrow = null;
                     PkgHandler.send(new AppPkg().setCitizen(name, false));
                     break;
                 case GetOff:
@@ -224,6 +242,17 @@ public class Citizen implements Runnable {
                         if (manual) {
                             TrafficMap.mLabel.setLocation(icon.getX()+icon.getXOffset()-TrafficMap.mLabel.getWidth(), icon.getY());
                             TrafficMap.mLabel.setVisible(true);
+                        }
+                        synchronized (TrafficMap.downArrows) {
+                            for (JLabel label : TrafficMap.downArrows) {
+                                if (!label.isVisible()) {
+                                    arrow = label;
+                                    label.setLocation(icon.getX()+icon.getXOffset()+icon.getIcon().getIconWidth(),
+                                            icon.getY()+(icon.getIcon().getIconHeight()-label.getHeight())/2);
+                                    label.setVisible(true);
+                                    break;
+                                }
+                            }
                         }
 
                         PkgHandler.send(new AppPkg().setCitizen(name, (double) x/TrafficMap.SIZE, (double) y/TrafficMap.SIZE));

@@ -1,6 +1,7 @@
 package nju.xiaofanli.dashboard;
 
 import nju.xiaofanli.Resource;
+import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.control.Police;
 import nju.xiaofanli.dashboard.Road.Crossroad.CrossroadIcon;
 import nju.xiaofanli.dashboard.Road.Street.StreetIcon;
@@ -22,9 +23,9 @@ public abstract class Road extends Location{
 	public final Map<Road, Road> entrance2exit = new HashMap<>(); //entrance -> exit
 	public final Map<Road, Road> exit2entrance = new HashMap<>(); //exit -> entrance
 	public final TrafficMap.Direction[] dir = {TrafficMap.Direction.UNKNOWN, TrafficMap.Direction.UNKNOWN};
-	public final Queue<Car> cars = new LinkedList<>(); //may contain cars that have fake locations
-	public final Queue<Car> carsWithoutFake = new LinkedList<>(); //cars without those that have fake locations
-	public final Queue<Car> realCars = new LinkedList<>(); //cars whose real locations are this
+	public final Queue<Car> cars = new LinkedList<>(); //normal + fake: may contain cars that have fake locations
+	public final Queue<Car> carsWithoutFake = new LinkedList<>(); //normal + real: cars without those that have fake locations
+	public final Queue<Car> realCars = new LinkedList<>(); //real: cars whose real locations are this
 	public Car permitted = null;
 	public JPanel crashLettersPanel = null;
 	public int numSections;
@@ -358,13 +359,59 @@ public abstract class Road extends Location{
 			chText.append(" 在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 相撞。\n");
 			Dashboard.log(enText, chText);
 
-			List<Car> frontCars = new ArrayList<>();
-			Set<TrafficMap.Direction> dirs = new HashSet<>();
-			carsWithoutFake.stream().filter(car -> !dirs.contains(car.getRealDir())).forEach(car -> {
-				dirs.add(car.getRealDir());
-				frontCars.add(car);
+			Map<TrafficMap.Direction, Car> frontCars = new HashMap<>();
+			carsWithoutFake.forEach(car -> {
+				if (!frontCars.containsKey(car.getRealDir()))
+					frontCars.put(car.getRealDir(), car);
 			});
-			Dashboard.logCrashEvent(frontCars);
+			if (!frontCars.isEmpty()) {
+				enText = new StyledText();
+				chText = new StyledText();
+				Map<Car, List<Car>> seqs = new HashMap<>();
+				frontCars.values().forEach(frontCar -> seqs.put(frontCar, resolveCrashChain(frontCar)));
+				boolean hasAChain = false;
+				for (List<Car> seq : seqs.values()) {
+					if (seq.size() > 1) {
+						hasAChain = true;
+						break;
+					}
+				}
+				if (seqs.size() == 1 || hasAChain) { //one solution
+					List<Car> minSeq = null;
+					for (List<Car> seq : seqs.values()) {
+						if (minSeq == null || minSeq.size() > seq.size())
+							minSeq = seq;
+					}
+					if (minSeq.size() == 1) {
+						enText.append("Please ").append("Start ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color)
+								.append(" to resolve the crash.\n");
+						chText.append("请 ").append("启动 ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color)
+								.append("以消除撞车事故。\n");
+					}
+					else {
+						enText.append("Please ").append("Start ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color);
+						chText.append("请依次 ").append("启动 ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color);
+						for (int i = 1;i < minSeq.size();i++) {
+							enText.append(", ").append(minSeq.get(i).name, minSeq.get(i).icon.color);
+							chText.append("，").append(minSeq.get(0).name, minSeq.get(0).icon.color);
+						}
+						enText.append(" in sequence to resolve the crash.\n");
+						chText.append("以消除撞车事故。\n");
+					}
+				}
+				else { //two solutions
+					Iterator<Car> iter2 = seqs.keySet().iterator();
+					Car car1 = iter2.next(), car2 = iter2.next();
+					enText.append("Please ").append("Start ", true).append(car1.name, car1.icon.color).append(" or ")
+							.append(car2.name, car2.icon.color).append(" to resolve the crash.\n");
+					chText.append("请 ").append("启动 ", true).append(car1.name, car1.icon.color).append(" 或 ")
+							.append(car2.name, car2.icon.color).append("以消除撞车事故。\n");
+				}
+
+				enText.append("After", true).append(" the crash is resolved, click ").append("Start all", true).append(" button to start all cars.\n");
+				chText.append("在撞车事故消除").append("以后", true).append("，点击 ").append("全启动", true).append(" 按钮以启动所有车辆。\n");
+				Dashboard.log(enText, chText);
+			}
 		}
 		else{
 			carsWithoutFake.forEach(car -> {
@@ -390,6 +437,43 @@ public abstract class Road extends Location{
 
 			Dashboard.hideCrashEffect(this);
 		}
+	}
+
+	private List<Car> resolveCrashChain(Car crashedCar) {
+		Stack<Car> stack = new Stack<>();
+		stack.push(crashedCar);
+		Road nextRoad = stack.peek().loc.adjRoads.get(stack.peek().dir);
+		while (!nextRoad.cars.isEmpty()) {
+			int normal = 0;
+			List<Car> carsAhead = new ArrayList<>(nextRoad.cars);
+			for (Car carAhead : carsAhead) {
+				if (carAhead.hasPhantom()) {
+					Sensor sensor = carAhead.loc.adjSensors.get(carAhead.dir);
+					Middleware.checkConsistency(carAhead.name, carAhead.getState(), sensor.prevRoad.name,
+							sensor.nextRoad.name, sensor.nextSensor.nextRoad.name, System.currentTimeMillis(),
+							carAhead, sensor, false, true);
+				}
+				else {
+					stack.push(carAhead);
+					normal++;
+				}
+			}
+			if (normal == 0)
+				break;
+			else if (normal == 1)
+				nextRoad = stack.peek().loc.adjRoads.get(stack.peek().dir);
+			else
+				try {
+					throw new Exception("One crash in front of another!");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+		}
+
+		List<Car> sequence = new ArrayList<>(stack.size());
+		while (!stack.isEmpty())
+			sequence.add(stack.pop());
+		return sequence;
 	}
 
 	public static class Crossroad extends Road {

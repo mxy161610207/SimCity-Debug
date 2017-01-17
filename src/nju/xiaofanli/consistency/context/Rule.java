@@ -21,6 +21,7 @@ public class Rule {
     private String name;
     private Formula formula, initialFormula;//һ���߼���ʽ
     private String explanInEn, explanInCh;
+    private boolean isInUse = false;
     private int violatedTimes;
     //    @SuppressWarnings("unused")
 //	private static Log logger = LogFactory.getLog(Rule.class.getId());
@@ -61,8 +62,17 @@ public class Rule {
 	
 	public void reset() {
 		formula = initialFormula.createInitialFormula();
+        isInUse = false;
 		violatedTimes = 0;
 	}
+
+	public void setInUse() {
+	    isInUse = true;
+    }
+
+	public boolean isInUse() {
+	    return isInUse;
+    }
 
 	public int getViolatedTimes() {
 	    return violatedTimes;

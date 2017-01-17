@@ -1,3 +1,3 @@
+btspp://00066661AA61:1;authenticate=true;encrypt=true
 btspp://000666619F38:1;authenticate=true;encrypt=true
 btspp://00066661A901:1;authenticate=true;encrypt=true
-btspp://00066661AA61:1;authenticate=true;encrypt=true

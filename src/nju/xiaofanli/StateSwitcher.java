@@ -112,10 +112,15 @@ public class StateSwitcher {
         setState(State.NORMAL);
     }
 
-    public static void startResetting(boolean locateAllCars, boolean locateNoCars, boolean locationAlreadyKnown){
+    public static void startResetting(boolean locateAllCars, boolean locateNoCars, boolean locationAlreadyKnown) {
+        startResetting(locateAllCars, locateNoCars, locationAlreadyKnown, null);
+    }
+
+    public static void startResetting(boolean locateAllCars, boolean locateNoCars, boolean locationAlreadyKnown, String disabledScenario) {
         resetTask.locateAllCars = locateAllCars;
         resetTask.locateNoCars = locateNoCars;
         resetTask.locationAlreadyKnown = locationAlreadyKnown;
+        resetTask.disabledScenario = disabledScenario;
         Resource.execute(resetTask);
     }
 
@@ -137,6 +142,7 @@ public class StateSwitcher {
         private Set<Car> cars2locate = new HashSet<>();
         private Map<Car, CarInfo> carInfo = new HashMap<>();
         private boolean locateAllCars, locateNoCars, locationAlreadyKnown;
+        private String disabledScenario;
         private Car car2locate = null;
         private long lastStopCmdTime;
         private Set<Car> locatedCars = new HashSet<>();
@@ -250,7 +256,18 @@ public class StateSwitcher {
             Dashboard.reset();
             setState(State.NORMAL);
 
+            if (disabledScenario != null) {
+                switch (disabledScenario) {
+                    case "ideal":
+                        Dashboard.log(new StyledText("Ideal scenario is disabled.\n"), new StyledText("理想场景已关闭。\n")); break;
+                    case "noisy":
+                        Dashboard.log(new StyledText("Noisy scenario is disabled.\n"), new StyledText("包含错误的场景已关闭。\n")); break;
+                    case "fixed":
+                        Dashboard.log(new StyledText("Fixed scenario is disabled.\n"), new StyledText("修复错误的场景已关闭。\n")); break;
+                }
+            }
             Dashboard.log(new StyledText("Initialization is complete.\n"), new StyledText("初始化完成。\n"));
+
             TrafficMap.checkCrash();
         }
 

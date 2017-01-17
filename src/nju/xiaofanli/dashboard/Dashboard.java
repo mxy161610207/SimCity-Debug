@@ -55,7 +55,7 @@ public class Dashboard extends JFrame{
     private static final JButton resetButton = new JButton("Reset");
     private static final JButton deviceButton = new JButton("Device");
     private static final JButton ruleButton = new JButton("Rule");
-    private static final JButton statsButton = new JButton("Stats");
+    private static final JButton statButton = new JButton("Stat");
     private static final JButton langButton = new JButton("中文");
     private static final JPanel deliveryPanel = new JPanel();
     private static final JButton startdButton = new JButton("Manually create a task");
@@ -164,8 +164,8 @@ public class Dashboard extends JFrame{
         deviceButton.setMargin(new Insets(0, 0, 0, 0));
         ruleButton.setFont(Resource.en16bold);
         ruleButton.setMargin(new Insets(0, 0, 0, 0));
-        statsButton.setFont(Resource.en16bold);
-        statsButton.setMargin(new Insets(0, 0, 0, 0));
+        statButton.setFont(Resource.en16bold);
+        statButton.setMargin(new Insets(0, 0, 0, 0));
         langButton.setFont(Resource.en16bold);
         langButton.setMargin(new Insets(0, 0, 0, 0));
         startdButton.setFont(Resource.en16bold);
@@ -579,12 +579,12 @@ public class Dashboard extends JFrame{
         });
 
         bgbc.gridx += bgbc.gridwidth;
-        buttonRowPanel.add(statsButton, bgbc);
-        statsButton.addActionListener(e -> {
-            if (statsDialog.isVisible())
-                statsDialog.setVisible(false);
+        buttonRowPanel.add(statButton, bgbc);
+        statButton.addActionListener(e -> {
+            if (statDialog.isVisible())
+                statDialog.setVisible(false);
             else
-                showStatsDialog();
+                showStatDialog();
         });
 
         bgbc.gridx += bgbc.gridwidth;
@@ -592,7 +592,7 @@ public class Dashboard extends JFrame{
         langButton.addActionListener(e -> switchLanguage());
 
         bgbc.gridx += bgbc.gridwidth;
-        buttonRowPanel.add(updateStatsTextPaneButton, bgbc);
+        buttonRowPanel.add(updateStatTextPaneButton, bgbc);
 
         bgbc.gridx += bgbc.gridwidth;
         buttonRowPanel.add(console, bgbc);
@@ -823,8 +823,8 @@ public class Dashboard extends JFrame{
             TrafficMap.showRealLocIconLabel(false);
 //            ruleButton.setVisible(false);
 //            ruleDialog.setVisible(false);
-            statsButton.setVisible(false);
-            statsDialog.setVisible(false);
+            statButton.setVisible(false);
+            statDialog.setVisible(false);
         });
 //        idealRadioButton.doClick();
 //        enableScenarioSelection(true);
@@ -849,8 +849,8 @@ public class Dashboard extends JFrame{
             TrafficMap.showRealLocIconLabel(true);
 //            ruleButton.setVisible(false);
 //            ruleDialog.setVisible(false);
-            statsButton.setVisible(false);
-            statsDialog.setVisible(false);
+            statButton.setVisible(false);
+            statDialog.setVisible(false);
         });
 
         fixedRadioButton.addActionListener(e -> {
@@ -872,7 +872,7 @@ public class Dashboard extends JFrame{
             TrafficMap.showFakeLocIconLabel(false);
             TrafficMap.showRealLocIconLabel(false);
 //            ruleButton.setVisible(true);
-            statsButton.setVisible(true);
+            statButton.setVisible(true);
         });
 
         scenariogbc.gridx += scenariogbc.gridwidth;
@@ -887,9 +887,23 @@ public class Dashboard extends JFrame{
                 Resource.getConnectedCars().forEach(car -> car.setAvailCmd(car.getAvailCmd()));
                 jchkAutoGenTasks.setEnabled(Delivery.MAX_SYS_DELIV_NUM > 0);
                 startdButton.setEnabled(Delivery.MAX_USER_DELIV_NUM > 0);
+
+                if (selectedScenario == idealRadioButton)
+                    Dashboard.log(new StyledText("Ideal scenario is enabled.\n"), new StyledText("理想场景已启用。\n"));
+                else if (selectedScenario == noisyRadioButton)
+                    Dashboard.log(new StyledText("Noisy scenario is enabled.\n"), new StyledText("包含错误的场景已启用。\n"));
+                else if (selectedScenario == fixedRadioButton)
+                    Dashboard.log(new StyledText("Fixed scenario is enabled.\n"), new StyledText("修复错误的场景已启用。\n"));
             }
             else {
-                StateSwitcher.startResetting(false, true, true);
+                String disabledScenario = null;
+                if (selectedScenario == idealRadioButton)
+                    disabledScenario = "ideal";
+                else if (selectedScenario == noisyRadioButton)
+                    disabledScenario = "noisy";
+                else if (selectedScenario == fixedRadioButton)
+                    disabledScenario = "fixed";
+                StateSwitcher.startResetting(false, true, true, disabledScenario);
             }
         });
 
@@ -1105,7 +1119,7 @@ public class Dashboard extends JFrame{
         resetButton.setText(useEnglish() ? "Reset" : "重置");
         deviceButton.setText(useEnglish() ? "Device" : "设备");
         ruleButton.setText(useEnglish() ? "Rule" : "规则");
-        statsButton.setText(useEnglish() ? "Stats" : "统计");
+        statButton.setText(useEnglish() ? "Stat" : "统计");
         langButton.setText(useEnglish() ? "中文" : "English"); //language switch button need to display the opposite text
 //        console.setText(useEnglish() ? "Console" : "控制台");
 
@@ -1156,10 +1170,10 @@ public class Dashboard extends JFrame{
 //            ruleTextPane.setCaretPosition(0); //roll to top
         ruleDialog.repaint();
 
-        statsDialog.setTitle(useEnglish() ? "Stats" : "统计");
-        ((TitledBorder) statsTextPane.getBorder()).setTitle(useEnglish() ? "Fixed error" : "已修复的错误");
-        updateStatsTextPane();
-        statsDialog.repaint();
+        statDialog.setTitle(useEnglish() ? "Stat" : "统计");
+        ((TitledBorder) statTextPane.getBorder()).setTitle(useEnglish() ? "Rule violation" : "规则违反");
+        updateStatTextPane();
+        statDialog.repaint();
 
         relocationDialog.setTitle(useEnglish() ? "Relocation" : "重定位");
         relocationDoneButton.setText(useEnglish() ? "Done" : "完成");
@@ -1183,9 +1197,9 @@ public class Dashboard extends JFrame{
         deviceDialog.setVisible(false);
     }
 
-    private static final JDialog ruleDialog = new JDialog((Dialog) null), statsDialog = new JDialog((Dialog) null);
-    private static final JTextPane ruleTextPane = new JTextPane(), statsTextPane = new JTextPane();
-    private static final JButton updateStatsTextPaneButton = new JButton();
+    private static final JDialog ruleDialog = new JDialog((Dialog) null), statDialog = new JDialog((Dialog) null);
+    private static final JTextPane ruleTextPane = new JTextPane(), statTextPane = new JTextPane();
+    private static final JButton updateStatTextPaneButton = new JButton();
     static {
         JScrollPane scrollPane = new JScrollPane(ruleTextPane);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -1199,18 +1213,18 @@ public class Dashboard extends JFrame{
         ruleDialog.setContentPane(scrollPane);
         ruleDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
 
-        statsTextPane.setBorder(BorderFactory.createTitledBorder("Fixed error"));
-        ((TitledBorder) statsTextPane.getBorder()).setTitleFont(Resource.en16bold);
-        statsTextPane.setEditable(false);
-        statsTextPane.setBackground(Color.WHITE);
-        statsTextPane.setFont(Resource.en17plain);
-        statsDialog.setTitle("Stats");
-        statsDialog.setContentPane(statsTextPane);
-        statsDialog.setResizable(false);
-        statsDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        statTextPane.setBorder(BorderFactory.createTitledBorder("Rule violation"));
+        ((TitledBorder) statTextPane.getBorder()).setTitleFont(Resource.en16bold);
+        statTextPane.setEditable(false);
+        statTextPane.setBackground(Color.WHITE);
+        statTextPane.setFont(Resource.en17plain);
+        statDialog.setTitle("Stat");
+        statDialog.setContentPane(statTextPane);
+        statDialog.setResizable(false);
+        statDialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
 
-        updateStatsTextPaneButton.setVisible(false);
-        updateStatsTextPaneButton.addActionListener(e -> updateStatsTextPane());
+        updateStatTextPaneButton.setVisible(false);
+        updateStatTextPaneButton.addActionListener(e -> updateStatTextPane());
     }
 
     private static void showRuleDialog() {
@@ -1247,44 +1261,60 @@ public class Dashboard extends JFrame{
         }
     }
 
-    private static void showStatsDialog() {
-        synchronized (statsDialog) {
-            updateStatsTextPane();
-//            statsDialog.setPreferredSize(new Dimension((int) (statsDialog.getContentPane().getPreferredSize().getWidth()),
+    private static void showStatDialog() {
+        synchronized (statDialog) {
+            updateStatTextPane();
+//            statDialog.setPreferredSize(new Dimension((int) (statDialog.getContentPane().getPreferredSize().getWidth()),
 //                    (int) controlPanelDimension.getHeight() / 2));
-            statsDialog.pack();
-            if (!statsDialog.isVisible()) {
-                statsTextPane.setCaretPosition(0);
-                statsDialog.setVisible(true);
+            statDialog.pack();
+            if (!statDialog.isVisible()) {
+                statTextPane.setCaretPosition(0);
+                statDialog.setVisible(true);
             }
         }
     }
 
-    private static Comparator<Rule> ruleComparator = (r1, r2) -> r2.getViolatedTimes() - r1.getViolatedTimes();
-    private static void updateStatsTextPane() {
+    private static Comparator<Rule> ruleComparator = (r1, r2) -> {
+        int res = r2.getViolatedTimes() - r1.getViolatedTimes();
+        return res != 0 ? res : r1.getName().hashCode() - r2.getName().hashCode();
+    };
+    private static void updateStatTextPane() {
         StyledText text = new StyledText();
-        List<Rule> descSorted = new ArrayList<>(Middleware.getRules().values());
-        descSorted.sort(ruleComparator);
-        boolean[] firstLine = new boolean[]{ true };
-        descSorted.forEach(rule -> {
-            if (firstLine[0])
-                firstLine[0] = false;
+        List<Rule> inUse = new ArrayList<>(), unused = new ArrayList<>();
+        Middleware.getRules().values().forEach(rule -> {
+            if (rule.isInUse())
+                inUse.add(rule);
             else
-                text.append("\n");
+                unused.add(rule);
+        });
+        inUse.sort(ruleComparator);
+        unused.sort(ruleComparator);
+        boolean[] firstLine = new boolean[]{ true };
+        inUse.forEach(rule -> {
+            if (firstLine[0]) firstLine[0] = false;
+            else text.append("\n");
+
             text.append(rule.getName(), true).append("\t").append(Integer.toString(rule.getViolatedTimes()), true);
         });
+        unused.forEach(rule -> {
+            if (firstLine[0]) firstLine[0] = false;
+            else text.append("\n");
 
-        synchronized (statsTextPane) {
-            statsTextPane.setText("");
-            append2pane(text, statsTextPane);
+            text.append(rule.getName(), Resource.DISABLE_GRAY, true).append("\t")
+                    .append(Integer.toString(rule.getViolatedTimes()), Resource.DISABLE_GRAY, true);
+        });
+
+        synchronized (statTextPane) {
+            statTextPane.setText("");
+            append2pane(text, statTextPane);
         }
     }
 
     public static void updateFixedError() {
-        updateStatsTextPaneButton.doClick();
-//        if (statsDialog.isVisible()) {
+        updateStatTextPaneButton.doClick();
+//        if (statDialog.isVisible()) {
 //            updateRuleTextPane();
-//            statsDialog.pack();
+//            statDialog.pack();
 //        }
     }
 
@@ -1417,29 +1447,6 @@ public class Dashboard extends JFrame{
         dialog.setLocationRelativeTo(null);
         dialog.pack();
         dialog.setVisible(true);
-    }
-
-    public static void logCrashEvent(List<Car> cars) {
-        if (cars == null || cars.isEmpty())
-            return;
-
-        StyledText enText = new StyledText(), chText = new StyledText();
-        enText.append("Please select ").append(cars.get(0).name, cars.get(0).icon.color);
-        chText.append("请选择 ").append(cars.get(0).name, cars.get(0).icon.color);
-        for (int i = 1;i < cars.size();i++) {
-            enText.append(", or ").append(cars.get(i).name, cars.get(i).icon.color);
-            chText.append("，或 ").append(cars.get(i).name, cars.get(i).icon.color);
-        }
-        enText.append(", and click ").append("Start", true).append(" button to resolve the crash.\n");
-        chText.append("，接着点击 ").append("启动", true).append(" 按钮以消除撞车事故。\n");
-        Dashboard.log(enText, chText);
-
-//        JTextPane pane = new JTextPane();
-//        pane.setBackground(null);
-//        pane.setEditable(false);
-//        pane.setFont(Resource.en17plain);
-//        Dashboard.append2pane(strings, pane);
-//        JOptionPane.showMessageDialog(Dashboard.getInstance(), pane, "Recover from the crash", JOptionPane.PLAIN_MESSAGE, null);
     }
 
     public static Road getNearestRoad(int x, int y){
@@ -1677,7 +1684,7 @@ public class Dashboard extends JFrame{
         updateVehicleConditionPanel();
         logPane.setText("");
         logs.values().forEach(List::clear);
-        updateStatsTextPane();
+        updateStatTextPane();
 
         enableStartCarButton(false);
         enableStopCarButton(false);

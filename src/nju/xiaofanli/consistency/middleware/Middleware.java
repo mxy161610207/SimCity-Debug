@@ -92,7 +92,7 @@ public class Middleware {
         checkConsistency(getContext(car, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, isRealCar, triggerEvent));
     }
 
-    public static void checkConsistency(Context context) {
+    public static synchronized void checkConsistency(Context context) {
         Car car = (Car) context.getFields().get("carObj");
         Sensor sensor = (Sensor) context.getFields().get("sensor");
         long time = (long) context.getFields().get("timestamp");
@@ -185,7 +185,7 @@ public class Middleware {
     /**
      * Only called in the initial phase, directly add true contexts to patterns
      */
-    public static void addInitialContext(Object car, Object state,
+    public static synchronized void addInitialContext(Object car, Object state,
                                          Object prev_loc, Object cur_loc, Object next_loc, Object timestamp, Car carObj, Sensor sensor) {
         Context context = getContext(car, state, prev_loc, cur_loc, next_loc, timestamp, carObj, sensor, false, true);
         Map<Rule, List<ContextChange>> changes = getChanges(context);

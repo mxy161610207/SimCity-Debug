@@ -216,7 +216,7 @@
 
     <rule>
         <id>rule_07</id>
-        <explanation en="An orange car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+        <explanation en="An orange car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="橘色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="orange_car3">
@@ -248,7 +248,7 @@
 
     <rule>
         <id>rule_08</id>
-        <explanation en="A green car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+        <explanation en="A green car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="绿色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="green_car3">
@@ -280,7 +280,7 @@
 
     <rule>
         <id>rule_09</id>
-        <explanation en="A black car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+        <explanation en="A black car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="黑色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="black_car3">
@@ -312,7 +312,7 @@
 
     <rule>
         <id>rule_10</id>
-        <explanation en="A white car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+        <explanation en="A white car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="白色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="white_car3">
@@ -344,7 +344,7 @@
 
     <rule>
         <id>rule_11</id>
-        <explanation en="A red car must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+        <explanation en="A red car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="红色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="red_car3">
@@ -376,7 +376,7 @@
 
     <rule>
         <id>rule_12</id>
-        <explanation en="A silver SUV must enter streets in topological order. For instance, the car cannot skip the current street and directly enter the next one."
+        <explanation en="A silver SUV must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="银色小车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
             <forall var="v1" in="silver_suv3">

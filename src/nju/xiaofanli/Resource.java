@@ -44,6 +44,7 @@ public class Resource {
     private static final Color LIGHT_GREEN = new Color(0, 255, 127);
     public static final Color CHOCOLATE = new Color(139, 69, 19);
     public static final Color SNOW4 = new Color(139, 137, 137);
+	public static final Color DISABLE_GRAY = new Color(153, 153, 153);
     public static final Map<String, Map<String, Integer>> timeouts = new HashMap<>();
 
     //	private static Map<String, Session> sessions = new HashMap<>();
