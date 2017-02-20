@@ -248,7 +248,7 @@ public class RuleLoader {
         try { 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
             DocumentBuilder db = dbf.newDocumentBuilder(); 
-            Document document = db.parse(fileName); 
+            Document document = db.parse(RuleLoader.class.getResourceAsStream(fileName));
             
             //��ø�Ԫ�ؽ��
             Element root = document.getDocumentElement();

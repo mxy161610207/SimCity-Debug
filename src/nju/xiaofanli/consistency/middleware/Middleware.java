@@ -24,9 +24,8 @@ import nju.xiaofanli.util.Pair;
 import nju.xiaofanli.util.StyledText;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -42,11 +41,11 @@ public class Middleware {
     private static boolean detectionEnabled = false, resolutionEnabled = false;
     static {
         Configuration.init("/nju/xiaofanli/consistency/config/System.properties");
-        Set<Pattern> patternSet = PatternLoader.parserXml("src/nju/xiaofanli/consistency/config/patterns.xml");
+        Set<Pattern> patternSet = PatternLoader.parserXml("/nju/xiaofanli/consistency/config/patterns.xml");
         for(Pattern pattern : patternSet)
             patterns.put(pattern.getId(), pattern);
 
-        Set<Rule> ruleSet = RuleLoader.parserXml("src/nju/xiaofanli/consistency/config/rules.xml");
+        Set<Rule> ruleSet = RuleLoader.parserXml("/nju/xiaofanli/consistency/config/rules.xml");
         for(Rule rule : ruleSet){
             rule.setInitialFormula();
             rules.put(rule.getName(), rule);
@@ -216,12 +215,12 @@ public class Middleware {
     public static void main(String[] args) {
         TrafficMap.getInstance();
         new Middleware();
-        File file = new File("src/nju/xiaofanli/consistency/config/test case.txt");
+//        File file = new File("src/nju/xiaofanli/consistency/config/test case.txt");
 
         Queue<String> list = new LinkedList<>();
-        if (file.exists() && file.isFile()) {
+//        if (file.exists() && file.isFile()) {
             try{
-                BufferedReader input = new BufferedReader(new FileReader(file));
+                BufferedReader input = new BufferedReader(new InputStreamReader(Middleware.class.getResourceAsStream("/nju/xiaofanli/consistency/config/test case.txt")));
                 String text;
                 while((text = input.readLine()) != null)
                     list.add(text);
@@ -230,7 +229,7 @@ public class Middleware {
             catch(IOException ioException){
                 System.err.println("File Error!");
             }
-        }
+//        }
 
         while(!list.isEmpty()){
             String testCase = list.poll();

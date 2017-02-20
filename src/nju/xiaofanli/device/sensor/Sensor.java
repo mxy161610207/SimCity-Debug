@@ -175,10 +175,10 @@ public class Sensor {
         static {
             balloons.put(false, new HashMap<>());
             balloons.put(true, new HashMap<>());
-            balloons.get(false).put(false, Resource.loadImage("res/red_balloon.png", WIDTH, HEIGHT));
-            balloons.get(false).put(true, Resource.loadImage("res/reversed_red_balloon.png", WIDTH, HEIGHT));
-            balloons.get(true).put(false, Resource.loadImage("res/green_balloon.png", WIDTH, HEIGHT));
-            balloons.get(true).put(true, Resource.loadImage("res/reversed_green_balloon.png", WIDTH, HEIGHT));
+            balloons.get(false).put(false, Resource.loadImage("/res/red_balloon.png", WIDTH, HEIGHT));
+            balloons.get(false).put(true, Resource.loadImage("/res/reversed_red_balloon.png", WIDTH, HEIGHT));
+            balloons.get(true).put(false, Resource.loadImage("/res/green_balloon.png", WIDTH, HEIGHT));
+            balloons.get(true).put(true, Resource.loadImage("/res/reversed_green_balloon.png", WIDTH, HEIGHT));
             WIDTH = balloons.get(false).get(false).getIconWidth();
             HEIGHT = balloons.get(false).get(false).getIconHeight();
         }

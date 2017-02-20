@@ -21,47 +21,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library name="dom4j-1.6.1.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/dom4j-1.6.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="commons-logging.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-logging.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="bluecove-2.1.0.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/bluecove-2.1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://$USER_HOME$/Downloads/bluecove-2.1.0-sources-all/bluecove/src/main/java" />
-          <root url="jar://$MODULE_DIR$/lib/bluecove-2.1.0.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="jsch-0.1.53.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jsch-0.1.53.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://$USER_HOME$/Downloads/jsch-0.1.53/src/main/java" />
-        </SOURCES>
-      </library>
-    </orderEntry>
     <orderEntry type="inheritedJdk" />
+    <orderEntry type="library" exported="" name="lib" level="project" />
   </component>
 </module>

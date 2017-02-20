@@ -273,11 +273,12 @@ public class Dashboard extends JFrame{
 
         Set<String> lastSelection = new HashSet<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader("last_car_selection.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(System.getProperty("java.io.tmpdir")+"simcity.car.selection.tmp"));
             String str;
             while ((str = br.readLine()) != null)
                 lastSelection.add(str);
             br.close();
+        } catch (FileNotFoundException ignored) {
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -291,7 +292,7 @@ public class Dashboard extends JFrame{
                     TrafficMap.cars.remove(car);
 
                 try {
-                    BufferedWriter bw = new BufferedWriter(new FileWriter("last_car_selection.txt"));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(System.getProperty("java.io.tmpdir")+"simcity.car.selection.tmp"));
                     String str = "";
                     for (Car c : TrafficMap.cars)
                         str += c.url + "\n";

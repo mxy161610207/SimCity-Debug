@@ -15,6 +15,9 @@ import nju.xiaofanli.device.sensor.Sensor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -49,79 +52,92 @@ public class Resource {
 
     //	private static Map<String, Session> sessions = new HashMap<>();
 	static{
-		GREEN_BALLOON_ICON = loadImage("res/green_balloon.png", Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
-		RED_BALLOON_ICON = loadImage("res/red_balloon.png", Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
-		BLACK_QUESTION_ICON = loadImage("res/black_question_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-		GREEN_CHECK_ICON = loadImage("res/green_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-		ORANGE_CHECK_ICON = loadImage("res/orange_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-		RED_X_ICON = loadImage("res/red_x_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
-        MOVING_ICON = new ImageIcon("res/play_icon.png");
-        STOP_ICON = new ImageIcon("res/stop_icon.png");
-        UP_ARROW_ICON = new ImageIcon("res/up_arrow.png");
-        DOWN_ARROW_ICON = new ImageIcon("res/down_arrow.png");
-        LEFT_ARROW_ICON = new ImageIcon("res/left_arrow.png");
-        RIGHT_ARROW_ICON = new ImageIcon("res/right_arrow.png");
-        QUESTION_MARK_ICON = new ImageIcon("res/question_mark_icon.png");
-		CROSSROAD_ICON = new ImageIcon("res/crossroad_icon.png");
-        STREET_ICON = new ImageIcon("res/street_icon.png");
-		CRASH_LETTERS = loadImage("res/crash_letters.png", TrafficMap.U3, TrafficMap.U3);
+		GREEN_BALLOON_ICON = loadImage("/res/green_balloon.png", Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
+		RED_BALLOON_ICON = loadImage("/res/red_balloon.png", Sensor.BalloonIcon.WIDTH, Sensor.BalloonIcon.HEIGHT);
+		BLACK_QUESTION_ICON = loadImage("/res/black_question_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		GREEN_CHECK_ICON = loadImage("/res/green_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		ORANGE_CHECK_ICON = loadImage("/res/orange_checked_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+		RED_X_ICON = loadImage("/res/red_x_mark.png", Dashboard.MARK_SIZE, Dashboard.MARK_SIZE);
+        MOVING_ICON = new ImageIcon(Resource.class.getResource("/res/play_icon.png"));
+        STOP_ICON = new ImageIcon(Resource.class.getResource("/res/stop_icon.png"));
+        UP_ARROW_ICON = new ImageIcon(Resource.class.getResource("/res/up_arrow.png"));
+        DOWN_ARROW_ICON = new ImageIcon(Resource.class.getResource("/res/down_arrow.png"));
+        LEFT_ARROW_ICON = new ImageIcon(Resource.class.getResource("/res/left_arrow.png"));
+        RIGHT_ARROW_ICON = new ImageIcon(Resource.class.getResource("/res/right_arrow.png"));
+        QUESTION_MARK_ICON = new ImageIcon(Resource.class.getResource("/res/question_mark_icon.png"));
+		CROSSROAD_ICON = new ImageIcon(Resource.class.getResource("/res/crossroad_icon.png"));
+        STREET_ICON = new ImageIcon(Resource.class.getResource("/res/street_icon.png"));
+		CRASH_LETTERS = loadImage("/res/crash_letters.png", TrafficMap.U3, TrafficMap.U3);
 
         CAR_ICONS.put(Car.BLACK, new ImageIcon[]{
-                loadImage("res/black_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/black_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/black_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("res/black_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/black_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/black_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+                loadImage("/res/black_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/black_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/black_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("/res/black_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/black_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/black_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.GREEN, new ImageIcon[]{
-                loadImage("res/green_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/green_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/green_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("res/green_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/green_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/green_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+                loadImage("/res/green_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/green_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/green_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("/res/green_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/green_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/green_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.ORANGE, new ImageIcon[]{
-                loadImage("res/orange_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/orange_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/orange_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("res/orange_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/orange_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/orange_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+                loadImage("/res/orange_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/orange_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/orange_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("/res/orange_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/orange_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/orange_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.RED, new ImageIcon[]{
-                loadImage("res/red_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/red_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("res/red_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/red_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/red_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+                loadImage("/res/red_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/red_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("/res/red_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/red_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/red_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.SILVER, new ImageIcon[]{
-                loadImage("res/silver_suv_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/silver_suv_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/silver_suv_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("res/silver_suv_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/silver_suv_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/silver_suv_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+                loadImage("/res/silver_suv_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/silver_suv_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/silver_suv_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("/res/silver_suv_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/silver_suv_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/silver_suv_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
         CAR_ICONS.put(Car.WHITE, new ImageIcon[]{
-                loadImage("res/white_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/white_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("res/white_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("res/white_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/white_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("res/white_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+                loadImage("/res/white_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/white_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+                loadImage("/res/white_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage("/res/white_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/white_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage("/res/white_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
         });
 
 		try {
 			//use ssh-keyscan $IP >> brick/known_hosts
-			JSCH.setKnownHosts("brick/known_hosts");
-            JSCH.addIdentity("brick/id_rsa");
+			JSCH.setKnownHosts(Resource.class.getResourceAsStream("/known_hosts"));
 		} catch (JSchException e) {
 			e.printStackTrace();
-		} 
+		}
+		try {
+			InputStream in = Resource.class.getResourceAsStream("/id_rsa");
+			String filename = System.getProperty("java.io.tmpdir")+"simcity.brick.key.tmp";
+			FileOutputStream fos = new FileOutputStream(filename);
+			byte[] b = new byte[1024];
+			int bytes;
+			while ((bytes = in.read(b)) != -1)
+				fos.write(b, 0, bytes);
+			in.close();
+			fos.close();
+			JSCH.addIdentity(filename);
+		} catch (IOException | JSchException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void execute(Runnable command){
@@ -269,8 +285,12 @@ public class Resource {
 	}
 
 	public static ImageIcon loadImage(String filename, int width, int height) {
-		return loadImage(new ImageIcon(filename), width, height);
+		return loadImage(new ImageIcon(Resource.class.getResource(filename)), width, height);
 	}
+
+//	public static ImageIcon loadImage(URL url, int width, int height) {
+//		return loadImage(new ImageIcon(url), width, height);
+//	}
 
     public static ImageIcon loadImage(ImageIcon imageIcon, int width, int height) {
         Image image = imageIcon.getImage();

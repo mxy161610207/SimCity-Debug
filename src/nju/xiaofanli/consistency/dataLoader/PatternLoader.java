@@ -106,8 +106,7 @@ public class PatternLoader {
         try { 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
             DocumentBuilder db = dbf.newDocumentBuilder(); 
-            Document document = db.parse(fileName); 
-            
+            Document document = db.parse(PatternLoader.class.getResourceAsStream(fileName));
             //��ø�Ԫ�ؽ��
 //            Element root = document.getDocumentElement();
 //            patterns = (ArrayList<Pattern>)parseElement(root);

@@ -69,8 +69,9 @@ public class Main {
 			return;
 		SAXReader reader = new SAXReader();
 		Document doc;
+//		System.out.println(Main.class.getResource("/"+ConfigGenerator.FILE));
 		try {
-			doc = reader.read(new File(ConfigGenerator.FILE));
+			doc = reader.read(Main.class.getResourceAsStream("/" + ConfigGenerator.FILE));
 		} catch (DocumentException e) {
 			e.printStackTrace();
 			return;
@@ -112,12 +113,7 @@ public class Main {
 
 	private static void readTimeout() {
         BufferedReader br;
-		try {
-			br = new BufferedReader(new FileReader("timeout.txt"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-            return;
-		}
+		br = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("/timeout.txt")));
 
 		String line;
         try {
