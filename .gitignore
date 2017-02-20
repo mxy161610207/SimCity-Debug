@@ -1,5 +1,6 @@
 brick/id_rsa
-res/Thumbs.db
+src/res/Thumbs.db
 bin/
+classes/
 .idea/workspace.xml
 .idea/tasks.xml
