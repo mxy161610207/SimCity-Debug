@@ -16,9 +16,9 @@ import java.util.Queue;
 
 public class Delivery {
 	public static final Queue<DeliveryTask> searchTasks = new LinkedList<>();
-	public static final Set<DeliveryTask> deliveryTasks = new HashSet<>();
-	private static int taskid = 0;
-	public static boolean allBusy = false;
+    public static final Set<DeliveryTask> deliveryTasks = new HashSet<>();
+    private static int taskid = 0;
+    public static boolean allBusy = false;
     public static int MAX_USER_DELIV_NUM, MAX_SYS_DELIV_NUM;
     private static int userDelivNum = 0, sysDelivNum = 0;
     public static int completedUserDelivNum = 0, completedSysDelivNum = 0;
@@ -28,6 +28,7 @@ public class Delivery {
         updateDeliveryLimit();
 		new Thread(carSearcher, "Car Searcher").start();
 		new Thread(carMonitor, "Car Monitor").start();
+		new Thread(carPusher, "Car Pusher").start();
 	}
 
 	public static void updateDeliveryLimit() {
@@ -156,162 +157,185 @@ public class Delivery {
 		}
 	};
 	
-	private Runnable carMonitor = () -> {
-        Thread thread = Thread.currentThread();
-        StateSwitcher.register(thread);
-		//noinspection InfiniteLoopStatement
-		while(true){
-            synchronized (deliveryTasks) {
-                while(deliveryTasks.isEmpty() || !StateSwitcher.isNormal()) {
-                    try {
-                        deliveryTasks.wait();
-                    } catch (InterruptedException e) {
+	private Runnable carMonitor = new Runnable() {
+        @Override
+        public void run() {
+            Thread thread = Thread.currentThread();
+            StateSwitcher.register(thread);
+            //noinspection InfiniteLoopStatement
+            while(true){
+                synchronized (deliveryTasks) {
+                    while(deliveryTasks.isEmpty() || !StateSwitcher.isNormal()) {
+                        try {
+                            deliveryTasks.wait();
+                        } catch (InterruptedException e) {
 //							e.printStackTrace();
-                        if (StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
-                            clearDeliveryTasks();
+                            if (StateSwitcher.isResetting() && !StateSwitcher.isThreadReset(thread))
+                                clearDeliveryTasks();
+                        }
                     }
                 }
-            }
 
-            synchronized (deliveryTasks) {
-                for(Iterator<DeliveryTask> iter = deliveryTasks.iterator();iter.hasNext();){
-                    DeliveryTask dt = iter.next();
-                    if(dt.phase == DeliveryTask.COMPLETED && System.currentTimeMillis() - dt.startTime > 3000) {
-                        iter.remove();
-                        allBusy = false;
-                        completedSysDelivNum++;
-                        if(dt.manual) {
-                            userDelivNum--;
-                            Dashboard.enableDeliveryButton(true);
-                        }
-                        else {
-                            sysDelivNum--;
-                            if(autoGenTasks)
-                                autoGenTasks();
-                        }
-                        if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
-                            EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt));
-                        Dashboard.updateDeliveryTaskPanel();
-                        continue;
-                    }
-                    Car car = dt.car;
-                    if (car.loc == car.dest && car.getState() == Car.STOPPED
-                            && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
-                        //head for the src
-                        if(dt.phase == DeliveryTask.HEAD4SRC){
-                            dt.phase = DeliveryTask.HEAD4DEST;
-                            car.dest = dt.dest instanceof Road ? (Road)dt.dest : selectNearestRoad(car.loc, car.dir, ((Building)dt.dest).addrs);
-                            car.setLoading(false);
-
-                            if(dt.citizen != null && dt.citizen.state == Citizen.Action.HailATaxi) {
-                                car.passenger = dt.citizen;
-                                dt.citizen.car = car;
-                                dt.citizen.setAction(Citizen.Action.TakeATaxi);
-                                StyledText enText = new StyledText(), chText = new StyledText();
-                                if (dt.manual) {
-                                    enText.append("[M] ");
-                                    chText.append("[M] ");
-                                }
-                                enText.append(car.name, car.icon.color).append(" picks up ").append(dt.citizen.name, dt.citizen.icon.color)
-                                        .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
-                                chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
-                                        .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 上车。\n");
-                                Dashboard.log(enText, chText);
+                synchronized (deliveryTasks) {
+                    for(Iterator<DeliveryTask> iter = deliveryTasks.iterator();iter.hasNext();){
+                        DeliveryTask dt = iter.next();
+                        if(dt.phase == DeliveryTask.COMPLETED && System.currentTimeMillis() - dt.startTime > 3000) {
+                            iter.remove();
+                            allBusy = false;
+                            completedSysDelivNum++;
+                            if(dt.manual) {
+                                userDelivNum--;
+                                Dashboard.enableDeliveryButton(true);
                             }
-                            //trigger end loading event
-                            if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
-                                EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
+                            else {
+                                sysDelivNum--;
+                                if(autoGenTasks)
+                                    autoGenTasks();
+                            }
+                            if(EventManager.hasListener(Event.Type.DELIVERY_COMPLETED))
+                                EventManager.trigger(new Event(Event.Type.DELIVERY_COMPLETED, dt));
+                            Dashboard.updateDeliveryTaskPanel();
+                            continue;
+                        }
+                        Car car = dt.car;
+                        if (car.loc == car.dest && car.getState() == Car.STOPPED
+                                && System.currentTimeMillis() - Math.max(car.stopTime, dt.startTime) > 3000) {
+                            //head for the src
+                            if(dt.phase == DeliveryTask.HEAD4SRC){
+                                dt.phase = DeliveryTask.HEAD4DEST;
+                                car.dest = dt.dest instanceof Road ? (Road)dt.dest : selectNearestRoad(car.loc, car.dir, ((Building)dt.dest).addrs);
+                                car.setLoading(false);
 
-                            if(car.dest == car.loc){
-                                car.setLoading(true);
-                                dt.startTime = System.currentTimeMillis();
-								Command.send(car, Command.WHISTLE2);
-                                //trigger start unloading event
-                                if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
-                                    EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
+                                if(dt.citizen != null && dt.citizen.state == Citizen.Action.HailATaxi) {
+                                    car.passenger = dt.citizen;
+                                    dt.citizen.car = car;
+                                    dt.citizen.setAction(Citizen.Action.TakeATaxi);
+                                    StyledText enText = new StyledText(), chText = new StyledText();
+                                    if (dt.manual) {
+                                        enText.append("[M] ");
+                                        chText.append("[M] ");
+                                    }
+                                    enText.append(car.name, car.icon.color).append(" picks up ").append(dt.citizen.name, dt.citizen.icon.color)
+                                            .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                                    chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
+                                            .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 上车。\n");
+                                    Dashboard.log(enText, chText);
+                                }
+                                //trigger end loading event
+                                if(EventManager.hasListener(Event.Type.CAR_END_LOADING))
+                                    EventManager.trigger(new Event(Event.Type.CAR_END_LOADING, car.name, car.loc.name));
+
+                                if(car.dest == car.loc){
+                                    car.setLoading(true);
+                                    dt.startTime = System.currentTimeMillis();
+                                    Command.send(car, Command.WHISTLE2);
+                                    //trigger start unloading event
+                                    if(EventManager.hasListener(Event.Type.CAR_START_UNLOADING))
+                                        EventManager.trigger(new Event(Event.Type.CAR_START_UNLOADING, car.name, car.loc.name));
 //                                Dashboard.log(car.name+" reached destination");
-                                //trigger reach dest event
-                                if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
-                                    EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
-                            }
-                            else{
-                                car.notifyPolice(Police.REQUEST2ENTER);
-                            }
-                        }
-                        //head for the dest
-                        else if(dt.phase == DeliveryTask.HEAD4DEST){
-//                            iter.remove();
-                            dt.phase = DeliveryTask.COMPLETED;
-                            dt.startTime = System.currentTimeMillis();
-                            car.dt = null;
-                            car.dest = null;
-                            car.setLoading(false);
-
-                            car.notifyPolice(Police.REQUEST2ENTER);
-
-                            if(dt.citizen != null && dt.citizen.state == Citizen.Action.TakeATaxi){
-                                car.passenger = null;
-                                dt.citizen.car = null;
-                                dt.citizen.loc = car.loc;
-                                dt.citizen.setAction(Citizen.Action.GetOff);
-
-                                StyledText enText = new StyledText(), chText = new StyledText();
-                                if (dt.manual) {
-                                    enText.append("[M] ");
-                                    chText.append("[M] ");
+                                    //trigger reach dest event
+                                    if(EventManager.hasListener(Event.Type.CAR_REACH_DEST))
+                                        EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
                                 }
-                                enText.append(car.name, car.icon.color).append(" drops off ").append(dt.citizen.name, dt.citizen.icon.color)
-                                        .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
-                                chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
-                                        .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下车。\n");
-                                Dashboard.log(enText, chText);
+                                else{
+                                    car.notifyPolice(Police.REQUEST2ENTER);
+                                }
                             }
-                            //trigger end unloading event
-                            if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
-                                EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name, dt));
+                            //head for the dest
+                            else if(dt.phase == DeliveryTask.HEAD4DEST){
+//                            iter.remove();
+                                dt.phase = DeliveryTask.COMPLETED;
+                                dt.startTime = System.currentTimeMillis();
+                                car.dt = null;
+                                car.dest = null;
+                                car.setLoading(false);
+
+                                car.notifyPolice(Police.REQUEST2ENTER);
+
+                                if(dt.citizen != null && dt.citizen.state == Citizen.Action.TakeATaxi){
+                                    car.passenger = null;
+                                    dt.citizen.car = null;
+                                    dt.citizen.loc = car.loc;
+                                    dt.citizen.setAction(Citizen.Action.GetOff);
+
+                                    StyledText enText = new StyledText(), chText = new StyledText();
+                                    if (dt.manual) {
+                                        enText.append("[M] ");
+                                        chText.append("[M] ");
+                                    }
+                                    enText.append(car.name, car.icon.color).append(" drops off ").append(dt.citizen.name, dt.citizen.icon.color)
+                                            .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                                    chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
+                                            .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下车。\n");
+                                    Dashboard.log(enText, chText);
+                                }
+                                //trigger end unloading event
+                                if(EventManager.hasListener(Event.Type.CAR_END_UNLOADING))
+                                    EventManager.trigger(new Event(Event.Type.CAR_END_UNLOADING, car.name, car.loc.name, dt));
+                            }
+                            Dashboard.updateDeliveryTaskPanel();
+                            car.loc.iconPanel.repaint();
                         }
-                        Dashboard.updateDeliveryTaskPanel();
-                        car.loc.iconPanel.repaint();
                     }
                 }
-            }
-            if(!allBusy)
-                synchronized (searchTasks) {
-                    searchTasks.notify();
-                }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
+                if(!allBusy)
+                    synchronized (searchTasks) {
+                        searchTasks.notify();
+                    }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
 //                e.printStackTrace();
-				if(StateSwitcher.isResetting())
-				    thread.interrupt();
+                    if(StateSwitcher.isResetting())
+                        thread.interrupt();
+                }
+            }
+        }
+
+        private Road selectNearestRoad(Road start, TrafficMap.Direction dir, Set<Road> roads){
+            if(roads == null)
+                return null;
+            if(roads.contains(start))
+                return start;
+            Queue<Road> queue = new LinkedList<>();
+            queue.add(start.adjRoads.get(dir));
+            Road prev = start;
+            while(!queue.isEmpty()){
+                Road road = queue.poll();
+                if(roads.contains(road))
+                    return road;
+
+                Road next = road.entrance2exit.get(prev);
+                if(next == null)
+                    throw new NullPointerException();
+                if(next != start)
+                    queue.add(next);
+                prev = road;
+            }
+            return null;
+        }
+    };
+
+	private Runnable carPusher = () -> {
+        //noinspection InfiniteLoopStatement
+        while (true) {
+            if (StateSwitcher.isNormal()) {
+                Resource.getConnectedCars().forEach(car -> {
+                    //CAUTION: commonly, Delivery module cannot access and utilize the info of car's real/fake locations
+                    if (car.hasPhantom() && car.getState() == Car.STOPPED
+                            && System.currentTimeMillis() - car.stopTime > 10000) {
+                        car.notifyPolice(Police.REQUEST2ENTER);
+                    }
+                });
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     };
-	
-	private Road selectNearestRoad(Road start, TrafficMap.Direction dir, Set<Road> roads){
-		if(roads == null)
-			return null;
-		if(roads.contains(start))
-			return start;
-		Queue<Road> queue = new LinkedList<>();
-		queue.add(start.adjRoads.get(dir));
-		Road prev = start;
-		while(!queue.isEmpty()){
-			Road road = queue.poll();
-			if(roads.contains(road))
-				return road;
-			
-			Road next = road.entrance2exit.get(prev);
-            if(next == null)
-                throw new NullPointerException();
-			if(next != start)
-				queue.add(next);
-			prev = road;
-		}
-		return null;
-	}
-	
+
 	public static void add(DeliveryTask dtask){
 		if(dtask == null || StateSwitcher.isResetting())
 			return;

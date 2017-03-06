@@ -2,12 +2,10 @@ package nju.xiaofanli.device.sensor;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.consistency.context.Context;
 import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.device.car.Car;
-import nju.xiaofanli.util.StyledText;
 
 import java.util.*;
 

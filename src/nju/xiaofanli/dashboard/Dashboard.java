@@ -1645,7 +1645,7 @@ public class Dashboard extends JFrame{
     public static void playCrashSound(){
         if(playCrashSound){
             try {
-                AudioPlayer.player.start(new AudioStream(new FileInputStream("res/crash.wav")));
+                AudioPlayer.player.start(new AudioStream(Dashboard.class.getResourceAsStream("/res/crash.wav")));
             } catch (IOException e) {
                 e.printStackTrace();
             }

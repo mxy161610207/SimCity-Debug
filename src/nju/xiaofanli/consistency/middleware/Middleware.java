@@ -131,6 +131,8 @@ public class Middleware {
 //                    BrickHandler.switchState(car, sensor, isRealCar, true);
 //                break;
         }
+
+//        context.print();
 //        display();
     }
 

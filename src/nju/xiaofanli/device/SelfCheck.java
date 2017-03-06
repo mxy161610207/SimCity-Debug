@@ -52,11 +52,11 @@ public class SelfCheck{
             //noinspection InfiniteLoopStatement
             while (true){
                 long curTime = System.currentTimeMillis();
-                for(CarChecking thread : carCheckingThreads.values())
-                    if(thread.car.isConnected() && curTime - thread.lastRecvTime > 1500) {
-                        thread.lastRecvTime = Long.MAX_VALUE;
-                        thread.car.disconnect(); //TODO enable car checking
-                    }
+//                for(CarChecking thread : carCheckingThreads.values())
+//                    if(thread.car.isConnected() && curTime - thread.lastRecvTime > 1500) {
+//                        thread.lastRecvTime = Long.MAX_VALUE;
+//                        thread.car.disconnect(); //TODO enable car checking
+//                    }
 
 //                for(BrickChecking thread : brickCheckingThreads){
 //					if(thread.startTime > thread.endTime && curTime - thread.startTime > 8000){
@@ -71,7 +71,7 @@ public class SelfCheck{
                 }
             }
         };
-        new Thread(timer, "Checking Timer").start();
+//        new Thread(timer, "Checking Timer").start();
 
         while(!allReady()){
             synchronized (OBJ) {

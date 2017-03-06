@@ -38,7 +38,7 @@ public class BrickServer implements Runnable{
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
 				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
                 if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
-                    System.out.println("["+showingSensor.name+"] reading: "+d);
+                    System.out.println("["+showingSensor.name+"] reading: "+d+"\ttime: "+Long.parseLong(data.substring(4, 17)));
 //				if(((pre[bid][sid] + 1) % 100) != d)
 //					System.err.println("B"+bid+"S"+(sid+1)+":"+pre[bid][sid]+" "+d);
 //				pre[bid][sid] = d;
@@ -52,7 +52,8 @@ public class BrickServer implements Runnable{
 				}
 				else if(d != Integer.MAX_VALUE && d != 98) {
                     long time = Long.parseLong(data.substring(4, 17));
-//                    System.out.println("[B"+bid+"S"+(sid+1)+"] "+(System.currentTimeMillis()-time)*0.001);
+                    if (Math.abs(System.currentTimeMillis()-time) >= 2000)
+                    	System.err.println("[B"+bid+"S"+(sid+1)+"] "+(System.currentTimeMillis()-time));
                     BrickHandler.insert(bid, sid, d, time);
                 }
 			} catch (IOException e) {
