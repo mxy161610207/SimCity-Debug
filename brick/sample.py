@@ -63,8 +63,8 @@ while True:
                     print("%s: socket.error" % BID)
 
     if count == 0:
-        sync_sent = time.time()
         sync_id = sync_id + 1 if sync_id <= 98 else 0
+        sync_sent = time.time()
         s.sendto('{0:02d}{1:02d}'.format(sync_id, 99).encode(), ADDR) # clock synchronization request
     count = count + 1 if count <= 198 else 0 # one request per 200 * 0.05 s
     time.sleep(0.05)

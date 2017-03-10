@@ -230,6 +230,7 @@ public class Car {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                disconnect();
             }
         }
     }
