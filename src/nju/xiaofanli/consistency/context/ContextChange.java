@@ -6,9 +6,6 @@
 
 package nju.xiaofanli.consistency.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -22,11 +19,8 @@ public class ContextChange {
     
 	public final static int ADDITION = 1;
 	public final static int DELETION = 2;
-	
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(ContextChange.class.getName());
-    
-    public ContextChange(int type, Pattern pattern, Context context) {
+
+	public ContextChange(int type, Pattern pattern, Context context) {
     	this.type = type;
     	this.pattern = pattern;
     	this.context = context;

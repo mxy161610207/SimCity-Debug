@@ -1,4 +1,4 @@
-src/res/Thumbs.db
+runtime/res/Thumbs.db
 bin/
 classes/
 .idea/workspace.xml

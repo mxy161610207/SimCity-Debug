@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import nju.xiaofanli.control.Police;
+import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.dashboard.Building;

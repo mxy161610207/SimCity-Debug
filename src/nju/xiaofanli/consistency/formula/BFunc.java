@@ -33,9 +33,6 @@ public class BFunc extends Formula {
         }
     }
     
-//    @SuppressWarnings("unused")
-//	private  static Log logger = LogFactory.getLog(BFunc.class.getId());
-    
     public BFunc(String name) {
         super(name);
     }

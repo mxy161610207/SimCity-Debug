@@ -6,24 +6,20 @@
 
 package nju.xiaofanli.consistency.dataLoader;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import nju.xiaofanli.consistency.context.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -32,8 +28,6 @@ import org.xml.sax.SAXException;
  */
 
 public class PatternLoader {
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(RuleLoader.class.getName());
     
 /*    private static Object parseElement(Element element) {
         String tagName = element.getNodeName();
@@ -106,7 +100,7 @@ public class PatternLoader {
         try { 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
             DocumentBuilder db = dbf.newDocumentBuilder(); 
-            Document document = db.parse(PatternLoader.class.getResourceAsStream(fileName));
+            Document document = db.parse(fileName);
             //��ø�Ԫ�ؽ��
 //            Element root = document.getDocumentElement();
 //            patterns = (ArrayList<Pattern>)parseElement(root);

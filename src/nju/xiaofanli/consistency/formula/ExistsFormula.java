@@ -22,9 +22,6 @@ public class ExistsFormula extends Formula{
     private Formula subFormula;//�ӹ�ʽ
     private LinkedList<SubNode> subNodes = new LinkedList<>();
 
-//    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(ForallFormula.class.getId());
-
     public ExistsFormula(String name) {
         super(name);
         value = false;

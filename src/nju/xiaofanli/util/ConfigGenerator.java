@@ -13,7 +13,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 public class ConfigGenerator {
-	public static final String FILE = "config.xml";
+	public static final String FILE = "runtime/config.xml";
 	public static void main(String[] args) throws IOException{
 		Document doc = DocumentHelper.createDocument();
 		Element root = doc.addElement("config");
@@ -60,50 +60,50 @@ public class ConfigGenerator {
         building.addAttribute("name", "Stark Industries");
         building.addAttribute("type", Building.Type.StarkIndustries.toString());
         building.addAttribute("loc", "9");
-        building.addAttribute("icon", "res/stark_industries.png");
+        building.addAttribute("icon", "runtime/res/stark_industries.png");
 
         building = root.addElement("building");
         building.addAttribute("name", "Hospital");
         building.addAttribute("type", Building.Type.Hospital.toString());
         building.addAttribute("loc", "6");
-        building.addAttribute("icon", "res/hospital.png");
+        building.addAttribute("icon", "runtime/res/hospital.png");
 
         building = root.addElement("building");
         building.addAttribute("name", "School");
         building.addAttribute("type", Building.Type.School.toString());
         building.addAttribute("loc", "5");
-        building.addAttribute("icon", "res/nju.png");
+        building.addAttribute("icon", "runtime/res/nju.png");
 
         building = root.addElement("building");
         building.addAttribute("name", "Police Station");
         building.addAttribute("type", Building.Type.PoliceStation.toString());
         building.addAttribute("loc", "10");
-        building.addAttribute("icon", "res/shield.png");
+        building.addAttribute("icon", "runtime/res/shield.png");
 
         building = root.addElement("building");
         building.addAttribute("name", "Restaurant");
         building.addAttribute("type", Building.Type.Restaurant.toString());
         building.addAttribute("loc", "13");
-        building.addAttribute("icon", "res/java.png");
+        building.addAttribute("icon", "runtime/res/java.png");
 
         //citizen
         Element citizen = root.addElement("citizen");
         citizen.addAttribute("name", "Tony Stark");
         citizen.addAttribute("gender", Citizen.Gender.Male.toString());
         citizen.addAttribute("job", Citizen.Job.SuperHero.toString());
-        building.addAttribute("icon", "res/ironman.png");
+        building.addAttribute("icon", "runtime/res/ironman.png");
 
         citizen = root.addElement("citizen");
         citizen.addAttribute("name", "Tony Stark");
         citizen.addAttribute("gender", Citizen.Gender.Male.toString());
         citizen.addAttribute("job", Citizen.Job.SuperHero.toString());
-        building.addAttribute("icon", "res/ironman.png");
+        building.addAttribute("icon", "runtime/res/ironman.png");
 
         citizen = root.addElement("citizen");
         citizen.addAttribute("name", "Wade Wilson");
         citizen.addAttribute("gender", Citizen.Gender.Male.toString());
         citizen.addAttribute("job", Citizen.Job.SuperHero.toString());
-        building.addAttribute("icon", "res/deadpool.png");
+        building.addAttribute("icon", "runtime/res/deadpool.png");
 		
 		OutputFormat format = OutputFormat.createPrettyPrint();
 		XMLWriter writer = new XMLWriter(new FileWriter(FILE), format);

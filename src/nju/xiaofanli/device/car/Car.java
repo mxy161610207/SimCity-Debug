@@ -8,7 +8,7 @@ import nju.xiaofanli.dashboard.Citizen;
 import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.consistency.middleware.Middleware;
-import nju.xiaofanli.control.Police;
+import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.event.Event;

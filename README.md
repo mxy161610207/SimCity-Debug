@@ -6,7 +6,7 @@ It's actually a personal project.
 (or you can just set up Wi-Fi using the interface on the EV3 brick)
 1. Update .ssh/known_hosts on PC
 (connect EV3 via SSH at the first time to add it to the list of known hosts)
-1. Update brick/known_hosts<br/>
+1. Update runtime/known_hosts<br/>
    `user@pc:~/IdeaProjects/SimCity/brick$ ssh-keyscan $IP >> known_hosts`
 1. Copy PC's ssh public key to EV3 (both robot's and root's home)<br/>
    `robot@ev3dev:~$ mkdir .ssh`<br/>

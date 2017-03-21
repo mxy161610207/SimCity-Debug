@@ -2,7 +2,7 @@ package nju.xiaofanli.application;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
-import nju.xiaofanli.control.Police;
+import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.dashboard.*;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;

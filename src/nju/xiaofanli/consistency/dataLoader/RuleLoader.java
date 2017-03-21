@@ -6,28 +6,19 @@ package nju.xiaofanli.consistency.dataLoader;
  * and open the template in the editor.
  */
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import nju.xiaofanli.consistency.context.Rule;
+import nju.xiaofanli.consistency.formula.*;
+import nju.xiaofanli.consistency.middleware.Middleware;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import nju.xiaofanli.consistency.context.Rule;
-import nju.xiaofanli.consistency.middleware.Middleware;
-
-import nju.xiaofanli.consistency.formula.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Attr; 
-import org.w3c.dom.Document; 
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node; 
-import org.w3c.dom.NodeList; 
-import org.xml.sax.SAXException; 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /** 
 * 
@@ -39,10 +30,7 @@ import org.xml.sax.SAXException;
 public class RuleLoader {
     //Rule rules;
 	private static Set<Rule> rules = new HashSet<>();
-    
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(RuleLoader.class.getName());
-    
+
     private static Object parseElement(Element element, Rule argRule) {
         String tagName = element.getNodeName();
         NodeList children = element.getChildNodes();
@@ -248,7 +236,7 @@ public class RuleLoader {
         try { 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
             DocumentBuilder db = dbf.newDocumentBuilder(); 
-            Document document = db.parse(RuleLoader.class.getResourceAsStream(fileName));
+            Document document = db.parse(fileName);
             
             //��ø�Ԫ�ؽ��
             Element root = document.getDocumentElement();

@@ -1,4 +1,4 @@
-package nju.xiaofanli.control;
+package nju.xiaofanli.schedule;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;

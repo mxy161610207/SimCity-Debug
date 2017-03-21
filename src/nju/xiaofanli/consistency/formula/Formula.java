@@ -24,9 +24,6 @@ public abstract class Formula{
     protected Set<Link> links = new HashSet<>(); //�洢֮ǰ��links
     protected String goalLink;
     
-//    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(Formula.class.getId());
-    
     public Formula(String type) {
         this.type = type;
     }

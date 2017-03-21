@@ -6,14 +6,11 @@
 
 package nju.xiaofanli.consistency.formula;
 
+import nju.xiaofanli.consistency.context.ContextChange;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import nju.xiaofanli.consistency.context.ContextChange;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -23,9 +20,7 @@ import org.apache.commons.logging.LogFactory;
 public class OrFormula extends Formula {
     private Formula first; 
     private Formula second;
-    
-    public static Log logger = LogFactory.getLog(AndFormula.class.getName());
-    
+
     public OrFormula(String name) {
         super(name);
     }

@@ -10,9 +10,6 @@ package nju.xiaofanli.consistency.context;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author bingying
@@ -25,10 +22,7 @@ public class Pattern {
     private LinkedList<Context> contexts = new LinkedList<>();
     private int size = Integer.MAX_VALUE;
     private Rule rule;//assumption: a pattern can only be used by one rule
-    
-    @SuppressWarnings("unused")
-	private static Log logger = LogFactory.getLog(Pattern.class.getName());
-    
+
     public Pattern(String id) {
         this.id = id;
     }

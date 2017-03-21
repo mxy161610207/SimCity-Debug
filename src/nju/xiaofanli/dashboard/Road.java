@@ -2,7 +2,7 @@ package nju.xiaofanli.dashboard;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.consistency.middleware.Middleware;
-import nju.xiaofanli.control.Police;
+import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.dashboard.Road.Crossroad.CrossroadIcon;
 import nju.xiaofanli.dashboard.Road.Street.StreetIcon;
 import nju.xiaofanli.device.car.Car;

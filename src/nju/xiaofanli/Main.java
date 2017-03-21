@@ -3,7 +3,7 @@ import nju.xiaofanli.application.AppMonitor;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.VehicleConditionMonitor;
 import nju.xiaofanli.application.monitor.AppServer;
-import nju.xiaofanli.control.Police;
+import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.dashboard.*;
 import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.Car;
@@ -69,9 +69,9 @@ public class Main {
 			return;
 		SAXReader reader = new SAXReader();
 		Document doc;
-//		System.out.println(Main.class.getResource("/"+ConfigGenerator.FILE));
 		try {
-			doc = reader.read(Main.class.getResourceAsStream("/" + ConfigGenerator.FILE));
+//			doc = reader.read(Main.class.getResourceAsStream("/" + ConfigGenerator.FILE));
+			doc = reader.read(new File(ConfigGenerator.FILE));
 		} catch (DocumentException e) {
 			e.printStackTrace();
 			return;
@@ -112,8 +112,14 @@ public class Main {
 	}
 
 	private static void readTimeout() {
-        BufferedReader br;
-		br = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("/timeout.txt")));
+        BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader("runtime/timeout"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (br == null)
+			return;
 
 		String line;
         try {

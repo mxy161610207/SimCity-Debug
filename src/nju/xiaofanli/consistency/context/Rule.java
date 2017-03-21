@@ -23,8 +23,6 @@ public class Rule {
     private String explanInEn, explanInCh;
     private boolean isInUse = false;
     private int violatedTimes;
-    //    @SuppressWarnings("unused")
-//	private static Log logger = LogFactory.getLog(Rule.class.getId());
     
     public Rule(String name) {
         this.name = name;

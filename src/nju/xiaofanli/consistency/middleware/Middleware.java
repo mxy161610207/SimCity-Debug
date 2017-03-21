@@ -41,11 +41,11 @@ public class Middleware {
     private static boolean detectionEnabled = false, resolutionEnabled = false;
     static {
         Configuration.init("/nju/xiaofanli/consistency/config/System.properties");
-        Set<Pattern> patternSet = PatternLoader.parserXml("/nju/xiaofanli/consistency/config/patterns.xml");
+        Set<Pattern> patternSet = PatternLoader.parserXml("runtime/patterns.xml");
         for(Pattern pattern : patternSet)
             patterns.put(pattern.getId(), pattern);
 
-        Set<Rule> ruleSet = RuleLoader.parserXml("/nju/xiaofanli/consistency/config/rules.xml");
+        Set<Rule> ruleSet = RuleLoader.parserXml("runtime/rules.xml");
         for(Rule rule : ruleSet){
             rule.setInitialFormula();
             rules.put(rule.getName(), rule);

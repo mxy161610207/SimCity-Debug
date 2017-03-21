@@ -12,13 +12,6 @@
       <element id="directory" name=".settings">
         <element id="dir-copy" path="$PROJECT_DIR$/.settings" />
       </element>
-      <element id="directory" name="brick">
-        <element id="dir-copy" path="$PROJECT_DIR$/brick" />
-      </element>
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/dom4j-1.6.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch-0.1.53.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-logging.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/bluecove-2.1.1-SNAPSHOT.63.jar" path-in-jar="/" />
       <element id="file-copy" path="$PROJECT_DIR$/.classpath" />
       <element id="file-copy" path="$PROJECT_DIR$/.gitignore" />
       <element id="file-copy" path="$PROJECT_DIR$/.project" />

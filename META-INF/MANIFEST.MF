@@ -1,3 +1,5 @@
 Manifest-Version: 1.0
+Class-Path: runtime/lib/bluecove-2.1.1-SNAPSHOT.63.jar runtime/lib/dom
+ 4j-1.6.1.jar runtime/lib/jsch-0.1.53.jar
 Main-Class: nju.xiaofanli.Main
 

@@ -12,7 +12,7 @@ import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
 import nju.xiaofanli.consistency.context.Rule;
 import nju.xiaofanli.consistency.middleware.Middleware;
-import nju.xiaofanli.control.Police;
+import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.CmdSender;
 import nju.xiaofanli.device.car.Command;
@@ -273,7 +273,7 @@ public class Dashboard extends JFrame{
 
         Set<String> lastSelection = new HashSet<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(System.getProperty("java.io.tmpdir")+"simcity.car.selection.tmp"));
+            BufferedReader br = new BufferedReader(new FileReader("runtime/last_car_selection"));
             String str;
             while ((str = br.readLine()) != null)
                 lastSelection.add(str);
@@ -292,7 +292,7 @@ public class Dashboard extends JFrame{
                     TrafficMap.cars.remove(car);
 
                 try {
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(System.getProperty("java.io.tmpdir")+"simcity.car.selection.tmp"));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter("runtime/last_car_selection"));
                     String str = "";
                     for (Car c : TrafficMap.cars)
                         str += c.url + "\n";
@@ -621,17 +621,17 @@ public class Dashboard extends JFrame{
                     if (car == null) {
                         switch (name) {
                             case Car.RED:
-                                car = new Car(name, Road.roadOf("Street 5"), null, "res/red_car_icon.png"); break;
+                                car = new Car(name, Road.roadOf("Street 5"), null, "runtime/res/red_car_icon.png"); break;
                             case Car.BLACK:
-                                car = new Car(name, Road.roadOf("Street 16"), null, "res/black_car_icon.png"); break;
+                                car = new Car(name, Road.roadOf("Street 16"), null, "runtime/res/black_car_icon.png"); break;
                             case Car.WHITE:
-                                car = new Car(name, Road.roadOf("Street 8"), null, "res/white_car_icon.png"); break;
+                                car = new Car(name, Road.roadOf("Street 8"), null, "runtime/res/white_car_icon.png"); break;
                             case Car.ORANGE:
-                                car = new Car(name, Road.roadOf("Street 17"), null, "res/orange_car_icon.png"); break;
+                                car = new Car(name, Road.roadOf("Street 17"), null, "runtime/res/orange_car_icon.png"); break;
                             case Car.GREEN:
-                                car = new Car(name, Road.roadOf("Street 15"), null, "res/green_car_icon.png"); break;
+                                car = new Car(name, Road.roadOf("Street 15"), null, "runtime/res/green_car_icon.png"); break;
                             case Car.SILVER:
-                                car = new Car(name, Road.roadOf("Street 11"), null, "res/silver_suv_icon.png"); break;
+                                car = new Car(name, Road.roadOf("Street 11"), null, "runtime/res/silver_suv_icon.png"); break;
                         }
                         TrafficMap.cars.add(car);
                     }
@@ -1645,7 +1645,7 @@ public class Dashboard extends JFrame{
     public static void playCrashSound(){
         if(playCrashSound){
             try {
-                AudioPlayer.player.start(new AudioStream(Dashboard.class.getResourceAsStream("/res/crash.wav")));
+                AudioPlayer.player.start(new AudioStream(new FileInputStream("runtime/res/crash.wav")));
             } catch (IOException e) {
                 e.printStackTrace();
             }

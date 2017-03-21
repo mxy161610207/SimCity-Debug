@@ -22,8 +22,6 @@ public class ForallFormula extends Formula {
     private Formula subFormula;//�ӹ�ʽ
     private LinkedList<SubNode> subNodes = new LinkedList<>();
 
-//    public static Log logger = LogFactory.getLog(ForallFormula.class.getId());
-
     public ForallFormula(String name) {
         super(name);
         value = true;
