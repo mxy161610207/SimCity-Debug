@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="runtime/lib/bluecove-2.1.1-SNAPSHOT.63.jar"/>
+	<classpathentry kind="lib" path="runtime/lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="runtime/lib/jsch-0.1.53.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
