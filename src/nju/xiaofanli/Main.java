@@ -26,11 +26,6 @@ import java.util.List;
 public class Main {
 	public static void main(String[] args) {
 		StateSwitcher.init();
-//		try {
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//		} catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
-//			e.printStackTrace();
-//		}
 		readConfigFile();
 		Dashboard.loadSelectionUI(); //blocked until clicking the done button
 		Dashboard.loadCheckUI();
@@ -47,8 +42,6 @@ public class Main {
 		StateSwitcher.finishInit();
 		Dashboard.showInitDialog();
         TrafficMap.checkCrash(); // should never trigger crash, otherwise change cars' initial locations
-//		Dashboard.showCrashEffect(Resource.getRoad("Crossroad 2"));
-//		Resource.getBricks().forEach(name -> Dashboard.setDeviceStatus(name + " sample", true)); //TODO delete this
 	}
 
 	private static boolean addModule = false;

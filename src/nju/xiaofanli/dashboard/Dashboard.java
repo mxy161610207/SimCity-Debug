@@ -283,7 +283,7 @@ public class Dashboard extends JFrame{
             e.printStackTrace();
         }
         for (Car car : TrafficMap.allCars) {
-            JCheckBox jchk = new JCheckBox(car.name + " ("+car.url.substring(0, car.url.indexOf("1;")+1)+")");
+            JCheckBox jchk = new JCheckBox(car.name + " ("+car.url.substring(0, 22)+")");
             selectionPanel.add(jchk, gbc);
             jchk.addActionListener(e -> {
                 if (jchk.isSelected())
