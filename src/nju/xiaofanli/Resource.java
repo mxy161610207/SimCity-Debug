@@ -36,7 +36,7 @@ public class Resource {
 	private final static Map<String, Integer> brickSensorNum = new HashMap<>();
 	public final static ImageIcon GREEN_BALLOON_ICON, RED_BALLOON_ICON, BLACK_QUESTION_ICON, GREEN_CHECK_ICON,
 			ORANGE_CHECK_ICON, RED_X_ICON, MOVING_ICON, STOP_ICON, UP_ARROW_ICON, DOWN_ARROW_ICON, LEFT_ARROW_ICON,
-            RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON;
+            RIGHT_ARROW_ICON, QUESTION_MARK_ICON, CROSSROAD_ICON, STREET_ICON, NORMAL_CAR_ICON, FAKE_CAR_ICON, REAL_CAR_ICON;
     public final static Map<String, ImageIcon[]> CAR_ICONS = new HashMap<>();
 	public final static Map<String, ImageIcon> CITIZEN_ICONS = new HashMap<>();
 	public final static ImageIcon CRASH_LETTERS;
@@ -69,54 +69,9 @@ public class Resource {
         STREET_ICON = new ImageIcon("runtime/res/street_icon.png");
 		CRASH_LETTERS = loadImage("runtime/res/crash_letters.png", TrafficMap.U3, TrafficMap.U3);
 
-        CAR_ICONS.put(Car.BLACK, new ImageIcon[]{
-                loadImage("runtime/res/black_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/black_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/black_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("runtime/res/black_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/black_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/black_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
-        });
-        CAR_ICONS.put(Car.GREEN, new ImageIcon[]{
-                loadImage("runtime/res/green_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/green_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/green_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("runtime/res/green_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/green_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/green_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
-        });
-        CAR_ICONS.put(Car.ORANGE, new ImageIcon[]{
-                loadImage("runtime/res/orange_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/orange_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/orange_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("runtime/res/orange_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/orange_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/orange_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
-        });
-        CAR_ICONS.put(Car.RED, new ImageIcon[]{
-                loadImage("runtime/res/red_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/red_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/red_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("runtime/res/red_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/red_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/red_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
-        });
-        CAR_ICONS.put(Car.SILVER, new ImageIcon[]{
-                loadImage("runtime/res/silver_suv_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/silver_suv_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/silver_suv_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("runtime/res/silver_suv_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/silver_suv_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/silver_suv_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
-        });
-        CAR_ICONS.put(Car.WHITE, new ImageIcon[]{
-                loadImage("runtime/res/white_car_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/white_car_fake_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-                loadImage("runtime/res/white_car_real_icon.png", Car.CarIcon.SIZE, Car.CarIcon.SIZE),
-				loadImage("runtime/res/white_car_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/white_car_fake_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
-				loadImage("runtime/res/white_car_real_icon.png", Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
-        });
+		NORMAL_CAR_ICON = new ImageIcon("runtime/res/orange_car_icon.png");
+		FAKE_CAR_ICON = new ImageIcon("runtime/res/orange_car_fake_icon.png");
+		REAL_CAR_ICON = new ImageIcon("runtime/res/orange_car_real_icon.png");
 
 		try {
 			//use ssh-keyscan $IP >> runtime/known_hosts
@@ -253,6 +208,17 @@ public class Resource {
 	
 	public static ImageIcon getRedXImageIcon(){
 		return RED_X_ICON;
+	}
+
+	public static void addCarIcons(String name, String icon, String fakeIcon, String realIcon) {
+		CAR_ICONS.put(name, new ImageIcon[]{
+				loadImage(icon, Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage(fakeIcon, Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage(realIcon, Car.CarIcon.SIZE, Car.CarIcon.SIZE),
+				loadImage(icon, Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage(fakeIcon, Car.CarIcon.SIZE2, Car.CarIcon.SIZE2),
+				loadImage(realIcon, Car.CarIcon.SIZE2, Car.CarIcon.SIZE2)
+		});
 	}
 
 	public static Map<String, ImageIcon[]> getCarIcons() {

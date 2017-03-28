@@ -601,71 +601,15 @@ public class Dashboard extends JFrame{
             String cmd = console.getText();
             if(cmd.startsWith("add car ")){
                 String suffix = cmd.substring("add car ".length()).toLowerCase();
-                String name = null;
-                switch(suffix){
-                    case "r":case "red":case "red car":
-                        name = Car.RED; break;
-                    case "b":case "black":case "black car":
-                        name = Car.BLACK; break;
-                    case "w":case "white":case "white car":
-                        name = Car.WHITE; break;
-                    case "o":case "orange":case "orange car":
-                        name = Car.ORANGE; break;
-                    case "g":case "green":case "green car":
-                        name = Car.GREEN; break;
-                    case "s":case "silver":case "suv":case "silver suv":
-                        name = Car.SILVER; break;
-                }
-                if (name != null) {
-                    Car car = Car.carOf(name);
-                    if (car == null) {
-                        switch (name) {
-                            case Car.RED:
-                                car = new Car(name, Road.roadOf("Street 5"), null, "runtime/res/red_car_icon.png"); break;
-                            case Car.BLACK:
-                                car = new Car(name, Road.roadOf("Street 16"), null, "runtime/res/black_car_icon.png"); break;
-                            case Car.WHITE:
-                                car = new Car(name, Road.roadOf("Street 8"), null, "runtime/res/white_car_icon.png"); break;
-                            case Car.ORANGE:
-                                car = new Car(name, Road.roadOf("Street 17"), null, "runtime/res/orange_car_icon.png"); break;
-                            case Car.GREEN:
-                                car = new Car(name, Road.roadOf("Street 15"), null, "runtime/res/green_car_icon.png"); break;
-                            case Car.SILVER:
-                                car = new Car(name, Road.roadOf("Street 11"), null, "runtime/res/silver_suv_icon.png"); break;
+                for (Car car : TrafficMap.allCars) {
+                    if (car.name.toLowerCase().startsWith(suffix)) {
+                        if (!TrafficMap.cars.contains(car)) {
+                            TrafficMap.cars.add(car);
+                            car.init();
+                            Police.addCarInConsole(car);
                         }
-                        TrafficMap.cars.add(car);
+                        break;
                     }
-                    car.init();
-                    Police.addCarInConsole(car);
-                }
-            }
-            else if(cmd.startsWith("connect car ") || cmd.startsWith("disconnect car ")){
-                String name1 = cmd.substring(
-                        cmd.charAt(0) == 'c' ? "connect car ".length()
-                                : "disconnect car ".length()).toLowerCase();
-                String s;
-                switch(name1){
-                    case "r":case "red":case "red car":
-                        s = Car.RED;	break;
-                    case "b":case "black":case "black car":
-                        s = Car.BLACK;	break;
-                    case "w":case "white":case "white car":
-                        s = Car.WHITE;	break;
-                    case "o":case "orange":case "orange car":
-                        s = Car.ORANGE;	break;
-                    case "g":case "green":case "green car":
-                        s = Car.GREEN;	break;
-                    case "s":case "silver":case "suv":case "silver suv":
-                        s = Car.SILVER;	break;
-                    default:
-                        return;
-                }
-                Car car = Car.carOf(s);
-                if(car != null){
-                    if(cmd.charAt(0) == 'c')
-                        car.connect();
-                    else
-                        car.disconnect();
                 }
             }
             else if(cmd.equals("urge"))
@@ -703,25 +647,21 @@ public class Dashboard extends JFrame{
                 Delivery.DeliveryTask dt = new Delivery.DeliveryTask(TrafficMap.getALocation(), TrafficMap.getALocation(),
                         TrafficMap.getACitizen(), s.equals("u"));
                 Delivery.add(dt);
-//                if(dt.manual)
-//                    Delivery.completedUserDelivNum++;
-//                else
-//                    Delivery.completedSysDelivNum++;
             }
             else if(cmd.equals("all busy")){
                 Dashboard.log(new StyledText("All cars are busy!\n", Color.RED), new StyledText("所有车辆都被占用！\n", Color.RED));
             }
-            else if(cmd.equals("pick") || cmd.equals("drop")) {
-                String carName = Car.getACarName();
-                Citizen citizen = TrafficMap.getACitizen();
-                Location loc = TrafficMap.getALocation();
-                StyledText enText = new StyledText(), chText = new StyledText();
-                enText.append(carName, Car.colorOf(carName)).append(cmd.equals("pick") ? " picks up " : " drops off ")
-                        .append(citizen.name, citizen.icon.color).append(" at ").append(loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
-                chText.append(carName, Car.colorOf(carName)).append(" 让 ").append(citizen.name, citizen.icon.color)
-                        .append(" 在 ").append(loc.name, Resource.DEEP_SKY_BLUE).append(cmd.equals("pick") ? " 上车。\n" : " 下车。\n");
-                Dashboard.log(enText, chText);
-            }
+//            else if(cmd.equals("pick") || cmd.equals("drop")) {
+//                String carName = Car.getACarName();
+//                Citizen citizen = TrafficMap.getACitizen();
+//                Location loc = TrafficMap.getALocation();
+//                StyledText enText = new StyledText(), chText = new StyledText();
+//                enText.append(carName, Car.colorOf(carName)).append(cmd.equals("pick") ? " picks up " : " drops off ")
+//                        .append(citizen.name, citizen.icon.color).append(" at ").append(loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+//                chText.append(carName, Car.colorOf(carName)).append(" 让 ").append(citizen.name, citizen.icon.color)
+//                        .append(" 在 ").append(loc.name, Resource.DEEP_SKY_BLUE).append(cmd.equals("pick") ? " 上车。\n" : " 下车。\n");
+//                Dashboard.log(enText, chText);
+//            }
             else if(cmd.equals("wander")) {
                 for(Citizen citizen : Resource.getCitizens()) {
                     citizen.setAction(Citizen.Action.Wander);

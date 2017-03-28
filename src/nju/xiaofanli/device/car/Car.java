@@ -59,19 +59,12 @@ public class Car {
 	public static final int STOPPED = 0;
 	public static final int MOVING = 1;
 
-	public static final String SILVER = "Silver SUV";
-	public static final String GREEN = "Green Car";
-	public static final String RED = "Red Car";
-	public static final String WHITE = "White Car";
-	public static final String BLACK = "Black Car";
-	public static final String ORANGE = "Orange Car";
-    public static final String[] allCarNames = { SILVER, GREEN, RED, WHITE, BLACK, ORANGE };
-	
-	public Car(String name, Road loc, String url, String iconFile) {
+    public Car(String name, Color color, Road loc, String url, String iconFile, String fakeIconFile, String realIconFile) {
 		this.name = name;
 		this.loc = loc;
         this.url = url;
-		this.icon = new CarIcon(name, iconFile);
+		this.icon = new CarIcon(name, iconFile, color);
+        Resource.addCarIcons(name, iconFile, fakeIconFile, realIconFile);
 	}
 	
 	public void reset(){
@@ -421,35 +414,11 @@ public class Car {
 		}
 	}
 
-	public static Color colorOf(String name) {
-        switch(name){
-            case Car.ORANGE:
-                return Color.ORANGE;
-            case Car.BLACK:
-                return Color.BLACK;
-            case Car.WHITE:
-                return Color.WHITE;
-            case Car.RED:
-                return Color.RED;
-            case Car.GREEN:
-                return Color.GREEN;
-            case Car.SILVER:
-                return Resource.SILVER;
-            default:
-                return null;
-        }
-    }
-
     public Road getRealLoc(){
 		return !hasPhantom() ? loc : realLoc;
 	}
 
-	private static Random random = new Random();
-	public static String getACarName(){
-        return allCarNames[random.nextInt(allCarNames.length)];
-    }
-
-	public static class CarIcon extends JLabel{
+    public static class CarIcon extends JLabel{
 		private static final long serialVersionUID = 1L;
 		private final String name;
         public static final int INSET = TrafficMap.CW / 13; // INSET : SIZE = 1 : 6
@@ -458,7 +427,7 @@ public class Car {
         public static final int SIZE2 = (TrafficMap.CW-3*INSET2)/4 - 2;
         public final Color color;
         private ImageIcon imageIcon;
-		CarIcon(String name, String iconFile) {
+		CarIcon(String name, String iconFile, Color color) {
 			setOpaque(false);
 //			setContentAreaFilled(false);
 			setPreferredSize(new Dimension(SIZE, SIZE));
@@ -466,7 +435,7 @@ public class Car {
             setIcon(imageIcon);
 //			setBorderPainted(false);
 			this.name = name;
-            color = colorOf(name);
+            this.color = color;
 		}
 	}
 }

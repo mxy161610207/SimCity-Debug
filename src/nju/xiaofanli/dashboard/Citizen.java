@@ -38,11 +38,11 @@ public class Citizen implements Runnable {
         GoToHospital, UnderTreatment, GetSick, GetHungry, GoToEat, HavingMeals, Disappear
     }
 
-    public Citizen(String name, Gender gender, Job job, String iconFile, int rgb) {
+    public Citizen(String name, Gender gender, Job job, String iconFile, Color color) {
         this.name = name;
         this.gender = gender;
         this.job = job;
-        this.icon = new CitizenIcon(this, iconFile, rgb);
+        this.icon = new CitizenIcon(this, iconFile, color);
     }
 
     public static Gender genderOf(String gender){
@@ -404,7 +404,7 @@ public class Citizen implements Runnable {
         public boolean blink = false;
         static final int AVATAR_SIZE = CarIcon.SIZE;
 
-        CitizenIcon(Citizen citizen, String iconFile, int rgb) {
+        CitizenIcon(Citizen citizen, String iconFile, Color color) {
             this.citizen = citizen;
             setOpaque(false);
 //            setContentAreaFilled(false);
@@ -412,7 +412,7 @@ public class Citizen implements Runnable {
             setBorder(null);
 //			setBorderPainted(false);
 //            setMargin(new Insets(0, 0, 0, 0));
-            color = new Color(rgb);
+            this.color = color;
             setForeground(color);
             imageIcon = Resource.loadImage(iconFile, AVATAR_SIZE, AVATAR_SIZE);
             setIcon(imageIcon);

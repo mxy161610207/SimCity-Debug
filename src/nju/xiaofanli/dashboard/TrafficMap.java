@@ -20,7 +20,7 @@ public class TrafficMap extends JPanel{
     private static final long serialVersionUID = 1L;
     private static TrafficMap instance = null;
     public static final Set<Car> allCars = new LinkedHashSet<>();
-    public static final Set<Car> cars = new HashSet<>(); //selected in allCars to connect
+    public static final Set<Car> cars = new HashSet<>(); //select some cars in allCars to connect
     public static final List<Car> carList = new ArrayList<>();
     public static final Map<String, Car> connectedCars = new HashMap<>();
     public static final Road.Crossroad[] crossroads = new Road.Crossroad[7];
@@ -36,9 +36,9 @@ public class TrafficMap extends JPanel{
     static final JScrollPane roadPaneScroll = new JScrollPane(roadPane);
     private static final IdentifierPanel crossroadIconPanel = new IdentifierPanel(Resource.CROSSROAD_ICON, TrafficMap.SH/2, TrafficMap.SH/2, "Crossroad", Resource.en16bold),
             streetIconPanel = new IdentifierPanel(Resource.STREET_ICON, TrafficMap.SH, TrafficMap.SH/2,  "Street", Resource.en16bold),
-            carIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[0], TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.en16bold),
-            fakeCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[1], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.en15bold),
-            realCarIconPanel = new IdentifierPanel(Resource.getCarIcons(Car.ORANGE)[2], TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.en15bold);
+            carIconPanel = new IdentifierPanel(Resource.NORMAL_CAR_ICON, TrafficMap.SH/2, TrafficMap.SH/2,  "Car", Resource.en16bold),
+            fakeCarIconPanel = new IdentifierPanel(Resource.FAKE_CAR_ICON, TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Fake location", Resource.en15bold),
+            realCarIconPanel = new IdentifierPanel(Resource.REAL_CAR_ICON, TrafficMap.SH/2*15/17, TrafficMap.SH/2*15/17,  "Real location", Resource.en15bold);
     private static final List<JPanel> iconPanels = Arrays.asList(crossroadIconPanel, streetIconPanel, carIconPanel, fakeCarIconPanel, realCarIconPanel);
     private static final Map<CrashLettersPanel, Integer> crashLettersPanels = new HashMap<>();
     private static final Map<Object, Object> roadAndCrashLettersPanel = new HashMap<>();
@@ -886,7 +886,7 @@ public class TrafficMap extends JPanel{
     static void showCrashEffect(Road road) {
         if (roadAndCrashLettersPanel.containsKey(road) && roadAndCrashLettersPanel.get(road) != null)
             return;
-        String crashedCars = Car.BLACK + ", " + Car.SILVER + ", " + Car.RED;
+        String crashedCars = "";
         if (!road.carsWithoutFake.isEmpty()) {
             Iterator<Car> iter = road.carsWithoutFake.iterator();
             crashedCars = iter.next().name;

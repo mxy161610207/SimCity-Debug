@@ -3,7 +3,6 @@ import nju.xiaofanli.application.AppMonitor;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.VehicleConditionMonitor;
 import nju.xiaofanli.application.monitor.AppServer;
-import nju.xiaofanli.schedule.Police;
 import nju.xiaofanli.dashboard.*;
 import nju.xiaofanli.device.SelfCheck;
 import nju.xiaofanli.device.car.Car;
@@ -12,12 +11,13 @@ import nju.xiaofanli.device.sensor.BrickServer;
 import nju.xiaofanli.device.sensor.RandomDataGenerator;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
-import nju.xiaofanli.util.ConfigGenerator;
+import nju.xiaofanli.schedule.Police;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import java.awt.*;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,6 +56,7 @@ public class Main {
 	}
 
 	private static boolean readConfigFile = false;
+	public static final String configFile = "runtime/config.xml";
 	@SuppressWarnings("unchecked")
 	private static void readConfigFile(){
 		if (readConfigFile)
@@ -63,8 +64,7 @@ public class Main {
 		SAXReader reader = new SAXReader();
 		Document doc;
 		try {
-//			doc = reader.read(Main.class.getResourceAsStream("/" + ConfigGenerator.FILE));
-			doc = reader.read(new File(ConfigGenerator.FILE));
+			doc = reader.read(new File(configFile));
 		} catch (DocumentException e) {
 			e.printStackTrace();
 			return;
@@ -72,8 +72,9 @@ public class Main {
 		Element root = doc.getRootElement();
 		List<Element> list = root.elements("car");
 		for(Element elm : list){
-			Car car = new Car(elm.attributeValue("name"), Road.roadOf(elm.attributeValue("loc")),
-                    elm.attributeValue("url"), elm.attributeValue("icon"));
+			Car car = new Car(elm.attributeValue("name"), new Color(Integer.parseInt(elm.attributeValue("color"), 16)),
+					Road.roadOf(elm.attributeValue("loc")), elm.attributeValue("url"),
+					elm.attributeValue("icon"), elm.attributeValue("fakeIcon"), elm.attributeValue("realIcon"));
 			TrafficMap.allCars.add(car);
 		}
 		
@@ -87,7 +88,7 @@ public class Main {
 		list = root.elements("citizen");
 		for(Element elm : list){
 			Citizen citizen = new Citizen(elm.attributeValue("name"), Citizen.genderOf(elm.attributeValue("gender")),
-					Citizen.jobOf(elm.attributeValue("job")), elm.attributeValue("icon"), Integer.parseInt(elm.attributeValue("color"), 16));
+					Citizen.jobOf(elm.attributeValue("job")), elm.attributeValue("icon"), new Color(Integer.parseInt(elm.attributeValue("color"), 16)));
 			TrafficMap.citizens.add(citizen);
             TrafficMap.addAFreeCitizen(citizen);
 		}

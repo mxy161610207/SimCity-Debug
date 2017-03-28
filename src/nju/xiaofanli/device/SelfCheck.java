@@ -32,13 +32,6 @@ public class SelfCheck{
 			thread.start();
 		}
 
-		Set<Car> cars = new HashSet<>(carCheckingThreads.keySet());
-		for (Car car : cars) {
-			if (!Resource.getCars().contains(car)) {
-
-			}
-		}
-
 		for(Car car : Resource.getCars()){
 			if (carCheckingThreads.containsKey(car))
 				return;
