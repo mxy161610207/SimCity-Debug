@@ -41,7 +41,7 @@ public class BrickHandler extends Thread{
                             Sensor prevSensor = nextSensor.prevSensor;
 
                             if (prevSensor.state == Sensor.DETECTED && prevSensor.car == car) {
-                                car.timeout = car.getRealLoc().timeouts.get(car.getRealDir()).get(car.name); // reset timeout
+                                car.timeout = car.getRealLoc().timeouts.get(car.getRealDir()).get(car.url); // reset timeout
                             }
                             else if (!sensors2handle.containsKey(nextSensor) && !sensors2handle.containsKey(nextSensor.nextSensor)) {
                                 //if there are unhandled raw data about interested sensor, then no hurry to relocate

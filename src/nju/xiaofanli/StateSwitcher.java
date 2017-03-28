@@ -594,8 +594,8 @@ public class StateSwitcher {
             }
 
             car2relocate = car;
-            long prevTimeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.name);
-            long nextTimeout = nextRoad.timeouts.get(sensor.getNextRoadDir()).get(car.name);
+            long prevTimeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.url);
+            long nextTimeout = nextRoad.timeouts.get(sensor.getNextRoadDir()).get(car.url);
             long timeout = knownLost ? Math.max(prevTimeout, nextTimeout) : prevTimeout;
             Dashboard.clearRelocationDialog();
             Dashboard.showRelocationDialog(car);
@@ -631,7 +631,7 @@ public class StateSwitcher {
                 }
                 checkIfSuspended();
                 // the car is manually relocated
-                car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.name); // reset its timeout
+                car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.url); // reset its timeout
             }
             else {
                 Dashboard.showRelocationDialog(car, true, null);
@@ -684,7 +684,7 @@ public class StateSwitcher {
         private static void backwardRelocate(Car car, Sensor sensor) {
             checkIfSuspended();
             car2relocate = car;
-            long timeout = (long) (sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.name) * 1.2);// car moves slower when moving backward, so better multiply by a factor
+            long timeout = (long) (sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.url) * 1.2);// car moves slower when moving backward, so better multiply by a factor
             Dashboard.clearRelocationDialog();
             Dashboard.showRelocationDialog(car);
             interestedSensors.clear();
@@ -715,7 +715,7 @@ public class StateSwitcher {
                 }
                 checkIfSuspended();
                 // the car is manually relocated
-                car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.name); // reset its timeout
+                car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.url); // reset its timeout
             }
             else {
                 Dashboard.showRelocationDialog(car, true, null);
@@ -726,7 +726,7 @@ public class StateSwitcher {
                             sensor.nextSensor.nextRoad.name, System.currentTimeMillis(), car, sensor, car.hasPhantom(), true);
                 }
                 else {
-                    car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.name); // reset its timeout
+                    car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.url); // reset its timeout
                 }
             }
             car2relocate = null;

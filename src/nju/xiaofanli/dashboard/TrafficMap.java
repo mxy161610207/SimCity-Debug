@@ -152,12 +152,14 @@ public class TrafficMap extends JPanel{
         for (Sensor[] array : sensors) {
             for (Sensor sensor : array) {
                 add(sensor.icon);
-                Resource.timeouts.get(sensor.name).forEach((car, time) -> {
-                    Direction direction = sensor.getNextRoadDir();
-                    if (!sensor.nextRoad.timeouts.containsKey(direction))
-                        sensor.nextRoad.timeouts.put(direction, new HashMap<>());
-                    sensor.nextRoad.timeouts.get(direction).put(car, (int) (time * 1.5));
-                });
+                if (Resource.timeouts.containsKey(sensor.name)) {
+                    Resource.timeouts.get(sensor.name).forEach((url, time) -> {
+                        Direction direction = sensor.getNextRoadDir();
+                        if (!sensor.nextRoad.timeouts.containsKey(direction))
+                            sensor.nextRoad.timeouts.put(direction, new HashMap<>());
+                        sensor.nextRoad.timeouts.get(direction).put(url, (int) (time * 1.5));
+                    });
+                }
             }
         }
 

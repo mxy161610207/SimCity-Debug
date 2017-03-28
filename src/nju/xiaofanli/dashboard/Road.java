@@ -30,7 +30,7 @@ public abstract class Road extends Location{
 	public JPanel crashLettersPanel = null;
 	public int numSections;
 	public final Queue<Car> waiting = new LinkedList<>();//can replace mutex
-	public final Map<TrafficMap.Direction, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car name> -> remaining time
+	public final Map<TrafficMap.Direction, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car url> -> remaining time
 	public final Map<TrafficMap.Direction, Boolean> isStraight = new HashMap<>(); // whether this road is straight or curved in the physical world
 	public final RoadIconPanel iconPanel = new RoadIconPanel(this);
 

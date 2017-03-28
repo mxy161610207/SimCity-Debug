@@ -124,7 +124,7 @@ public class Car {
         }
         sensor.nextRoad.cars.add(this);
         sensor.nextRoad.carsWithoutFake.add(this);
-        timeout = loc.timeouts.get(dir).get(name);
+        timeout = loc.timeouts.get(dir).get(url);
         sensor.nextRoad.iconPanel.repaint();
         Middleware.addInitialContext(name, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
@@ -238,7 +238,7 @@ public class Car {
         this.dir = dir;
         if (!hasPhantom()) {
             loc.carsWithoutFake.add(this);
-            timeout = loc.timeouts.get(dir).get(name); //setting remaining time to phantoms is meaningless
+            timeout = loc.timeouts.get(dir).get(url); //setting remaining time to phantoms is meaningless
         }
 
         setLoading(false);
@@ -317,7 +317,7 @@ public class Car {
         loc.carsWithoutFake.add(this);
         loc.iconPanel.repaint();
         loc.checkCrash();
-        timeout = loc.timeouts.get(dir).get(name);
+        timeout = loc.timeouts.get(dir).get(url);
     }
 
     public void resetRealInfo() {
