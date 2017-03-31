@@ -127,7 +127,7 @@ public class BrickHandler extends Thread{
                     }
                 }
 
-                System.out.println("["+sensor.name+"] DETECT "+car.name);
+                System.out.println("["+sensor.name+"] DETECT "+car.name+"\ttime: "+time);
                 car.enter(sensor.nextRoad, sensor.getNextRoadDir());
                 Remedy.updateRemedyQWhenDetect(car);
                 if (triggerEvent) //do triggered stuff

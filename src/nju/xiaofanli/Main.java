@@ -123,7 +123,7 @@ public class Main {
                 int deadline = Integer.parseInt(strs[2]);
                 if (!Resource.timeouts.containsKey(sensor))
                     Resource.timeouts.put(sensor, new HashMap<>());
-                Resource.timeouts.get(sensor).put(car, deadline);
+                Resource.timeouts.get(sensor).put(car, (int) (deadline * 1.5)); //loosen the timeout restriction
             }
         } catch (IOException e) {
             e.printStackTrace();

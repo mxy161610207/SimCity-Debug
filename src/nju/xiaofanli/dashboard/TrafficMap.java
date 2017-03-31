@@ -157,7 +157,7 @@ public class TrafficMap extends JPanel{
                         Direction direction = sensor.getNextRoadDir();
                         if (!sensor.nextRoad.timeouts.containsKey(direction))
                             sensor.nextRoad.timeouts.put(direction, new HashMap<>());
-                        sensor.nextRoad.timeouts.get(direction).put(url, (int) (time * 1.5));
+                        sensor.nextRoad.timeouts.get(direction).put(url, time);
                     });
                 }
             }

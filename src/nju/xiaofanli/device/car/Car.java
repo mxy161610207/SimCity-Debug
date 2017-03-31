@@ -4,15 +4,15 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.monitor.AppPkg;
 import nju.xiaofanli.application.monitor.PkgHandler;
+import nju.xiaofanli.consistency.middleware.Middleware;
 import nju.xiaofanli.dashboard.Citizen;
+import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.dashboard.Road;
 import nju.xiaofanli.dashboard.TrafficMap;
-import nju.xiaofanli.consistency.middleware.Middleware;
-import nju.xiaofanli.schedule.Police;
-import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
+import nju.xiaofanli.schedule.Police;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
@@ -21,13 +21,12 @@ import java.awt.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Car {
 	public final String name;
-	private int state = STOPPED;//0: stopped	1: moving	-1: uncertain
+	private int state = STOPPED;//0: stopped	1: moving
 	public int lastCmd = Command.STOP;
     public int trend = STOPPED; // Only used by suspend and wake!
     public int lastHornCmd = Command.HORN_OFF;
