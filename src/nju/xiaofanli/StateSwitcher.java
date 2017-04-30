@@ -10,6 +10,7 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.Counter;
 import nju.xiaofanli.util.StyledText;
 
 import java.util.*;
@@ -379,6 +380,8 @@ public class StateSwitcher {
                 if (prevState == State.NORMAL)
                     Dashboard.enableCtrlUI(false);
                 Dashboard.showDeviceDialog(false);
+
+                Counter.stopTimer();
             }
             SUSPEND_LOCK.unlock();
         }
@@ -406,6 +409,8 @@ public class StateSwitcher {
                 movingCars.clear();
                 whistlingCars.clear();
                 prevState = null;
+
+                Counter.startTimer();
             }
             SUSPEND_LOCK.unlock();
         }
@@ -471,6 +476,8 @@ public class StateSwitcher {
                         setState(StateSwitcher.State.NORMAL);
                         System.out.println("switch state to normal");
                         interruptAll();
+
+                        Counter.startTimer();
                     }
 
                     try {
@@ -672,7 +679,9 @@ public class StateSwitcher {
 
                     relocatedCars.put(car, nextNextNextSensor);
                 }
+                Counter.increaseSuccessfulRelocation();
             }
+            Counter.increaseRelocation();
             car2relocate = null;
             locatedSensor = null;
         }
@@ -728,7 +737,9 @@ public class StateSwitcher {
                 else {
                     car.timeout = sensor.prevRoad.timeouts.get(sensor.prevSensor.getNextRoadDir()).get(car.url); // reset its timeout
                 }
+                Counter.increaseSuccessfulRelocation();
             }
+            Counter.increaseRelocation();
             car2relocate = null;
             locatedSensor = null;
         }
@@ -777,6 +788,8 @@ public class StateSwitcher {
                     }
                     areAllCarsStopped = false;
                     Dashboard.enableCtrlUI(false);
+
+                    Counter.stopTimer();
                 }
 
                 queue.add(new Request(car2relocate, sensor, detected));

@@ -8,6 +8,7 @@ import nju.xiaofanli.consistency.context.ContextChange;
 import nju.xiaofanli.consistency.context.Pattern;
 import nju.xiaofanli.consistency.context.Rule;
 import nju.xiaofanli.consistency.formula.Link;
+import nju.xiaofanli.util.Counter;
 import nju.xiaofanli.util.Pair;
 
 class Operation {
@@ -68,6 +69,10 @@ class Operation {
 //	        			System.out.print(entry.getKey()+": "+entry.getValue().getId()+"\t");
 //	        		System.out.println();
 //	        	}
+				links.forEach(link -> {
+					if (link.getViolated())
+						Counter.addInconCtx(link.getBinding().values());
+				});
 //	        	System.out.println("---------------------");
 	        	System.out.println("Violated Rule: " + rule.getName());
 	            Resolution.resolve(rule, changes, links, strategy);
@@ -86,10 +91,12 @@ class Operation {
 			boolean[] inconsistent = new boolean[]{ false };
 			Set<Rule> violated = new HashSet<>();
 			changes.forEach((rule, changeList) -> {
+				Counter.increaseRuleEvals(rule);
 				if (!operate(rule, changeList, strategy)) {
 					inconsistent[0] = true;
 					rule.increaseViolatedTime();
 					violated.add(rule);
+					Counter.increaseRuleviols(rule);
 				}
 			});
 

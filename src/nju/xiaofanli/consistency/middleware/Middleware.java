@@ -20,6 +20,7 @@ import nju.xiaofanli.dashboard.TrafficMap;
 import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.sensor.BrickHandler;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.Counter;
 import nju.xiaofanli.util.Pair;
 import nju.xiaofanli.util.StyledText;
 
@@ -77,6 +78,7 @@ public class Middleware {
             synchronized (queue) {
                 context = queue.poll();
             }
+            Counter.increaseCtx();
             checkConsistency(context);
         }
     };
@@ -119,6 +121,7 @@ public class Middleware {
                         chText.append("已修复传感器错误（传感器 ").append(sensor.name, Resource.LIGHT_SKY_BLUE).append(" 检测到 ")
                                 .append(car.name, car.icon.color).append(" 经过）。\n");
                         Dashboard.log(enText, chText);
+                        Counter.increaseFixedError();
                     }
                 }
                 if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)

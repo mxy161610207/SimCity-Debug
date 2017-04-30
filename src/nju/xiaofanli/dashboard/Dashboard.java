@@ -18,6 +18,7 @@ import nju.xiaofanli.device.car.CmdSender;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.device.sensor.Sensor;
+import nju.xiaofanli.util.Counter;
 import nju.xiaofanli.util.Pair;
 import nju.xiaofanli.util.StyledText;
 import sun.audio.AudioPlayer;
@@ -823,6 +824,7 @@ public class Dashboard extends JFrame{
         enableScenarioButton.addActionListener(e -> {
             scenarioEnabled = !scenarioEnabled;
             if (scenarioEnabled) {
+                Counter.startTimer();
                 enableScenarioButton.setText(useEnglish() ? "Disable" : "关闭");
                 enableScenarioSelection(false);
                 Resource.getConnectedCars().forEach(car -> car.setAvailCmd(car.getAvailCmd()));
@@ -837,6 +839,7 @@ public class Dashboard extends JFrame{
                     Dashboard.log(new StyledText("Fixed scenario is enabled.\n"), new StyledText("修复错误的场景已启用。\n"));
             }
             else {
+                Counter.stopTimer();
                 String disabledScenario = null;
                 if (selectedScenario == idealRadioButton)
                     disabledScenario = "ideal";
