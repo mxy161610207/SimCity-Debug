@@ -78,7 +78,6 @@ public class Middleware {
             synchronized (queue) {
                 context = queue.poll();
             }
-            Counter.increaseCtx();
             checkConsistency(context);
         }
     };
@@ -94,6 +93,7 @@ public class Middleware {
     }
 
     public static synchronized void checkConsistency(Context context) {
+        Counter.increaseCtx();
         Car car = (Car) context.getFields().get("carObj");
         Sensor sensor = (Sensor) context.getFields().get("sensor");
         long time = (long) context.getFields().get("timestamp");

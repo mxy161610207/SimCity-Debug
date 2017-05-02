@@ -8,6 +8,7 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
+import nju.xiaofanli.util.Counter;
 
 import java.util.*;
 
@@ -74,6 +75,7 @@ public class Police implements Runnable{
 						}
 						if (engineStarted.get(r.car) && r.manual)
 							engineStarted.put(r.car, false);
+						Counter.increaseStop2Stop();
 						break;
 					case REQUEST2ENTER:
 					    if(!engineStarted.get(r.car) && !r.manual) {
@@ -98,6 +100,7 @@ public class Police implements Runnable{
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.STOP));
+							Counter.increaseEnter2Stop();
 						}
 						else{
 							//tell the car to enter
@@ -110,6 +113,7 @@ public class Police implements Runnable{
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.MOVE_FORWARD));
+							Counter.increaseEnter2Enter();
 						}
 						break;
 					case BEFORE_ENTRY:

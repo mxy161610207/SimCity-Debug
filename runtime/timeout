@@ -137,7 +137,7 @@ btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B2S3	502
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B2S4	1477
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B3S1	500
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B3S2	724
-btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B3S3	335
+btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B3S3	530
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B3S4	1406
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B4S1	695
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B4S2	2688
@@ -146,7 +146,7 @@ btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B5S1	367
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B5S2	1336
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B5S3	866
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B6S1	1341
-btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B6S2	1311
+btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B6S2	1659
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B6S3	1392
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B6S4	821
 btspp://00066649A8C4:1;authenticate=false;encrypt=false;master=false	B7S1	721

@@ -9,7 +9,8 @@ import java.util.*;
 
 public class Counter {
     private static String file = "log"+System.currentTimeMillis()+".txt";
-    private static int totalCtx = 0, relocations = 0, successfulRelocations = 0, fixedErrors = 0;
+    private static int totalCtx = 0, relocations = 0, successfulRelocations = 0, fixedErrors = 0, completedDelivTasks = 0;
+    private static int stop2stop = 0, enter2enter = 0, enter2stop = 0;
     private static long startTime = 0, suspendTime = 0;
     private static Set<Context> inconCtxs = new HashSet<>();
     private static Map<Rule, int[]> ruleEvals = new HashMap<>(), ruleViols = new HashMap<>();
@@ -21,6 +22,26 @@ public class Counter {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    public static void increaseStop2Stop() {
+        stop2stop++;
+        log();
+    }
+
+    public static void increaseEnter2Stop() {
+        enter2stop++;
+        log();
+    }
+
+    public static void increaseEnter2Enter() {
+        enter2enter++;
+        log();
+    }
+
+    public static void increaseCompletedDelivTask() {
+        completedDelivTasks++;
+        log();
     }
 
     public static void increaseRuleEvals(Rule rule) {
@@ -67,7 +88,6 @@ public class Counter {
     public static void startTimer() {
         if (startTime == 0) {
             startTime = System.currentTimeMillis();
-            log();
         }
         else if (suspendTime != 0) {
             startTime += System.currentTimeMillis() - suspendTime;
@@ -85,7 +105,8 @@ public class Counter {
 
     private static void log() {
         StringBuilder sb = new StringBuilder("\n");
-        sb.append("\nTotalTime: ").append(System.currentTimeMillis() - startTime);
+        long totalTime = startTime == 0 ? 0 : System.currentTimeMillis() - startTime;
+        sb.append("\nTotalTime: ").append(totalTime);
         sb.append("\nTotalContexts: ").append(totalCtx).append("\tInconsistentContexts: ").append(inconCtxs.size()).append(" (plus FN in Relocations)");
         sb.append("\nFixedErrors: ").append(fixedErrors).append("\tTotalErrors: ").append(fixedErrors).append(" (plus FN in Relocations)");
         for (Map.Entry<Rule, int[]> entry : ruleEvals.entrySet()) {
@@ -97,7 +118,10 @@ public class Counter {
         }
         double rate = successfulRelocations <= 0 ? 0 : ((double) successfulRelocations)/relocations;
         sb.append("\nRelocations: ").append(relocations).append("\tSuccessfulRelocations: ").append(successfulRelocations).append("\tsuccessfulRate: ").append(rate);
-//        try {
+        long avgTime = completedDelivTasks <= 0 ? 0 : totalTime/completedDelivTasks;
+        sb.append("\nCompletedDelivTasks: ").append(completedDelivTasks).append("\tAVGTime: ").append(avgTime);
+        sb.append("\nScheduleStop2Stop: ").append(stop2stop).append("\tScheduleEnter2Stop: ").append(enter2stop).append("\tScheduleEnter2Enter: ").append(enter2enter);
+        //        try {
 //            bw.write(sb.toString());
 //            bw.flush();
 //        } catch (IOException e) {

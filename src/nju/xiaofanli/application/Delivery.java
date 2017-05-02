@@ -8,6 +8,7 @@ import nju.xiaofanli.device.car.Car;
 import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
+import nju.xiaofanli.util.Counter;
 import nju.xiaofanli.util.StyledText;
 
 import java.awt.*;
@@ -34,6 +35,8 @@ public class Delivery {
 	public static void updateDeliveryLimit() {
         MAX_USER_DELIV_NUM = Resource.getConnectedCars().size() >= 1 ? 1 : 0;
         MAX_SYS_DELIV_NUM = Resource.getConnectedCars().size() - MAX_USER_DELIV_NUM;
+//        MAX_USER_DELIV_NUM = 0;
+//        MAX_SYS_DELIV_NUM = Resource.getConnectedCars().size();
     }
 	
 	private Runnable carSearcher = new Runnable(){
@@ -183,6 +186,7 @@ public class Delivery {
                             iter.remove();
                             allBusy = false;
                             completedSysDelivNum++;
+                            Counter.increaseCompletedDelivTask();
                             if(dt.manual) {
                                 userDelivNum--;
                                 Dashboard.enableDeliveryButton(true);
