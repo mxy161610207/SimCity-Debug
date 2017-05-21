@@ -327,7 +327,7 @@ public class Delivery {
                 Resource.getConnectedCars().forEach(car -> {
                     //CAUTION: commonly, Delivery module cannot access and utilize the info of car's real/fake locations
                     if (car.hasPhantom() && car.getState() == Car.STOPPED
-                            && System.currentTimeMillis() - car.stopTime > 10000) {
+                            && System.currentTimeMillis() - car.stopTime > 5000) {
                         car.notifyPolice(Police.REQUEST2ENTER);
                     }
                 });

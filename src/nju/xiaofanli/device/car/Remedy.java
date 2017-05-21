@@ -14,23 +14,6 @@ public class Remedy implements Runnable{
 	private static final List<Command> queue = new ArrayList<>();
 
     Remedy() {
-        Runnable wakeThread = () -> {
-			int count = 0;
-			//noinspection InfiniteLoopStatement
-			while (true) {
-                Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
-                if (count == 0)
-					Resource.getConnectedCars().forEach(car -> car.write(Command.RIGHT2)); //calibration
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                count = (count + 1) % 5;
-            }
-        };
-
-        new Thread(wakeThread, "Wake Thread").start();
 	}
 	
 	public void run() {

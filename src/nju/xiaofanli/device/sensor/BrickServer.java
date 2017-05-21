@@ -52,8 +52,8 @@ public class BrickServer implements Runnable{
 				}
 				else if(d != Integer.MAX_VALUE && d != 98) {
                     long time = Long.parseLong(data.substring(4, 17));
-                    if (Math.abs(System.currentTimeMillis()-time) >= 1000)
-                    	System.err.println("[B"+bid+"S"+(sid+1)+"] "+(System.currentTimeMillis()-time));
+                    if (Math.abs(System.currentTimeMillis()-time) >= 500)
+                    	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
                     BrickHandler.insert(bid, sid, d, time);
                 }
 			} catch (IOException e) {

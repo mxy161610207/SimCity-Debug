@@ -88,7 +88,7 @@ public class Command {
 			car.lastHornCmd = cmd;
 	}
 
-	static void wake(Car car){
+	public static void wake(Car car){
 		if(car == null || !car.isConnected())
 			return;
 

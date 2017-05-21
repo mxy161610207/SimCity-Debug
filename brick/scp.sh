@@ -1,5 +1,5 @@
 #!/bin/sh
-file=sample.py
+file="sample.py start.sh"
 for i in {0..9}
 do
 	echo "scp to Brick $i"

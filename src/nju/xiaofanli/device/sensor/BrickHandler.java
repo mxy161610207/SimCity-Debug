@@ -156,7 +156,8 @@ public class BrickHandler extends Thread{
         switch(sensor.state){
             case Sensor.DETECTED:
                 if(sensor.leaveDetected(reading)){
-                    if(sensor.car != null && !sensor.car.hasPhantom() && sensor.car.loc == sensor.nextRoad && sensor.car.getState() == Car.STOPPED){ // just a simple condition to judge FP
+                    if(sensor.car != null && sensor.car.getRealLoc() == sensor.nextRoad && sensor.car.getRealDir() == sensor.dir
+                            && sensor.car.getState() == Car.STOPPED){ // just a simple condition to judge FP
                         System.out.println("[" + sensor.name + "] !!!FALSE POSITIVE!!!" +"\treading: " + reading + "\t" + time);
                         break;
                     }

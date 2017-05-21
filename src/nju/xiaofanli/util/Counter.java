@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.util.*;
 
 public class Counter {
+    private static boolean print2console = false;
     private static String file = "log"+System.currentTimeMillis()+".txt";
     private static int totalCtx = 0, relocations = 0, successfulRelocations = 0, fixedErrors = 0, completedDelivTasks = 0;
     private static int stop2stop = 0, enter2enter = 0, enter2stop = 0;
@@ -104,6 +105,8 @@ public class Counter {
     }
 
     private static void log() {
+        if (!print2console)
+            return;
         StringBuilder sb = new StringBuilder("\n");
         long totalTime = startTime == 0 ? 0 : System.currentTimeMillis() - startTime;
         sb.append("\nTotalTime: ").append(totalTime);

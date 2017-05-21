@@ -5,7 +5,11 @@ from ev3dev.ev3 import *
 import socket
 import time, threading, sys
 
-IP = '192.168.1.121'
+if len(sys.argv) != 2:
+    sys.exit()
+
+IP = sys.argv[1]
+print(IP+"\n")
 PORT = 9999
 ADDR = (IP, PORT)
 

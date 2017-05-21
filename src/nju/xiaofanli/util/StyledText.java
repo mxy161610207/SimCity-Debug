@@ -99,4 +99,13 @@ public class StyledText {
     public List<Pair<String, Style>> getText() {
         return text;
     }
+
+    @Override
+    public String toString() {
+        if (text == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        text.forEach(pair -> sb.append(pair.first));
+        return sb.toString();
+    }
 }

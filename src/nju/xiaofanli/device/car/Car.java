@@ -204,7 +204,7 @@ public class Car {
 //        notifySelfCheck();
     }
 
-	void write(int cmd) {
+	public void write(int cmd) {
         byte[] code = Command.codes.get(cmd);
         if(isConnected() && code != null) {
 			try {
@@ -212,9 +212,13 @@ public class Car {
                 lastCmdTime = System.currentTimeMillis();
                 switch (cmd) {
                     case Command.MOVE_FORWARD:
-                        trend = Car.MOVING; break;
+                        trend = Car.MOVING;
+                        System.out.println("START " + name + " at " + lastCmdTime);
+                        break;
                     case Command.STOP:
-                        trend = Car.STOPPED; break;
+                        trend = Car.STOPPED;
+                        System.out.println("STOP " + name + " at " + lastCmdTime);
+                        break;
                     case Command.HORN_ON:
                         isHornOn = true; break;
                     case Command.HORN_OFF:
@@ -394,8 +398,8 @@ public class Car {
     }
 
     public void setState(int state){
+        System.out.println(name+"'s state: " + stateOf(this.state) + " -> " + stateOf(state));
         this.state = state;
-        System.out.println(name+"'s state: " + stateOf(state) + " -> " + stateOf(this.state));
     }
 
 	public String getStateStr(){

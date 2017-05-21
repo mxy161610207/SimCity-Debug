@@ -8,9 +8,11 @@ import nju.xiaofanli.Resource;
 import nju.xiaofanli.StateSwitcher;
 import nju.xiaofanli.dashboard.Dashboard;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.car.Command;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.*;
 
 public class SelfCheck{
@@ -51,12 +53,13 @@ public class SelfCheck{
                         thread.car.disconnect(); //TODO enable car checking
                     }
 
-//                for(BrickChecking thread : brickCheckingThreads){
-//					if(thread.startTime > thread.endTime && curTime - thread.startTime > 8000){
+                for(BrickChecking thread : brickCheckingThreads.values()){
+					if(thread.startTime > thread.endTime && curTime - thread.startTime > 10000){
 //						if(thread.channel != null)
 //							thread.channel.disconnect();
-//					}
-//				}
+						thread.interrupt();
+					}
+				}
                 try {
                     Thread.sleep(300);
                 } catch (InterruptedException e) {
@@ -65,6 +68,24 @@ public class SelfCheck{
             }
         };
         new Thread(timer, "Checking Timer").start();
+
+		Runnable wakeThread = () -> {
+			int count = 0;
+			//noinspection InfiniteLoopStatement
+			while (true) {
+				Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
+				if (count == 0)
+					Resource.getConnectedCars().forEach(car -> car.write(Command.RIGHT2)); //calibration
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				count = (count + 1) % 5;
+			}
+		};
+
+		new Thread(wakeThread, "Wake Thread").start();
 
         while(!allReady()){
             synchronized (OBJ) {
@@ -261,7 +282,7 @@ public class SelfCheck{
 					//run the sample program on EV3 brick
 					try {
 						channel = (ChannelExec) session.openChannel("exec");
-						channel.setCommand("./start.sh");
+						channel.setCommand("./start.sh " + InetAddress.getLocalHost().getHostAddress());
 						channel.connect(timeout);
 						startTime = System.currentTimeMillis();
 						//noinspection ResultOfMethodCallIgnored

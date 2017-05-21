@@ -359,6 +359,8 @@ public abstract class Road extends Location{
 			chText.append(" 在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 相撞。\n");
 			Dashboard.log(enText, chText);
 
+			System.err.println(enText.toString());
+
 			Map<TrafficMap.Direction, Car> frontCars = new HashMap<>();
 			carsWithoutFake.forEach(car -> {
 				if (!frontCars.containsKey(car.getRealDir()))
@@ -406,6 +408,13 @@ public abstract class Road extends Location{
 							.append(car2.name, car2.icon.color).append(" to resolve the crash.\n");
 					chText.append("请 ").append("启动 ", true).append(car1.name, car1.icon.color).append(" 或 ")
 							.append(car2.name, car2.icon.color).append("以消除撞车事故。\n");
+				}
+
+				if (name.equals("Street 1") || name.equals("Street 14")) {
+					enText.append("If the car in the rear blocked the front car's way at ").append(name, Resource.DEEP_SKY_BLUE)
+							.append(", please manually move the rear car forward a little bit to give way to the front car.\n");
+					chText.append("如果后面的车辆在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 挡住了前车的去路，")
+							.append("请手动地将后车向前移动一点，给前车让路。\n");
 				}
 
 				enText.append("After", true).append(" the crash is resolved, click ").append("Start all", true).append(" button to start all cars.\n");
