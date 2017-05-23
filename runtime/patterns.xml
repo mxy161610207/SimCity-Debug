@@ -341,4 +341,169 @@
         <prev_loc>any</prev_loc>
         <next_loc>any</next_loc>
     </pattern>
+
+    <pattern>
+        <id>blue_car1</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Blue Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>blue_car2</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Blue Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>blue_car3</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Blue Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>blue_car4</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Blue Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>blue_car5</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Blue Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>yellow_car1</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Yellow Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>yellow_car2</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Yellow Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>yellow_car3</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Yellow Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>yellow_car4</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Yellow Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>yellow_car5</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Yellow Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>pink_car1</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Pink Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>pink_car2</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Pink Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>pink_car3</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Pink Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>pink_car4</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Pink Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
+
+    <pattern>
+        <id>pink_car5</id>
+        <size>2</size>
+        <timestamp>any</timestamp>
+        <car>Pink Car</car>
+        <state>any</state>
+        <cur_loc>any</cur_loc>
+        <prev_loc>any</prev_loc>
+        <next_loc>any</next_loc>
+    </pattern>
 </patterns>

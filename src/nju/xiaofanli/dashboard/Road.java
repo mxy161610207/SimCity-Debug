@@ -327,124 +327,137 @@ public abstract class Road extends Location{
 		crashLettersPanel = null;
 	}
 
+	private static final Object CRASH_LOCK = new Object();
 	public void checkCrash() {
-		if(carsWithoutFake.size() > 1) {
-			// stop all cars to keep the scene intact
-			TrafficMap.crashOccurred = true;
-			Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP, true));
-			Dashboard.enableScenarioButton(false);
+		synchronized (CRASH_LOCK) {
+			if (carsWithoutFake.size() > 1) {
+				// stop all cars to keep the scene intact
+				TrafficMap.crashOccurred = true;
+				Resource.getConnectedCars().forEach(car -> car.notifyPolice(Police.REQUEST2STOP, true));
+				Dashboard.enableScenarioButton(false);
 
-			carsWithoutFake.forEach(car -> {
-				if (!car.isInCrash) {
-					car.isInCrash = true;
-					if (Dashboard.playCrashSound)
-						Command.send(car, Command.HORN_ON);
-				}
-			});
-
-			Dashboard.showCrashEffect(this);
-			Dashboard.playCrashSound();
-
-			StyledText enText = new StyledText(), chText = new StyledText();
-			Iterator<Car> iter = carsWithoutFake.iterator();
-			Car crashedCar = iter.next();
-			enText.append(crashedCar.name, crashedCar.icon.color);
-			chText.append(crashedCar.name, crashedCar.icon.color);
-			while (iter.hasNext()) {
-				crashedCar = iter.next();
-				enText.append(", ").append(crashedCar.name, crashedCar.icon.color);
-				chText.append("，").append(crashedCar.name, crashedCar.icon.color);
-			}
-			enText.append(" crashed at ").append(name, Resource.DEEP_SKY_BLUE).append(".\n");
-			chText.append(" 在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 相撞。\n");
-			Dashboard.log(enText, chText);
-
-			System.err.println(enText.toString());
-
-			Map<TrafficMap.Direction, Car> frontCars = new HashMap<>();
-			carsWithoutFake.forEach(car -> {
-				if (!frontCars.containsKey(car.getRealDir()))
-					frontCars.put(car.getRealDir(), car);
-			});
-			if (!frontCars.isEmpty()) {
-				enText = new StyledText();
-				chText = new StyledText();
-				Map<Car, List<Car>> seqs = new HashMap<>();
-				frontCars.values().forEach(frontCar -> seqs.put(frontCar, resolveCrashChain(frontCar)));
-				boolean hasAChain = false;
-				for (List<Car> seq : seqs.values()) {
-					if (seq.size() > 1) {
-						hasAChain = true;
-						break;
+				carsWithoutFake.forEach(car -> {
+					if (!car.isInCrash) {
+						car.isInCrash = true;
+						if (Dashboard.playCrashSound)
+							Command.send(car, Command.HORN_ON);
 					}
-				}
-				if (seqs.size() == 1 || hasAChain) { //one solution
-					List<Car> minSeq = null;
-					for (List<Car> seq : seqs.values()) {
-						if (minSeq == null || minSeq.size() > seq.size())
-							minSeq = seq;
-					}
-					if (minSeq.size() == 1) {
-						enText.append("Please ").append("Start ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color)
-								.append(" to resolve the crash.\n");
-						chText.append("请 ").append("启动 ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color)
-								.append("以消除撞车事故。\n");
-					}
-					else {
-						enText.append("Please ").append("Start ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color);
-						chText.append("请依次 ").append("启动 ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color);
-						for (int i = 1;i < minSeq.size();i++) {
-							enText.append(", ").append(minSeq.get(i).name, minSeq.get(i).icon.color);
-							chText.append("，").append(minSeq.get(0).name, minSeq.get(0).icon.color);
-						}
-						enText.append(" in sequence to resolve the crash.\n");
-						chText.append("以消除撞车事故。\n");
-					}
-				}
-				else { //two solutions
-					Iterator<Car> iter2 = seqs.keySet().iterator();
-					Car car1 = iter2.next(), car2 = iter2.next();
-					enText.append("Please ").append("Start ", true).append(car1.name, car1.icon.color).append(" or ")
-							.append(car2.name, car2.icon.color).append(" to resolve the crash.\n");
-					chText.append("请 ").append("启动 ", true).append(car1.name, car1.icon.color).append(" 或 ")
-							.append(car2.name, car2.icon.color).append("以消除撞车事故。\n");
-				}
+				});
 
-				if (name.equals("Street 1") || name.equals("Street 14")) {
-					enText.append("If the car in the rear blocked the front car's way at ").append(name, Resource.DEEP_SKY_BLUE)
-							.append(", please manually move the rear car forward a little bit to give way to the front car.\n");
-					chText.append("如果后面的车辆在 ").append(name, Resource.DEEP_SKY_BLUE).append(" 挡住了前车的去路，")
-							.append("请手动地将后车向前移动一点，给前车让路。\n");
-				}
+				Dashboard.showCrashEffect(this);
+				Dashboard.playCrashSound();
 
-				enText.append("After", true).append(" the crash is resolved, click ").append("Start all", true).append(" button to start all cars.\n");
-				chText.append("在撞车事故消除").append("以后", true).append("，点击 ").append("全启动", true).append(" 按钮以启动所有车辆。\n");
+				StyledText enText = new StyledText(), chText = new StyledText();
+				Iterator<Car> iter = carsWithoutFake.iterator();
+				Car crashedCar = iter.next();
+				enText.append(crashedCar.name, crashedCar.icon.color);
+				chText.append(crashedCar.name, crashedCar.icon.color);
+				while (iter.hasNext()) {
+					crashedCar = iter.next();
+					enText.append(", ").append(crashedCar.name, crashedCar.icon.color);
+					chText.append("，").append(crashedCar.name, crashedCar.icon.color);
+				}
+				enText.append(" crashed at ").append(name, Resource.LIGHT_SKY_BLUE).append(".\n");
+				chText.append(" 在 ").append(name, Resource.LIGHT_SKY_BLUE).append(" 相撞。\n");
 				Dashboard.log(enText, chText);
-			}
-		}
-		else{
-			carsWithoutFake.forEach(car -> {
-				if (car.isInCrash) {
-					car.isInCrash = false;
-					if (Dashboard.playCrashSound)
-						Command.send(car, Command.HORN_OFF);
 
-					if (TrafficMap.crashOccurred) {
-						boolean crash = false;
-						for (Car car2 : Resource.getConnectedCars()) {
-							if (car2.isInCrash) {
-								crash = true;
-								break;
+				System.err.println(enText.toString());
+
+				Map<TrafficMap.Direction, Car> frontCars = new HashMap<>();
+				carsWithoutFake.forEach(car -> {
+					if (!frontCars.containsKey(car.getRealDir()))
+						frontCars.put(car.getRealDir(), car);
+				});
+				if (!frontCars.isEmpty()) {
+					enText = new StyledText();
+					chText = new StyledText();
+					Map<Car, List<Car>> seqs = new HashMap<>();
+					frontCars.values().forEach(frontCar -> seqs.put(frontCar, resolveCrashChain(frontCar)));
+					boolean hasAChain = false;
+					for (List<Car> seq : seqs.values()) {
+						if (seq.size() > 1) {
+							hasAChain = true;
+							break;
+						}
+					}
+					if (seqs.size() == 1 || hasAChain) { //one solution
+						List<Car> minSeq = null;
+						for (List<Car> seq : seqs.values()) {
+							if (minSeq == null || minSeq.size() > seq.size())
+								minSeq = seq;
+						}
+						if (minSeq.size() == 1) {
+							enText.append("Please ").append("Start ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color)
+									.append(" to resolve the crash.\n");
+							chText.append("请 ").append("启动 ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color)
+									.append("以消除撞车事故。\n");
+						} else {
+							enText.append("Please ").append("Start ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color);
+							chText.append("请依次 ").append("启动 ", true).append(minSeq.get(0).name, minSeq.get(0).icon.color);
+							for (int i = 1; i < minSeq.size(); i++) {
+								enText.append(", ").append(minSeq.get(i).name, minSeq.get(i).icon.color);
+								chText.append("，").append(minSeq.get(0).name, minSeq.get(0).icon.color);
+							}
+							enText.append(" in sequence to resolve the crash.\n");
+							chText.append("以消除撞车事故。\n");
+						}
+					} else { //two solutions
+						Iterator<Car> iter2 = seqs.keySet().iterator();
+						Car car1 = iter2.next(), car2 = iter2.next();
+						enText.append("Please ").append("Start ", true).append(car1.name, car1.icon.color).append(" or ")
+								.append(car2.name, car2.icon.color).append(" to resolve the crash.\n");
+						chText.append("请 ").append("启动 ", true).append(car1.name, car1.icon.color).append(" 或 ")
+								.append(car2.name, car2.icon.color).append("以消除撞车事故。\n");
+					}
+
+					if (name.equals("Street 1") || name.equals("Street 14")) {
+						enText.append("If the car in the rear blocked the front car's way at ").append(name, Resource.LIGHT_SKY_BLUE)
+								.append(", please manually move the rear car forward a little bit to give way to the front car.\n");
+						chText.append("如果后面的车辆在 ").append(name, Resource.LIGHT_SKY_BLUE).append(" 挡住了前车的去路，")
+								.append("请手动地将后车向前移动一点，给前车让路。\n");
+					}
+
+					enText.append("After", true).append(" the crash is resolved, click ").append("Start all", true).append(" button to start all cars.\n");
+					chText.append("在撞车事故消除").append("以后", true).append("，点击 ").append("全启动", true).append(" 按钮以启动所有车辆。\n");
+					Dashboard.log(enText, chText);
+				}
+			} else {
+				carsWithoutFake.forEach(car -> {
+					if (car.isInCrash) {
+						car.isInCrash = false;
+						if (Dashboard.playCrashSound)
+							Command.send(car, Command.HORN_OFF);
+
+						if (TrafficMap.crashOccurred) {
+							boolean crashOccurred = false;
+							for (Car car2 : Resource.getConnectedCars()) {
+								if (car2.isInCrash) {
+									crashOccurred = true;
+									break;
+								}
+							}
+							if (!crashOccurred) {
+								TrafficMap.crashOccurred = false;
+
+								boolean allEnginesOff = true;
+								for (Car car2 : Resource.getConnectedCars()) {
+									if (car2.isEngineStarted) {
+										allEnginesOff = false;
+										break;
+									}
+								}
+								if (allEnginesOff)
+									Resource.getConnectedCars().forEach(car2 -> car2.notifyPolice(Police.REQUEST2ENTER, true));
+
+								if (TrafficMap.allCarsStopped && !TrafficMap.crashOccurred)
+									Dashboard.enableScenarioButton(true);
 							}
 						}
-						TrafficMap.crashOccurred = crash;
-						if (TrafficMap.allCarsStopped && !TrafficMap.crashOccurred)
-							Dashboard.enableScenarioButton(true);
 					}
-				}
-			});
+				});
 
-			Dashboard.hideCrashEffect(this);
+				Dashboard.hideCrashEffect(this);
+			}
 		}
 	}
 

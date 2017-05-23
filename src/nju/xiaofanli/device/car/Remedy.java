@@ -12,9 +12,6 @@ import java.util.*;
 
 public class Remedy implements Runnable{
 	private static final List<Command> queue = new ArrayList<>();
-
-    Remedy() {
-	}
 	
 	public void run() {
 		Thread thread = Thread.currentThread();

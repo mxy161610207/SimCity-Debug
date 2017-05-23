@@ -1,5 +1,6 @@
 package nju.xiaofanli;
 import nju.xiaofanli.application.AppMonitor;
+import nju.xiaofanli.application.CarPusher;
 import nju.xiaofanli.application.Delivery;
 import nju.xiaofanli.application.VehicleConditionMonitor;
 import nju.xiaofanli.application.monitor.AppServer;
@@ -35,6 +36,7 @@ public class Main {
 		new CmdSender();
 		new Police();
 		new Delivery();
+		new CarPusher();
 		new AppServer();
         new RandomDataGenerator();
         StateSwitcher.startRelocationThread();

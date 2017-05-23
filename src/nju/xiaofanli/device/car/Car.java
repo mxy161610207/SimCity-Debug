@@ -43,6 +43,7 @@ public class Car {
 	public Citizen passenger = null;
     public boolean isHornOn = false; //only for crash
     public boolean isInCrash = false;
+    public boolean isEngineStarted = false;
     public int timeout = Integer.MAX_VALUE;
 	
 	private Road realLoc = null;//if this car become a phantom, then this variable stores it's real location
@@ -80,6 +81,7 @@ public class Car {
 		passenger = null;
 		resetRealInfo();
         isInCrash = isHornOn = false;
+        isEngineStarted = false;
         firstEntry = true;
         timeout = Integer.MAX_VALUE;
 	}
@@ -149,7 +151,7 @@ public class Car {
         Dashboard.addCar(this);
         //calibrate
 //        if(name.equals(Car.BLACK) || name.equals(Car.RED))
-        write(Command.RIGHT);
+//        write(Command.RIGHT);
 
         Delivery.updateDeliveryLimit();
         synchronized (Delivery.searchTasks) {

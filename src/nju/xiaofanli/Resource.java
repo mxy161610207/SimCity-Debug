@@ -43,6 +43,7 @@ public class Resource {
 	private final static JSch JSCH = new JSch();
 	public final static Color LIGHT_SKY_BLUE = new Color(135, 206, 250);
 	public final static Color DEEP_SKY_BLUE = new Color(0, 191, 255);
+	public static final Color CYAN = new Color(0, 255, 255);
     public static final Color SILVER = new Color(192, 192, 192);
     private static final Color LIGHT_GREEN = new Color(0, 255, 127);
     public static final Color CHOCOLATE = new Color(139, 69, 19);

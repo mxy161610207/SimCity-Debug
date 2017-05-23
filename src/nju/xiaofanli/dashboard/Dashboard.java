@@ -1319,11 +1319,11 @@ public class Dashboard extends JFrame{
         else {
             if (useEnglish())
                 text.append("Failed", Color.RED).append("\nPlease put ").append(car.name, car.icon.color).append(" at ")
-                        .append(road.name, Resource.DEEP_SKY_BLUE).append(".\n").append("After", true).append(" that, click ")
+                        .append(road.name, Resource.LIGHT_SKY_BLUE).append(".\n").append("After", true).append(" that, click ")
                         .append("Done", true).append(" button.");
             else
                 text.append("失败", Color.RED).append("\n请置 ").append(car.name, car.icon.color).append(" 于 ")
-                        .append(road.name, Resource.DEEP_SKY_BLUE).append("。\n").append("在此之后", true).append("，点击 ")
+                        .append(road.name, Resource.LIGHT_SKY_BLUE).append("。\n").append("在此之后", true).append("，点击 ")
                         .append("完成", true).append(" 按钮。");
 
             relocationDoneButton.setVisible(true);
@@ -1368,9 +1368,9 @@ public class Dashboard extends JFrame{
         List<Car> cars = new ArrayList<>(Resource.getConnectedCars());
 
         StyledText text = new StyledText();
-        text.append("Please put ").append(cars.get(0).name, cars.get(0).icon.color).append(" at ").append(cars.get(0).loc.name, Resource.DEEP_SKY_BLUE);
+        text.append("Please put ").append(cars.get(0).name, cars.get(0).icon.color).append(" at ").append(cars.get(0).loc.name, Resource.LIGHT_SKY_BLUE);
         for (int i = 1;i < cars.size();i++)
-            text.append(", ").append(cars.get(i).name, cars.get(i).icon.color).append(" at ").append(cars.get(i).loc.name, Resource.DEEP_SKY_BLUE);
+            text.append(", ").append(cars.get(i).name, cars.get(i).icon.color).append(" at ").append(cars.get(i).loc.name, Resource.LIGHT_SKY_BLUE);
         text.append(".\n").append("After", true).append(" that, click ").append("Initialize", true).append(" button.");
         append2pane(text, pane);
 
@@ -1453,26 +1453,26 @@ public class Dashboard extends JFrame{
                 text.append(dt.citizen.name, dt.citizen.icon.color);
                 switch (dt.phase) {
                     case Delivery.DeliveryTask.SEARCH_CAR:
-                        text.append(useEnglish() ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
-                                .append(useEnglish() ? " needs a taxi to " : " 需要一辆车去 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
+                        text.append(useEnglish() ? " at " : " 在 ").append(dt.src.name, Resource.LIGHT_SKY_BLUE)
+                                .append(useEnglish() ? " needs a taxi to " : " 需要一辆车去 ").append(dt.dest.name, Resource.LIGHT_SKY_BLUE);
                         break;
                     case Delivery.DeliveryTask.HEAD4SRC:
-                        text.append(useEnglish() ? " at " : " 在 ").append(dt.src.name, Resource.DEEP_SKY_BLUE)
+                        text.append(useEnglish() ? " at " : " 在 ").append(dt.src.name, Resource.LIGHT_SKY_BLUE)
                                 .append(useEnglish() ? " waits for " : " 等待 ").append(dt.car.name, dt.car.icon.color);
                         break;
                     case Delivery.DeliveryTask.HEAD4DEST:
                         if (useEnglish())
-                            text.append(" gets on ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE)
-                                    .append(" and heads for ").append(dt.dest.name, Resource.DEEP_SKY_BLUE);
+                            text.append(" gets on ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.LIGHT_SKY_BLUE)
+                                    .append(" and heads for ").append(dt.dest.name, Resource.LIGHT_SKY_BLUE);
                         else
-                            text.append(" 在 ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE).append(" 乘上了 ").append(dt.car.name, dt.car.icon.color)
-                                    .append(" 并向 ").append(dt.dest.name, Resource.DEEP_SKY_BLUE).append(" 出发");
+                            text.append(" 在 ").append(dt.car.loc.name, Resource.LIGHT_SKY_BLUE).append(" 乘上了 ").append(dt.car.name, dt.car.icon.color)
+                                    .append(" 并向 ").append(dt.dest.name, Resource.LIGHT_SKY_BLUE).append(" 出发");
                         break;
                     case Delivery.DeliveryTask.COMPLETED:
                         if (useEnglish())
-                            text.append(" gets off ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE);
+                            text.append(" gets off ").append(dt.car.name, dt.car.icon.color).append(" at ").append(dt.car.loc.name, Resource.LIGHT_SKY_BLUE);
                         else
-                            text.append(" 在 ").append(dt.car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下了 ").append(dt.car.name, dt.car.icon.color);
+                            text.append(" 在 ").append(dt.car.loc.name, Resource.LIGHT_SKY_BLUE).append(" 下了 ").append(dt.car.name, dt.car.icon.color);
                         break;
                 }
             }

@@ -29,7 +29,6 @@ public class Delivery {
         updateDeliveryLimit();
 		new Thread(carSearcher, "Car Searcher").start();
 		new Thread(carMonitor, "Car Monitor").start();
-		new Thread(carPusher, "Car Pusher").start();
 	}
 
 	public static void updateDeliveryLimit() {
@@ -220,9 +219,9 @@ public class Delivery {
                                         chText.append("[M] ");
                                     }
                                     enText.append(car.name, car.icon.color).append(" picks up ").append(dt.citizen.name, dt.citizen.icon.color)
-                                            .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                                            .append(" at ").append(car.loc.name, Resource.LIGHT_SKY_BLUE).append(".\n");
                                     chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
-                                            .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 上车。\n");
+                                            .append(" 在 ").append(car.loc.name, Resource.LIGHT_SKY_BLUE).append(" 上车。\n");
                                     Dashboard.log(enText, chText);
                                 }
                                 //trigger end loading event
@@ -268,9 +267,9 @@ public class Delivery {
                                         chText.append("[M] ");
                                     }
                                     enText.append(car.name, car.icon.color).append(" drops off ").append(dt.citizen.name, dt.citizen.icon.color)
-                                            .append(" at ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(".\n");
+                                            .append(" at ").append(car.loc.name, Resource.LIGHT_SKY_BLUE).append(".\n");
                                     chText.append(car.name, car.icon.color).append(" 让 ").append(dt.citizen.name, dt.citizen.icon.color)
-                                            .append(" 在 ").append(car.loc.name, Resource.DEEP_SKY_BLUE).append(" 下车。\n");
+                                            .append(" 在 ").append(car.loc.name, Resource.LIGHT_SKY_BLUE).append(" 下车。\n");
                                     Dashboard.log(enText, chText);
                                 }
                                 //trigger end unloading event
@@ -317,26 +316,6 @@ public class Delivery {
                 prev = road;
             }
             return null;
-        }
-    };
-
-	private Runnable carPusher = () -> {
-        //noinspection InfiniteLoopStatement
-        while (true) {
-            if (StateSwitcher.isNormal()) {
-                Resource.getConnectedCars().forEach(car -> {
-                    //CAUTION: commonly, Delivery module cannot access and utilize the info of car's real/fake locations
-                    if (car.hasPhantom() && car.getState() == Car.STOPPED
-                            && System.currentTimeMillis() - car.stopTime > 5000) {
-                        car.notifyPolice(Police.REQUEST2ENTER);
-                    }
-                });
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     };
 

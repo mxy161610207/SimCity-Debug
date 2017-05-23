@@ -75,7 +75,12 @@ public class SelfCheck{
 			while (true) {
 				Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
 				if (count == 0)
-					Resource.getConnectedCars().forEach(car -> car.write(Command.RIGHT2)); //calibration
+					Resource.getConnectedCars().forEach(car -> {
+						if (car.name.equals("Silver SUV") || car.name.equals("White Car") || car.name.equals("Green Car"))
+							car.write(Command.RIGHT2);
+						else
+							car.write(Command.RIGHT);
+					}); //calibration
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

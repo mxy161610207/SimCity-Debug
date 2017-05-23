@@ -16,12 +16,11 @@ public class Police implements Runnable{
 	private static final Queue<Request> req = new LinkedList<>();
 	private static final Map<Car, Set<Road>> permittingRoads = new HashMap<>(); //roads that the car is permitted to enter
 	private static final Map<Car, Set<Road>> waitedRoads = new HashMap<>(); //roads that the car is waiting for
-	private static final Map<Car, Boolean> engineStarted = new HashMap<>();
+
 	public Police() {
 		Resource.getConnectedCars().forEach(car -> {
 			permittingRoads.put(car, new HashSet<>());
 			waitedRoads.put(car, new HashSet<>());
-			engineStarted.put(car, false);
 		});
 		new Thread(this, "Police").start();
 	}
@@ -73,12 +72,12 @@ public class Police implements Runnable{
 							r.requested.permitted = null;
 							triggerEventAfterLeaving(r.requested);
 						}
-						if (engineStarted.get(r.car) && r.manual)
-							engineStarted.put(r.car, false);
+						if (r.car.isEngineStarted && r.manual)
+							r.car.isEngineStarted = false;
 						Counter.increaseStop2Stop();
 						break;
 					case REQUEST2ENTER:
-					    if(!engineStarted.get(r.car) && !r.manual) {
+					    if(!r.car.isEngineStarted && !r.manual) {
                             Command.send(r.car, Command.STOP, true);
                             r.car.setAvailCmd(Command.MOVE_FORWARD);
 							waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
@@ -96,7 +95,7 @@ public class Police implements Runnable{
 							waitedRoads.get(r.car).add(r.requested);
 							Command.send(r.car, Command.STOP, !r.manual);
                             r.car.setAvailCmd(Command.STOP);
-							engineStarted.put(r.car, true);
+							r.car.isEngineStarted = true;
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.STOP));
@@ -109,7 +108,7 @@ public class Police implements Runnable{
 							permittingRoads.get(r.requested.permitted).add(r.requested);
 							Command.send(r.car, Command.MOVE_FORWARD);
                             r.car.setAvailCmd(Command.STOP);
-							engineStarted.put(r.car, true);
+							r.car.isEngineStarted = true;
 							//trigger recv response event
 							if(EventManager.hasListener(Event.Type.CAR_RECV_RESPONSE))
 								EventManager.trigger(new Event(Event.Type.CAR_RECV_RESPONSE, r.car.name, r.car.loc.name, Command.MOVE_FORWARD));
@@ -229,8 +228,6 @@ public class Police implements Runnable{
 
         permittingRoads.values().forEach(Set::clear);
         waitedRoads.values().forEach(Set::clear);
-		for (Map.Entry<Car, Boolean> entry : engineStarted.entrySet())
-			entry.setValue(false);
     }
 
 	/**

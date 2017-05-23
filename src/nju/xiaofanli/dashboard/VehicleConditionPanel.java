@@ -95,23 +95,23 @@ class VehicleConditionPanel extends JPanel{
 		}
 		
 		void update(){
-			synchronized (text) {
-                text.setText("");
-                StyledDocument doc = text.getStyledDocument();
-                try {
-                    doc.insertString(doc.getLength(), car.name + " ", null);
-                    text.setCaretPosition(doc.getLength());
-                    text.insertComponent(stateIcons.get(car.getState()));
-                    doc.insertString(doc.getLength(), " ", null);
-                    text.setCaretPosition(doc.getLength());
-                    text.insertComponent(dirIcons.get(car.dir));
-                    if (car.loc != null)
-                        doc.insertString(doc.getLength(), (Dashboard.useEnglish() ? "\nLoc: " : "\n位置：") + car.loc.name, null);
+			SwingUtilities.invokeLater(() -> {
+				text.setText("");
+				StyledDocument doc = text.getStyledDocument();
+				try {
+					doc.insertString(doc.getLength(), car.name + " ", null);
+					text.setCaretPosition(doc.getLength());
+					text.insertComponent(stateIcons.get(car.getState()));
+					doc.insertString(doc.getLength(), " ", null);
+					text.setCaretPosition(doc.getLength());
+					text.insertComponent(dirIcons.get(car.dir));
+					if (car.loc != null)
+						doc.insertString(doc.getLength(), (Dashboard.useEnglish() ? "\nLoc: " : "\n位置：") + car.loc.name, null);
 //                    if (car.dest != null)
 //                        doc.insertString(doc.getLength(), "\nDest: " + car.dest.name, null);
-                } catch (BadLocationException e) {
-                    e.printStackTrace();
-                }
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
 //				String str = car.name + " (" + car.getStateStr() + ") " + car.getDirStr();
 //				if (car.loc != null)
 //					str += "\nLoc: " + car.loc.name;
@@ -120,7 +120,7 @@ class VehicleConditionPanel extends JPanel{
 //
 //				text.setText(str);
 				repaint();
-			}
+			});
 		}
 	}
 }
