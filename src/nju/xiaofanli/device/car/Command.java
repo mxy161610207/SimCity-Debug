@@ -35,6 +35,7 @@ public class Command {
 	public final static int LEFT_LIGHTS_OFF = 20;
 	public final static int RIGHT_LIGHTS_OFF = 21;
 	public final static int RIGHT3 = 22;
+	public final static int LEFT2 = 23;
 
     static final Map<Integer, byte[]> codes = new HashMap<>();
 
@@ -43,6 +44,7 @@ public class Command {
         codes.put(Command.MOVE_FORWARD, ByteBuffer.allocate(4).putInt(Codes.SPEED_FRONT[30]).array());
         codes.put(Command.MOVE_BACKWARD, ByteBuffer.allocate(4).putInt(Codes.SPEED_BACK[30]).array());
         codes.put(Command.LEFT, ByteBuffer.allocate(4).putInt(Codes.STEER_LEFT[5]).array());
+		codes.put(Command.LEFT2, ByteBuffer.allocate(4).putInt(Codes.STEER_LEFT[10]).array());
         codes.put(Command.RIGHT, ByteBuffer.allocate(4).putInt(Codes.STEER_RIGHT[5]).array());
 		codes.put(Command.RIGHT2, ByteBuffer.allocate(4).putInt(Codes.STEER_RIGHT[10]).array());
 		codes.put(Command.RIGHT3, ByteBuffer.allocate(4).putInt(Codes.STEER_RIGHT[15]).array());

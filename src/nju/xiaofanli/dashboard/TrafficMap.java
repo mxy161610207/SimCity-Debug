@@ -2,6 +2,7 @@ package nju.xiaofanli.dashboard;
 
 import nju.xiaofanli.Resource;
 import nju.xiaofanli.device.car.Car;
+import nju.xiaofanli.device.car.Command;
 import nju.xiaofanli.device.sensor.Sensor;
 import nju.xiaofanli.util.StyledText;
 
@@ -132,22 +133,18 @@ public class TrafficMap extends JPanel{
         initBuildings();
 
         roads.values().forEach(road -> {
-            road.isStraight.put(road.dir[0], true);
+            road.tireCorrection.put(road.dir[0], Command.NO_STEER);
             if (road.dir[1] != Direction.UNKNOWN)
-                road.isStraight.put(road.dir[1], true);
+                road.tireCorrection.put(road.dir[1], Command.NO_STEER);
         });
-        streets[0].isStraight.put(streets[0].dir[0], false);
-        streets[1].isStraight.put(streets[1].dir[0], false);
-        streets[10].isStraight.put(streets[10].dir[0], false);
-        streets[14].isStraight.put(streets[14].dir[0], false);
-        crossroads[0].isStraight.put(Direction.WEST, false); //horizontal
-        crossroads[0].isStraight.put(Direction.EAST, false); //horizontal
-        crossroads[2].isStraight.put(Direction.WEST, false); //horizontal
-        crossroads[2].isStraight.put(Direction.EAST, false); //horizontal
-        crossroads[5].isStraight.put(Direction.NORTH, false); //vertical
-        crossroads[5].isStraight.put(Direction.SOUTH, false); //vertical
-        crossroads[6].isStraight.put(Direction.NORTH, false); //vertical
-        crossroads[6].isStraight.put(Direction.SOUTH, false); //vertical
+        streets[0].tireCorrection.put(streets[0].dir[0], Command.RIGHT);
+        streets[1].tireCorrection.put(streets[1].dir[0], Command.RIGHT);
+        streets[10].tireCorrection.put(streets[10].dir[0], Command.RIGHT);
+        streets[14].tireCorrection.put(streets[14].dir[0], Command.LEFT);
+        crossroads[0].tireCorrection.put(Direction.WEST, Command.LEFT);
+        crossroads[2].tireCorrection.put(Direction.EAST, Command.LEFT);
+        crossroads[5].tireCorrection.put(Direction.SOUTH, Command.LEFT);
+        crossroads[6].tireCorrection.put(Direction.NORTH, Command.LEFT);
 
         for (Sensor[] array : sensors) {
             for (Sensor sensor : array) {

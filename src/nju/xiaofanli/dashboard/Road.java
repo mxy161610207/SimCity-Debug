@@ -31,7 +31,7 @@ public abstract class Road extends Location{
 	public int numSections;
 	public final Queue<Car> waiting = new LinkedList<>();//can replace mutex
 	public final Map<TrafficMap.Direction, Map<String, Integer>> timeouts = new HashMap<>(); //<car dir , car url> -> remaining time
-	public final Map<TrafficMap.Direction, Boolean> isStraight = new HashMap<>(); // whether this road is straight or curved in the physical world
+	public final Map<TrafficMap.Direction, Integer> tireCorrection = new HashMap<>();
 	public final RoadIconPanel iconPanel = new RoadIconPanel(this);
 
 	public static Road roadOf(String name){
@@ -48,6 +48,10 @@ public abstract class Road extends Location{
 			default:
 				return null;
 		}
+	}
+
+	public boolean isStraight(TrafficMap.Direction dir) {
+		return tireCorrection.get(dir) == Command.NO_STEER; // whether this road is straight or curved in the physical world
 	}
 
 	public void addWaitingCar(Car car){

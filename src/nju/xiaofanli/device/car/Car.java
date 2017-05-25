@@ -113,6 +113,21 @@ public class Car {
 		}
 	}
 
+	public void correctTire() {
+	    if (!isConnected())
+	        return;
+
+	    int cmd = getRealLoc().tireCorrection.get(getRealDir());
+	    switch (cmd) {
+            case Command.LEFT:
+                write(Command.LEFT); break;
+            case Command.RIGHT:
+                write(Command.RIGHT2); break;
+            case Command.NO_STEER:
+                write(Command.NO_STEER); break;
+        }
+    }
+
 	private boolean firstEntry = true;
     public void initLocAndDir(Sensor sensor) {
         if(sensor == null || !firstEntry)
@@ -126,6 +141,7 @@ public class Car {
         sensor.nextRoad.cars.add(this);
         sensor.nextRoad.carsWithoutFake.add(this);
         timeout = loc.timeouts.get(dir).get(url);
+        correctTire();
         sensor.nextRoad.iconPanel.repaint();
         Middleware.addInitialContext(name, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
@@ -244,6 +260,7 @@ public class Car {
         if (!hasPhantom()) {
             loc.carsWithoutFake.add(this);
             timeout = loc.timeouts.get(dir).get(url); //setting remaining time to phantoms is meaningless
+            correctTire();
         }
 
         setLoading(false);
@@ -320,9 +337,10 @@ public class Car {
             realDir = dir;
         }
         loc.carsWithoutFake.add(this);
+        timeout = loc.timeouts.get(dir).get(url);
+        correctTire();
         loc.iconPanel.repaint();
         loc.checkCrash();
-        timeout = loc.timeouts.get(dir).get(url);
     }
 
     public void resetRealInfo() {

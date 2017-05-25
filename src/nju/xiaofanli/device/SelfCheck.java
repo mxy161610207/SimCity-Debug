@@ -70,23 +70,23 @@ public class SelfCheck{
         new Thread(timer, "Checking Timer").start();
 
 		Runnable wakeThread = () -> {
-			int count = 0;
+//			int count = 0;
 			//noinspection InfiniteLoopStatement
 			while (true) {
 				Resource.getConnectedCars().stream().filter(car -> System.currentTimeMillis() - car.lastCmdTime > 60000).forEach(Command::wake);
-				if (count == 0)
-					Resource.getConnectedCars().forEach(car -> {
-						if (car.name.equals("Silver SUV") || car.name.equals("White Car") || car.name.equals("Green Car"))
-							car.write(Command.RIGHT2);
-						else
-							car.write(Command.RIGHT);
-					}); //calibration
+//				if (count == 0)
+//					Resource.getConnectedCars().forEach(car -> {
+//						if (car.name.equals("Silver SUV") || car.name.equals("White Car") || car.name.equals("Green Car"))
+//							car.write(Command.RIGHT2);
+//						else
+//							car.write(Command.RIGHT);
+//					});
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				count = (count + 1) % 5;
+//				count = (count + 1) % 5;
 			}
 		};
 

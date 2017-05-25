@@ -536,8 +536,8 @@ public class StateSwitcher {
                 if (r == null || r.car2relocate == null || r.sensor == null)
                     continue;
 
-                if (r.sensor.nextRoad.isStraight.get(r.sensor.getNextRoadDir())
-                        && r.sensor.prevRoad.isStraight.get(r.sensor.prevSensor.getNextRoadDir())) { //if both roads are straight, use backward relocation
+                if (r.sensor.nextRoad.isStraight(r.sensor.getNextRoadDir())
+                        && r.sensor.prevRoad.isStraight(r.sensor.prevSensor.getNextRoadDir())) { //if both roads are straight, use backward relocation
                     backwardRelocate(r.car2relocate, r.sensor);
                 }
                 else { //if either one is curved, use forward relocation
