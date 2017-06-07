@@ -133,18 +133,18 @@ public class TrafficMap extends JPanel{
         initBuildings();
 
         roads.values().forEach(road -> {
-            road.tireCorrection.put(road.dir[0], Command.NO_STEER);
+            road.wheelsCorrection.put(road.dir[0], Command.NO_STEER);
             if (road.dir[1] != Direction.UNKNOWN)
-                road.tireCorrection.put(road.dir[1], Command.NO_STEER);
+                road.wheelsCorrection.put(road.dir[1], Command.NO_STEER);
         });
-        streets[0].tireCorrection.put(streets[0].dir[0], Command.RIGHT);
-        streets[1].tireCorrection.put(streets[1].dir[0], Command.RIGHT);
-        streets[10].tireCorrection.put(streets[10].dir[0], Command.RIGHT);
-        streets[14].tireCorrection.put(streets[14].dir[0], Command.LEFT);
-        crossroads[0].tireCorrection.put(Direction.WEST, Command.LEFT);
-        crossroads[2].tireCorrection.put(Direction.EAST, Command.LEFT);
-        crossroads[5].tireCorrection.put(Direction.SOUTH, Command.LEFT);
-        crossroads[6].tireCorrection.put(Direction.NORTH, Command.LEFT);
+        streets[0].wheelsCorrection.put(streets[0].dir[0], Command.RIGHT);
+        streets[1].wheelsCorrection.put(streets[1].dir[0], Command.RIGHT);
+        streets[10].wheelsCorrection.put(streets[10].dir[0], Command.RIGHT);
+        streets[14].wheelsCorrection.put(streets[14].dir[0], Command.LEFT);
+        crossroads[0].wheelsCorrection.put(Direction.WEST, Command.LEFT);
+        crossroads[2].wheelsCorrection.put(Direction.EAST, Command.LEFT);
+        crossroads[5].wheelsCorrection.put(Direction.SOUTH, Command.LEFT);
+        crossroads[6].wheelsCorrection.put(Direction.NORTH, Command.LEFT);
 
         for (Sensor[] array : sensors) {
             for (Sensor sensor : array) {

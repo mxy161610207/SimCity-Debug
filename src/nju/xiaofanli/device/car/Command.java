@@ -70,14 +70,14 @@ public class Command {
 
 	//cmd:	0: stop	1: forward	2: backward	3: left	4: right
 	public static void send(Car car, int cmd) {
-		send(car, cmd, false);
+		send(car, cmd, 0);
 	}	
 
-	public static void send(Car car, int cmd, boolean delay) {
+	public static void send(Car car, int cmd, int delay) {
 		send(car, cmd, delay, true);
 	}
 
-	public static void send(Car car, int cmd, boolean delay, boolean remedy) {
+	public static void send(Car car, int cmd, int delay, boolean remedy) {
 		if(car == null)
 			return;
 		CmdSender.send(car, cmd, delay);

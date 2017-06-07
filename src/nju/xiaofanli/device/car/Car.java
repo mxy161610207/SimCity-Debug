@@ -37,7 +37,8 @@ public class Car {
 	public Road dest = null;
 	public boolean isLoading = false;//loading or unloading
 	public long lastCmdTime = System.currentTimeMillis();//used for waking cars
-	public long stopTime = System.currentTimeMillis();//used for delivery
+    public long lastStartCmdTime = 0, lastStopCmdTime = 0;
+    public long stopTime = System.currentTimeMillis();//used for delivery
     public long lastDetectedTime = 0;
 	public CarIcon icon = null;
 	public Citizen passenger = null;
@@ -90,8 +91,16 @@ public class Car {
         notifyPolice(cmd, false);
 	}
 
+    public void notifyPolice(int cmd, int delay) {
+        notifyPolice(cmd, delay, false);
+    }
+
 	public void notifyPolice(int cmd, boolean manual) {
-        notifyPolice(cmd, loc.adjRoads.get(dir), manual);
+        notifyPolice(cmd, 0, manual);
+    }
+
+    public void notifyPolice(int cmd, int delay, boolean manual) {
+        notifyPolice(cmd, loc.adjRoads.get(dir), delay, manual);
     }
 
 	public void notifyPolice(int cmd, Road requested) {
@@ -99,9 +108,13 @@ public class Car {
 	}
 
     public void notifyPolice(int cmd, Road requested, boolean manual) {
+        notifyPolice(cmd, requested, 0, manual);
+    }
+
+    public void notifyPolice(int cmd, Road requested, int delay, boolean manual) {
         if(requested == null)
             return;
-        Police.add(this, dir, loc, cmd, requested, manual);
+        Police.add(this, dir, loc, cmd, requested, delay, manual);
     }
 
 	private void notifySelfCheck(){
@@ -113,11 +126,11 @@ public class Car {
 		}
 	}
 
-	public void correctTire() {
+	public void correctWheels() {
 	    if (!isConnected())
 	        return;
 
-	    int cmd = getRealLoc().tireCorrection.get(getRealDir());
+	    int cmd = getRealLoc().wheelsCorrection.get(getRealDir());
 	    switch (cmd) {
             case Command.LEFT:
                 write(Command.LEFT); break;
@@ -141,7 +154,7 @@ public class Car {
         sensor.nextRoad.cars.add(this);
         sensor.nextRoad.carsWithoutFake.add(this);
         timeout = loc.timeouts.get(dir).get(url);
-        correctTire();
+        correctWheels();
         sensor.nextRoad.iconPanel.repaint();
         Middleware.addInitialContext(name, Car.MOVING, sensor.prevRoad.name, sensor.nextRoad.name, sensor.nextSensor.nextRoad.name,
                 System.currentTimeMillis(), this, sensor);
@@ -231,10 +244,12 @@ public class Car {
                 switch (cmd) {
                     case Command.MOVE_FORWARD:
                         trend = Car.MOVING;
+                        lastStartCmdTime = lastCmdTime;
                         System.out.println("START " + name + " at " + lastCmdTime);
                         break;
                     case Command.STOP:
                         trend = Car.STOPPED;
+                        lastStopCmdTime = lastCmdTime;
                         System.out.println("STOP " + name + " at " + lastCmdTime);
                         break;
                     case Command.HORN_ON:
@@ -260,7 +275,7 @@ public class Car {
         if (!hasPhantom()) {
             loc.carsWithoutFake.add(this);
             timeout = loc.timeouts.get(dir).get(url); //setting remaining time to phantoms is meaningless
-            correctTire();
+            correctWheels();
         }
 
         setLoading(false);
@@ -338,7 +353,7 @@ public class Car {
         }
         loc.carsWithoutFake.add(this);
         timeout = loc.timeouts.get(dir).get(url);
-        correctTire();
+        correctWheels();
         loc.iconPanel.repaint();
         loc.checkCrash();
     }

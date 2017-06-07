@@ -139,13 +139,18 @@ public class BrickHandler extends Thread{
 
     public static void triggerEventAfterEntering(Car car, Sensor sensor) {
         if (car.dest == car.loc) {
-            car.notifyPolice(Police.REQUEST2STOP);
+            car.notifyPolice(Police.REQUEST2STOP, Dashboard.isNoisyScenarioEnabled() ? 100 : 0);
             //trigger reach dest event
             if (EventManager.hasListener(Event.Type.CAR_REACH_DEST))
                 EventManager.trigger(new Event(Event.Type.CAR_REACH_DEST, car.name, car.loc.name));
         }
-        else
-            car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
+        else {
+//            car.notifyPolice(car.lastCmd == Command.MOVE_FORWARD ? Police.REQUEST2ENTER : Police.REQUEST2STOP);
+            if (car.lastCmd == Command.MOVE_FORWARD)
+                car.notifyPolice(Police.REQUEST2ENTER);
+            else
+                car.notifyPolice(Police.REQUEST2STOP, Dashboard.isNoisyScenarioEnabled() ? 150 : 0);
+        }
 
         //trigger context
         if (ContextManager.hasListener())

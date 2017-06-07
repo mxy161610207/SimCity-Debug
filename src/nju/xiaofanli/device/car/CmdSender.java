@@ -57,6 +57,36 @@ public class CmdSender implements Runnable{
             }
         }
 
+        class DelayedTask implements Runnable {
+            private Car car;
+            private int cmd;
+            private long deadline;
+
+            private DelayedTask(Car car, int cmd, long deadline) {
+                this.car = car;
+                this.cmd = cmd;
+                this.deadline = deadline;
+            }
+
+            @Override
+            public void run() {
+                if (car == null || !StateSwitcher.isNormal())
+                    return;
+
+                long time = System.currentTimeMillis(), delay = deadline - time;
+                if (delay > 0)
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                if (StateSwitcher.isNormal() && car.lastStartCmdTime < time) {
+                    car.write(cmd);
+//                    System.err.println("car: " + car.name + "\tcmd: " + (cmd == Command.STOP ? "STOP" : "START") + "\tdelay: " + delay);
+                }
+            }
+        }
         Thread thread = Thread.currentThread();
         StateSwitcher.register(thread);
         //noinspection InfiniteLoopStatement
@@ -92,7 +122,10 @@ public class CmdSender implements Runnable{
                 case Command.WHISTLE3:
                     Resource.execute(new WhistleTask(cmd.car, 200, 100, 3));
                 default:
-                    cmd.car.write(cmd.cmd);
+                    if (System.currentTimeMillis() >= cmd.deadline)
+                        cmd.car.write(cmd.cmd);
+                    else
+                        Resource.execute(new DelayedTask(cmd.car, cmd.cmd, cmd.deadline));
                     break;
             }
 
@@ -130,7 +163,7 @@ public class CmdSender implements Runnable{
     }
 
     private static Comparator<Command> comparator = (o1, o2) -> (int) (o1.deadline - o2.deadline);
-    public static void send(Car car, int cmd, boolean delay) {
+    public static void send(Car car, int cmd, int delay) {
         if(StateSwitcher.isResetting())
             return;
         synchronized (queue) {
@@ -153,7 +186,7 @@ public class CmdSender implements Runnable{
 //                queue.add(pos, command);
 //                queue.notify();
 //            }
-            queue.add(new Command(car, cmd, System.currentTimeMillis()));
+            queue.add(new Command(car, cmd, System.currentTimeMillis()+delay));
             queue.notify();
         }
     }

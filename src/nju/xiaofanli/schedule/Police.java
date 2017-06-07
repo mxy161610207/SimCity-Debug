@@ -63,7 +63,7 @@ public class Police implements Runnable{
 			synchronized (r.requested.waiting) {
 				switch (r.cmd) {
 					case REQUEST2STOP:
-						Command.send(r.car, Command.STOP, !r.manual);
+						Command.send(r.car, Command.STOP, r.delay);
                         r.car.setAvailCmd(Command.MOVE_FORWARD);
 						waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
 						waitedRoads.get(r.car).clear();
@@ -78,7 +78,7 @@ public class Police implements Runnable{
 						break;
 					case REQUEST2ENTER:
 					    if(!r.car.isEngineStarted && !r.manual) {
-                            Command.send(r.car, Command.STOP, true);
+                            Command.send(r.car, Command.STOP, r.delay);
                             r.car.setAvailCmd(Command.MOVE_FORWARD);
 							waitedRoads.get(r.car).forEach(road -> road.removeWaitingCar(r.car));
 							waitedRoads.get(r.car).clear();
@@ -93,7 +93,7 @@ public class Police implements Runnable{
 							System.out.println(r.car.name + " need to STOP!!!");
 							r.requested.addWaitingCar(r.car);
 							waitedRoads.get(r.car).add(r.requested);
-							Command.send(r.car, Command.STOP, !r.manual);
+							Command.send(r.car, Command.STOP, r.delay);
                             r.car.setAvailCmd(Command.STOP);
 							r.car.isEngineStarted = true;
 							//trigger recv response event
@@ -217,8 +217,8 @@ public class Police implements Runnable{
             EventManager.trigger(new Event(Event.Type.CAR_SEND_REQUEST, request.car.name, request.loc.name, request.cmd));
     }
 
-    public static void add(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, boolean manual) {
-        add(new Request(car, dir, loc, cmd, requested, manual));
+    public static void add(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, int delay, boolean manual) {
+        add(new Request(car, dir, loc, cmd, requested, delay, manual));
     }
 
 	public static void reset(){
@@ -243,15 +243,16 @@ public class Police implements Runnable{
 		TrafficMap.Direction dir;
 		Road loc;
 		Road requested;
-		int cmd;
+		int cmd, delay;
         boolean manual = false; // whether this request is sent by user
 
-		Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, boolean manual) {
+		Request(Car car, TrafficMap.Direction dir, Road loc, int cmd, Road requested, int delay, boolean manual) {
 			this.car = car;
 			this.dir = dir;
 			this.loc = loc;
 			this.cmd = cmd;
 			this.requested = requested;
+			this.delay = delay;
             this.manual = manual;
         }
 	}
