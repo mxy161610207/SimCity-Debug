@@ -1,0 +1,39 @@
+==本文件夹用于debug,非SimCity包含部分==
+
+本文件夹用于从Idea场景的控制台输出中计算对应某车的timeout值。
+源代码中的修改部分均有mxy_edit注释。
+此目录中的a.out文件由wsl中g++ work.cpp生成，因此并不能在cmd.exe中运行
+
+
+生成某车的timeout值方法如下：
+
+1)将当前目录加入vscode,并选择wsl终端,运行命令"./a.out"
+在控制台中输入首字母大写的车辆颜色,eg:Orange
+控制台中将输出默认值5000ms的所有传感器timeout初值。
+$>./a.out >temp.txt
+Orange          # user input
+$>cat temp.txt
+btspp://00066661AD56:1;authenticate=false;encrypt=false;master=false    B0S1    5000
+...
+btspp://00066661AD56:1;authenticate=false;encrypt=false;master=false    B9S2    5000
+
+2)将默认5000ms的传感器延迟信息复制到源代码的timeout文件中,
+（注意分隔符是\t不是4个空格，直接输出到wsl并复制会出现此问题）
+
+3)在Idea场景下选择此小车并运行，将看到当前目录下生成小车同名的文件(eg:"Orange Car.txt"),
+记录了小车被Sensor监测到的log信息，有 DETECT 和 relocate 两种：
+[B1S1] DETECT Orange Car	time: 1578998468753
+[B1S3] Timeout relocate Orange Car	1578998472222
+
+/*
+    输出log信息到文件是因为修改了源代码的
+    SimCity\src\nju\xiaofanli\device\sensor\BrickHandler.java
+    修改部分带有mxy_edit标志
+*/
+
+4)再次使用wsl运行a.out文件,此时对文件的输入和输出做重定向，eg：
+$>./a.out < Orange\ Car.txt >orange_car_timeout.txt
+
+程序将计算并输出每个传感器记录到的最大延时+200ms(计算时忽略relocate行和紧接着的DETECT行)，
+无值则输出5000ms
+将实测的延迟值到timeout文件中做替换

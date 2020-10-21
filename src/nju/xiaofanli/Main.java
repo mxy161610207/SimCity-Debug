@@ -120,6 +120,13 @@ public class Main {
 		String line;
         try {
             while((line = br.readLine()) != null) {
+            	// mxy_edit: allow annotation line start with "#"
+            	if (line.startsWith("#")){
+            		continue;
+				}
+				//	System.out.println(line);
+				// == EDIT END ==
+
                 String[] strs = line.split("\t");
                 String car = strs[0], sensor = strs[1];
                 int deadline = Integer.parseInt(strs[2]);

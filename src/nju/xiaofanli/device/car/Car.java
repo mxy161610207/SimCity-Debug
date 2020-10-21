@@ -212,7 +212,7 @@ public class Car {
             dos = conn.openDataOutputStream();
             dis = conn.openDataInputStream();
         } catch (IOException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             disconnect();
         }
         if(isConnected())

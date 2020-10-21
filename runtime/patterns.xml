@@ -126,7 +126,7 @@
         <id>black_car1</id>
         <size>2</size>
         <timestamp>any</timestamp>
-        <car>Black Car</car>
+        <car>Black SUV</car>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -134,10 +134,10 @@
     </pattern>
 
     <pattern>
-        <id>black_car2</id>
+        <id>black_suv1</id>
         <size>2</size>
         <timestamp>any</timestamp>
-        <car>Black Car</car>
+        <car>Black SUV</car>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -145,10 +145,10 @@
     </pattern>
 
     <pattern>
-        <id>black_car3</id>
+        <id>black_suv2</id>
         <size>2</size>
         <timestamp>any</timestamp>
-        <car>Black Car</car>
+        <car>Black SUV</car>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -156,10 +156,10 @@
     </pattern>
 
     <pattern>
-        <id>black_car4</id>
+        <id>black_suv3</id>
         <size>2</size>
         <timestamp>any</timestamp>
-        <car>Black Car</car>
+        <car>Black SUV</car>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -167,10 +167,10 @@
     </pattern>
 
     <pattern>
-        <id>black_car5</id>
+        <id>black_suv4</id>
         <size>2</size>
         <timestamp>any</timestamp>
-        <car>Black Car</car>
+        <car>Black SUV</car>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>
@@ -178,54 +178,10 @@
     </pattern>
 
     <pattern>
-        <id>white_car1</id>
+        <id>black_suv5</id>
         <size>2</size>
         <timestamp>any</timestamp>
-        <car>White Car</car>
-        <state>any</state>
-        <cur_loc>any</cur_loc>
-        <prev_loc>any</prev_loc>
-        <next_loc>any</next_loc>
-    </pattern>
-
-    <pattern>
-        <id>white_car2</id>
-        <size>2</size>
-        <timestamp>any</timestamp>
-        <car>White Car</car>
-        <state>any</state>
-        <cur_loc>any</cur_loc>
-        <prev_loc>any</prev_loc>
-        <next_loc>any</next_loc>
-    </pattern>
-
-    <pattern>
-        <id>white_car3</id>
-        <size>2</size>
-        <timestamp>any</timestamp>
-        <car>White Car</car>
-        <state>any</state>
-        <cur_loc>any</cur_loc>
-        <prev_loc>any</prev_loc>
-        <next_loc>any</next_loc>
-    </pattern>
-
-    <pattern>
-        <id>white_car4</id>
-        <size>2</size>
-        <timestamp>any</timestamp>
-        <car>White Car</car>
-        <state>any</state>
-        <cur_loc>any</cur_loc>
-        <prev_loc>any</prev_loc>
-        <next_loc>any</next_loc>
-    </pattern>
-
-    <pattern>
-        <id>white_car5</id>
-        <size>2</size>
-        <timestamp>any</timestamp>
-        <car>White Car</car>
+        <car>Black SUV</car>
         <state>any</state>
         <cur_loc>any</cur_loc>
         <prev_loc>any</prev_loc>

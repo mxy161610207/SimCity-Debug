@@ -7,6 +7,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import java.io.*;
+
 public class BrickServer implements Runnable{
 	private static DatagramSocket server = null;
 	private static final int PORT = 9999;
@@ -52,10 +54,29 @@ public class BrickServer implements Runnable{
 				}
 				else if(d != Integer.MAX_VALUE && d != 98) {
                     long time = Long.parseLong(data.substring(4, 17));
-                    if (Math.abs(System.currentTimeMillis()-time) >= 500)
-                    	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
-                    BrickHandler.insert(bid, sid, d, time);
-                }
+                    // mxy_edit: temporary remove delay log
+                    //if (Math.abs(System.currentTimeMillis()-time) >= 500)
+                    //	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
+                    // == EDIT END ==
+					BrickHandler.insert(bid, sid, d, time);
+
+					// mxy_edit log for each sensor
+					String FileName = new String("B"+bid+"S"+(sid+1)+".txt");
+					File f= new File("mxy_temp\\Sensor\\"+FileName);
+                                try (FileOutputStream fop = new FileOutputStream(f,true)){
+                                    if(!f.exists()){
+                                        f.createNewFile();
+                                    }
+                                    String s = new String("[B"+bid+"S"+(sid+1)+"] : dis="+d+"  "+time+"ms\n");
+                                    byte[] content=s.getBytes();
+
+                                    fop.write(content);
+                                    fop.flush();
+                                    fop.close();
+                                }catch (IOException e) {
+									e.printStackTrace();
+								}
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

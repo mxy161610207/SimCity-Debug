@@ -109,7 +109,15 @@ public class Middleware {
         // update cars' and sensors' states
         switch (res.first) {
             case Context.Normal:
-                BrickHandler.switchState(car, sensor, time, isRealCar, true, triggerEvent);
+                // mxy_edit: 必须对其进行捕获或声明以便抛出
+                try {
+                    BrickHandler.switchState(car, sensor, time, isRealCar, true, triggerEvent);
+                }catch (Exception e){
+                    System.out.println("Wrong!");
+                }
+                // == previous code ==
+                // BrickHandler.switchState(car, sensor, time, isRealCar, true, triggerEvent);
+                // == EDIT END ==
                 break;
             case Context.FP:
                 if (detectionEnabled) {
@@ -125,7 +133,15 @@ public class Middleware {
                     }
                 }
                 if (!resolutionEnabled && detectionEnabled) //if (!resolutionEnabled)
-                    BrickHandler.switchState(car, sensor, time, isRealCar, false, triggerEvent);
+                    // mxy_edit: 必须对其进行捕获或声明以便抛出
+                    try {
+                        BrickHandler.switchState(car, sensor, time, isRealCar, true, triggerEvent);
+                    }catch (Exception e){
+                        System.out.println("Wrong!");
+                    }
+                    //  == previous code ==
+                    // BrickHandler.switchState(car, sensor, time, isRealCar, true, triggerEvent);
+                    // == EDIT END ==
                 break;
 //            case Context.FN:
 //                if (detectionEnabled)

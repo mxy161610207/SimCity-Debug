@@ -148,11 +148,11 @@
 	
     <rule>
         <id>rule_05</id>
-        <explanation en="A black car cannot be detected by different sensors at the same time." ch="一辆黑车不可能同时被不同的传感器检测到。" />
+        <explanation en="A black SUV cannot be detected by different sensors at the same time." ch="一辆黑车不可能同时被不同的传感器检测到。" />
         <formula>
-            <forall var="v1" in="black_car1">
+            <forall var="v1" in="black_suv1">
                 <not>
-                    <exists var="v2" in="black_car2">
+                    <exists var="v2" in="black_suv2">
                         <and>
                             <not>
                                 <bfunc id="same">
@@ -181,20 +181,20 @@
 
     <rule>
         <id>rule_06</id>
-        <explanation en="A black car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
+        <explanation en="A black SUV must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
                      ch="黑车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
         <formula>
-            <forall var="v1" in="black_car3">
+            <forall var="v1" in="black_suv3">
                 <or>
                     <not>
-                        <exists var="v2" in="black_car4">
+                        <exists var="v2" in="black_suv4">
                             <bfunc id="earlier_than">
                                 <param pos="1" var="v2" field="timestamp" />
                                 <param pos="2" var="v1" field="timestamp" />
                             </bfunc>
                         </exists>
                     </not>
-                    <exists var="v3" in="black_car5">
+                    <exists var="v3" in="black_suv5">
                         <and>
                             <bfunc id="same_location">
                                 <param pos="1" var="v1" field="prev_loc" />
@@ -210,72 +210,7 @@
             </forall>
         </formula>
     </rule>	
-	
-    <rule>
-        <id>rule_07</id>
-        <explanation en="A white car cannot be detected by different sensors at the same time." ch="一辆白车不可能同时被不同的传感器检测到。" />
-        <formula>
-            <forall var="v1" in="white_car1">
-                <not>
-                    <exists var="v2" in="white_car2">
-                        <and>
-                            <not>
-                                <bfunc id="same">
-                                    <param pos="1" var="v1" field="id" />
-                                    <param pos="2" var="v2" field="id" />
-                                </bfunc>
-                            </not>
-                            <and>
-                                <not>
-                                    <bfunc id="same_location">
-                                        <param pos="1" var="v1" field="cur_loc" />
-                                        <param pos="2" var="v2" field="cur_loc" />
-                                    </bfunc>
-                                </not>
-                                <bfunc id="short_time">
-                                    <param pos="1" var="v1" field="timestamp" />
-                                    <param pos="2" var="v2" field="timestamp" />
-                                </bfunc>
-                            </and>
-                        </and>
-                    </exists>
-                </not>
-            </forall>
-        </formula>
-    </rule>
 
-    <rule>
-        <id>rule_08</id>
-        <explanation en="A white car must enter roads in a topological order. For instance, the car cannot skip the current road and directly enter the next one."
-                     ch="白车必须按照拓扑顺序进入街道。例如，它不能跳过当前街道而直接进入下一个。" />
-        <formula>
-            <forall var="v1" in="white_car3">
-                <or>
-                    <not>
-                        <exists var="v2" in="white_car4">
-                            <bfunc id="earlier_than">
-                                <param pos="1" var="v2" field="timestamp" />
-                                <param pos="2" var="v1" field="timestamp" />
-                            </bfunc>
-                        </exists>
-                    </not>
-                    <exists var="v3" in="white_car5">
-                        <and>
-                            <bfunc id="same_location">
-                                <param pos="1" var="v1" field="prev_loc" />
-                                <param pos="2" var="v3" field="cur_loc" />
-                            </bfunc>
-                            <bfunc id="same_location">
-                                <param pos="1" var="v1" field="cur_loc" />
-                                <param pos="2" var="v3" field="next_loc" />
-                            </bfunc>
-                        </and>
-                    </exists>
-                </or>
-            </forall>
-        </formula>
-    </rule>	
-	
     <rule>
         <id>rule_09</id>
         <explanation en="A red car cannot be detected by different sensors at the same time." ch="一辆红车不可能同时被不同的传感器检测到。" />
