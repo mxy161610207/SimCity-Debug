@@ -46,7 +46,11 @@ def recv_handler():
         if sync_id == recv_id and sync_recv - sync_sent < rtt:
             rtt = sync_recv - sync_sent # second
             # offset use million second
-            offset = int(data[2:].decode('utf-8')) + (rtt/2)*1000 - sync_recv*1000
+            # offset = int(data[2:].decode('utf-8')) + (rtt/2)*1000 - sync_recv*1000
+
+            # original code
+            offset = int(data[2:].decode('utf-8')) + (rtt/2) - sync_recv*1000
+
             sync = True
 
 t = threading.Thread(target=recv_handler)
@@ -59,7 +63,9 @@ while True:
         for i in range(SENSORS):
             v = min(98, sensor[i].value())
             cur = time.time()
-            if pre[i] != v or cur - sent[i] >= 3:
+            # if pre[i] != v or cur - sent[i] >= 3:
+            # sent log per second
+            if cur - sent[i] >= 0.1:
                 try:
                     s.sendto('{0}{1}{2:02d}{3}'.format(BID, i, v, int(cur*1000+offset)).encode(), ADDR)
                     pre[i] = v
