@@ -41,11 +41,12 @@ def recv_handler():
     rtt = sys.maxsize
     while True:
         data, addr = s.recvfrom(20)
-        sync_recv = time.time()
+        sync_recv = time.time() # second
         recv_id = int(data[0:2].decode('utf-8'))
         if sync_id == recv_id and sync_recv - sync_sent < rtt:
-            rtt = sync_recv - sync_sent
-            offset = int(data[2:].decode('utf-8')) + rtt/2 - sync_recv*1000
+            rtt = sync_recv - sync_sent # second
+            # offset use million second
+            offset = int(data[2:].decode('utf-8')) + (rtt/2)*1000 - sync_recv*1000
             sync = True
 
 t = threading.Thread(target=recv_handler)
@@ -68,7 +69,7 @@ while True:
 
     if count == 0:
         sync_id = sync_id + 1 if sync_id <= 98 else 0
-        sync_sent = time.time()
+        sync_sent = time.time() # second
         s.sendto('{0:02d}{1:02d}'.format(sync_id, 99).encode(), ADDR) # clock synchronization request
     count = count + 1 if count <= 198 else 0 # one request per 200 * 0.05 s
     time.sleep(0.05)

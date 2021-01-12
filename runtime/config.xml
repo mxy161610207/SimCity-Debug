@@ -2,13 +2,13 @@
 <config>
     <car name="Red Car" color="ff0000" loc="Street 4" url="btspp://00066661A594:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/red_car_icon.png" fakeIcon="runtime/res/red_car_fake_icon.png" realIcon="runtime/res/red_car_real_icon.png"/>
-    <car name="Blue Car" color="00bfff" loc="Street 16" url="btspp://00066661A3E4:1;authenticate=false;encrypt=false;master=false"
+    <car name="Blue Car" color="00bfff" loc="Street 16" url="btspp://00066661AB56:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/blue_car_icon.png" fakeIcon="runtime/res/blue_car_fake_icon.png" realIcon="runtime/res/blue_car_real_icon.png"/>
     <car name="Yellow Car" color="ffd700" loc="Street 17" url="btspp://00066661A290:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/yellow_car_icon.png" fakeIcon="runtime/res/yellow_car_fake_icon.png" realIcon="runtime/res/yellow_car_real_icon.png"/>
-    <car name="Pink Car" color="ff69b4" loc="Street 3" url="btspp://00066661A234:1;authenticate=false;encrypt=false;master=false"
+    <car name="Pink Car" color="ff69b4" loc="Street 3" url="btspp://00066661A2DC:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/pink_car_icon.png" fakeIcon="runtime/res/pink_car_fake_icon.png" realIcon="runtime/res/pink_car_real_icon.png"/>
-    <car name="Orange Car" color="ffa500" loc="Street 9" url="btspp://00066661AD56:1;authenticate=false;encrypt=false;master=false"
+    <car name="Orange Car" color="ffa500" loc="Street 9" url="btspp://00066661A6C9:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/orange_car_icon.png" fakeIcon="runtime/res/orange_car_fake_icon.png" realIcon="runtime/res/orange_car_real_icon.png"/>
     <car name="Silver SUV" color="c0c0c0" loc="Street 11" url="btspp://0006664989CE:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/silver_suv_icon.png" fakeIcon="runtime/res/silver_suv_fake_icon.png" realIcon="runtime/res/silver_suv_real_icon.png"/>
