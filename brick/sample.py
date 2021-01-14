@@ -33,7 +33,7 @@ print('Brick %s plugged in by %d IR sensors' % (BID, SENSORS))
 
 pre = [-1, -1, -1, -1]
 sent = [0.0, 0.0, 0.0, 0.0]
-term = [0, 0, 0, 0]
+term = [1000, 1000, 1000, 1000]
 sensor = []
 for i in range(1, SENSORS + 1):
     sensor.append(InfraredSensor('in%d' % i))
@@ -55,10 +55,10 @@ def recv_handler():
         if sync_id == recv_id and sync_recv - sync_sent < rtt:
             rtt = sync_recv - sync_sent # second
             # offset use million second
-            # offset = int(data[2:].decode('utf-8')) + (rtt/2)*1000 - sync_recv*1000
+            offset = int(data[2:].decode('utf-8')) + (rtt/2)*1000 - sync_recv*1000
 
             # original code
-            offset = int(data[2:].decode('utf-8')) + (rtt/2) - sync_recv*1000
+            # offset = int(data[2:].decode('utf-8')) + (rtt/2) - sync_recv*1000
 
             sync = True
 
@@ -72,14 +72,14 @@ while True:
         for i in range(SENSORS):
             v = min(98, sensor[i].value())
             cur = time.time()
-            # if pre[i] != v or cur - sent[i] >= 3:
+            if pre[i] != v or cur - sent[i] >= 3:
             # sent log per second
-            if cur - sent[i] >= 0.1:
+            # if cur - sent[i] >= 1:
                 try:
-                    s.sendto('{0}{1}{2:02d}{3:02d}{4}'.format(BID, i, v, term[i], int(cur*1000+offset)).encode(), ADDR)
+                    s.sendto('{0}{1}{2:02d}{3:04d}{4}'.format(BID, i, v, term[i], int(cur*1000+offset)).encode(), ADDR)
                     pre[i] = v
                     sent[i] = cur
-                    term[i] = term[i] + 1 if term[i] <= 98 else 0
+                    term[i] = term[i] + 1 if term[i] <= 1998 else 1000
                 except socket.error:
                     print("%s: socket.error" % BID)
 
@@ -87,6 +87,6 @@ while True:
         if not sync or not sync_once: # if never sync, then sync whatever; if not only sync once, then sync again.
             sync_id = sync_id + 1 if sync_id <= 98 else 0
             sync_sent = time.time() # second
-            s.sendto('{0:02d}{1:02d}{3}'.format(sync_id, 99, BID).encode(), ADDR) # clock synchronization request
+            s.sendto('{0:02d}{1:02d}{2}'.format(sync_id, 99, BID).encode(), ADDR) # clock synchronization request
     count = count + 1 if count <= 198 else 0 # one request per 200 * 0.05 s
     time.sleep(0.05)
