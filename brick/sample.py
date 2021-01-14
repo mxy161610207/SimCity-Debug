@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+## todo:
+## configure to clock sync only once || always
+## send infrared sensor data with (distributed term/index)
+
 from ev3dev.ev3 import *
 import socket
 import time, threading, sys
 
 if len(sys.argv) != 2:
     sys.exit()
+
+sync_once = True
 
 IP = sys.argv[1]
 print(IP+"\n")
@@ -25,6 +31,7 @@ print('Brick %s plugged in by %d IR sensors' % (BID, SENSORS))
 
 pre = [-1, -1, -1, -1]
 sent = [0.0, 0.0, 0.0, 0.0]
+term = [0, 0, 0, 0]
 sensor = []
 for i in range(1, SENSORS + 1):
     sensor.append(InfraredSensor('in%d' % i))
@@ -67,15 +74,17 @@ while True:
             # sent log per second
             if cur - sent[i] >= 0.1:
                 try:
-                    s.sendto('{0}{1}{2:02d}{3}'.format(BID, i, v, int(cur*1000+offset)).encode(), ADDR)
+                    s.sendto('{0}{1}{2:02d}{3:02d}{4}'.format(BID, i, term[i], v, int(cur*1000+offset)).encode(), ADDR)
                     pre[i] = v
                     sent[i] = cur
+                    term[i] = term[i] + 1 if term[i] <= 98 else 0
                 except socket.error:
                     print("%s: socket.error" % BID)
 
     if count == 0:
-        sync_id = sync_id + 1 if sync_id <= 98 else 0
-        sync_sent = time.time() # second
-        s.sendto('{0:02d}{1:02d}'.format(sync_id, 99).encode(), ADDR) # clock synchronization request
+        if not sync_once:
+            sync_id = sync_id + 1 if sync_id <= 98 else 0
+            sync_sent = time.time() # second
+            s.sendto('{0:02d}{1:02d}'.format(sync_id, 99).encode(), ADDR) # clock synchronization request
     count = count + 1 if count <= 198 else 0 # one request per 200 * 0.05 s
     time.sleep(0.05)

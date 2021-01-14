@@ -50,7 +50,8 @@ public class BrickServer implements Runnable{
 //				System.out.println(data);
 				int bid = data.charAt(0) - '0';//byte2int(b, 0);
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
-				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
+				int termId = Integer.parseInt(data.substring(2, 4));
+				int d = Integer.parseInt(data.substring(4, 6));//byte2int(b, 8);
                 if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
                     System.out.println("["+showingSensor.name+"] reading: "+d+"\ttime: "+Long.parseLong(data.substring(4, 17)));
 //				if(((pre[bid][sid] + 1) % 100) != d)
@@ -93,9 +94,13 @@ public class BrickServer implements Runnable{
 //									}
 
 
-									String s = new String("[B"+bid+"S"+(sid+1)+"] : dis="+ String.format("%2d", d)
-											+"  " +time_str+"   time_abs ="+String.format("%3d", time_abs)+"ms"
-											+"  time_gap =" + String.format("%.3f", time_gap)+ "s"+"\n");
+									String s = new String(
+											"[B"+bid+"S"+(sid+1)+"] : dis="+ String.format("%2d", d)
+											+"  " +time_str
+											+ "  net_delay ="+String.format("%3d", time_abs)+"ms"
+											+"  time_gap =" + String.format("%.3f", time_gap)+ "s"
+											+"  termId =" + termId
+											+"\n");
                                     byte[] content=s.getBytes();
 
                                     fop.write(content);
