@@ -76,7 +76,7 @@ while True:
             # sent log per second
             if cur - sent[i] >= 0.1:
                 try:
-                    s.sendto('{0}{1}{2:02d}{3:02d}{4}'.format(BID, i, term[i], v, int(cur*1000+offset)).encode(), ADDR)
+                    s.sendto('{0}{1}{2:02d}{3:02d}{4}'.format(BID, i, v, term[i], int(cur*1000+offset)).encode(), ADDR)
                     pre[i] = v
                     sent[i] = cur
                     term[i] = term[i] + 1 if term[i] <= 98 else 0
@@ -84,9 +84,9 @@ while True:
                     print("%s: socket.error" % BID)
 
     if count == 0:
-        if not sync_once:
+        if not sync or not sync_once: # if never sync, then sync whatever; if not only sync once, then sync again.
             sync_id = sync_id + 1 if sync_id <= 98 else 0
             sync_sent = time.time() # second
-            s.sendto('{0:02d}{1:02d}'.format(sync_id, 99).encode(), ADDR) # clock synchronization request
+            s.sendto('{0:02d}{1:02d}{3}'.format(sync_id, 99, BID).encode(), ADDR) # clock synchronization request
     count = count + 1 if count <= 198 else 0 # one request per 200 * 0.05 s
     time.sleep(0.05)

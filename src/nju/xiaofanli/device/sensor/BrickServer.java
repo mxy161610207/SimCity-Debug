@@ -50,8 +50,9 @@ public class BrickServer implements Runnable{
 //				System.out.println(data);
 				int bid = data.charAt(0) - '0';//byte2int(b, 0);
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
-				int termId = Integer.parseInt(data.substring(2, 4));
-				int d = Integer.parseInt(data.substring(4, 6));//byte2int(b, 8);
+				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
+				int termId = Integer.parseInt(data.substring(4, 6));
+
                 if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
                     System.out.println("["+showingSensor.name+"] reading: "+d+"\ttime: "+Long.parseLong(data.substring(4, 17)));
 //				if(((pre[bid][sid] + 1) % 100) != d)
@@ -63,6 +64,28 @@ public class BrickServer implements Runnable{
 				if (d == 99) { // clock synchronization
                     byte[] buffer = data.substring(0, 2).concat(String.valueOf(System.currentTimeMillis())).getBytes();
 //                    System.err.println(packet.getAddress()+"\t"+packet.getPort()+"\t"+System.currentTimeMillis());
+
+					// mxy_edit log for each brick
+					String FileName = "B" + (data.charAt(4) - '0') + ".txt";
+					File f= new File("mxy_temp\\Sensor\\"+FileName);
+					try (FileOutputStream fop = new FileOutputStream(f,true)){
+						if(!f.exists()){
+							f.createNewFile();
+						}
+						// mxy_edit: modify the timestamp format
+						SimpleDateFormat sDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+						String time_str=sDateFormat.format(System.currentTimeMillis());
+
+						String s = time_str
+								+ "  sync_id =" + Integer.parseInt(data.substring(0, 2))
+								+ "\n";
+						byte[] content=s.getBytes();
+						fop.write(content);
+						fop.flush();
+					}catch (IOException e) {
+						e.printStackTrace();
+					}
+
                     server.send(new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort()));
 				}
 				else if(d != Integer.MAX_VALUE && d != 98) {
@@ -74,41 +97,39 @@ public class BrickServer implements Runnable{
 					BrickHandler.insert(bid, sid, d, time);
 
 					// mxy_edit log for each sensor
-					String FileName = new String("B"+bid+"S"+(sid+1)+".txt");
+					String FileName = "B" + bid + "S" + (sid + 1) + ".txt";
 					File f= new File("mxy_temp\\Sensor\\"+FileName);
-                                try (FileOutputStream fop = new FileOutputStream(f,true)){
-                                    if(!f.exists()){
-                                        f.createNewFile();
-                                    }
-                                    // mxy_edit: modify the timestamp format
-									SimpleDateFormat sDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-                                    String time_str=sDateFormat.format(time);
-                                    long time_abs = Math.abs(System.currentTimeMillis()-time);
+					try (FileOutputStream fop = new FileOutputStream(f,true)){
+						if(!f.exists()){
+							f.createNewFile();
+						}
+						// mxy_edit: modify the timestamp format
+						SimpleDateFormat sDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+						long pcTime = System.currentTimeMillis();
+						String time_str=sDateFormat.format(pcTime);
+						long time_abs = Math.abs(pcTime-time);
 
-                                    long last_recv = sensorLatestRecvTimestamp[bid][sid];
-									sensorLatestRecvTimestamp[bid][sid] = time;
-									double time_gap = (double) (time - last_recv) / 1000.0;
-									if (last_recv == -1) time_gap = -1.0;
+						long last_recv = sensorLatestRecvTimestamp[bid][sid];
+						sensorLatestRecvTimestamp[bid][sid] = time;
+						double time_gap = (double) (time - last_recv) / 1000.0;
+						if (last_recv == -1) time_gap = -1.0;
 //									if (Math.abs(time_gap - 3.0)>=0.1 || time_gap<3.0){
 //										System.err.println("Error time gap: ");
 //									}
 
+						String s = "[B" + bid + "S" + (sid + 1) + "] : dis=" + String.format("%2d", d)
+								+ "  " + time_str
+								+ "  net_delay =" + String.format("%3d", time_abs) + "ms"
+								+ "  time_gap =" + String.format("%.3f", time_gap) + "s"
+								+ "  termId =" + termId
+								+ "\n";
+						byte[] content=s.getBytes();
 
-									String s = new String(
-											"[B"+bid+"S"+(sid+1)+"] : dis="+ String.format("%2d", d)
-											+"  " +time_str
-											+ "  net_delay ="+String.format("%3d", time_abs)+"ms"
-											+"  time_gap =" + String.format("%.3f", time_gap)+ "s"
-											+"  termId =" + termId
-											+"\n");
-                                    byte[] content=s.getBytes();
-
-                                    fop.write(content);
-                                    fop.flush();
-                                    fop.close();
-                                }catch (IOException e) {
-									e.printStackTrace();
-								}
+						fop.write(content);
+						fop.flush();
+					}catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
