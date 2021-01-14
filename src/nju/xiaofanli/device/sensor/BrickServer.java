@@ -18,10 +18,12 @@ public class BrickServer implements Runnable{
 	public static Sensor showingSensor = null;
 	// mxy_edit: for each sensor, record latest recv timestamp
 	private static final long[][] sensorLatestRecvTimestamp = new long[10][4];
+	private static final int[][] sensorLatestTermId = new int[10][4];
 	static{
 		for (int i = 0; i < 10; i++) {
 			for(int j=0;j<4;j++){
 				sensorLatestRecvTimestamp[i][j]=-1;
+				sensorLatestTermId[i][j]=-1;
 			}
 		}
 	}
@@ -40,8 +42,9 @@ public class BrickServer implements Runnable{
 			e.printStackTrace();
 		}
 		new BrickHandler("Brick Handler").start();
-		byte[] buf = new byte[20];//new byte[1024];
+		byte[] buf = new byte[100];//new byte[1024];
 		DatagramPacket packet = new DatagramPacket(buf, buf.length);
+		int previousTermId = -1;
 		//noinspection InfiniteLoopStatement
 		while(true){
 			try {
@@ -51,7 +54,6 @@ public class BrickServer implements Runnable{
 				int bid = data.charAt(0) - '0';//byte2int(b, 0);
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
 				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
-				int termId = Integer.parseInt(data.substring(4, 6));
 
                 if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
                     System.out.println("["+showingSensor.name+"] reading: "+d+"\ttime: "+Long.parseLong(data.substring(4, 17)));
@@ -62,6 +64,8 @@ public class BrickServer implements Runnable{
 //				for(int i = 0;i < 10;i++)
 //					System.out.print(i+":"+(System.currentTimeMillis() - recvTime[i])/1000+"\t");
 				if (d == 99) { // clock synchronization
+//					System.out.println("clock sync");
+
                     byte[] buffer = data.substring(0, 2).concat(String.valueOf(System.currentTimeMillis())).getBytes();
 //                    System.err.println(packet.getAddress()+"\t"+packet.getPort()+"\t"+System.currentTimeMillis());
 
@@ -89,10 +93,16 @@ public class BrickServer implements Runnable{
                     server.send(new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort()));
 				}
 				else if(d != Integer.MAX_VALUE && d != 98) {
-                    long time = Long.parseLong(data.substring(4, 17));
+//					System.out.println("infrared sensor data coming");
+					int termId = Integer.parseInt(data.substring(4, 8))-1000;
+					int lastTermId = sensorLatestTermId[bid][sid];
+					sensorLatestTermId[bid][sid]=termId;
+
+
+                    long time = Long.parseLong(data.substring(8, 21));
                     // mxy_edit: temporary remove delay log
-                    if (Math.abs(System.currentTimeMillis()-time) >= 500)
-                    	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
+                    // if (Math.abs(System.currentTimeMillis()-time) >= 500)
+                    // 	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
                     // == EDIT END ==
 					BrickHandler.insert(bid, sid, d, time);
 
@@ -106,7 +116,7 @@ public class BrickServer implements Runnable{
 						// mxy_edit: modify the timestamp format
 						SimpleDateFormat sDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 						long pcTime = System.currentTimeMillis();
-						String time_str=sDateFormat.format(pcTime);
+						String time_str=sDateFormat.format(time);
 						long time_abs = Math.abs(pcTime-time);
 
 						long last_recv = sensorLatestRecvTimestamp[bid][sid];
@@ -121,8 +131,17 @@ public class BrickServer implements Runnable{
 								+ "  " + time_str
 								+ "  net_delay =" + String.format("%3d", time_abs) + "ms"
 								+ "  time_gap =" + String.format("%.3f", time_gap) + "s"
-								+ "  termId =" + termId
+								+ "  termId = " + termId
 								+ "\n";
+
+						if ((lastTermId+1)%1000!=termId && lastTermId!=-1) {
+							System.err.print("[Pkg loss "+lastTermId+"-"+termId+"]" + s);
+						}
+						if (Math.abs(System.currentTimeMillis()-time) >= 500) {
+							System.err.print("[time delay]" + s);
+						}
+
+
 						byte[] content=s.getBytes();
 
 						fop.write(content);

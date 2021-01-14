@@ -136,7 +136,7 @@ public class Sensor {
 
     private static final int[][] undetectedReading = new int[10][4];
     static {
-        //mxy_edit
+        // mxy_edit
         undetectedReading[0][0] = 25;   //25-26
         undetectedReading[0][1] = 29;   //29-30
         undetectedReading[1][0] = 25;   //25-26
@@ -157,7 +157,7 @@ public class Sensor {
         undetectedReading[5][1] = 24;   //24-25
         undetectedReading[5][2] = 22;   //22-23
         undetectedReading[6][0] = 19;   //19-19
-        undetectedReading[6][1] = 23;   //23-24
+        undetectedReading[6][1] = 21;   //20-21
         undetectedReading[6][2] = 23;   //23-24
         undetectedReading[6][3] = 22;   //22-23
         undetectedReading[7][0] = 27;   //27-28

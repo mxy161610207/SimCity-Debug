@@ -1,0 +1,24 @@
+[B2S4] : dis=21  2021-01-14 03:12:15.661  net_delay =  8ms  time_gap =6.093s  termId = 4
+[B7S1] delay: 1123ms
+[B4S1] delay: 1081ms
+[B4S2] delay: 1018ms
+[B4S3] delay: 1015ms
+[B3S2] delay: 980ms
+[B3S3] delay: 976ms
+[B3S4] delay: 972ms
+[B7S2] delay: 1001ms
+[B7S3] delay: 998ms
+[B7S4] delay: 994ms
+[B0S1] delay: 902ms
+[B1S3] delay: 872ms
+[B8S1] delay: 871ms
+[B0S2] delay: 844ms
+[B8S2] delay: 811ms
+[B1S1] delay: 703ms
+[B1S2] delay: 699ms
+[B8S3] delay: 691ms
+[B2S1] delay: 667ms
+[B2S2] delay: 663ms
+[B2S3] delay: 649ms
+[B2S4] delay: 570ms
+[B6S2] : dis=22  2021-01-14 03:12:46.155  net_delay =102ms  time_gap =21.203s  termId = 4
