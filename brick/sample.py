@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 ## todo:
-## configure to clock sync only once || always
-## send infrared sensor data with (distributed term/index)
+## configure to clock sync only once || always (OK)
+## send infrared sensor data with accumulated term (OK)
+## kill previous python script threads, then start this one
+
 
 from ev3dev.ev3 import *
 import socket
