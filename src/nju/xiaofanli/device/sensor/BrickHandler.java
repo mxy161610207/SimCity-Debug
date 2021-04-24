@@ -15,7 +15,6 @@ import nju.xiaofanli.device.car.Remedy;
 import nju.xiaofanli.event.Event;
 import nju.xiaofanli.event.EventManager;
 
-import java.io.*;
 import java.util.*;
 
 public class BrickHandler extends Thread{
@@ -47,36 +46,6 @@ public class BrickHandler extends Thread{
                             else if (!sensors2handle.containsKey(nextSensor) && !sensors2handle.containsKey(nextSensor.nextSensor)) {
                                 //if there are unhandled raw data about interested sensor, then no hurry to relocate
                                 car.timeout = Integer.MAX_VALUE; //avoid relocating this repeatedly
-
-                                //mxy_edit: output relocate log to file
-                                String s= new String("[" + nextSensor.name + "] Timeout relocate " + car.name + "\t" + start + "\n");
-                                byte[] content = s.getBytes();
-
-                                //-------------Car Name.txt--------------------------
-                                File f= new File("mxy_temp\\"+car.name+".txt");
-                                try (FileOutputStream fop = new FileOutputStream(f,true)){
-                                    if(!f.exists()){
-                                        f.createNewFile();
-                                    }
-                                    fop.write(content);
-                                    fop.flush();
-                                    fop.close();
-                                }catch (IOException e){
-                                    e.printStackTrace();
-                                }
-                                //-------------Sensor.txt--------------------------
-//                                f= new File("mxy_temp\\Sensor.txt");
-//                                try (FileOutputStream fop = new FileOutputStream(f,true)){
-//                                    if(!f.exists()){
-//                                        f.createNewFile();
-//                                    }
-//                                    fop.write(content);
-//                                    fop.flush();
-//                                    fop.close();
-//                                }catch (IOException e){
-//                                    e.printStackTrace();
-//                                }
-                                // == EDIT END ==
 
                                 System.out.println("[" + nextSensor.name + "] Timeout relocate " + car.name + "\t" + start);
                                 StateSwitcher.startRelocating(car, nextSensor, false);

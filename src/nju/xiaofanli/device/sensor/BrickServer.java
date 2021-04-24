@@ -69,7 +69,7 @@ public class BrickServer implements Runnable{
 					byte[] buffer = data.substring(0, 2).concat(String.valueOf(System.currentTimeMillis())).getBytes();
 //                    System.err.println(packet.getAddress()+"\t"+packet.getPort()+"\t"+System.currentTimeMillis());
 
-					// mxy_edit log for each brick
+					// mxy_edit: log for each brick
 					String FileName = "B" + (data.charAt(4) - '0') + ".txt";
 					File f= new File("mxy_temp\\Sensor\\"+FileName);
 					try (FileOutputStream fop = new FileOutputStream(f,true)){
@@ -106,7 +106,7 @@ public class BrickServer implements Runnable{
 					// == EDIT END ==
 					BrickHandler.insert(bid, sid, d, time);
 
-					// mxy_edit log for each sensor
+					// mxy_edit: log for each sensor
 					String FileName = "B" + bid + "S" + (sid + 1) + ".txt";
 					File f= new File("mxy_temp\\Sensor\\"+FileName);
 					try (FileOutputStream fop = new FileOutputStream(f,true)){

@@ -9,8 +9,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import java.io.*;
-
 public class SensorManager {
 	private static ConcurrentHashMap<Sensor, Set<SensorListener>> listeners = new ConcurrentHashMap<>();
 
@@ -55,24 +53,6 @@ public class SensorManager {
 		if(listeners.containsKey(sensor))
 			synchronized (queue) {
 				queue.add(new SensorValue(sensor, value));
-				//mxy_edit-------------Sensor.txt--------------------------
-				File f= new File("mxy_temp\\Sensor.txt");
-				try (FileOutputStream fop = new FileOutputStream(f,true)){
-					if(!f.exists()){
-						f.createNewFile();
-					}
-
-					String s=new String("["+sensor.name+"]  "+"\ttime: "+value+"\n");
-					byte[] content = s.getBytes();
-
-					fop.write(content);
-					fop.flush();
-					fop.close();
-				}catch (IOException e){
-					e.printStackTrace();
-				}
-				// == EDIT END ==
-
 				queue.notify();
 			}
 	}
