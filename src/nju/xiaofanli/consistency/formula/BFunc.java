@@ -80,8 +80,9 @@ public class BFunc extends Formula {
 //    		return false;
 
         // mxy_edit: change short time from 200 to 100
-		//return Math.abs(v1 - v2) < 200;
-        return Math.abs(v1 - v2) < 100;
+        // mxy_undo
+		return Math.abs(v1 - v2) < 200;
+        // return Math.abs(v1 - v2) < 100;
         // mxy_edit End.
 	}
 

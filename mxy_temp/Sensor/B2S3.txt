@@ -1,0 +1,241 @@
+[B2S3] : dis=28  2021-04-24 06:03:16.468  net_delay = 41ms  time_gap =-1.000s  termId = 882
+[B2S3] : dis=28  2021-04-24 06:03:19.491  net_delay = 41ms  time_gap =3.023s  termId = 883
+[B2S3] : dis=28  2021-04-24 06:03:22.519  net_delay = 40ms  time_gap =3.028s  termId = 884
+[B2S3] : dis=28  2021-04-24 06:03:25.574  net_delay = 40ms  time_gap =3.055s  termId = 885
+[B2S3] : dis=28  2021-04-24 06:03:28.610  net_delay = 55ms  time_gap =3.036s  termId = 886
+[B2S3] : dis=28  2021-04-24 06:03:31.636  net_delay = 39ms  time_gap =3.026s  termId = 887
+[B2S3] : dis=28  2021-04-24 06:03:34.648  net_delay = 39ms  time_gap =3.012s  termId = 888
+[B2S3] : dis=28  2021-04-24 06:03:37.698  net_delay = 42ms  time_gap =3.050s  termId = 889
+[B2S3] : dis=28  2021-04-24 06:03:40.718  net_delay = 42ms  time_gap =3.020s  termId = 890
+[B2S3] : dis=28  2021-04-24 06:03:43.769  net_delay = 39ms  time_gap =3.051s  termId = 891
+[B2S3] : dis=28  2021-04-24 06:03:46.817  net_delay = 42ms  time_gap =3.048s  termId = 892
+[B2S3] : dis=28  2021-04-24 06:18:35.973  net_delay = 52ms  time_gap =-1.000s  termId = 265
+[B2S3] : dis=28  2021-04-24 06:18:38.980  net_delay = 49ms  time_gap =3.007s  termId = 266
+[B2S3] : dis=28  2021-04-24 06:18:41.989  net_delay = 51ms  time_gap =3.009s  termId = 267
+[B2S3] : dis=28  2021-04-24 06:18:45.031  net_delay = 48ms  time_gap =3.042s  termId = 268
+[B2S3] : dis=28  2021-04-24 06:18:48.067  net_delay = 51ms  time_gap =3.036s  termId = 269
+[B2S3] : dis=28  2021-04-24 06:18:51.074  net_delay = 50ms  time_gap =3.007s  termId = 270
+[B2S3] : dis=28  2021-04-24 06:18:54.110  net_delay = 50ms  time_gap =3.036s  termId = 271
+[B2S3] : dis=28  2021-04-24 06:18:57.116  net_delay = 50ms  time_gap =3.006s  termId = 272
+[B2S3] : dis=28  2021-04-24 06:19:00.164  net_delay = 52ms  time_gap =3.048s  termId = 273
+[B2S3] : dis=28  2021-04-24 06:19:03.189  net_delay = 47ms  time_gap =3.025s  termId = 274
+[B2S3] : dis=28  2021-04-24 06:19:06.193  net_delay = 50ms  time_gap =3.004s  termId = 275
+[B2S3] : dis=28  2021-04-24 06:19:09.255  net_delay = 53ms  time_gap =3.062s  termId = 276
+[B2S3] : dis=28  2021-04-24 06:19:12.294  net_delay = 34ms  time_gap =3.039s  termId = 277
+[B2S3] : dis=28  2021-04-24 06:19:15.297  net_delay = 50ms  time_gap =3.003s  termId = 278
+[B2S3] : dis=28  2021-04-24 06:19:18.310  net_delay = 45ms  time_gap =3.013s  termId = 279
+[B2S3] : dis=29  2021-04-24 06:26:19.225  net_delay = 54ms  time_gap =-1.000s  termId = 465
+[B2S3] : dis=28  2021-04-24 06:26:19.291  net_delay = 55ms  time_gap =0.066s  termId = 466
+[B2S3] : dis=28  2021-04-24 06:26:22.303  net_delay = 55ms  time_gap =3.012s  termId = 467
+[B2S3] : dis=28  2021-04-24 06:26:25.341  net_delay = 65ms  time_gap =3.038s  termId = 468
+[B2S3] : dis=28  2021-04-24 06:26:28.366  net_delay = 54ms  time_gap =3.025s  termId = 469
+[B2S3] : dis=25  2021-04-24 06:26:28.936  net_delay = 61ms  time_gap =0.570s  termId = 470
+[B2S3] : dis=28  2021-04-24 06:26:29.000  net_delay = 54ms  time_gap =0.064s  termId = 471
+[B2S3] : dis=28  2021-04-24 07:32:08.498  net_delay = 87ms  time_gap =-1.000s  termId = 302
+[B2S3] : dis=28  2021-04-24 07:32:11.535  net_delay = 88ms  time_gap =3.037s  termId = 303
+[B2S3] : dis=28  2021-04-24 07:32:14.558  net_delay = 86ms  time_gap =3.023s  termId = 304
+[B2S3] : dis=30  2021-04-24 07:32:17.279  net_delay = 85ms  time_gap =2.721s  termId = 305
+[B2S3] : dis=28  2021-04-24 07:32:17.343  net_delay = 86ms  time_gap =0.064s  termId = 306
+[B2S3] : dis=28  2021-04-24 07:32:20.353  net_delay = 86ms  time_gap =3.010s  termId = 307
+[B2S3] : dis=28  2021-04-24 07:32:23.364  net_delay = 97ms  time_gap =3.011s  termId = 308
+[B2S3] : dis=26  2021-04-24 07:32:25.708  net_delay = 88ms  time_gap =2.344s  termId = 309
+[B2S3] : dis=28  2021-04-24 07:32:25.770  net_delay = 85ms  time_gap =0.062s  termId = 310
+[B2S3] : dis=28  2021-04-24 07:32:28.795  net_delay = 86ms  time_gap =3.025s  termId = 311
+[B2S3] : dis=29  2021-04-24 07:32:29.126  net_delay = 84ms  time_gap =0.331s  termId = 312
+[B2S3] : dis=28  2021-04-24 07:32:29.251  net_delay = 86ms  time_gap =0.125s  termId = 313
+[B2S3] : dis=29  2021-04-24 07:32:29.313  net_delay = 85ms  time_gap =0.062s  termId = 314
+[B2S3] : dis=28  2021-04-24 07:32:29.375  net_delay = 84ms  time_gap =0.062s  termId = 315
+[B2S3] : dis=29  2021-04-24 07:32:29.678  net_delay = 88ms  time_gap =0.303s  termId = 316
+[B2S3] : dis=28  2021-04-24 07:32:29.742  net_delay = 86ms  time_gap =0.064s  termId = 317
+[B2S3] : dis=29  2021-04-24 07:32:30.056  net_delay = 85ms  time_gap =0.314s  termId = 318
+[B2S3] : dis=28  2021-04-24 07:32:30.120  net_delay = 86ms  time_gap =0.064s  termId = 319
+[B2S3] : dis=28  2021-04-24 07:32:33.160  net_delay = 77ms  time_gap =3.040s  termId = 320
+[B2S3] : dis=28  2021-04-24 07:32:36.173  net_delay = 86ms  time_gap =3.013s  termId = 321
+[B2S3] : dis=30  2021-04-24 07:32:36.916  net_delay = 85ms  time_gap =0.743s  termId = 322
+[B2S3] : dis=28  2021-04-24 07:32:36.988  net_delay = 86ms  time_gap =0.072s  termId = 323
+[B2S3] : dis=28  2021-04-24 07:32:40.037  net_delay = 87ms  time_gap =3.049s  termId = 324
+[B2S3] : dis=28  2021-04-24 07:32:43.037  net_delay = 85ms  time_gap =3.000s  termId = 325
+[B2S3] : dis=28  2021-04-24 07:32:46.095  net_delay = 86ms  time_gap =3.058s  termId = 326
+[B2S3] : dis=28  2021-04-24 07:32:49.114  net_delay = 96ms  time_gap =3.019s  termId = 327
+[B2S3] : dis=28  2021-04-24 07:32:52.156  net_delay = 86ms  time_gap =3.042s  termId = 328
+[B2S3] : dis=28  2021-04-24 07:32:55.210  net_delay = 87ms  time_gap =3.054s  termId = 329
+[B2S3] : dis=28  2021-04-24 07:32:58.218  net_delay = 87ms  time_gap =3.008s  termId = 330
+[B2S3] : dis=28  2021-04-24 07:33:01.243  net_delay = 84ms  time_gap =3.025s  termId = 331
+[B2S3] : dis=28  2021-04-24 07:33:04.244  net_delay = 97ms  time_gap =3.001s  termId = 332
+[B2S3] : dis=28  2021-04-24 07:33:07.296  net_delay = 86ms  time_gap =3.052s  termId = 333
+[B2S3] : dis=28  2021-04-24 07:33:10.317  net_delay = 86ms  time_gap =3.021s  termId = 334
+[B2S3] : dis=28  2021-04-24 07:33:13.366  net_delay = 85ms  time_gap =3.049s  termId = 335
+[B2S3] : dis=28  2021-04-24 07:33:16.434  net_delay = 92ms  time_gap =3.068s  termId = 336
+[B2S3] : dis=28  2021-04-24 07:33:19.451  net_delay = 96ms  time_gap =3.017s  termId = 337
+[B2S3] : dis=29  2021-04-24 07:33:20.557  net_delay = 86ms  time_gap =1.106s  termId = 338
+[B2S3] : dis=28  2021-04-24 07:33:20.620  net_delay = 86ms  time_gap =0.063s  termId = 339
+[B2S3] : dis=28  2021-04-24 07:33:23.653  net_delay = 90ms  time_gap =3.033s  termId = 340
+[B2S3] : dis=28  2021-04-24 07:33:26.688  net_delay = 82ms  time_gap =3.035s  termId = 341
+[B2S3] : dis=28  2021-04-24 07:33:29.701  net_delay = 92ms  time_gap =3.013s  termId = 342
+[B2S3] : dis=28  2021-04-24 07:33:32.777  net_delay = 92ms  time_gap =3.076s  termId = 343
+[B2S3] : dis=29  2021-04-24 07:33:33.397  net_delay = 81ms  time_gap =0.620s  termId = 344
+[B2S3] : dis=28  2021-04-24 07:33:33.458  net_delay = 82ms  time_gap =0.061s  termId = 345
+[B2S3] : dis=28  2021-04-24 07:33:36.494  net_delay = 85ms  time_gap =3.036s  termId = 346
+[B2S3] : dis=28  2021-04-24 07:33:39.537  net_delay = 87ms  time_gap =3.043s  termId = 347
+[B2S3] : dis=28  2021-04-24 07:33:42.584  net_delay = 90ms  time_gap =3.047s  termId = 348
+[B2S3] : dis=28  2021-04-24 07:33:45.593  net_delay = 86ms  time_gap =3.009s  termId = 349
+[B2S3] : dis=28  2021-04-24 07:33:48.626  net_delay = 89ms  time_gap =3.033s  termId = 350
+[B2S3] : dis=28  2021-04-24 07:33:51.648  net_delay = 86ms  time_gap =3.022s  termId = 351
+[B2S3] : dis=28  2021-04-24 07:33:54.665  net_delay = 86ms  time_gap =3.017s  termId = 352
+[B2S3] : dis=28  2021-04-24 07:33:57.673  net_delay = 87ms  time_gap =3.008s  termId = 353
+[B2S3] : dis=30  2021-04-24 07:33:59.357  net_delay = 85ms  time_gap =1.684s  termId = 354
+[B2S3] : dis=28  2021-04-24 07:33:59.423  net_delay = 84ms  time_gap =0.066s  termId = 355
+[B2S3] : dis=28  2021-04-24 07:34:02.427  net_delay = 85ms  time_gap =3.004s  termId = 356
+[B2S3] : dis=28  2021-04-24 07:34:05.478  net_delay = 86ms  time_gap =3.051s  termId = 357
+[B2S3] : dis=28  2021-04-24 07:44:15.182  net_delay = 95ms  time_gap =-1.000s  termId = 629
+[B2S3] : dis=28  2021-04-24 07:44:18.236  net_delay = 79ms  time_gap =3.054s  termId = 630
+[B2S3] : dis=28  2021-04-24 07:44:21.265  net_delay = 91ms  time_gap =3.029s  termId = 631
+[B2S3] : dis=28  2021-04-24 07:44:24.307  net_delay =105ms  time_gap =3.042s  termId = 632
+[B2S3] : dis=31  2021-04-24 07:44:24.436  net_delay = 92ms  time_gap =0.129s  termId = 633
+[B2S3] : dis=28  2021-04-24 07:44:24.513  net_delay = 96ms  time_gap =0.077s  termId = 634
+[B2S3] : dis=28  2021-04-24 07:44:27.547  net_delay = 91ms  time_gap =3.034s  termId = 635
+[B2S3] : dis=28  2021-04-24 07:44:30.596  net_delay = 90ms  time_gap =3.049s  termId = 636
+[B2S3] : dis=29  2021-04-24 07:44:31.989  net_delay = 91ms  time_gap =1.393s  termId = 637
+[B2S3] : dis=28  2021-04-24 07:44:32.051  net_delay = 98ms  time_gap =0.062s  termId = 638
+[B2S3] : dis=28  2021-04-24 07:44:35.113  net_delay = 91ms  time_gap =3.062s  termId = 639
+[B2S3] : dis=28  2021-04-24 07:44:38.186  net_delay = 92ms  time_gap =3.073s  termId = 640
+[B2S3] : dis=28  2021-04-24 07:44:41.200  net_delay = 91ms  time_gap =3.014s  termId = 641
+[B2S3] : dis=29  2021-04-24 07:44:43.658  net_delay = 91ms  time_gap =2.458s  termId = 642
+[B2S3] : dis=28  2021-04-24 07:44:43.720  net_delay = 90ms  time_gap =0.062s  termId = 643
+[B2S3] : dis=28  2021-04-24 07:44:46.762  net_delay = 94ms  time_gap =3.042s  termId = 644
+[B2S3] : dis=28  2021-04-24 07:44:49.782  net_delay = 99ms  time_gap =3.020s  termId = 645
+[B2S3] : dis=28  2021-04-24 07:44:52.799  net_delay = 90ms  time_gap =3.017s  termId = 646
+[B2S3] : dis=28  2021-04-24 07:44:55.847  net_delay = 91ms  time_gap =3.048s  termId = 647
+[B2S3] : dis=28  2021-04-24 07:44:58.856  net_delay = 97ms  time_gap =3.009s  termId = 648
+[B2S3] : dis=28  2021-04-24 07:45:01.875  net_delay = 91ms  time_gap =3.019s  termId = 649
+[B2S3] : dis=28  2021-04-24 07:45:04.899  net_delay = 92ms  time_gap =3.024s  termId = 650
+[B2S3] : dis=28  2021-04-24 07:45:07.920  net_delay = 91ms  time_gap =3.021s  termId = 651
+[B2S3] : dis=28  2021-04-24 07:45:10.937  net_delay = 90ms  time_gap =3.017s  termId = 652
+[B2S3] : dis=28  2021-04-24 07:45:13.985  net_delay = 91ms  time_gap =3.048s  termId = 653
+[B2S3] : dis=28  2021-04-24 07:45:17.031  net_delay =102ms  time_gap =3.046s  termId = 654
+[B2S3] : dis=28  2021-04-24 07:45:20.055  net_delay = 91ms  time_gap =3.024s  termId = 655
+[B2S3] : dis=28  2021-04-24 07:45:23.075  net_delay = 95ms  time_gap =3.020s  termId = 656
+[B2S3] : dis=28  2021-04-24 07:45:26.120  net_delay = 90ms  time_gap =3.045s  termId = 657
+[B2S3] : dis=28  2021-04-24 07:45:29.171  net_delay =100ms  time_gap =3.051s  termId = 658
+[B2S3] : dis=28  2021-04-24 07:45:32.227  net_delay =106ms  time_gap =3.056s  termId = 659
+[B2S3] : dis=29  2021-04-24 07:45:32.631  net_delay =100ms  time_gap =0.404s  termId = 660
+[B2S3] : dis=28  2021-04-24 07:45:32.714  net_delay = 91ms  time_gap =0.083s  termId = 661
+[B2S3] : dis=28  2021-04-24 07:45:35.763  net_delay =118ms  time_gap =3.049s  termId = 662
+[B2S3] : dis=29  2021-04-24 07:45:36.637  net_delay = 90ms  time_gap =0.874s  termId = 663
+[B2S3] : dis=28  2021-04-24 07:45:36.700  net_delay = 92ms  time_gap =0.063s  termId = 664
+[B2S3] : dis=29  2021-04-24 07:45:36.944  net_delay = 90ms  time_gap =0.244s  termId = 665
+[B2S3] : dis=28  2021-04-24 07:45:37.007  net_delay = 92ms  time_gap =0.063s  termId = 666
+[B2S3] : dis=28  2021-04-24 07:45:40.055  net_delay = 91ms  time_gap =3.048s  termId = 667
+[B2S3] : dis=28  2021-04-24 07:45:43.064  net_delay = 93ms  time_gap =3.009s  termId = 668
+[B2S3] : dis=28  2021-04-24 07:45:46.080  net_delay = 89ms  time_gap =3.016s  termId = 669
+[B2S3] : dis=30  2021-04-24 07:45:48.173  net_delay =103ms  time_gap =2.093s  termId = 670
+[B2S3] : dis=28  2021-04-24 07:45:48.239  net_delay = 92ms  time_gap =0.066s  termId = 671
+[B2S3] : dis=28  2021-04-24 07:45:51.305  net_delay = 92ms  time_gap =3.066s  termId = 672
+[B2S3] : dis=28  2021-04-24 07:45:54.305  net_delay = 96ms  time_gap =3.000s  termId = 673
+[B2S3] : dis=31  2021-04-24 07:45:56.434  net_delay = 93ms  time_gap =2.129s  termId = 674
+[B2S3] : dis=28  2021-04-24 07:45:56.498  net_delay = 91ms  time_gap =0.064s  termId = 675
+[B2S3] : dis=30  2021-04-24 07:45:56.699  net_delay =106ms  time_gap =0.201s  termId = 676
+[B2S3] : dis=28  2021-04-24 07:45:56.768  net_delay =107ms  time_gap =0.069s  termId = 677
+[B2S3] : dis=29  2021-04-24 07:45:56.831  net_delay = 91ms  time_gap =0.063s  termId = 678
+[B2S3] : dis=28  2021-04-24 07:45:56.892  net_delay = 96ms  time_gap =0.061s  termId = 679
+[B2S3] : dis=28  2021-04-24 07:45:59.954  net_delay = 93ms  time_gap =3.062s  termId = 680
+[B2S3] : dis=28  2021-04-24 07:46:03.005  net_delay = 92ms  time_gap =3.051s  termId = 681
+[B2S3] : dis=28  2021-04-24 07:46:06.028  net_delay = 92ms  time_gap =3.023s  termId = 682
+[B2S3] : dis=29  2021-04-24 07:46:08.791  net_delay = 92ms  time_gap =2.763s  termId = 683
+[B2S3] : dis=28  2021-04-24 07:46:08.858  net_delay = 91ms  time_gap =0.067s  termId = 684
+[B2S3] : dis=28  2021-04-24 07:46:11.898  net_delay = 91ms  time_gap =3.040s  termId = 685
+[B2S3] : dis=28  2021-04-24 07:46:14.949  net_delay = 91ms  time_gap =3.051s  termId = 686
+[B2S3] : dis=28  2021-04-24 07:46:17.968  net_delay = 91ms  time_gap =3.019s  termId = 687
+[B2S3] : dis=28  2021-04-24 07:46:20.984  net_delay = 91ms  time_gap =3.016s  termId = 688
+[B2S3] : dis=28  2021-04-24 07:46:23.990  net_delay = 90ms  time_gap =3.006s  termId = 689
+[B2S3] : dis=28  2021-04-24 07:46:27.000  net_delay = 91ms  time_gap =3.010s  termId = 690
+[B2S3] : dis=28  2021-04-24 07:46:30.017  net_delay = 91ms  time_gap =3.017s  termId = 691
+[B2S3] : dis=28  2021-04-24 07:46:33.036  net_delay = 90ms  time_gap =3.019s  termId = 692
+[B2S3] : dis=28  2021-04-24 07:46:36.053  net_delay = 90ms  time_gap =3.017s  termId = 693
+[B2S3] : dis=28  2021-04-24 07:46:39.110  net_delay = 91ms  time_gap =3.057s  termId = 694
+[B2S3] : dis=29  2021-04-24 07:46:40.027  net_delay = 93ms  time_gap =0.917s  termId = 695
+[B2S3] : dis=28  2021-04-24 07:46:40.113  net_delay = 90ms  time_gap =0.086s  termId = 696
+[B2S3] : dis=28  2021-04-24 07:46:43.117  net_delay = 93ms  time_gap =3.004s  termId = 697
+[B2S3] : dis=28  2021-04-24 07:46:46.139  net_delay = 90ms  time_gap =3.022s  termId = 698
+[B2S3] : dis=29  2021-04-24 07:46:48.696  net_delay = 90ms  time_gap =2.557s  termId = 699
+[B2S3] : dis=28  2021-04-24 07:46:48.841  net_delay =105ms  time_gap =0.145s  termId = 700
+[B2S3] : dis=28  2021-04-24 07:46:51.891  net_delay = 95ms  time_gap =3.050s  termId = 701
+[B2S3] : dis=28  2021-04-24 07:46:54.934  net_delay = 92ms  time_gap =3.043s  termId = 702
+[B2S3] : dis=28  2021-04-24 07:46:57.963  net_delay = 90ms  time_gap =3.029s  termId = 703
+[B2S3] : dis=28  2021-04-24 07:47:01.000  net_delay = 92ms  time_gap =3.037s  termId = 704
+[B2S3] : dis=28  2021-04-24 07:47:04.043  net_delay = 99ms  time_gap =3.043s  termId = 705
+[B2S3] : dis=28  2021-04-24 07:47:07.052  net_delay = 94ms  time_gap =3.009s  termId = 706
+[B2S3] : dis=28  2021-04-24 07:47:10.065  net_delay = 86ms  time_gap =3.013s  termId = 707
+[B2S3] : dis=28  2021-04-24 07:47:13.068  net_delay = 99ms  time_gap =3.003s  termId = 708
+[B2S3] : dis=28  2021-04-24 07:47:16.109  net_delay = 92ms  time_gap =3.041s  termId = 709
+[B2S3] : dis=28  2021-04-24 07:47:19.118  net_delay = 91ms  time_gap =3.009s  termId = 710
+[B2S3] : dis=28  2021-04-24 07:47:22.169  net_delay = 92ms  time_gap =3.051s  termId = 711
+[B2S3] : dis=28  2021-04-24 07:47:25.187  net_delay = 93ms  time_gap =3.018s  termId = 712
+[B2S3] : dis=27  2021-04-24 07:47:26.490  net_delay = 91ms  time_gap =1.303s  termId = 713
+[B2S3] : dis=28  2021-04-24 07:47:26.556  net_delay =103ms  time_gap =0.066s  termId = 714
+[B2S3] : dis=30  2021-04-24 07:47:29.126  net_delay = 92ms  time_gap =2.570s  termId = 715
+[B2S3] : dis=28  2021-04-24 07:47:29.189  net_delay = 91ms  time_gap =0.063s  termId = 716
+[B2S3] : dis=28  2021-04-24 07:47:32.225  net_delay = 90ms  time_gap =3.036s  termId = 717
+[B2S3] : dis=28  2021-04-24 07:47:35.255  net_delay = 91ms  time_gap =3.030s  termId = 718
+[B2S3] : dis=25  2021-04-24 07:47:37.320  net_delay = 91ms  time_gap =2.065s  termId = 719
+[B2S3] : dis=29  2021-04-24 07:47:37.383  net_delay = 96ms  time_gap =0.063s  termId = 720
+[B2S3] : dis=28  2021-04-24 07:47:37.445  net_delay = 91ms  time_gap =0.062s  termId = 721
+[B2S3] : dis=29  2021-04-24 07:47:38.238  net_delay = 91ms  time_gap =0.793s  termId = 722
+[B2S3] : dis=28  2021-04-24 07:47:38.301  net_delay = 95ms  time_gap =0.063s  termId = 723
+[B2S3] : dis=28  2021-04-24 07:47:41.323  net_delay = 92ms  time_gap =3.022s  termId = 724
+[B2S3] : dis=30  2021-04-24 07:47:42.153  net_delay = 91ms  time_gap =0.830s  termId = 725
+[B2S3] : dis=28  2021-04-24 07:47:42.216  net_delay = 91ms  time_gap =0.063s  termId = 726
+[B2S3] : dis=28  2021-04-24 07:47:45.259  net_delay = 92ms  time_gap =3.043s  termId = 727
+[B2S3] : dis=28  2021-04-24 07:47:48.301  net_delay =103ms  time_gap =3.042s  termId = 728
+[B2S3] : dis=28  2021-04-24 07:47:51.332  net_delay =107ms  time_gap =3.031s  termId = 729
+[B2S3] : dis=28  2021-04-24 07:47:54.339  net_delay = 90ms  time_gap =3.007s  termId = 730
+[B2S3] : dis=28  2021-04-24 07:47:57.339  net_delay = 92ms  time_gap =3.000s  termId = 731
+[B2S3] : dis=28  2021-04-24 07:48:00.381  net_delay = 93ms  time_gap =3.042s  termId = 732
+[B2S3] : dis=28  2021-04-24 07:54:27.499  net_delay = 94ms  time_gap =-1.000s  termId = 919
+[B2S3] : dis=28  2021-04-24 07:54:30.537  net_delay = 98ms  time_gap =3.038s  termId = 920
+[B2S3] : dis=28  2021-04-24 07:54:33.579  net_delay = 93ms  time_gap =3.042s  termId = 921
+[B2S3] : dis=28  2021-04-24 07:54:36.585  net_delay = 93ms  time_gap =3.006s  termId = 922
+[B2S3] : dis=28  2021-04-24 07:54:39.603  net_delay = 91ms  time_gap =3.018s  termId = 923
+[B2S3] : dis=28  2021-04-24 07:54:42.659  net_delay = 94ms  time_gap =3.056s  termId = 924
+[B2S3] : dis=28  2021-04-24 07:54:45.664  net_delay =101ms  time_gap =3.005s  termId = 925
+[B2S3] : dis=28  2021-04-24 07:54:48.688  net_delay = 93ms  time_gap =3.024s  termId = 926
+[B2S3] : dis=28  2021-04-24 07:54:51.708  net_delay = 93ms  time_gap =3.020s  termId = 927
+[B2S3] : dis=28  2021-04-24 07:54:54.718  net_delay = 93ms  time_gap =3.010s  termId = 928
+[B2S3] : dis=29  2021-04-24 07:54:55.474  net_delay = 93ms  time_gap =0.756s  termId = 929
+[B2S3] : dis=28  2021-04-24 07:54:55.537  net_delay = 94ms  time_gap =0.063s  termId = 930
+[B2S3] : dis=28  2021-04-24 07:54:58.594  net_delay = 96ms  time_gap =3.057s  termId = 931
+[B2S3] : dis=29  2021-04-24 07:55:00.757  net_delay = 94ms  time_gap =2.163s  termId = 932
+[B2S3] : dis=28  2021-04-24 07:55:00.819  net_delay =100ms  time_gap =0.062s  termId = 933
+[B2S3] : dis=28  2021-04-24 07:55:03.836  net_delay = 92ms  time_gap =3.017s  termId = 934
+[B2S3] : dis=28  2021-04-24 07:55:06.853  net_delay = 96ms  time_gap =3.017s  termId = 935
+[B2S3] : dis=30  2021-04-24 07:55:09.355  net_delay = 94ms  time_gap =2.502s  termId = 936
+[B2S3] : dis=28  2021-04-24 07:55:09.432  net_delay = 94ms  time_gap =0.077s  termId = 937
+[B2S3] : dis=28  2021-04-24 07:55:12.467  net_delay = 90ms  time_gap =3.035s  termId = 938
+[B2S3] : dis=30  2021-04-24 07:55:12.719  net_delay = 89ms  time_gap =0.252s  termId = 939
+[B2S3] : dis=28  2021-04-24 07:55:12.796  net_delay = 90ms  time_gap =0.077s  termId = 940
+[B2S3] : dis=28  2021-04-24 07:55:15.828  net_delay =122ms  time_gap =3.032s  termId = 941
+[B2S3] : dis=28  2021-04-24 07:55:18.853  net_delay = 93ms  time_gap =3.025s  termId = 942
+[B2S3] : dis=28  2021-04-24 07:55:21.856  net_delay = 85ms  time_gap =3.003s  termId = 943
+[B2S3] : dis=29  2021-04-24 07:55:22.579  net_delay = 92ms  time_gap =0.723s  termId = 944
+[B2S3] : dis=28  2021-04-24 07:55:22.641  net_delay = 93ms  time_gap =0.062s  termId = 945
+[B2S3] : dis=29  2021-04-24 07:55:23.857  net_delay =154ms  time_gap =1.216s  termId = 946
+[B2S3] : dis=28  2021-04-24 07:55:23.920  net_delay = 91ms  time_gap =0.063s  termId = 947
+[B2S3] : dis=29  2021-04-24 07:55:24.167  net_delay =348ms  time_gap =0.247s  termId = 948
+[B2S3] : dis=28  2021-04-24 07:55:24.292  net_delay =224ms  time_gap =0.125s  termId = 949
+[B2S3] : dis=26  2021-04-24 07:55:24.361  net_delay =157ms  time_gap =0.069s  termId = 950
+[B2S3] : dis=29  2021-04-24 07:55:24.426  net_delay = 94ms  time_gap =0.065s  termId = 951
+[B2S3] : dis=28  2021-04-24 07:55:24.489  net_delay = 92ms  time_gap =0.063s  termId = 952
+[B2S3] : dis=29  2021-04-24 07:55:25.957  net_delay = 93ms  time_gap =1.468s  termId = 953
+[B2S3] : dis=28  2021-04-24 07:55:26.020  net_delay = 93ms  time_gap =0.063s  termId = 954
+[B2S3] : dis=29  2021-04-24 07:55:27.035  net_delay =259ms  time_gap =1.015s  termId = 955
+[B2S3] : dis=28  2021-04-24 07:55:27.097  net_delay =198ms  time_gap =0.062s  termId = 956
+[B2S3] : dis=28  2021-04-24 07:55:30.136  net_delay = 95ms  time_gap =3.039s  termId = 957
+[B2S3] : dis=29  2021-04-24 07:55:32.307  net_delay = 92ms  time_gap =2.171s  termId = 958
+[B2S3] : dis=28  2021-04-24 07:55:32.370  net_delay = 93ms  time_gap =0.063s  termId = 959
+[B2S3] : dis=29  2021-04-24 07:55:33.352  net_delay =362ms  time_gap =0.982s  termId = 960
+[B2S3] : dis=28  2021-04-24 07:55:33.419  net_delay =295ms  time_gap =0.067s  termId = 961
+[B2S3] : dis=29  2021-04-24 07:55:33.505  net_delay =213ms  time_gap =0.086s  termId = 962
+[B2S3] : dis=28  2021-04-24 07:55:33.713  net_delay =352ms  time_gap =0.208s  termId = 963
+[B2S3] : dis=30  2021-04-24 07:55:33.777  net_delay =290ms  time_gap =0.064s  termId = 964
+[B2S3] : dis=27  2021-04-24 07:55:33.840  net_delay =228ms  time_gap =0.063s  termId = 965
+[B2S3] : dis=28  2021-04-24 07:55:33.904  net_delay =166ms  time_gap =0.064s  termId = 966

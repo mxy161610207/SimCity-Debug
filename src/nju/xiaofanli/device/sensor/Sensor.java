@@ -47,10 +47,12 @@ public class Sensor {
         this.sid = sid;
         name = "B" + bid + "S" + (sid+1);
         state = Sensor.UNDETECTED;
-        entryThreshold = (int) (undetectedReading[bid][sid] * 0.65);
+        entryThreshold = (int) (undetectedReading[bid][sid] * 0.75);
         //mxy_edit old=0.75;10;
-        leaveThreshold = (int) (undetectedReading[bid][sid] * 0.8);
-        //mxy_edit old=0.9; entryThreshold + 1; //11;
+        //mxy_undo
+        leaveThreshold = (int) (undetectedReading[bid][sid] * 0.9);
+        //mxy_edit old=0.9; meiyentryThreshold + 1; //11;
+        //mxy_undo
 
         icon = new JButton(name);
         icon.setFont(Resource.en16bold);
