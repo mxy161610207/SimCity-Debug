@@ -13,7 +13,7 @@ import java.io.*;
 
 public class SensorManager {
 	private static ConcurrentHashMap<Sensor, Set<SensorListener>> listeners = new ConcurrentHashMap<>();
-	
+
 	//sensors' id: "01" ~ "92" or "ALL"
 	public synchronized static boolean register(SensorListener listener, String sensor){
 		if(!worker.isAlive())
@@ -42,13 +42,13 @@ public class SensorManager {
 		}
 		return false;
 	}
-	
+
 	public synchronized static boolean unregister(SensorListener listener){
 		for(Set<SensorListener> set : listeners.values())
 			set.remove(listener);
 		return true;
 	}
-	
+
 	public synchronized static void trigger(Sensor sensor, int value){
 		if(StateSwitcher.isResetting())
 			return;
@@ -76,20 +76,20 @@ public class SensorManager {
 				queue.notify();
 			}
 	}
-	
+
 	public static void clear(){
 		synchronized (queue) {
 			queue.clear();
 		}
 	}
-	
+
 	private static final Queue<SensorValue> queue = new LinkedList<>();
 	private static Thread worker = new Thread("SensorManager Worker"){
 		public void run() {
 			Thread thread = Thread.currentThread();
 			StateSwitcher.register(thread);
-            //noinspection InfiniteLoopStatement
-            while(true){
+			//noinspection InfiniteLoopStatement
+			while(true){
 				synchronized (queue) {
 					while(queue.isEmpty() || !StateSwitcher.isNormal()) {
 						try {
@@ -101,21 +101,21 @@ public class SensorManager {
 						}
 					}
 				}
-				
+
 				SensorValue sv;
 				synchronized (queue) {
 					sv = queue.poll();
 				}
 				if(sv == null)
 					continue;
-				
+
 				if(listeners.containsKey(sv.sensor))
 					for(SensorListener listener : listeners.get(sv.sensor))
 						listener.sensorChanged(sv.value);
 			}
 		}
 	};
-	
+
 	private static class SensorValue{
 		Sensor sensor;
 		int value;
@@ -123,5 +123,5 @@ public class SensorManager {
 			this.sensor = sensor;
 			this.value = value;
 		}
-	} 
+	}
 }

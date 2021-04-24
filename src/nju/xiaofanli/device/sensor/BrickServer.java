@@ -14,7 +14,7 @@ import java.io.*;
 public class BrickServer implements Runnable{
 	private static DatagramSocket server = null;
 	private static final int PORT = 9999;
-//	private static long recvTime[] = new long[10];
+	//	private static long recvTime[] = new long[10];
 	public static Sensor showingSensor = null;
 	// mxy_edit: for each sensor, record latest recv timestamp
 	private static final long[][] sensorLatestRecvTimestamp = new long[10][4];
@@ -55,8 +55,8 @@ public class BrickServer implements Runnable{
 				int sid = data.charAt(1) - '0';//byte2int(b, 4);
 				int d = Integer.parseInt(data.substring(2, 4));//byte2int(b, 8);
 
-                if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
-                    System.out.println("["+showingSensor.name+"] reading: "+d+"\ttime: "+Long.parseLong(data.substring(4, 17)));
+				if(showingSensor != null && Resource.getSensor(bid, sid) == showingSensor)
+					System.out.println("["+showingSensor.name+"] reading: "+d+"\ttime: "+Long.parseLong(data.substring(4, 17)));
 //				if(((pre[bid][sid] + 1) % 100) != d)
 //					System.err.println("B"+bid+"S"+(sid+1)+":"+pre[bid][sid]+" "+d);
 //				pre[bid][sid] = d;
@@ -66,7 +66,7 @@ public class BrickServer implements Runnable{
 				if (d == 99) { // clock synchronization
 //					System.out.println("clock sync");
 
-                    byte[] buffer = data.substring(0, 2).concat(String.valueOf(System.currentTimeMillis())).getBytes();
+					byte[] buffer = data.substring(0, 2).concat(String.valueOf(System.currentTimeMillis())).getBytes();
 //                    System.err.println(packet.getAddress()+"\t"+packet.getPort()+"\t"+System.currentTimeMillis());
 
 					// mxy_edit log for each brick
@@ -90,7 +90,7 @@ public class BrickServer implements Runnable{
 						e.printStackTrace();
 					}
 
-                    server.send(new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort()));
+					server.send(new DatagramPacket(buffer, buffer.length, packet.getAddress(), packet.getPort()));
 				}
 				else if(d != Integer.MAX_VALUE && d != 98) {
 //					System.out.println("infrared sensor data coming");
@@ -99,11 +99,11 @@ public class BrickServer implements Runnable{
 					sensorLatestTermId[bid][sid]=termId;
 
 
-                    long time = Long.parseLong(data.substring(8, 21));
-                    // mxy_edit: temporary remove delay log
-                    // if (Math.abs(System.currentTimeMillis()-time) >= 500)
-                    // 	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
-                    // == EDIT END ==
+					long time = Long.parseLong(data.substring(8, 21));
+					// mxy_edit: temporary remove delay log
+					// if (Math.abs(System.currentTimeMillis()-time) >= 500)
+					// 	System.err.println("[B"+bid+"S"+(sid+1)+"] delay: "+(System.currentTimeMillis()-time)+"ms");
+					// == EDIT END ==
 					BrickHandler.insert(bid, sid, d, time);
 
 					// mxy_edit log for each sensor
@@ -153,6 +153,6 @@ public class BrickServer implements Runnable{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}		
+		}
 	}
 }

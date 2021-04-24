@@ -133,7 +133,7 @@ public class BrickHandler extends Thread{
         }
     }
 
-    public static void switchState(Car car, Sensor sensor, long time, boolean isRealCar, boolean isTrueCtx, boolean triggerEvent) throws IOException {
+    public static void switchState(Car car, Sensor sensor, long time, boolean isRealCar, boolean isTrueCtx, boolean triggerEvent) {
         switch(sensor.state){
             case Sensor.UNDETECTED:{
                 if(isTrueCtx){
@@ -158,36 +158,6 @@ public class BrickHandler extends Thread{
                         PkgHandler.send(new AppPkg().setCarRealLoc(car.name, car.getRealLoc().name));
                     }
                 }
-
-                //mxy_edit: output DETECT log to file
-                String s= new String("["+sensor.name+"] DETECT "+car.name+"\ttime: "+time+"\n");
-                byte[] content = s.getBytes();
-
-                //-------------Car Name.txt--------------------------
-                File f= new File("mxy_temp\\"+car.name+".txt");
-                try (FileOutputStream fop = new FileOutputStream(f,true)){
-                    if(!f.exists()){
-                        f.createNewFile();
-                    }
-                    fop.write(content);
-                    fop.flush();
-                    fop.close();
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                //-------------Sensor.txt--------------------------
-//                f= new File("mxy_temp\\Sensor.txt");
-//                try (FileOutputStream fop = new FileOutputStream(f,true)){
-//                    if(!f.exists()){
-//                        f.createNewFile();
-//                    }
-//                    fop.write(content);
-//                    fop.flush();
-//                    fop.close();
-//                }catch (IOException e){
-//                    e.printStackTrace();
-//                }
-                // == EDIT END ==
 
                 System.out.println("["+sensor.name+"] DETECT "+car.name+"\ttime: "+time);
                 car.enter(sensor.nextRoad, sensor.getNextRoadDir());

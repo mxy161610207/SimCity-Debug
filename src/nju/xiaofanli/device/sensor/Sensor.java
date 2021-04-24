@@ -13,13 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.lang.Math.min;
 
 public class Sensor {
     public int bid;
@@ -47,10 +42,8 @@ public class Sensor {
         this.sid = sid;
         name = "B" + bid + "S" + (sid+1);
         state = Sensor.UNDETECTED;
-        entryThreshold = (int) (undetectedReading[bid][sid] * 0.65);
-        //mxy_edit old=0.75;10;
-        leaveThreshold = (int) (undetectedReading[bid][sid] * 0.8);
-        //mxy_edit old=0.9; entryThreshold + 1; //11;
+        entryThreshold = (int) (undetectedReading[bid][sid] * 0.75); //10;
+        leaveThreshold = (int) (undetectedReading[bid][sid] * 0.9);//entryThreshold + 1; //11;
 
         icon = new JButton(name);
         icon.setFont(Resource.en16bold);
@@ -114,20 +107,6 @@ public class Sensor {
                     }
                     str += ", entryThreshold="+sensor.entryThreshold+", leaveThreshold="+sensor.leaveThreshold+", reading="+sensor.reading;
                     System.out.println(str);
-                    //mxy_edit: output DETECT log to file
-//                    File f= new File("mxy_temp\\Sensor.txt");
-//                    try (FileOutputStream fop = new FileOutputStream(f,true)){
-//                        if(!f.exists()){
-//                            f.createNewFile();
-//                        }
-//                        byte[] content = str.getBytes();
-//                        fop.write(content);
-//                        fop.flush();
-//                        fop.close();
-//                    }catch (IOException ex){
-//                        ex.printStackTrace();
-//                    }
-                    // == EDIT END ==
                 }
                 break;
             }
@@ -136,71 +115,38 @@ public class Sensor {
 
     private static final int[][] undetectedReading = new int[10][4];
     static {
-        // mxy_edit
-        undetectedReading[0][0] = 25;   //25-26
-        undetectedReading[0][1] = 29;   //29-30
-        undetectedReading[1][0] = 25;   //25-26
-        undetectedReading[1][1] = 27;   //27-30
-        undetectedReading[1][2] = 27;   //27-30
-        undetectedReading[2][0] = 19;   //19-20
-        undetectedReading[2][1] = 29;   //29-30
-        undetectedReading[2][2] = 28;   //28-31
-        undetectedReading[2][3] = 21;   //21-22
-        undetectedReading[3][0] = 24;   //24-24
-        undetectedReading[3][1] = 25;   //25-26
-        undetectedReading[3][2] = 25;   //25-26
-        undetectedReading[3][3] = 20;   //20-22
-        undetectedReading[4][0] = 23;   //23-24
-        undetectedReading[4][1] = 23;   //23-24
-        undetectedReading[4][2] = 25;   //24-27
-        undetectedReading[5][0] = 18;   //18-19
-        undetectedReading[5][1] = 24;   //24-25
-        undetectedReading[5][2] = 22;   //22-23
-        undetectedReading[6][0] = 19;   //19-19
-        undetectedReading[6][1] = 21;   //20-21
-        undetectedReading[6][2] = 23;   //23-24
-        undetectedReading[6][3] = 22;   //22-23
-        undetectedReading[7][0] = 27;   //27-28
-        undetectedReading[7][1] = 22;   //22-24
-        undetectedReading[7][2] = 24;   //24-25
-        undetectedReading[7][3] = 26;   //26-26
-        undetectedReading[8][0] = 19;   //19-20
-        undetectedReading[8][1] = 29;   //29-31
-        undetectedReading[8][2] = 20;   //20-21
-        undetectedReading[9][0] = 27;   //27-28
-        undetectedReading[9][1] = 31;   //31-32
-//        undetectedReading[0][0] = 23;
-//        undetectedReading[0][1] = 26;
-//        undetectedReading[1][0] = 22;
-//        undetectedReading[1][1] = 16;
-//        undetectedReading[1][2] = 17;
-//        undetectedReading[2][0] = 20;
-//        undetectedReading[2][1] = 18;
-//        undetectedReading[2][2] = 21;
-//        undetectedReading[2][3] = 16;
-//        undetectedReading[3][0] = 14;
-//        undetectedReading[3][1] = 20;
-//        undetectedReading[3][2] = 16;
-//        undetectedReading[3][3] = 16;
-//        undetectedReading[4][0] = 14;
-//        undetectedReading[4][1] = 18;
-//        undetectedReading[4][2] = 13;
-//        undetectedReading[5][0] = 16;
-//        undetectedReading[5][1] = 21;
-//        undetectedReading[5][2] = 15;
-//        undetectedReading[6][0] = 16;
-//        undetectedReading[6][1] = 17;
-//        undetectedReading[6][2] = 16;
-//        undetectedReading[6][3] = 18;
-//        undetectedReading[7][0] = 15;
-//        undetectedReading[7][1] = 18;
-//        undetectedReading[7][2] = 17;
-//        undetectedReading[7][3] = 19;
-//        undetectedReading[8][0] = 16;
-//        undetectedReading[8][1] = 23;
-//        undetectedReading[8][2] = 22;
-//        undetectedReading[9][0] = 20;
-//        undetectedReading[9][1] = 18;
+        undetectedReading[0][0] = 23;
+        undetectedReading[0][1] = 26;
+        undetectedReading[1][0] = 22;
+        undetectedReading[1][1] = 16;
+        undetectedReading[1][2] = 17;
+        undetectedReading[2][0] = 20;
+        undetectedReading[2][1] = 18;
+        undetectedReading[2][2] = 21;
+        undetectedReading[2][3] = 16;
+        undetectedReading[3][0] = 14;
+        undetectedReading[3][1] = 20;
+        undetectedReading[3][2] = 16;
+        undetectedReading[3][3] = 16;
+        undetectedReading[4][0] = 14;
+        undetectedReading[4][1] = 18;
+        undetectedReading[4][2] = 13;
+        undetectedReading[5][0] = 16;
+        undetectedReading[5][1] = 21;
+        undetectedReading[5][2] = 15;
+        undetectedReading[6][0] = 16;
+        undetectedReading[6][1] = 17;
+        undetectedReading[6][2] = 16;
+        undetectedReading[6][3] = 18;
+        undetectedReading[7][0] = 15;
+        undetectedReading[7][1] = 18;
+        undetectedReading[7][2] = 17;
+        undetectedReading[7][3] = 19;
+        undetectedReading[8][0] = 16;
+        undetectedReading[8][1] = 23;
+        undetectedReading[8][2] = 22;
+        undetectedReading[9][0] = 20;
+        undetectedReading[9][1] = 18;
     }
 
     public void showBalloon(int type, String car, boolean isResolutionEnabled) {

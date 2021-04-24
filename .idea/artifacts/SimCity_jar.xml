@@ -1,0 +1,22 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SimCity:jar">
+    <output-path>$PROJECT_DIR$/classes/artifacts</output-path>
+    <root id="archive" name="SimCity.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="SimCity" />
+      <element id="directory" name=".idea">
+        <element id="dir-copy" path="$PROJECT_DIR$/.idea" />
+      </element>
+      <element id="directory" name=".settings">
+        <element id="dir-copy" path="$PROJECT_DIR$/.settings" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/.classpath" />
+      <element id="file-copy" path="$PROJECT_DIR$/.gitignore" />
+      <element id="file-copy" path="$PROJECT_DIR$/.project" />
+      <element id="file-copy" path="$PROJECT_DIR$/README.md" />
+      <element id="file-copy" path="$PROJECT_DIR$/SimCity.iml" />
+    </root>
+  </artifact>
+</component>

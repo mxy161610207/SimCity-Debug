@@ -120,9 +120,9 @@ public class Main {
 		String line;
         try {
             while((line = br.readLine()) != null) {
-            	// mxy_edit: allow annotation line start with "#"
-            	if (line.startsWith("#")){
-            		continue;
+				// mxy_edit: allow annotation line start with "#"
+				if (line.startsWith("#")){
+					continue;
 				}
 				//	System.out.println(line);
 				// == EDIT END ==
