@@ -14,7 +14,7 @@ import time, threading, sys
 if len(sys.argv) != 2:
     sys.exit()
 
-sync_once = True
+sync_once = False
 
 IP = sys.argv[1]
 print(IP+"\n")

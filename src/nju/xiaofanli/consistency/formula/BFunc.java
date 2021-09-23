@@ -79,7 +79,10 @@ public class BFunc extends Formula {
 //    	if (v1 == null || v2 == null)
 //    		return false;
 
-		return Math.abs(v1 - v2) < 200;
+        // mxy_edit: change short time from 200 to 100
+        //return Math.abs(v1 - v2) < 200;
+        return Math.abs(v1 - v2) < 100;
+        // mxy_edit End.
 	}
 
 	private boolean funcStillState(HashMap<String, Context> var) {

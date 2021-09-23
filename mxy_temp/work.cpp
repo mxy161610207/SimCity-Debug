@@ -10,13 +10,13 @@ const int sensor_size[]={2,3,4,4,3,3,4,4,3,2};
 const char format[] = "btspp://%s:1;authenticate=false;encrypt=false;master=false\tB%dS%d\t%lld\n";
 string switch_btsapp(const string &st){
     if (st.find("Red"   )!=string::npos) return "00066661A594";
-    if (st.find("Blue"  )!=string::npos) return "00066661A3E4";
+    if (st.find("Blue"  )!=string::npos) return "00066661AB56";
     if (st.find("Yellow")!=string::npos) return "00066661A290";
-    if (st.find("Pink"  )!=string::npos) return "00066661A234";
-    if (st.find("Orange")!=string::npos) return "00066661AD56";
-    if (st.find("Silver")!=string::npos) return "0006664989CE";
-    if (st.find("Green" )!=string::npos) return "000666498A92";
-    if (st.find("Black" )!=string::npos) return "000666619AE2";
+    if (st.find("Pink"  )!=string::npos) return "00066661A2DC";
+    if (st.find("Orange")!=string::npos) return "00066661A6C9";
+    if (st.find("Silver")!=string::npos) return "00066661A4A3";
+    if (st.find("Green" )!=string::npos) return "000666619AE2";
+    if (st.find("Black" )!=string::npos) return "00066661A66C";
     return "XXXXXXXXXXXX";
 }
 int main(){

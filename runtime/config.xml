@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <car name="Red Car" color="ff0000" loc="Street 4" url="btspp://00066661A594:1;authenticate=false;encrypt=false;master=false"
+    <car name="Red Car" color="ff0000" loc="Street 4" url="btspp://00066661AD5B:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/red_car_icon.png" fakeIcon="runtime/res/red_car_fake_icon.png" realIcon="runtime/res/red_car_real_icon.png"/>
     <car name="Blue Car" color="00bfff" loc="Street 16" url="btspp://00066661AB56:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/blue_car_icon.png" fakeIcon="runtime/res/blue_car_fake_icon.png" realIcon="runtime/res/blue_car_real_icon.png"/>
-    <car name="Yellow Car" color="ffd700" loc="Street 17" url="btspp://00066661A290:1;authenticate=false;encrypt=false;master=false"
+    <car name="Yellow Car" color="ffd700" loc="Street 17" url="btspp://000666619B90:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/yellow_car_icon.png" fakeIcon="runtime/res/yellow_car_fake_icon.png" realIcon="runtime/res/yellow_car_real_icon.png"/>
     <car name="Pink Car" color="ff69b4" loc="Street 3" url="btspp://00066661A2DC:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/pink_car_icon.png" fakeIcon="runtime/res/pink_car_fake_icon.png" realIcon="runtime/res/pink_car_real_icon.png"/>
-    <car name="Orange Car" color="ffa500" loc="Street 9" url="btspp://00066661A6C9:1;authenticate=false;encrypt=false;master=false"
+    <car name="Orange Car" color="ffa500" loc="Street 9" url="btspp://00066661A74C:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/orange_car_icon.png" fakeIcon="runtime/res/orange_car_fake_icon.png" realIcon="runtime/res/orange_car_real_icon.png"/>
-    <car name="Silver SUV" color="c0c0c0" loc="Street 11" url="btspp://00066661A4EE:1;authenticate=false;encrypt=false;master=false"
+    <car name="Silver SUV" color="c0c0c0" loc="Street 11" url="btspp://00066661A4A3:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/silver_suv_icon.png" fakeIcon="runtime/res/silver_suv_fake_icon.png" realIcon="runtime/res/silver_suv_real_icon.png"/>
     <car name="Black SUV" color="000000" loc="Street 8" url="btspp://000666619AE2:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/black_suv_icon.png" fakeIcon="runtime/res/black_suv_fake_icon.png" realIcon="runtime/res/black_suv_real_icon.png"/>
-    <car name="Green Car" color="00ff00" loc="Street 15" url="btspp://00066661A66C:1;authenticate=false;encrypt=false;master=false"
+    <car name="Green Car" color="00ff00" loc="Street 15" url="btspp://00066661A666:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/green_car_icon.png" fakeIcon="runtime/res/green_car_fake_icon.png" realIcon="runtime/res/green_car_real_icon.png"/>
     <brick name="0" address="192.168.31.110" sensors="2"/>
     <brick name="1" address="192.168.31.111" sensors="3"/>

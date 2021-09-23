@@ -42,8 +42,12 @@ public class Sensor {
         this.sid = sid;
         name = "B" + bid + "S" + (sid+1);
         state = Sensor.UNDETECTED;
-        entryThreshold = (int) (undetectedReading[bid][sid] * 0.75); //10;
-        leaveThreshold = (int) (undetectedReading[bid][sid] * 0.9);//entryThreshold + 1; //11;
+
+        //mxy_edit: modify the Threshold
+        // entryThreshold = (int) (undetectedReading[bid][sid] * 0.75); //10;
+        // leaveThreshold = (int) (undetectedReading[bid][sid] * 0.9);//entryThreshold + 1; //11;
+        entryThreshold = (int) (undetectedReading[bid][sid] * 0.65); //10;
+        leaveThreshold = (int) (undetectedReading[bid][sid] * 0.8);//entryThreshold + 1; //11;
 
         icon = new JButton(name);
         icon.setFont(Resource.en16bold);
@@ -115,38 +119,38 @@ public class Sensor {
 
     private static final int[][] undetectedReading = new int[10][4];
     static {
-        undetectedReading[0][0] = 23;
-        undetectedReading[0][1] = 26;
-        undetectedReading[1][0] = 22;
-        undetectedReading[1][1] = 16;
-        undetectedReading[1][2] = 17;
-        undetectedReading[2][0] = 20;
-        undetectedReading[2][1] = 18;
-        undetectedReading[2][2] = 21;
-        undetectedReading[2][3] = 16;
-        undetectedReading[3][0] = 14;
-        undetectedReading[3][1] = 20;
-        undetectedReading[3][2] = 16;
-        undetectedReading[3][3] = 16;
-        undetectedReading[4][0] = 14;
-        undetectedReading[4][1] = 18;
-        undetectedReading[4][2] = 13;
-        undetectedReading[5][0] = 16;
-        undetectedReading[5][1] = 21;
-        undetectedReading[5][2] = 15;
-        undetectedReading[6][0] = 16;
-        undetectedReading[6][1] = 17;
-        undetectedReading[6][2] = 16;
-        undetectedReading[6][3] = 18;
-        undetectedReading[7][0] = 15;
-        undetectedReading[7][1] = 18;
-        undetectedReading[7][2] = 17;
-        undetectedReading[7][3] = 19;
-        undetectedReading[8][0] = 16;
-        undetectedReading[8][1] = 23;
-        undetectedReading[8][2] = 22;
-        undetectedReading[9][0] = 20;
-        undetectedReading[9][1] = 18;
+        undetectedReading[0][0] = 25;   //23
+        undetectedReading[0][1] = 30;   //26
+        undetectedReading[1][0] = 27;   //22
+        undetectedReading[1][1] = 29;   //16
+        undetectedReading[1][2] = 29;   //17
+        undetectedReading[2][0] = 20;   //20
+        undetectedReading[2][1] = 29;   //18
+        undetectedReading[2][2] = 29;   //21
+        undetectedReading[2][3] = 21;   //16
+        undetectedReading[3][0] = 23;   //14
+        undetectedReading[3][1] = 29;   //20
+        undetectedReading[3][2] = 22;   //16
+        undetectedReading[3][3] = 19;   //16
+        undetectedReading[4][0] = 29;   //14
+        undetectedReading[4][1] = 25;   //18
+        undetectedReading[4][2] = 25;   //13
+        undetectedReading[5][0] = 17;   //16
+        undetectedReading[5][1] = 25;   //21
+        undetectedReading[5][2] = 23;   //15
+        undetectedReading[6][0] = 19;   //16
+        undetectedReading[6][1] = 20;   //17
+        undetectedReading[6][2] = 22;   //16
+        undetectedReading[6][3] = 22;   //18
+        undetectedReading[7][0] = 29;   //15
+        undetectedReading[7][1] = 21;   //18
+        undetectedReading[7][2] = 25;   //17
+        undetectedReading[7][3] = 27;   //19
+        undetectedReading[8][0] = 19;   //16
+        undetectedReading[8][1] = 30;   //23
+        undetectedReading[8][2] = 20;   //22
+        undetectedReading[9][0] = 29;   //20
+        undetectedReading[9][1] = 34;   //18
     }
 
     public void showBalloon(int type, String car, boolean isResolutionEnabled) {
