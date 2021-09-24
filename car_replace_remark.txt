@@ -29,3 +29,6 @@ Blue Car 	00066661AB56    // MicroCar-86
 Yellow Car  000666619B90    // MicroCar-44
 Red Car     00066661AD5B    // MicroCar-91
 Orange Car  00066661A74C    // MicroCar-76
+
+# 20210924
+Pink Car    000666619D24    // MicroCar-36

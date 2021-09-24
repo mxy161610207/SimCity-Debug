@@ -6,7 +6,7 @@
          icon="runtime/res/blue_car_icon.png" fakeIcon="runtime/res/blue_car_fake_icon.png" realIcon="runtime/res/blue_car_real_icon.png"/>
     <car name="Yellow Car" color="ffd700" loc="Street 17" url="btspp://000666619B90:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/yellow_car_icon.png" fakeIcon="runtime/res/yellow_car_fake_icon.png" realIcon="runtime/res/yellow_car_real_icon.png"/>
-    <car name="Pink Car" color="ff69b4" loc="Street 3" url="btspp://00066661A2DC:1;authenticate=false;encrypt=false;master=false"
+    <car name="Pink Car" color="ff69b4" loc="Street 3" url="btspp://000666619D24:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/pink_car_icon.png" fakeIcon="runtime/res/pink_car_fake_icon.png" realIcon="runtime/res/pink_car_real_icon.png"/>
     <car name="Orange Car" color="ffa500" loc="Street 9" url="btspp://00066661A74C:1;authenticate=false;encrypt=false;master=false"
          icon="runtime/res/orange_car_icon.png" fakeIcon="runtime/res/orange_car_fake_icon.png" realIcon="runtime/res/orange_car_real_icon.png"/>
